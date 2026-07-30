@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="spark" cx="44%" cy="38%" r="68%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.58" stop-color="#EAF7FF"/>
+      <stop offset="1" stop-color="#A9DBFF"/>
+    </radialGradient>
+  </defs>
   <path
-    d="M 512 370 C 530 464 560 494 654 512 C 560 530 530 560 512 654 C 494 560 464 530 370 512 C 464 494 494 464 512 370 Z"
-    fill="#F3F8FF"
+    d="M 512 342 C 532 456 568 492 682 512 C 568 532 532 568 512 682 C 492 568 456 532 342 512 C 456 492 492 456 512 342 Z"
+    fill="url(#spark)"
   />
 </svg>

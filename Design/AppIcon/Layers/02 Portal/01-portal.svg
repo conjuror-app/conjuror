@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="portal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6BEAFF"/>
+      <stop offset="0.3" stop-color="#4DBBFF"/>
+      <stop offset="0.62" stop-color="#6674FF"/>
+      <stop offset="1" stop-color="#9146FF"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M 761 280 A 340 340 0 1 0 772 731"
+    fill="none"
+    stroke="url(#portal)"
+    stroke-linecap="round"
+    stroke-width="150"
+  />
+</svg>

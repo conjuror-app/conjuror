@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <circle cx="786" cy="672" r="44" fill="#BCEFFF"/>
+  <defs>
+    <radialGradient id="mote" cx="38%" cy="32%" r="72%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.44" stop-color="#B9F4FF"/>
+      <stop offset="1" stop-color="#52CCFF"/>
+    </radialGradient>
+  </defs>
+  <circle cx="797" cy="690" r="37" fill="url(#mote)"/>
 </svg>

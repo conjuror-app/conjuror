@@ -1,16 +1,20 @@
 # Conjuror app icon
 
 The production icon is `Conjuror/Conjuror.icon`, composed in Apple Icon Composer
-from the flat SVG artwork under `Layers`.
+from 1024 px PNG layers rendered from the editable SVG artwork under `Layers`.
 
-The three imported groups are ordered back to front:
+The four imported groups are ordered back to front:
 
-1. `01 Background`
+1. `01 Background` — transparent compatibility layer; the document fill supplies
+   the smooth midnight backdrop
 2. `02 Portal`
 3. `03 Spark`
+4. `04 Mote`
 
-The source artwork intentionally contains no gradients, blur, shadows, or
-specular effects. Icon Composer owns those dynamic Liquid Glass treatments.
+The source artwork contains the intended color gradients, but no blur, shadows,
+or specular effects. The production PNGs preserve SVG gradient features that
+Icon Composer’s SVG importer doesn’t retain reliably. Icon Composer owns the
+dynamic Liquid Glass treatments.
 
 ## Visual idea
 
@@ -22,9 +26,12 @@ sizes.
 ## Icon Composer treatment
 
 - Target integration: macOS; the document retains reusable shared square geometry
-- Portal: combined glass, 50% translucency, specular highlight, 50% neutral shadow
-- Spark: combined glass, 50% translucency, specular highlight, 50% neutral shadow
-- Background: opaque artwork with glass effects disabled
+- Portal: one continuous gradient layer, 40% translucency, specular highlight,
+  45% neutral shadow
+- Spark: its own glass group, 30% translucency and 40% neutral shadow
+- Mote: its own glass group, 35% translucency and 35% neutral shadow
+- Background: Icon Composer automatic gradient; transparent compatibility layer
+  with glass effects disabled
 - Default, Dark, and Mono: system-derived variants with no custom overrides
 
 Xcode compiles the document into `Conjuror.icns` for macOS 14 compatibility
