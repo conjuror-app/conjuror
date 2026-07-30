@@ -11,6 +11,10 @@
 		8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* ContentView.swift */; };
 		8A4E32022C55C00100C0A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32122C55C00100C0A001 /* Assets.xcassets */; };
 		8A4E32032C55C00100C0A001 /* ConjurorGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */; };
+		8A4E32042C55C00100C0A001 /* LauncherItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32152C55C00100C0A001 /* LauncherItem.swift */; };
+		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
+		8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */; };
+		8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32182C55C00100C0A001 /* LauncherFooter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +23,10 @@
 		8A4E32122C55C00100C0A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = ConjurorGlass.icon; sourceTree = "<group>"; };
+		8A4E32152C55C00100C0A001 /* LauncherItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherItem.swift; sourceTree = "<group>"; };
+		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
+		8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultRow.swift; sourceTree = "<group>"; };
+		8A4E32182C55C00100C0A001 /* LauncherFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherFooter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +53,8 @@
 			children = (
 				8A4E32102C55C00100C0A001 /* ConjurorApp.swift */,
 				8A4E32112C55C00100C0A001 /* ContentView.swift */,
+				8A4E32332C55C00100C0A001 /* Models */,
+				8A4E32342C55C00100C0A001 /* Views */,
 				8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */,
 				8A4E32122C55C00100C0A001 /* Assets.xcassets */,
 			);
@@ -57,6 +67,24 @@
 				8A4E32132C55C00100C0A001 /* Conjuror.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8A4E32332C55C00100C0A001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E32152C55C00100C0A001 /* LauncherItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8A4E32342C55C00100C0A001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E32182C55C00100C0A001 /* LauncherFooter.swift */,
+				8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */,
+				8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,6 +159,10 @@
 			files = (
 				8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */,
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
+				8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */,
+				8A4E32042C55C00100C0A001 /* LauncherItem.swift in Sources */,
+				8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */,
+				8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
