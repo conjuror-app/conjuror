@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="portalGlow" x1="0" y1="220" x2="0" y2="850" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#42DFFF"/>
+      <stop offset="0.48" stop-color="#416BFF"/>
+      <stop offset="1" stop-color="#8E35FF"/>
+    </linearGradient>
+    <filter id="wideGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <filter id="sparkGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <filter id="moteGlow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+  <path d="M 751 256 A 350 350 0 1 0 713 799" fill="none" stroke="url(#portalGlow)" stroke-linecap="round" stroke-width="142" opacity="0.5" filter="url(#wideGlow)"/>
+  <path d="M 713 799 A 350 350 0 0 0 803 679" fill="none" stroke="#3549FF" stroke-linecap="round" stroke-width="13" opacity="0.42"/>
+  <path d="M512 342 C532 456 568 492 682 512 C568 532 532 568 512 682 C492 568 456 532 342 512 C456 492 492 456 512 342 Z" fill="#55AFFF" opacity="0.7" filter="url(#sparkGlow)"/>
+  <circle cx="797" cy="690" r="40" fill="#39BFFF" opacity="0.78" filter="url(#moteGlow)"/>
+</svg>

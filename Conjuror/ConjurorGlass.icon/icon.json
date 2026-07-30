@@ -58,7 +58,7 @@
       "layers" : [
         {
           "glass" : false,
-          "image-name" : "01-background.svg",
+          "image-name" : "01-background.png",
           "name" : "01-background"
         }
       ],

@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="portal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#6BEAFF"/>
-      <stop offset="0.3" stop-color="#4DBBFF"/>
-      <stop offset="0.62" stop-color="#6674FF"/>
-      <stop offset="1" stop-color="#9146FF"/>
+    <linearGradient id="rim" x1="0" y1="220" x2="0" y2="850" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D7FCFF"/>
+      <stop offset="0.24" stop-color="#78EAFF"/>
+      <stop offset="0.58" stop-color="#8AA5FF"/>
+      <stop offset="1" stop-color="#E4B7FF"/>
+    </linearGradient>
+    <linearGradient id="portal" x1="0" y1="220" x2="0" y2="850" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FDCFF"/>
+      <stop offset="0.26" stop-color="#2AAEFF"/>
+      <stop offset="0.57" stop-color="#506BFF"/>
+      <stop offset="0.82" stop-color="#7D38FF"/>
+      <stop offset="1" stop-color="#A348FF"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="220" x2="0" y2="850" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#BDF8FF"/>
+      <stop offset="0.25" stop-color="#58D8FF"/>
+      <stop offset="0.58" stop-color="#768DFF"/>
+      <stop offset="1" stop-color="#C37BFF"/>
     </linearGradient>
   </defs>
-  <path
-    d="M 761 280 A 340 340 0 1 0 772 731"
-    fill="none"
-    stroke="url(#portal)"
-    stroke-linecap="round"
-    stroke-width="150"
-  />
+  <path d="M 751 256 A 350 350 0 1 0 713 799" fill="none" stroke="url(#rim)" stroke-linecap="round" stroke-width="128"/>
+  <path d="M 751 256 A 350 350 0 1 0 713 799" fill="none" stroke="url(#portal)" stroke-linecap="round" stroke-width="118"/>
+  <path d="M 751 256 A 350 350 0 1 0 713 799" fill="none" stroke="url(#core)" stroke-linecap="round" stroke-width="78" opacity="0.42"/>
+  <path d="M 751 250 A 350 350 0 0 0 504 162" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-width="10" opacity="0.58"/>
 </svg>
