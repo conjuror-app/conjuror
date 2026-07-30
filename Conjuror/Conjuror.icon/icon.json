@@ -1,0 +1,75 @@
+{
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "02-orbit-mote.svg",
+          "name" : "02-orbit-mote"
+        },
+        {
+          "image-name" : "01-spark.svg",
+          "name" : "01-spark"
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "03 Spark",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "02-portal-cyan.svg",
+          "name" : "02-portal-cyan"
+        },
+        {
+          "image-name" : "01-portal-violet.svg",
+          "name" : "01-portal-violet"
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "02 Portal",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "01-background.svg",
+          "name" : "01-background"
+        }
+      ],
+      "name" : "01 Background",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
