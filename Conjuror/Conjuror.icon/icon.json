@@ -1,50 +1,57 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+    "automatic-gradient" : "extended-srgb:0.03529,0.04706,0.18039,1.00000"
   },
   "groups" : [
     {
       "layers" : [
         {
-          "image-name" : "02-orbit-mote.svg",
+          "image-name" : "02-orbit-mote.png",
           "name" : "02-orbit-mote"
-        },
-        {
-          "image-name" : "01-spark.svg",
-          "name" : "01-spark"
         }
       ],
-      "lighting" : "combined",
-      "name" : "03 Spark",
+      "name" : "04 Mote",
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.5
+        "opacity" : 0.35
       },
       "translucency" : {
         "enabled" : true,
-        "value" : 0.5
+        "value" : 0.35
       }
     },
     {
       "layers" : [
         {
-          "image-name" : "02-portal-cyan.svg",
-          "name" : "02-portal-cyan"
-        },
-        {
-          "image-name" : "01-portal-violet.svg",
-          "name" : "01-portal-violet"
+          "image-name" : "01-spark.png",
+          "name" : "01-spark"
         }
       ],
-      "lighting" : "combined",
-      "name" : "02 Portal",
+      "name" : "03 Spark",
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.5
+        "opacity" : 0.4
       },
       "translucency" : {
         "enabled" : true,
-        "value" : 0.5
+        "value" : 0.3
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "01-portal.png",
+          "name" : "01-portal"
+        }
+      ],
+      "name" : "02 Portal",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.45
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.4
       }
     },
     {
