@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct LauncherFooter: View {
+    let onQuit: () -> Void
+
     var body: some View {
         HStack(spacing: 8) {
             Label("Conjuror", systemImage: "sparkles")
@@ -11,6 +13,13 @@ struct LauncherFooter: View {
 
             ShortcutHint(keys: "↑ ↓", label: "Navigate")
             ShortcutHint(keys: "esc", label: "Clear")
+
+            Button(action: onQuit) {
+                ShortcutHint(keys: "⌘ Q", label: "Quit")
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut("q", modifiers: .command)
+            .help("Quit Conjuror")
         }
         .padding(.horizontal, 22)
         .frame(height: 42)
