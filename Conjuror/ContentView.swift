@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    let onQuit: () -> Void
+
     @State private var query = ""
     @State private var selectedItemID = LauncherItem.suggestions.first?.id
 
@@ -23,7 +25,7 @@ struct ContentView: View {
                 onMoveSelection: moveSelection
             )
                 .padding(.horizontal, 22)
-                .padding(.top, 36)
+                .padding(.top, 24)
                 .padding(.bottom, 16)
 
             Divider()
@@ -69,10 +71,24 @@ struct ContentView: View {
 
             Divider()
 
-            LauncherFooter()
+            LauncherFooter(onQuit: onQuit)
         }
         .frame(width: 720, height: 470)
-        .background(.ultraThinMaterial)
+        .background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.quaternary, lineWidth: 1)
+        }
+        .overlay(alignment: .top) {
+            WindowDragArea()
+                .frame(height: 20)
+                .accessibilityHidden(true)
+        }
+        .shadow(color: .black.opacity(0.2), radius: 24, y: 10)
         .tint(.purple)
         .onChange(of: query) {
             selectedItemID = filteredItems.first?.id
@@ -104,5 +120,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(onQuit: {})
 }
