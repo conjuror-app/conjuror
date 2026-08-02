@@ -4,27 +4,22 @@ struct LauncherFooter: View {
     let onQuit: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Label("Conjuror", systemImage: "sparkles")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
+        HStack(spacing: 14) {
+            ShortcutHint(keys: "↑↓", label: "navigate")
+            ShortcutHint(keys: "↵", label: "open")
+            ShortcutHint(keys: "esc", label: "close")
 
             Spacer()
 
-            ShortcutHint(keys: "↑ ↓", label: "Navigate")
-            ShortcutHint(keys: "↵", label: "Open")
-            ShortcutHint(keys: "esc", label: "Clear / Hide")
-            ShortcutHint(keys: "⌥ Space", label: "Toggle")
-
             Button(action: onQuit) {
-                ShortcutHint(keys: "⌘ Q", label: "Quit")
+                ShortcutHint(keys: "⌘Q", label: "quit")
             }
             .buttonStyle(.plain)
             .keyboardShortcut("q", modifiers: .command)
             .help("Quit Conjuror")
         }
-        .padding(.horizontal, 22)
-        .frame(height: 42)
+        .padding(.horizontal, 16)
+        .frame(height: 32)
     }
 }
 
@@ -33,16 +28,8 @@ private struct ShortcutHint: View {
     let label: String
 
     var body: some View {
-        HStack(spacing: 5) {
-            Text(keys)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
-
-            Text(label)
-                .font(.caption)
-        }
-        .foregroundStyle(.tertiary)
+        Text("\(keys)  \(label)")
+            .font(.system(size: 11, weight: .regular))
+            .foregroundStyle(.tertiary)
     }
 }

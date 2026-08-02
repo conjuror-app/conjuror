@@ -16,17 +16,19 @@ struct ContentView: View {
                 onOpenSelected: store.openSelectedApplication,
                 focusRequest: store.focusRequest
             )
-            .padding(.horizontal, 22)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
+            .padding(.horizontal, 18)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
             Divider()
 
             if let hotKeyErrorMessage {
-                hotKeyError(hotKeyErrorMessage)
+                statusMessage(
+                    hotKeyErrorMessage,
+                    systemImage: "keyboard.badge.exclamationmark",
+                    color: .orange
+                )
             }
-
-            resultHeader
 
             resultContent
 
@@ -38,23 +40,22 @@ struct ContentView: View {
 
             LauncherFooter(onQuit: onQuit)
         }
-        .frame(width: 720, height: 470)
+        .frame(width: 620, height: 400)
         .background(
-            .ultraThinMaterial,
-            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .regularMaterial,
+            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(.quaternary, lineWidth: 1)
         }
         .overlay(alignment: .top) {
             WindowDragArea(onWindowAvailable: onWindowAvailable)
-                .frame(height: 20)
+                .frame(height: 14)
                 .accessibilityHidden(true)
         }
-        .shadow(color: .black.opacity(0.2), radius: 24, y: 10)
-        .tint(.purple)
+        .shadow(color: .black.opacity(0.14), radius: 18, y: 8)
         .task {
             store.loadApplications()
         }
@@ -67,61 +68,32 @@ struct ContentView: View {
         }
     }
 
-    private var resultHeader: some View {
-        HStack {
-            Text(store.query.isEmpty ? "Applications" : "Results")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
-                .tracking(0.8)
-
-            Spacer()
-
-            if !store.isLoading {
-                Text("\(store.filteredApplications.count)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
-    }
-
     @ViewBuilder
     private var resultContent: some View {
         if store.isLoading, store.applications.isEmpty {
-            VStack(spacing: 10) {
+            minimalState {
                 ProgressView()
                     .controlSize(.small)
-                Text("Finding installed applications…")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                Text("Loading applications…")
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let catalogErrorMessage = store.catalogErrorMessage {
-            ContentUnavailableView {
-                Label("Applications Unavailable", systemImage: "exclamationmark.triangle")
-            } description: {
+            minimalState {
+                Image(systemName: "exclamationmark.triangle")
                 Text(catalogErrorMessage)
-            } actions: {
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
                 Button("Try Again", action: store.loadApplications)
+                    .controlSize(.small)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if store.filteredApplications.isEmpty {
-            if store.query.isEmpty {
-                ContentUnavailableView(
-                    "No Applications Found",
-                    systemImage: "app.dashed"
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ContentUnavailableView.search(text: store.query)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            minimalState {
+                Image(systemName: store.query.isEmpty ? "app.dashed" : "magnifyingglass")
+                Text(store.query.isEmpty ? "No applications found" : "No matches")
             }
         } else {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: 4) {
+                    LazyVStack(spacing: 1) {
                         ForEach(store.filteredApplications) { application in
                             LauncherResultRow(
                                 application: application,
@@ -132,8 +104,7 @@ struct ContentView: View {
                             .id(application.id)
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 10)
+                    .padding(8)
                 }
                 .scrollIndicators(.hidden)
                 .onChange(of: store.selectedApplicationID) { _, selectedID in
@@ -148,13 +119,24 @@ struct ContentView: View {
         }
     }
 
+    private func minimalState<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(spacing: 9) {
+            content()
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 48)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     private func launchError(_ message: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "exclamationmark.circle.fill")
+            Image(systemName: "exclamationmark.circle")
                 .foregroundStyle(.red)
 
             Text(message)
-                .font(.caption)
                 .lineLimit(1)
 
             Spacer()
@@ -167,24 +149,29 @@ struct ContentView: View {
             .buttonStyle(.plain)
             .help("Dismiss error")
         }
-        .padding(.horizontal, 22)
-        .frame(height: 34)
-        .background(.red.opacity(0.08))
+        .font(.caption)
+        .padding(.horizontal, 16)
+        .frame(height: 30)
+        .background(.red.opacity(0.06))
     }
 
-    private func hotKeyError(_ message: String) -> some View {
+    private func statusMessage(
+        _ message: String,
+        systemImage: String,
+        color: Color
+    ) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "keyboard.badge.exclamationmark")
-                .foregroundStyle(.orange)
+            Image(systemName: systemImage)
+                .foregroundStyle(color)
 
             Text(message)
-                .font(.caption)
-                .lineLimit(2)
+                .lineLimit(1)
 
             Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 7)
-        .background(.orange.opacity(0.08))
+        .font(.caption)
+        .padding(.horizontal, 16)
+        .frame(height: 30)
+        .background(color.opacity(0.06))
     }
 }
