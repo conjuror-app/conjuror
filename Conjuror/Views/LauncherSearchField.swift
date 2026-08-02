@@ -3,6 +3,7 @@ import SwiftUI
 struct LauncherSearchField: View {
     @Binding var query: String
     let onMoveSelection: (MoveCommandDirection) -> Void
+    let onOpenSelected: () -> Void
 
     @FocusState private var isFocused: Bool
 
@@ -18,11 +19,12 @@ struct LauncherSearchField: View {
                     )
                 )
 
-            TextField("Search apps and commands…", text: $query)
+            TextField("Search applications…", text: $query)
                 .focused($isFocused)
                 .font(.system(size: 22, weight: .medium))
                 .textFieldStyle(.plain)
                 .onMoveCommand(perform: onMoveSelection)
+                .onSubmit(onOpenSelected)
 
             if !query.isEmpty {
                 Button {

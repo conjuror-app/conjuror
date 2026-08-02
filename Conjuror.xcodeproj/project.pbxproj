@@ -11,7 +11,6 @@
 		8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* ContentView.swift */; };
 		8A4E32022C55C00100C0A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32122C55C00100C0A001 /* Assets.xcassets */; };
 		8A4E32032C55C00100C0A001 /* ConjurorGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */; };
-		8A4E32042C55C00100C0A001 /* LauncherItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32152C55C00100C0A001 /* LauncherItem.swift */; };
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */; };
 		8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32182C55C00100C0A001 /* LauncherFooter.swift */; };
@@ -21,6 +20,9 @@
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
 		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
 		8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33152C55C00100C0A001 /* InstalledApplication.swift */; };
+		8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */; };
+		8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */; };
+		8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33182C55C00100C0A001 /* LauncherStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,7 +41,6 @@
 		8A4E32122C55C00100C0A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = ConjurorGlass.icon; sourceTree = "<group>"; };
-		8A4E32152C55C00100C0A001 /* LauncherItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherItem.swift; sourceTree = "<group>"; };
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
 		8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultRow.swift; sourceTree = "<group>"; };
 		8A4E32182C55C00100C0A001 /* LauncherFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherFooter.swift; sourceTree = "<group>"; };
@@ -50,6 +51,9 @@
 		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
 		8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConjurorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E33152C55C00100C0A001 /* InstalledApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledApplication.swift; sourceTree = "<group>"; };
+		8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLauncher.swift; sourceTree = "<group>"; };
+		8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchHistoryStore.swift; sourceTree = "<group>"; };
+		8A4E33182C55C00100C0A001 /* LauncherStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +90,7 @@
 				8A4E32112C55C00100C0A001 /* ContentView.swift */,
 				8A4E32332C55C00100C0A001 /* Models */,
 				8A4E33302C55C00100C0A001 /* Services */,
+				8A4E33322C55C00100C0A001 /* Stores */,
 				8A4E32352C55C00100C0A001 /* Support */,
 				8A4E32342C55C00100C0A001 /* Views */,
 				8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */,
@@ -107,7 +112,6 @@
 			isa = PBXGroup;
 			children = (
 				8A4E33152C55C00100C0A001 /* InstalledApplication.swift */,
-				8A4E32152C55C00100C0A001 /* LauncherItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -134,9 +138,19 @@
 			isa = PBXGroup;
 			children = (
 				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
+				8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */,
 				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		8A4E33322C55C00100C0A001 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */,
+				8A4E33182C55C00100C0A001 /* LauncherStore.swift */,
+			);
+			path = Stores;
 			sourceTree = "<group>";
 		};
 		8A4E33312C55C00100C0A001 /* ConjurorTests */ = {
@@ -249,11 +263,13 @@
 			files = (
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
+				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
 				8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */,
+				8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */,
+				8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */,
 				8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */,
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
 				8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */,
-				8A4E32042C55C00100C0A001 /* LauncherItem.swift in Sources */,
 				8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */,
 				8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */,
 				8A4E32082C55C00100C0A001 /* WindowDragArea.swift in Sources */,
