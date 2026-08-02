@@ -16,7 +16,22 @@
 		8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */; };
 		8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32182C55C00100C0A001 /* LauncherFooter.swift */; };
 		8A4E32082C55C00100C0A001 /* WindowDragArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* WindowDragArea.swift */; };
+		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
+		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
+		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
+		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
+		8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33152C55C00100C0A001 /* InstalledApplication.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8A4E33702C55C00100C0A001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8A4E32702C55C00100C0A001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8A4E32402C55C00100C0A001;
+			remoteInfo = Conjuror;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
@@ -29,10 +44,23 @@
 		8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultRow.swift; sourceTree = "<group>"; };
 		8A4E32182C55C00100C0A001 /* LauncherFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherFooter.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* WindowDragArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowDragArea.swift; sourceTree = "<group>"; };
+		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
+		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
+		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
+		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
+		8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConjurorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A4E33152C55C00100C0A001 /* InstalledApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledApplication.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8A4E32202C55C00100C0A001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8A4E33202C55C00100C0A001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E32312C55C00100C0A001 /* Conjuror */,
+				8A4E33312C55C00100C0A001 /* ConjurorTests */,
 				8A4E32322C55C00100C0A001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +85,7 @@
 				8A4E32102C55C00100C0A001 /* ConjurorApp.swift */,
 				8A4E32112C55C00100C0A001 /* ContentView.swift */,
 				8A4E32332C55C00100C0A001 /* Models */,
+				8A4E33302C55C00100C0A001 /* Services */,
 				8A4E32352C55C00100C0A001 /* Support */,
 				8A4E32342C55C00100C0A001 /* Views */,
 				8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */,
@@ -68,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E32132C55C00100C0A001 /* Conjuror.app */,
+				8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,6 +106,7 @@
 		8A4E32332C55C00100C0A001 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8A4E33152C55C00100C0A001 /* InstalledApplication.swift */,
 				8A4E32152C55C00100C0A001 /* LauncherItem.swift */,
 			);
 			path = Models;
@@ -98,6 +130,24 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
+		8A4E33302C55C00100C0A001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
+				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		8A4E33312C55C00100C0A001 /* ConjurorTests */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */,
+				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
+			);
+			path = ConjurorTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -118,6 +168,24 @@
 			productReference = 8A4E32132C55C00100C0A001 /* Conjuror.app */;
 			productType = "com.apple.product-type.application";
 		};
+		8A4E33412C55C00100C0A001 /* ConjurorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8A4E33822C55C00100C0A001 /* Build configuration list for PBXNativeTarget "ConjurorTests" */;
+			buildPhases = (
+				8A4E33502C55C00100C0A001 /* Sources */,
+				8A4E33202C55C00100C0A001 /* Frameworks */,
+				8A4E33602C55C00100C0A001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8A4E33712C55C00100C0A001 /* PBXTargetDependency */,
+			);
+			name = ConjurorTests;
+			productName = ConjurorTests;
+			productReference = 8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -127,10 +195,13 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
-				TargetAttributes = {
-					8A4E32402C55C00100C0A001 = {
-						CreatedOnToolsVersion = 26.0;
-					};
+			TargetAttributes = {
+				8A4E32402C55C00100C0A001 = {
+					CreatedOnToolsVersion = 26.0;
+				};
+				8A4E33412C55C00100C0A001 = {
+					CreatedOnToolsVersion = 26.0;
+				};
 				};
 			};
 			buildConfigurationList = 8A4E32802C55C00100C0A001 /* Build configuration list for PBXProject "Conjuror" */;
@@ -147,6 +218,7 @@
 			projectRoot = "";
 			targets = (
 				8A4E32402C55C00100C0A001 /* Conjuror */,
+				8A4E33412C55C00100C0A001 /* ConjurorTests */,
 			);
 		};
 /* End PBXProject section */
@@ -161,6 +233,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8A4E33602C55C00100C0A001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -168,6 +247,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
+				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
+				8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */,
 				8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */,
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
 				8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */,
@@ -178,7 +260,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8A4E33502C55C00100C0A001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
+				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8A4E33712C55C00100C0A001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8A4E32402C55C00100C0A001 /* Conjuror */;
+			targetProxy = 8A4E33702C55C00100C0A001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8A4E32902C55C00100C0A001 /* Debug */ = {
@@ -352,6 +451,34 @@
 			};
 			name = Release;
 		};
+		8A4E33942C55C00100C0A001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tombell.conjuror.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Conjuror.app/Contents/MacOS/Conjuror";
+			};
+			name = Debug;
+		};
+		8A4E33952C55C00100C0A001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tombell.conjuror.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Conjuror.app/Contents/MacOS/Conjuror";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -369,6 +496,15 @@
 			buildConfigurations = (
 				8A4E32922C55C00100C0A001 /* Debug */,
 				8A4E32932C55C00100C0A001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8A4E33822C55C00100C0A001 /* Build configuration list for PBXNativeTarget "ConjurorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A4E33942C55C00100C0A001 /* Debug */,
+				8A4E33952C55C00100C0A001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

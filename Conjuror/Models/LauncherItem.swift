@@ -53,6 +53,6 @@ struct LauncherItem: Identifiable, Hashable {
             subtitle: "Open macOS settings",
             systemImage: "gearshape",
             shortcut: nil
-        )
+        ),
     ]
 }
