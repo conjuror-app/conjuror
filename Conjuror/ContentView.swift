@@ -1,7 +1,11 @@
+import AppKit
 import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var store: LauncherStore
+    let hotKeyErrorMessage: String?
+    let onWindowAvailable: (NSWindow) -> Void
+    let onHide: () -> Void
     let onQuit: () -> Void
 
     var body: some View {
@@ -9,13 +13,18 @@ struct ContentView: View {
             LauncherSearchField(
                 query: $store.query,
                 onMoveSelection: store.moveSelection,
-                onOpenSelected: store.openSelectedApplication
+                onOpenSelected: store.openSelectedApplication,
+                focusRequest: store.focusRequest
             )
             .padding(.horizontal, 22)
             .padding(.top, 24)
             .padding(.bottom, 16)
 
             Divider()
+
+            if let hotKeyErrorMessage {
+                hotKeyError(hotKeyErrorMessage)
+            }
 
             resultHeader
 
@@ -40,7 +49,7 @@ struct ContentView: View {
                 .stroke(.quaternary, lineWidth: 1)
         }
         .overlay(alignment: .top) {
-            WindowDragArea()
+            WindowDragArea(onWindowAvailable: onWindowAvailable)
                 .frame(height: 20)
                 .accessibilityHidden(true)
         }
@@ -48,6 +57,13 @@ struct ContentView: View {
         .tint(.purple)
         .task {
             store.loadApplications()
+        }
+        .onExitCommand {
+            if store.query.isEmpty {
+                onHide()
+            } else {
+                store.query = ""
+            }
         }
     }
 
@@ -154,5 +170,21 @@ struct ContentView: View {
         .padding(.horizontal, 22)
         .frame(height: 34)
         .background(.red.opacity(0.08))
+    }
+
+    private func hotKeyError(_ message: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "keyboard.badge.exclamationmark")
+                .foregroundStyle(.orange)
+
+            Text(message)
+                .font(.caption)
+                .lineLimit(2)
+
+            Spacer()
+        }
+        .padding(.horizontal, 22)
+        .padding(.vertical, 7)
+        .background(.orange.opacity(0.08))
     }
 }

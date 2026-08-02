@@ -15,6 +15,7 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var launchErrorMessage: String?
     @Published private(set) var selectedApplicationID: InstalledApplication.ID?
+    @Published private(set) var focusRequest = 0
 
     var filteredApplications: [InstalledApplication] {
         ApplicationRanker.ranked(
@@ -136,6 +137,13 @@ final class LauncherStore: ObservableObject {
 
     func clearLaunchError() {
         launchErrorMessage = nil
+    }
+
+    func prepareForActivation() {
+        query = ""
+        launchErrorMessage = nil
+        selectFirstResult()
+        focusRequest &+= 1
     }
 
     private var selectedApplication: InstalledApplication? {
