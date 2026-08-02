@@ -9,20 +9,14 @@ struct LauncherSearchField: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(
-                    .linearGradient(
-                        colors: [.cyan, .purple],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.secondary)
 
-            TextField("Search applications…", text: $query)
+            TextField("Search applications", text: $query)
                 .focused($isFocused)
-                .font(.system(size: 22, weight: .medium))
+                .font(.system(size: 19, weight: .regular))
                 .textFieldStyle(.plain)
                 .onMoveCommand(perform: onMoveSelection)
                 .onSubmit(onOpenSelected)
@@ -32,20 +26,15 @@ struct LauncherSearchField: View {
                     query = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 13))
                         .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
                 .help("Clear search")
             }
         }
-        .padding(.horizontal, 16)
-        .frame(height: 58)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 15))
-        .overlay {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(.quaternary, lineWidth: 1)
-        }
-        .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+        .padding(.horizontal, 4)
+        .frame(height: 50)
         .task {
             isFocused = true
         }

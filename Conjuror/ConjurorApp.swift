@@ -15,7 +15,7 @@ struct ConjurorApp: App {
                 onQuit: { NSApp.terminate(nil) }
             )
         }
-        .defaultSize(width: 720, height: 470)
+        .defaultSize(width: 620, height: 400)
         .windowResizability(.contentSize)
         .windowStyle(.hiddenTitleBar)
         .commands {
