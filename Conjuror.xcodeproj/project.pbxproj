@@ -23,6 +23,9 @@
 		8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */; };
 		8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */; };
 		8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33182C55C00100C0A001 /* LauncherStore.swift */; };
+		8A4E33082C55C00100C0A001 /* AppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33192C55C00100C0A001 /* AppController.swift */; };
+		8A4E33092C55C00100C0A001 /* GlobalHotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */; };
+		8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +57,9 @@
 		8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLauncher.swift; sourceTree = "<group>"; };
 		8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchHistoryStore.swift; sourceTree = "<group>"; };
 		8A4E33182C55C00100C0A001 /* LauncherStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherStore.swift; sourceTree = "<group>"; };
+		8A4E33192C55C00100C0A001 /* AppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
+		8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKey.swift; sourceTree = "<group>"; };
+		8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +92,7 @@
 		8A4E32312C55C00100C0A001 /* Conjuror */ = {
 			isa = PBXGroup;
 			children = (
+				8A4E33192C55C00100C0A001 /* AppController.swift */,
 				8A4E32102C55C00100C0A001 /* ConjurorApp.swift */,
 				8A4E32112C55C00100C0A001 /* ContentView.swift */,
 				8A4E32332C55C00100C0A001 /* Models */,
@@ -129,6 +136,7 @@
 		8A4E32352C55C00100C0A001 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */,
 				8A4E32192C55C00100C0A001 /* WindowDragArea.swift */,
 			);
 			path = Support;
@@ -158,6 +166,7 @@
 			children = (
 				8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */,
 				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
+				8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */,
 			);
 			path = ConjurorTests;
 			sourceTree = "<group>";
@@ -261,12 +270,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A4E33082C55C00100C0A001 /* AppController.swift in Sources */,
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
 				8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */,
 				8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */,
 				8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */,
+				8A4E33092C55C00100C0A001 /* GlobalHotKey.swift in Sources */,
 				8A4E32012C55C00100C0A001 /* ContentView.swift in Sources */,
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
 				8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */,
@@ -282,6 +293,7 @@
 			files = (
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
+				8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

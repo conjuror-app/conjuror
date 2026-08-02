@@ -4,6 +4,7 @@ struct LauncherSearchField: View {
     @Binding var query: String
     let onMoveSelection: (MoveCommandDirection) -> Void
     let onOpenSelected: () -> Void
+    let focusRequest: Int
 
     @FocusState private var isFocused: Bool
 
@@ -47,6 +48,11 @@ struct LauncherSearchField: View {
         .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
         .task {
             isFocused = true
+        }
+        .onChange(of: focusRequest) {
+            DispatchQueue.main.async {
+                isFocused = true
+            }
         }
     }
 }

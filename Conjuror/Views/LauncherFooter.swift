@@ -13,7 +13,8 @@ struct LauncherFooter: View {
 
             ShortcutHint(keys: "↑ ↓", label: "Navigate")
             ShortcutHint(keys: "↵", label: "Open")
-            ShortcutHint(keys: "esc", label: "Hide")
+            ShortcutHint(keys: "esc", label: "Clear / Hide")
+            ShortcutHint(keys: "⌥ Space", label: "Toggle")
 
             Button(action: onQuit) {
                 ShortcutHint(keys: "⌘ Q", label: "Quit")
