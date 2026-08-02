@@ -1,56 +1,40 @@
 import SwiftUI
 
 struct LauncherResultRow: View {
-    let item: LauncherItem
+    let application: InstalledApplication
     let isSelected: Bool
-    let onSelect: () -> Void
+    let onHover: () -> Void
+    let onOpen: () -> Void
 
     var body: some View {
-        Button(action: onSelect) {
+        Button(action: onOpen) {
             HStack(spacing: 13) {
-                Image(systemName: item.systemImage)
-                    .font(.system(size: 16, weight: .medium))
+                Image(nsImage: application.icon)
+                    .resizable()
+                    .interpolation(.high)
                     .frame(width: 36, height: 36)
-                    .foregroundStyle(isSelected ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(
-                                isSelected
-                                    ? AnyShapeStyle(
-                                        .linearGradient(
-                                            colors: [.cyan, .purple],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    : AnyShapeStyle(.quaternary)
-                            )
-                    }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(item.title)
+                    Text(application.displayName)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.primary)
 
-                    Text(item.subtitle)
+                    Text(application.bundleIdentifier ?? application.url.deletingLastPathComponent().path)
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
 
                 Spacer()
 
-                if let shortcut = item.shortcut {
-                    Text(shortcut)
+                if isSelected {
+                    Text("↵ Open")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 4)
                         .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
                 }
-
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(isSelected ? .secondary : .quaternary)
             }
             .padding(.horizontal, 12)
             .frame(height: 52)
@@ -69,8 +53,9 @@ struct LauncherResultRow: View {
         .buttonStyle(.plain)
         .onHover { isHovering in
             if isHovering {
-                onSelect()
+                onHover()
             }
         }
+        .help("Open \(application.displayName)")
     }
 }
