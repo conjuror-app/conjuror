@@ -16,9 +16,9 @@ struct ContentView: View {
                 onOpenSelected: store.openSelectedApplication,
                 focusRequest: store.focusRequest
             )
-            .padding(.horizontal, 18)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+            .padding(.bottom, 6)
 
             Divider()
 
@@ -104,7 +104,8 @@ struct ContentView: View {
                             .id(application.id)
                         }
                     }
-                    .padding(8)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 4)
                 }
                 .scrollIndicators(.hidden)
                 .onChange(of: store.selectedApplicationID) { _, selectedID in
@@ -122,17 +123,17 @@ struct ContentView: View {
     private func minimalState<Content: View>(
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(spacing: 9) {
+        VStack(spacing: 6) {
             content()
         }
         .font(.callout)
         .foregroundStyle(.secondary)
-        .padding(.horizontal, 48)
+        .padding(.horizontal, 32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func launchError(_ message: String) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: "exclamationmark.circle")
                 .foregroundStyle(.red)
 
@@ -150,8 +151,8 @@ struct ContentView: View {
             .help("Dismiss error")
         }
         .font(.caption)
-        .padding(.horizontal, 16)
-        .frame(height: 30)
+        .padding(.horizontal, 10)
+        .frame(height: 26)
         .background(.red.opacity(0.06))
     }
 
@@ -160,7 +161,7 @@ struct ContentView: View {
         systemImage: String,
         color: Color
     ) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: systemImage)
                 .foregroundStyle(color)
 
@@ -170,8 +171,8 @@ struct ContentView: View {
             Spacer()
         }
         .font(.caption)
-        .padding(.horizontal, 16)
-        .frame(height: 30)
+        .padding(.horizontal, 10)
+        .frame(height: 26)
         .background(color.opacity(0.06))
     }
 }

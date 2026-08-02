@@ -9,7 +9,7 @@ struct LauncherSearchField: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.secondary)
@@ -33,8 +33,8 @@ struct LauncherSearchField: View {
                 .help("Clear search")
             }
         }
-        .padding(.horizontal, 4)
-        .frame(height: 50)
+        .padding(.horizontal, 2)
+        .frame(height: 42)
         .task {
             isFocused = true
         }

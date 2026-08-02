@@ -8,11 +8,11 @@ struct LauncherResultRow: View {
 
     var body: some View {
         Button(action: onOpen) {
-            HStack(spacing: 11) {
+            HStack(spacing: 8) {
                 Image(nsImage: application.icon)
                     .resizable()
                     .interpolation(.high)
-                    .frame(width: 28, height: 28)
+                    .frame(width: 26, height: 26)
 
                 Text(application.displayName)
                     .font(.system(size: 14, weight: .medium))
@@ -27,8 +27,8 @@ struct LauncherResultRow: View {
                         .foregroundStyle(.tertiary)
                 }
             }
-            .padding(.horizontal, 11)
-            .frame(height: 44)
+            .padding(.horizontal, 7)
+            .frame(height: 40)
             .contentShape(Rectangle())
             .background {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)

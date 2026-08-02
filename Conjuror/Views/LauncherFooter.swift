@@ -4,7 +4,7 @@ struct LauncherFooter: View {
     let onQuit: () -> Void
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 10) {
             ShortcutHint(keys: "↑↓", label: "navigate")
             ShortcutHint(keys: "↵", label: "open")
             ShortcutHint(keys: "esc", label: "close")
@@ -18,8 +18,8 @@ struct LauncherFooter: View {
             .keyboardShortcut("q", modifiers: .command)
             .help("Quit Conjuror")
         }
-        .padding(.horizontal, 16)
-        .frame(height: 32)
+        .padding(.horizontal, 10)
+        .frame(height: 28)
     }
 }
 
