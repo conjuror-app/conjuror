@@ -3,19 +3,23 @@ import SwiftUI
 
 @main
 struct ConjurorApp: App {
-    @StateObject private var store = LauncherStore(onLaunchSuccess: {
-        NSApp.hide(nil)
-    })
+    @NSApplicationDelegateAdaptor(AppController.self) private var appController
 
     var body: some Scene {
-        WindowGroup("Conjuror") {
+        Window("Conjuror", id: "launcher") {
             ContentView(
-                store: store,
+                store: appController.store,
+                hotKeyErrorMessage: appController.hotKeyErrorMessage,
+                onWindowAvailable: appController.register,
+                onHide: appController.hideLauncher,
                 onQuit: { NSApp.terminate(nil) }
             )
         }
         .defaultSize(width: 720, height: 470)
         .windowResizability(.contentSize)
         .windowStyle(.hiddenTitleBar)
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+        }
     }
 }

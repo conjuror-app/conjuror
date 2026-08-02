@@ -2,8 +2,10 @@ import AppKit
 import SwiftUI
 
 struct WindowDragArea: NSViewRepresentable {
+    let onWindowAvailable: (NSWindow) -> Void
+
     func makeNSView(context: Context) -> NSView {
-        DraggableView()
+        DraggableView(onWindowAvailable: onWindowAvailable)
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
@@ -12,6 +14,18 @@ struct WindowDragArea: NSViewRepresentable {
 }
 
 private final class DraggableView: NSView {
+    private let onWindowAvailable: (NSWindow) -> Void
+
+    init(onWindowAvailable: @escaping (NSWindow) -> Void) {
+        self.onWindowAvailable = onWindowAvailable
+        super.init(frame: .zero)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         configureWindow()
@@ -36,5 +50,6 @@ private final class DraggableView: NSView {
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.styleMask.remove([.titled, .closable, .miniaturizable, .resizable])
+        onWindowAvailable(window)
     }
 }
