@@ -42,6 +42,7 @@ private final class DraggableView: NSView {
 
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
         window.backgroundColor = .clear
         window.isOpaque = false
         window.hasShadow = true
@@ -49,7 +50,6 @@ private final class DraggableView: NSView {
         window.standardWindowButton(.closeButton)?.isHidden = true
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
-        window.styleMask.remove([.titled, .closable, .miniaturizable, .resizable])
         onWindowAvailable(window)
     }
 }
