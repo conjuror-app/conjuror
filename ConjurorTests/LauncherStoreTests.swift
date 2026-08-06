@@ -25,7 +25,13 @@ final class LauncherStoreTests: XCTestCase {
 
         XCTAssertEqual(store.selectedApplicationID, applications[0].id)
 
+        let scrollRequestAfterLoad = store.selectionScrollRequest
+        store.select(applications[1])
+        XCTAssertEqual(store.selectionScrollRequest, scrollRequestAfterLoad)
+        store.select(applications[0])
+
         store.moveSelection(.down)
+        XCTAssertNotEqual(store.selectionScrollRequest, scrollRequestAfterLoad)
         XCTAssertEqual(store.selectedApplicationID, applications[1].id)
 
         store.moveSelection(.up)
