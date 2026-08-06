@@ -14,7 +14,7 @@
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */; };
 		8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32182C55C00100C0A001 /* LauncherFooter.swift */; };
-		8A4E32082C55C00100C0A001 /* WindowDragArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* WindowDragArea.swift */; };
+		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
@@ -47,7 +47,7 @@
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
 		8A4E32172C55C00100C0A001 /* LauncherResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultRow.swift; sourceTree = "<group>"; };
 		8A4E32182C55C00100C0A001 /* LauncherFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherFooter.swift; sourceTree = "<group>"; };
-		8A4E32192C55C00100C0A001 /* WindowDragArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowDragArea.swift; sourceTree = "<group>"; };
+		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
@@ -137,7 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */,
-				8A4E32192C55C00100C0A001 /* WindowDragArea.swift */,
+				8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -283,7 +283,7 @@
 				8A4E32072C55C00100C0A001 /* LauncherFooter.swift in Sources */,
 				8A4E32062C55C00100C0A001 /* LauncherResultRow.swift in Sources */,
 				8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */,
-				8A4E32082C55C00100C0A001 /* WindowDragArea.swift in Sources */,
+				8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

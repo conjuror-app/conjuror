@@ -15,6 +15,7 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var launchErrorMessage: String?
     @Published private(set) var selectedApplicationID: InstalledApplication.ID?
+    @Published private(set) var selectionScrollRequest = 0
     @Published private(set) var focusRequest = 0
 
     var filteredApplications: [InstalledApplication] {
@@ -104,6 +105,7 @@ final class LauncherStore: ObservableObject {
         }
 
         selectedApplicationID = results[nextIndex].id
+        selectionScrollRequest &+= 1
     }
 
     func openSelectedApplication() {
@@ -153,5 +155,6 @@ final class LauncherStore: ObservableObject {
 
     private func selectFirstResult() {
         selectedApplicationID = filteredApplications.first?.id
+        selectionScrollRequest &+= 1
     }
 }

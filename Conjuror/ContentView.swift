@@ -1,10 +1,8 @@
-import AppKit
 import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var store: LauncherStore
     let hotKeyErrorMessage: String?
-    let onWindowAvailable: (NSWindow) -> Void
     let onHide: () -> Void
     let onQuit: () -> Void
 
@@ -50,12 +48,6 @@ struct ContentView: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(.quaternary, lineWidth: 1)
         }
-        .overlay(alignment: .top) {
-            WindowDragArea(onWindowAvailable: onWindowAvailable)
-                .frame(height: 14)
-                .accessibilityHidden(true)
-        }
-        .shadow(color: .black.opacity(0.14), radius: 18, y: 8)
         .task {
             store.loadApplications()
         }
@@ -108,8 +100,8 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
                 .scrollIndicators(.hidden)
-                .onChange(of: store.selectedApplicationID) { _, selectedID in
-                    guard let selectedID else {
+                .onChange(of: store.selectionScrollRequest) {
+                    guard let selectedID = store.selectedApplicationID else {
                         return
                     }
                     withAnimation(.easeOut(duration: 0.12)) {
