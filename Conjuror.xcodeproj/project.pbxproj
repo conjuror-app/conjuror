@@ -152,15 +152,6 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		8A4E33322C55C00100C0A001 /* Stores */ = {
-			isa = PBXGroup;
-			children = (
-				8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */,
-				8A4E33182C55C00100C0A001 /* LauncherStore.swift */,
-			);
-			path = Stores;
-			sourceTree = "<group>";
-		};
 		8A4E33312C55C00100C0A001 /* ConjurorTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -169,6 +160,15 @@
 				8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */,
 			);
 			path = ConjurorTests;
+			sourceTree = "<group>";
+		};
+		8A4E33322C55C00100C0A001 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */,
+				8A4E33182C55C00100C0A001 /* LauncherStore.swift */,
+			);
+			path = Stores;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -218,13 +218,13 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
-			TargetAttributes = {
-				8A4E32402C55C00100C0A001 = {
-					CreatedOnToolsVersion = 26.0;
-				};
-				8A4E33412C55C00100C0A001 = {
-					CreatedOnToolsVersion = 26.0;
-				};
+				TargetAttributes = {
+					8A4E32402C55C00100C0A001 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					8A4E33412C55C00100C0A001 = {
+						CreatedOnToolsVersion = 26.0;
+					};
 				};
 			};
 			buildConfigurationList = 8A4E32802C55C00100C0A001 /* Build configuration list for PBXProject "Conjuror" */;
@@ -435,10 +435,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y54Z78V9M7;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -461,10 +463,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y54Z78V9M7;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
