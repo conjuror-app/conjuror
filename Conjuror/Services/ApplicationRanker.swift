@@ -40,17 +40,17 @@ struct ApplicationRanker {
         name: String,
         bundleIdentifier: String?,
         query: String
-    ) -> Int? {
+    ) -> MatchRank? {
         guard !query.isEmpty else {
-            return 5
+            return MatchRank(category: 6)
         }
 
         let normalizedName = normalized(name)
         if normalizedName == query {
-            return 0
+            return MatchRank(category: 0)
         }
         if normalizedName.hasPrefix(query) {
-            return 1
+            return MatchRank(category: 1)
         }
 
         let nameTokens = tokens(in: normalizedName)
@@ -59,13 +59,13 @@ struct ApplicationRanker {
            queryTokens.allSatisfy({ queryToken in
                nameTokens.contains(where: { $0.hasPrefix(queryToken) })
            }) {
-            return 2
+            return MatchRank(category: 2)
         }
 
         let acronym = nameTokens.compactMap(\.first).map(String.init).joined()
         let compactQuery = queryTokens.joined()
         if !compactQuery.isEmpty, acronym.hasPrefix(compactQuery) {
-            return 3
+            return MatchRank(category: 3)
         }
 
         let compactName = nameTokens.joined()
@@ -73,7 +73,11 @@ struct ApplicationRanker {
         if normalizedName.contains(query)
             || compactName.contains(compactQuery)
             || normalizedBundleIdentifier.contains(query) {
-            return 4
+            return MatchRank(category: 4)
+        }
+
+        if let score = subsequenceScore(of: compactQuery, in: compactName) {
+            return MatchRank(category: 5, score: score)
         }
 
         return nil
@@ -81,6 +85,38 @@ struct ApplicationRanker {
 
     private static func tokens(in value: String) -> [String] {
         value.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+    }
+
+    private static func subsequenceScore(of query: String, in target: String) -> Int? {
+        guard !query.isEmpty else {
+            return nil
+        }
+
+        let queryCharacters = Array(query)
+        let targetCharacters = Array(target)
+        var matchedPositions = [Int]()
+        var searchStart = 0
+
+        for queryCharacter in queryCharacters {
+            guard searchStart < targetCharacters.count,
+                  let position = targetCharacters[searchStart...]
+                    .firstIndex(of: queryCharacter)
+            else {
+                return nil
+            }
+
+            matchedPositions.append(position)
+            searchStart = position + 1
+        }
+
+        guard let firstPosition = matchedPositions.first,
+              let lastPosition = matchedPositions.last
+        else {
+            return nil
+        }
+
+        let skippedCharacters = lastPosition - firstPosition + 1 - queryCharacters.count
+        return skippedCharacters * 1_000 + firstPosition
     }
 
     private static func rankedApplicationOrder(
@@ -105,8 +141,20 @@ struct ApplicationRanker {
     }
 }
 
+private struct MatchRank: Equatable, Comparable {
+    let category: Int
+    var score = 0
+
+    static func < (lhs: MatchRank, rhs: MatchRank) -> Bool {
+        if lhs.category != rhs.category {
+            return lhs.category < rhs.category
+        }
+        return lhs.score < rhs.score
+    }
+}
+
 private struct RankedApplication {
     let application: InstalledApplication
-    let matchRank: Int
+    let matchRank: MatchRank
     let lastLaunch: Date?
 }

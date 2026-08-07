@@ -93,7 +93,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
             }
     }
 
-    private static func scan(directories: [URL]) throws -> [ApplicationCatalogCandidate] {
+    static func scan(directories: [URL]) throws -> [ApplicationCatalogCandidate] {
         let fileManager = FileManager.default
         var candidates = [ApplicationCatalogCandidate]()
 
@@ -103,6 +103,21 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
             }
 
             let keys: [URLResourceKey] = [.isDirectoryKey, .isPackageKey]
+            let topLevelURLs = (try? fileManager.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: keys,
+                options: []
+            )) ?? []
+            for url in topLevelURLs
+            where !url.lastPathComponent.hasPrefix(".")
+                && url.pathExtension.caseInsensitiveCompare("app") == .orderedSame
+            {
+                guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
+                    continue
+                }
+                candidates.append(candidate)
+            }
+
             guard let enumerator = fileManager.enumerator(
                 at: directory,
                 includingPropertiesForKeys: keys,
