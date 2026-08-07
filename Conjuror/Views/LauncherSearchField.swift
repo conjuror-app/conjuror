@@ -5,8 +5,6 @@ struct LauncherSearchField: View {
     let onOpenSelected: () -> Void
     let focusRequest: Int
 
-    @FocusState private var isFocused: Bool
-
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -42,4 +40,6 @@ struct LauncherSearchField: View {
             }
         }
     }
+
+    @FocusState private var isFocused: Bool
 }

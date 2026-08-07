@@ -142,15 +142,15 @@ struct ApplicationRanker {
 }
 
 private struct MatchRank: Equatable, Comparable {
-    let category: Int
-    var score = 0
-
     static func < (lhs: MatchRank, rhs: MatchRank) -> Bool {
         if lhs.category != rhs.category {
             return lhs.category < rhs.category
         }
         return lhs.score < rhs.score
     }
+
+    let category: Int
+    var score = 0
 }
 
 private struct RankedApplication {

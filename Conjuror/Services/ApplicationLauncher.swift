@@ -1,9 +1,5 @@
 import AppKit
 
-protocol ApplicationLaunching {
-    func open(_ application: InstalledApplication) async throws
-}
-
 struct ApplicationLauncher: ApplicationLaunching {
     func open(_ application: InstalledApplication) async throws {
         let configuration = NSWorkspace.OpenConfiguration()
@@ -24,6 +20,10 @@ struct ApplicationLauncher: ApplicationLaunching {
             }
         }
     }
+}
+
+protocol ApplicationLaunching {
+    func open(_ application: InstalledApplication) async throws
 }
 
 private enum ApplicationLaunchError: LocalizedError {
