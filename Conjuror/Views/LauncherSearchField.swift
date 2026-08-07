@@ -11,12 +11,12 @@ struct LauncherSearchField: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.secondary)
 
             TextField("Search apps…", text: $query)
                 .focused($isFocused)
-                .font(.system(size: 19, weight: .regular))
+                .font(.system(size: 18, weight: .regular))
                 .textFieldStyle(.plain)
                 .onMoveCommand(perform: onMoveSelection)
                 .onSubmit(onOpenSelected)
@@ -34,7 +34,7 @@ struct LauncherSearchField: View {
             }
         }
         .padding(.horizontal, 2)
-        .frame(height: 42)
+        .frame(height: 38)
         .task {
             isFocused = true
         }
