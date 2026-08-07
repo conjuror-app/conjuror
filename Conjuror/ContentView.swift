@@ -70,7 +70,6 @@ struct ContentView: View {
         VStack(spacing: 0) {
             LauncherSearchField(
                 query: $store.query,
-                onMoveSelection: store.moveSelection,
                 onOpenSelected: store.openSelectedApplication,
                 focusRequest: store.focusRequest
             )
