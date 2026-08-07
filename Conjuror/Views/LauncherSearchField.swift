@@ -2,7 +2,6 @@ import SwiftUI
 
 struct LauncherSearchField: View {
     @Binding var query: String
-    let onMoveSelection: (MoveCommandDirection) -> Void
     let onOpenSelected: () -> Void
     let focusRequest: Int
 
@@ -18,7 +17,6 @@ struct LauncherSearchField: View {
                 .focused($isFocused)
                 .font(.system(size: 18, weight: .regular))
                 .textFieldStyle(.plain)
-                .onMoveCommand(perform: onMoveSelection)
                 .onSubmit(onOpenSelected)
 
             if !query.isEmpty {

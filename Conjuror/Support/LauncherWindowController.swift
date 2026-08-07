@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import SwiftUI
 
 @MainActor
@@ -33,6 +34,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         panel.level = .floating
         panel.animationBehavior = .utilityWindow
         panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
+        panel.onMoveSelection = { [weak store] direction in
+            store?.moveSelection(direction)
+        }
 
         let contentView = ContentView(
             store: store,
@@ -154,7 +158,26 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 }
 
 private final class LauncherPanel: NSPanel {
+    var onMoveSelection: ((MoveCommandDirection) -> Void)?
+
     override var canBecomeKey: Bool { true }
+
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .keyDown {
+            switch Int(event.keyCode) {
+            case kVK_UpArrow:
+                onMoveSelection?(.up)
+                return
+            case kVK_DownArrow:
+                onMoveSelection?(.down)
+                return
+            default:
+                break
+            }
+        }
+
+        super.sendEvent(event)
+    }
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
