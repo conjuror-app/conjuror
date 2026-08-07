@@ -22,7 +22,6 @@ final class AppController: NSObject, NSApplicationDelegate {
         configureStatusItem()
         registerHotKey()
         observeWorkspaceChanges()
-        showLauncher()
     }
 
     func applicationShouldHandleReopen(
