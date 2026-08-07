@@ -29,7 +29,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             panel.hasShadow = true
         }
         panel.isFloatingPanel = true
-        panel.isMovableByWindowBackground = true
+        panel.isMovableByWindowBackground = false
         panel.level = .floating
         panel.animationBehavior = .utilityWindow
         panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
