@@ -94,7 +94,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
         window.setFrameOrigin(NSPoint(
             x: screenFrame.midX - window.frame.width / 2,
-            y: screenFrame.midY - window.frame.height / 2
+            y: screenFrame.midY
+                - window.frame.height / 2
+                + screenFrame.height * 0.15
         ))
     }
 

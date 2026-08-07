@@ -1,8 +1,8 @@
 import SwiftUI
 
 enum LauncherLayout {
-    static let width: CGFloat = 560
-    static let collapsedHeight: CGFloat = 60
+    static let width: CGFloat = 540
+    static let collapsedHeight: CGFloat = 54
     static let expandedHeight: CGFloat = 360
 }
 
