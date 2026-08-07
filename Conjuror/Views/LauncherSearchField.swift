@@ -14,7 +14,7 @@ struct LauncherSearchField: View {
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.secondary)
 
-            TextField("Search applications", text: $query)
+            TextField("Search apps…", text: $query)
                 .focused($isFocused)
                 .font(.system(size: 19, weight: .regular))
                 .textFieldStyle(.plain)

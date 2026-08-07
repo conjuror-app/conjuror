@@ -3,7 +3,10 @@ import SwiftUI
 
 @MainActor
 final class LauncherWindowController: NSWindowController, NSWindowDelegate {
-    private static let windowSize = NSSize(width: 620, height: 400)
+    private static let collapsedWindowSize = NSSize(
+        width: LauncherLayout.width,
+        height: LauncherLayout.collapsedHeight
+    )
 
     private let store: LauncherStore
 
@@ -11,7 +14,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         self.store = store
 
         let panel = LauncherPanel(
-            contentRect: NSRect(origin: .zero, size: Self.windowSize),
+            contentRect: NSRect(origin: .zero, size: Self.collapsedWindowSize),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -31,10 +34,15 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             onHide: { [weak panel] in
                 panel?.orderOut(nil)
             },
-            onQuit: { NSApp.terminate(nil) }
+            onExpansionChange: { [weak panel] isExpanded in
+                guard let panel else {
+                    return
+                }
+                Self.resize(panel, isExpanded: isExpanded)
+            }
         )
         panel.contentViewController = NSHostingController(rootView: contentView)
-        panel.setContentSize(Self.windowSize)
+        panel.setContentSize(Self.collapsedWindowSize)
 
         super.init(window: panel)
         panel.delegate = self
@@ -54,6 +62,8 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             return
         }
 
+        store.prepareForActivation()
+        Self.resize(window, isExpanded: false)
         centerOnMainScreen(window)
         NSApp.unhide(nil)
         window.makeKeyAndOrderFront(nil)
@@ -63,7 +73,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
                 return
             }
 
-            self.store.prepareForActivation()
             window.makeKey()
             self.focusSearchField(in: window)
         }
@@ -84,9 +93,33 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         }
 
         window.setFrameOrigin(NSPoint(
-            x: screenFrame.midX - Self.windowSize.width / 2,
-            y: screenFrame.midY - Self.windowSize.height / 2
+            x: screenFrame.midX - window.frame.width / 2,
+            y: screenFrame.midY - window.frame.height / 2
         ))
+    }
+
+    private static func resize(
+        _ window: NSWindow,
+        isExpanded: Bool
+    ) {
+        let targetSize = NSSize(
+            width: LauncherLayout.width,
+            height: isExpanded
+                ? LauncherLayout.expandedHeight
+                : LauncherLayout.collapsedHeight
+        )
+        guard window.frame.size != targetSize else {
+            return
+        }
+
+        let currentFrame = window.frame
+        let targetFrame = NSRect(
+            x: currentFrame.midX - targetSize.width / 2,
+            y: currentFrame.maxY - targetSize.height,
+            width: targetSize.width,
+            height: targetSize.height
+        )
+        window.setFrame(targetFrame, display: true)
     }
 
     private func focusSearchField(in window: NSWindow) {
@@ -116,4 +149,16 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
 private final class LauncherPanel: NSPanel {
     override var canBecomeKey: Bool { true }
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        if modifiers == .command,
+           event.charactersIgnoringModifiers?.lowercased() == "q"
+        {
+            NSApp.terminate(nil)
+            return true
+        }
+
+        return super.performKeyEquivalent(with: event)
+    }
 }
