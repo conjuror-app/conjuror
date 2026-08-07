@@ -39,6 +39,36 @@ final class ApplicationRankerTests: XCTestCase {
         XCTAssertEqual(result.map(\.displayName), ["My VS Code", "Very Special Code"])
     }
 
+    func testFuzzySubsequenceMatchesApplicationName() {
+        let applications = [
+            application("Xylophone", id: "dev.example.xylophone"),
+            application("Xcode", id: "com.apple.dt.Xcode"),
+        ]
+
+        let result = ApplicationRanker.ranked(
+            applications: applications,
+            query: "xcd",
+            recentLaunches: [:]
+        )
+
+        XCTAssertEqual(result.map(\.displayName), ["Xcode"])
+    }
+
+    func testCompactFuzzyMatchesRankFirst() {
+        let applications = [
+            application("Xylocardial", id: "dev.example.spread"),
+            application("Xcode", id: "com.apple.dt.Xcode"),
+        ]
+
+        let result = ApplicationRanker.ranked(
+            applications: applications,
+            query: "xcd",
+            recentLaunches: [:]
+        )
+
+        XCTAssertEqual(result.map(\.displayName), ["Xcode", "Xylocardial"])
+    }
+
     func testRecentSuccessfulLaunchBreaksEqualMatchTies() {
         let older = application("Alpha Editor", id: "dev.example.alpha")
         let newer = application("Atlas Editor", id: "dev.example.atlas")
