@@ -3,17 +3,67 @@ import SwiftUI
 enum LauncherLayout {
     static let width: CGFloat = 540
     static let collapsedHeight: CGFloat = 54
-    static let expandedHeight: CGFloat = 360
+    static let maximumExpandedHeight: CGFloat = 360
+
+    private static let searchHeight: CGFloat = 52
+    private static let dividerHeight: CGFloat = 1
+    private static let resultRowHeight: CGFloat = 40
+    private static let resultSpacing: CGFloat = 1
+    private static let resultsVerticalPadding: CGFloat = 8
+    private static let maximumVisibleResults = 7
+
+    static func expandedHeight(
+        resultCount: Int,
+        hasCatalogError: Bool,
+        hasHotKeyError: Bool,
+        hasLaunchError: Bool
+    ) -> CGFloat {
+        let resultsHeight: CGFloat
+        if hasCatalogError {
+            resultsHeight = 104
+        } else if resultCount == 0 {
+            resultsHeight = 72
+        } else {
+            let visibleResultCount = min(resultCount, maximumVisibleResults)
+            resultsHeight = resultsVerticalPadding
+                + CGFloat(visibleResultCount) * resultRowHeight
+                + CGFloat(max(visibleResultCount - 1, 0)) * resultSpacing
+        }
+
+        let statusHeight: CGFloat = hasHotKeyError ? 26 : 0
+        let launchErrorHeight: CGFloat = hasLaunchError ? 26 : 0
+        return min(
+            maximumExpandedHeight,
+            searchHeight
+                + dividerHeight
+                + statusHeight
+                + resultsHeight
+                + launchErrorHeight
+        )
+    }
 }
 
 struct ContentView: View {
     @ObservedObject var store: LauncherStore
     let hotKeyErrorMessage: String?
     let onHide: () -> Void
-    let onExpansionChange: (Bool) -> Void
+    let onHeightChange: (CGFloat) -> Void
 
     private var isExpanded: Bool {
         !store.query.isEmpty
+    }
+
+    private var contentHeight: CGFloat {
+        guard isExpanded else {
+            return LauncherLayout.collapsedHeight
+        }
+
+        return LauncherLayout.expandedHeight(
+            resultCount: store.filteredApplications.count,
+            hasCatalogError: store.catalogErrorMessage != nil,
+            hasHotKeyError: hotKeyErrorMessage != nil,
+            hasLaunchError: store.launchErrorMessage != nil
+        )
     }
 
     var body: some View {
@@ -48,9 +98,7 @@ struct ContentView: View {
         }
         .frame(
             width: LauncherLayout.width,
-            height: isExpanded
-                ? LauncherLayout.expandedHeight
-                : LauncherLayout.collapsedHeight,
+            height: contentHeight,
             alignment: .top
         )
         .background(
@@ -65,8 +113,8 @@ struct ContentView: View {
         .task {
             store.loadApplications()
         }
-        .onChange(of: isExpanded) {
-            onExpansionChange(isExpanded)
+        .onChange(of: contentHeight) {
+            onHeightChange(contentHeight)
         }
         .onExitCommand {
             if store.query.isEmpty {
@@ -121,9 +169,7 @@ struct ContentView: View {
                     guard let selectedID = store.selectedApplicationID else {
                         return
                     }
-                    withAnimation(.easeOut(duration: 0.12)) {
-                        proxy.scrollTo(selectedID, anchor: .center)
-                    }
+                    proxy.scrollTo(selectedID, anchor: .center)
                 }
             }
         }

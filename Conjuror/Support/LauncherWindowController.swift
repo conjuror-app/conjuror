@@ -34,11 +34,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             onHide: { [weak panel] in
                 panel?.orderOut(nil)
             },
-            onExpansionChange: { [weak panel] isExpanded in
+            onHeightChange: { [weak panel] height in
                 guard let panel else {
                     return
                 }
-                Self.resize(panel, isExpanded: isExpanded)
+                Self.resize(panel, height: height)
             }
         )
         panel.contentViewController = NSHostingController(rootView: contentView)
@@ -63,7 +63,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         }
 
         store.prepareForActivation()
-        Self.resize(window, isExpanded: false)
+        Self.resize(window, height: LauncherLayout.collapsedHeight)
         centerOnMainScreen(window)
         NSApp.unhide(nil)
         window.makeKeyAndOrderFront(nil)
@@ -102,13 +102,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
     private static func resize(
         _ window: NSWindow,
-        isExpanded: Bool
+        height: CGFloat
     ) {
         let targetSize = NSSize(
             width: LauncherLayout.width,
-            height: isExpanded
-                ? LauncherLayout.expandedHeight
-                : LauncherLayout.collapsedHeight
+            height: height
         )
         guard window.frame.size != targetSize else {
             return
