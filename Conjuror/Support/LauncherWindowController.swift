@@ -9,6 +9,32 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         height: LauncherLayout.collapsedHeight
     )
 
+    private static func resize(
+        _ window: NSWindow,
+        height: CGFloat
+    ) {
+        let targetSize = NSSize(
+            width: LauncherLayout.width,
+            height: height
+        )
+        guard window.frame.size != targetSize else {
+            return
+        }
+
+        let currentFrame = window.frame
+        let targetFrame = NSRect(
+            x: currentFrame.midX - targetSize.width / 2,
+            y: currentFrame.maxY - targetSize.height,
+            width: targetSize.width,
+            height: targetSize.height
+        )
+        window.setFrame(targetFrame, display: true)
+    }
+
+    var isVisible: Bool {
+        window?.isVisible == true
+    }
+
     private let store: LauncherStore
 
     init(store: LauncherStore, hotKeyErrorMessage: String?) {
@@ -63,10 +89,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    var isVisible: Bool {
-        window?.isVisible == true
-    }
-
     func show() {
         guard let window else {
             return
@@ -108,28 +130,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
                 - window.frame.height / 2
                 + screenFrame.height * 0.15
         ))
-    }
-
-    private static func resize(
-        _ window: NSWindow,
-        height: CGFloat
-    ) {
-        let targetSize = NSSize(
-            width: LauncherLayout.width,
-            height: height
-        )
-        guard window.frame.size != targetSize else {
-            return
-        }
-
-        let currentFrame = window.frame
-        let targetFrame = NSRect(
-            x: currentFrame.midX - targetSize.width / 2,
-            y: currentFrame.maxY - targetSize.height,
-            width: targetSize.width,
-            height: targetSize.height
-        )
-        window.setFrame(targetFrame, display: true)
     }
 
     private func focusSearchField(in window: NSWindow) {

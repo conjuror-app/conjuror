@@ -32,6 +32,10 @@ final class LauncherStore: ObservableObject {
     private let onLaunchSuccess: () -> Void
     private var recentLaunches: [String: Date]
     private var loadTask: Task<Void, Never>?
+    private var selectedApplication: InstalledApplication? {
+        filteredApplications.first { $0.id == selectedApplicationID }
+            ?? filteredApplications.first
+    }
 
     init(
         catalog: ApplicationCatalogLoading = ApplicationCatalog(),
@@ -146,11 +150,6 @@ final class LauncherStore: ObservableObject {
         launchErrorMessage = nil
         selectFirstResult()
         focusRequest &+= 1
-    }
-
-    private var selectedApplication: InstalledApplication? {
-        filteredApplications.first { $0.id == selectedApplicationID }
-            ?? filteredApplications.first
     }
 
     private func selectFirstResult() {

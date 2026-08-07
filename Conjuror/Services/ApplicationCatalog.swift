@@ -1,19 +1,6 @@
 import AppKit
 import Foundation
 
-struct ApplicationCatalogCandidate: Equatable {
-    let displayName: String
-    let bundleIdentifier: String?
-    let url: URL
-    let sourcePriority: Int
-    let isBackgroundOnly: Bool
-    let isHelper: Bool
-}
-
-protocol ApplicationCatalogLoading {
-    func load() async throws -> [InstalledApplication]
-}
-
 struct ApplicationCatalog: ApplicationCatalogLoading {
     static let applicationDirectories = [
         URL(fileURLWithPath: "/Applications", isDirectory: true),
@@ -22,41 +9,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Applications", isDirectory: true),
     ]
-
-    private let directories: [URL]
-    private let excludedBundleIdentifier: String?
-
-    init(
-        directories: [URL] = Self.applicationDirectories,
-        excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
-    ) {
-        self.directories = directories
-        self.excludedBundleIdentifier = excludedBundleIdentifier
-    }
-
-    func load() async throws -> [InstalledApplication] {
-        let directories = directories
-        let excludedBundleIdentifier = excludedBundleIdentifier
-
-        return try await Task.detached(priority: .userInitiated) {
-            let candidates = try Self.scan(directories: directories)
-            return Self.filteredAndDeduplicated(
-                candidates,
-                excludingBundleIdentifier: excludedBundleIdentifier
-            )
-            .map { candidate in
-                let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
-                icon.size = NSSize(width: 32, height: 32)
-
-                return InstalledApplication(
-                    displayName: candidate.displayName,
-                    bundleIdentifier: candidate.bundleIdentifier,
-                    url: candidate.url,
-                    icon: icon
-                )
-            }
-        }.value
-    }
 
     static func filteredAndDeduplicated(
         _ candidates: [ApplicationCatalogCandidate],
@@ -184,4 +136,52 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     private static func canonicalURL(_ url: URL) -> URL {
         url.standardizedFileURL.resolvingSymlinksInPath()
     }
+
+    private let directories: [URL]
+    private let excludedBundleIdentifier: String?
+
+    init(
+        directories: [URL] = Self.applicationDirectories,
+        excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
+    ) {
+        self.directories = directories
+        self.excludedBundleIdentifier = excludedBundleIdentifier
+    }
+
+    func load() async throws -> [InstalledApplication] {
+        let directories = directories
+        let excludedBundleIdentifier = excludedBundleIdentifier
+
+        return try await Task.detached(priority: .userInitiated) {
+            let candidates = try Self.scan(directories: directories)
+            return Self.filteredAndDeduplicated(
+                candidates,
+                excludingBundleIdentifier: excludedBundleIdentifier
+            )
+            .map { candidate in
+                let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
+                icon.size = NSSize(width: 32, height: 32)
+
+                return InstalledApplication(
+                    displayName: candidate.displayName,
+                    bundleIdentifier: candidate.bundleIdentifier,
+                    url: candidate.url,
+                    icon: icon
+                )
+            }
+        }.value
+    }
+}
+
+struct ApplicationCatalogCandidate: Equatable {
+    let displayName: String
+    let bundleIdentifier: String?
+    let url: URL
+    let sourcePriority: Int
+    let isBackgroundOnly: Bool
+    let isHelper: Bool
+}
+
+protocol ApplicationCatalogLoading {
+    func load() async throws -> [InstalledApplication]
 }
