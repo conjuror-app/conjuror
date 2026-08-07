@@ -1,10 +1,20 @@
 import SwiftUI
 
+enum LauncherLayout {
+    static let width: CGFloat = 560
+    static let collapsedHeight: CGFloat = 60
+    static let expandedHeight: CGFloat = 360
+}
+
 struct ContentView: View {
     @ObservedObject var store: LauncherStore
     let hotKeyErrorMessage: String?
     let onHide: () -> Void
-    let onQuit: () -> Void
+    let onExpansionChange: (Bool) -> Void
+
+    private var isExpanded: Bool {
+        !store.query.isEmpty
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,27 +28,31 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.bottom, 6)
 
-            Divider()
+            if isExpanded {
+                Divider()
 
-            if let hotKeyErrorMessage {
-                statusMessage(
-                    hotKeyErrorMessage,
-                    systemImage: "keyboard.badge.exclamationmark",
-                    color: .orange
-                )
+                if let hotKeyErrorMessage {
+                    statusMessage(
+                        hotKeyErrorMessage,
+                        systemImage: "keyboard.badge.exclamationmark",
+                        color: .orange
+                    )
+                }
+
+                resultContent
+
+                if let launchErrorMessage = store.launchErrorMessage {
+                    launchError(launchErrorMessage)
+                }
             }
-
-            resultContent
-
-            if let launchErrorMessage = store.launchErrorMessage {
-                launchError(launchErrorMessage)
-            }
-
-            Divider()
-
-            LauncherFooter(onQuit: onQuit)
         }
-        .frame(width: 620, height: 400)
+        .frame(
+            width: LauncherLayout.width,
+            height: isExpanded
+                ? LauncherLayout.expandedHeight
+                : LauncherLayout.collapsedHeight,
+            alignment: .top
+        )
         .background(
             .regularMaterial,
             in: RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -50,6 +64,9 @@ struct ContentView: View {
         }
         .task {
             store.loadApplications()
+        }
+        .onChange(of: isExpanded) {
+            onExpansionChange(isExpanded)
         }
         .onExitCommand {
             if store.query.isEmpty {
