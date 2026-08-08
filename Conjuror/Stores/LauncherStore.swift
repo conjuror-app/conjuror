@@ -32,6 +32,7 @@ final class LauncherStore: ObservableObject {
     private let onLaunchSuccess: () -> Void
     private var recentLaunches: [String: Date]
     private var loadTask: Task<Void, Never>?
+    private var reloadRequested = false
     private var selectedApplication: InstalledApplication? {
         filteredApplications.first { $0.id == selectedApplicationID }
             ?? filteredApplications.first
@@ -56,32 +57,33 @@ final class LauncherStore: ObservableObject {
 
     func loadApplications() {
         guard !isLoading else {
+            reloadRequested = true
             return
         }
 
         isLoading = true
         catalogErrorMessage = nil
 
+        let catalog = catalog
         loadTask = Task { [weak self] in
-            guard let self else {
-                return
-            }
-
             do {
                 let loadedApplications = try await catalog.load()
-                guard !Task.isCancelled else {
+                guard let self, !Task.isCancelled else {
                     return
                 }
                 applications = loadedApplications
-                isLoading = false
                 selectFirstResult()
+                finishLoading()
             } catch is CancellationError {
-                isLoading = false
+                self?.finishLoading()
             } catch {
+                guard let self else {
+                    return
+                }
                 applications = []
-                isLoading = false
                 catalogErrorMessage = "Couldn’t load installed applications. \(error.localizedDescription)"
                 selectedApplicationID = nil
+                finishLoading()
             }
         }
     }
@@ -155,5 +157,17 @@ final class LauncherStore: ObservableObject {
     private func selectFirstResult() {
         selectedApplicationID = filteredApplications.first?.id
         selectionScrollRequest &+= 1
+    }
+
+    private func finishLoading() {
+        isLoading = false
+        loadTask = nil
+
+        guard reloadRequested else {
+            return
+        }
+
+        reloadRequested = false
+        loadApplications()
     }
 }
