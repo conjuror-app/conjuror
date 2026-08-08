@@ -3,7 +3,7 @@ import SwiftUI
 struct LauncherView: View {
     @ObservedObject var store: LauncherStore
     @ObservedObject var settingsStore: SettingsStore
-    let hotKeyErrorMessage: String?
+    @ObservedObject var hotKeyStore: HotKeyStore
     let onHide: () -> Void
     let onHeightChange: (CGFloat) -> Void
 
@@ -21,7 +21,7 @@ struct LauncherView: View {
             if isExpanded {
                 Divider()
 
-                if let hotKeyErrorMessage {
+                if let hotKeyErrorMessage = hotKeyStore.registrationErrorMessage {
                     statusMessage(
                         hotKeyErrorMessage,
                         systemImage: "keyboard.badge.exclamationmark",
@@ -69,7 +69,7 @@ struct LauncherView: View {
         return LauncherLayout.expandedHeight(
             resultCount: store.filteredApplications.count,
             hasCatalogError: store.catalogErrorMessage != nil,
-            hasHotKeyError: hotKeyErrorMessage != nil,
+            hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
             hasLaunchError: store.launchErrorMessage != nil,
             maximumVisibleResults: settingsStore.maximumVisibleResults
         )
