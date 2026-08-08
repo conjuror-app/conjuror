@@ -199,18 +199,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     }
 }
 
-private enum ApplicationCatalogError: LocalizedError {
-    case unreadableDirectories([URL])
-
-    var errorDescription: String? {
-        switch self {
-        case let .unreadableDirectories(directories):
-            let names = directories.map(\.path).joined(separator: ", ")
-            return "Couldn’t read application directories: \(names)"
-        }
-    }
-}
-
 struct ApplicationCatalogCandidate: Equatable, Sendable {
     let displayName: String
     let bundleIdentifier: String?
@@ -223,4 +211,16 @@ struct ApplicationCatalogCandidate: Equatable, Sendable {
 protocol ApplicationCatalogLoading {
     @MainActor
     func load() async throws -> [InstalledApplication]
+}
+
+private enum ApplicationCatalogError: LocalizedError {
+    case unreadableDirectories([URL])
+
+    var errorDescription: String? {
+        switch self {
+        case let .unreadableDirectories(directories):
+            let names = directories.map(\.path).joined(separator: ", ")
+            return "Couldn’t read application directories: \(names)"
+        }
+    }
 }
