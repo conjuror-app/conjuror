@@ -8,7 +8,10 @@ final class GlobalHotKey {
     private var hotKey: EventHotKeyRef?
     private let handler: () -> Void
 
-    init(handler: @escaping () -> Void) throws {
+    init(
+        configuration: HotKeyConfiguration,
+        handler: @escaping () -> Void
+    ) throws {
         self.handler = handler
 
         var eventType = EventTypeSpec(
@@ -40,8 +43,8 @@ final class GlobalHotKey {
 
         let hotKeyID = EventHotKeyID(signature: Self.signature, id: 1)
         let registrationStatus = RegisterEventHotKey(
-            UInt32(kVK_Space),
-            UInt32(optionKey),
+            configuration.keyCode,
+            configuration.modifiers,
             hotKeyID,
             GetApplicationEventTarget(),
             0,
@@ -53,7 +56,10 @@ final class GlobalHotKey {
                 RemoveEventHandler(eventHandler)
             }
             eventHandler = nil
-            throw GlobalHotKeyError.registerOptionSpace(registrationStatus)
+            throw GlobalHotKeyError.registerHotKey(
+                configuration.displayName,
+                registrationStatus
+            )
         }
     }
 
@@ -69,14 +75,14 @@ final class GlobalHotKey {
 
 private enum GlobalHotKeyError: LocalizedError {
     case installEventHandler(OSStatus)
-    case registerOptionSpace(OSStatus)
+    case registerHotKey(String, OSStatus)
 
     var errorDescription: String? {
         switch self {
         case let .installEventHandler(status):
             return "Couldn’t install the keyboard event handler (OSStatus \(status))."
-        case let .registerOptionSpace(status):
-            return "⌥ Space is already in use or unavailable (OSStatus \(status))."
+        case let .registerHotKey(displayName, status):
+            return "\(displayName) is already in use or unavailable (OSStatus \(status))."
         }
     }
 }

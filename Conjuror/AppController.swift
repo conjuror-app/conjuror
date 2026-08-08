@@ -6,9 +6,25 @@ final class AppController: NSObject, NSApplicationDelegate {
         self?.hideLauncher()
     })
 
+    private lazy var settingsStore = SettingsStore()
+
     private lazy var launcherWindowController = LauncherWindowController(
         store: store,
+        settingsStore: settingsStore,
         hotKeyErrorMessage: hotKeyErrorMessage
+    )
+
+    private lazy var settingsWindowController = SettingsWindowController(
+        store: settingsStore,
+        onHotKeyChange: { [weak self] configuration in
+            self?.updateHotKey(configuration)
+        },
+        onShortcutRecordingChange: { [weak self] isRecording in
+            self?.setShortcutRecording(isRecording)
+        },
+        onReset: { [weak self] in
+            self?.resetSettings()
+        }
     )
 
     private var hotKeyErrorMessage: String?
@@ -62,17 +78,24 @@ final class AppController: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
         let showItem = NSMenuItem(
-            title: "Show Conjuror",
+            title: "Show",
             action: #selector(showLauncherFromMenu),
-            keyEquivalent: " "
+            keyEquivalent: ""
         )
-        showItem.keyEquivalentModifierMask = [.option]
         showItem.target = self
         menu.addItem(showItem)
+
+        let settingsItem = NSMenuItem(
+            title: "Settings…",
+            action: #selector(showSettingsFromMenu),
+            keyEquivalent: ""
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit Conjuror",
+            title: "Quit",
             action: #selector(quitFromMenu),
             keyEquivalent: "q"
         )
@@ -88,22 +111,63 @@ final class AppController: NSObject, NSApplicationDelegate {
         showLauncher()
     }
 
+    @objc private func showSettingsFromMenu() {
+        settingsWindowController.show()
+    }
+
     @objc private func quitFromMenu() {
         NSApp.terminate(nil)
     }
 
     private func registerHotKey() {
         do {
-            hotKey = try GlobalHotKey { [weak self] in
-                DispatchQueue.main.async {
-                    self?.toggleLauncher()
-                }
-            }
+            hotKey = try makeGlobalHotKey(
+                configuration: settingsStore.hotKeyConfiguration
+            )
             hotKeyErrorMessage = nil
         } catch {
             hotKey = nil
             hotKeyErrorMessage = error.localizedDescription
         }
+    }
+
+    private func makeGlobalHotKey(
+        configuration: HotKeyConfiguration
+    ) throws -> GlobalHotKey {
+        try GlobalHotKey(configuration: configuration) { [weak self] in
+            DispatchQueue.main.async {
+                self?.toggleLauncher()
+            }
+        }
+    }
+
+    private func updateHotKey(_ configuration: HotKeyConfiguration) -> String? {
+        guard configuration != settingsStore.hotKeyConfiguration else {
+            return nil
+        }
+
+        do {
+            let replacementHotKey = try makeGlobalHotKey(configuration: configuration)
+            hotKey = replacementHotKey
+            hotKeyErrorMessage = nil
+            settingsStore.setHotKeyConfiguration(configuration)
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    private func setShortcutRecording(_ isRecording: Bool) {
+        if isRecording {
+            hotKey = nil
+        } else if hotKey == nil {
+            registerHotKey()
+        }
+    }
+
+    private func resetSettings() -> String? {
+        settingsStore.resetMaximumVisibleResults()
+        return updateHotKey(.defaultValue)
     }
 
     private func observeWorkspaceChanges() {

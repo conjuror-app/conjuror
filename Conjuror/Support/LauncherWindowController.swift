@@ -37,7 +37,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
     private let store: LauncherStore
 
-    init(store: LauncherStore, hotKeyErrorMessage: String?) {
+    init(
+        store: LauncherStore,
+        settingsStore: SettingsStore,
+        hotKeyErrorMessage: String?
+    ) {
         self.store = store
 
         let panel = LauncherPanel(
@@ -66,6 +70,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
         let contentView = ContentView(
             store: store,
+            settingsStore: settingsStore,
             hotKeyErrorMessage: hotKeyErrorMessage,
             onHide: { [weak panel] in
                 panel?.orderOut(nil)
