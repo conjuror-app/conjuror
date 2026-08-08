@@ -6,8 +6,8 @@ use the arrow keys to select, and press Return to open. Its menu bar item provid
 quick access to the launcher, Settings, and Quit.
 
 The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
-`/System/Applications/Utilities`, and `~/Applications` without external
-packages.
+`/System/Applications/Utilities`, `~/Applications`, and application folders on
+mounted volumes without external packages.
 
 ## Development
 

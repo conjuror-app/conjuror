@@ -2,13 +2,32 @@ import AppKit
 import Foundation
 
 struct ApplicationCatalog: ApplicationCatalogLoading {
-    static let applicationDirectories = [
-        URL(fileURLWithPath: "/Applications", isDirectory: true),
-        URL(fileURLWithPath: "/System/Applications", isDirectory: true),
-        URL(fileURLWithPath: "/System/Applications/Utilities", isDirectory: true),
-        FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Applications", isDirectory: true),
-    ]
+    static func applicationDirectories(
+        fileManager: FileManager = .default,
+        mountedVolumeURLs: [URL]? = nil
+    ) -> [URL] {
+        let standardDirectories = [
+            URL(fileURLWithPath: "/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Applications", isDirectory: true),
+            URL(fileURLWithPath: "/System/Applications/Utilities", isDirectory: true),
+            fileManager.homeDirectoryForCurrentUser
+                .appendingPathComponent("Applications", isDirectory: true),
+        ]
+        let mountedVolumes = mountedVolumeURLs
+            ?? fileManager.mountedVolumeURLs(
+                includingResourceValuesForKeys: nil,
+                options: [.skipHiddenVolumes]
+            )
+            ?? []
+        let mountedApplicationDirectories = mountedVolumes
+            .map { $0.appendingPathComponent("Applications", isDirectory: true) }
+            .filter { fileManager.fileExists(atPath: $0.path) }
+
+        var seenPaths = Set<String>()
+        return (standardDirectories + mountedApplicationDirectories).filter { directory in
+            seenPaths.insert(canonicalURL(directory).path).inserted
+        }
+    }
 
     static func filteredAndDeduplicated(
         _ candidates: [ApplicationCatalogCandidate],
@@ -48,6 +67,8 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     static func scan(directories: [URL]) throws -> [ApplicationCatalogCandidate] {
         let fileManager = FileManager.default
         var candidates = [ApplicationCatalogCandidate]()
+        var readableDirectoryCount = 0
+        var unreadableDirectories = [URL]()
 
         for (sourcePriority, directory) in directories.enumerated() {
             guard fileManager.fileExists(atPath: directory.path) else {
@@ -55,26 +76,17 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
             }
 
             let keys: [URLResourceKey] = [.isDirectoryKey, .isPackageKey]
-            let topLevelURLs = (try? fileManager.contentsOfDirectory(
-                at: directory,
-                includingPropertiesForKeys: keys,
-                options: []
-            )) ?? []
-            for url in topLevelURLs
-            where !url.lastPathComponent.hasPrefix(".")
-                && url.pathExtension.caseInsensitiveCompare("app") == .orderedSame
-            {
-                guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
-                    continue
-                }
-                candidates.append(candidate)
-            }
-
+            var enumerationError: Error?
             guard let enumerator = fileManager.enumerator(
                 at: directory,
                 includingPropertiesForKeys: keys,
-                options: [.skipsHiddenFiles, .skipsPackageDescendants]
+                options: [.skipsHiddenFiles, .skipsPackageDescendants],
+                errorHandler: { _, error in
+                    enumerationError = error
+                    return false
+                }
             ) else {
+                unreadableDirectories.append(directory)
                 continue
             }
 
@@ -84,6 +96,19 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
                 }
                 candidates.append(candidate)
             }
+
+            if enumerationError != nil {
+                unreadableDirectories.append(directory)
+            } else {
+                readableDirectoryCount += 1
+            }
+        }
+
+        if candidates.isEmpty,
+           readableDirectoryCount == 0,
+           !unreadableDirectories.isEmpty
+        {
+            throw ApplicationCatalogError.unreadableDirectories(unreadableDirectories)
         }
 
         return candidates
@@ -137,19 +162,19 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
         url.standardizedFileURL.resolvingSymlinksInPath()
     }
 
-    private let directories: [URL]
+    private let directoryProvider: () -> [URL]
     private let excludedBundleIdentifier: String?
 
     init(
-        directories: [URL] = Self.applicationDirectories,
+        directoryProvider: @escaping () -> [URL] = { Self.applicationDirectories() },
         excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
     ) {
-        self.directories = directories
+        self.directoryProvider = directoryProvider
         self.excludedBundleIdentifier = excludedBundleIdentifier
     }
 
     func load() async throws -> [InstalledApplication] {
-        let directories = directories
+        let directories = directoryProvider()
         let excludedBundleIdentifier = excludedBundleIdentifier
 
         return try await Task.detached(priority: .userInitiated) {
@@ -170,6 +195,18 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
                 )
             }
         }.value
+    }
+}
+
+private enum ApplicationCatalogError: LocalizedError {
+    case unreadableDirectories([URL])
+
+    var errorDescription: String? {
+        switch self {
+        case let .unreadableDirectories(directories):
+            let names = directories.map(\.path).joined(separator: ", ")
+            return "Couldn’t read application directories: \(names)"
+        }
     }
 }
 
