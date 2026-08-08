@@ -5,12 +5,14 @@ import SwiftUI
 final class LauncherStore: ObservableObject {
     @Published var query = "" {
         didSet {
+            refreshFilteredApplications()
             selectFirstResult()
             launchErrorMessage = nil
         }
     }
 
     @Published private(set) var applications = [InstalledApplication]()
+    @Published private(set) var filteredApplications = [InstalledApplication]()
     @Published private(set) var catalogErrorMessage: String?
     @Published private(set) var isLoading = false
     @Published private(set) var launchErrorMessage: String?
@@ -18,19 +20,12 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var selectionScrollRequest = 0
     @Published private(set) var focusRequest = 0
 
-    var filteredApplications: [InstalledApplication] {
-        ApplicationRanker.ranked(
-            applications: applications,
-            query: query,
-            recentLaunches: recentLaunches
-        )
-    }
-
     private let catalog: ApplicationCatalogLoading
     private let launcher: ApplicationLaunching
     private let launchHistory: LaunchHistoryStore
     private let onLaunchSuccess: () -> Void
     private var recentLaunches: [String: Date]
+    private var applicationIndex = ApplicationRanker.Index(applications: [])
     private var loadTask: Task<Void, Never>?
     private var reloadRequested = false
     private var selectedApplication: InstalledApplication? {
@@ -71,7 +66,7 @@ final class LauncherStore: ObservableObject {
                 guard let self, !Task.isCancelled else {
                     return
                 }
-                applications = loadedApplications
+                replaceApplications(with: loadedApplications)
                 selectFirstResult()
                 finishLoading()
             } catch is CancellationError {
@@ -80,7 +75,7 @@ final class LauncherStore: ObservableObject {
                 guard let self else {
                     return
                 }
-                applications = []
+                replaceApplications(with: [])
                 catalogErrorMessage = "Couldn’t load installed applications. \(error.localizedDescription)"
                 selectedApplicationID = nil
                 finishLoading()
@@ -157,6 +152,19 @@ final class LauncherStore: ObservableObject {
     private func selectFirstResult() {
         selectedApplicationID = filteredApplications.first?.id
         selectionScrollRequest &+= 1
+    }
+
+    private func replaceApplications(with applications: [InstalledApplication]) {
+        self.applications = applications
+        applicationIndex = ApplicationRanker.Index(applications: applications)
+        refreshFilteredApplications()
+    }
+
+    private func refreshFilteredApplications() {
+        filteredApplications = applicationIndex.ranked(
+            query: query,
+            recentLaunches: recentLaunches
+        )
     }
 
     private func finishLoading() {
