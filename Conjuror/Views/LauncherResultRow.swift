@@ -25,6 +25,7 @@ struct LauncherResultRow: View {
                     Text("↵")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.horizontal, 7)
@@ -36,6 +37,9 @@ struct LauncherResultRow: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(application.displayName)
+        .accessibilityHint("Opens the application")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .onHover { isHovering in
             if isHovering {
                 onHover()

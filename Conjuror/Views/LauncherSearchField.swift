@@ -10,6 +10,7 @@ struct LauncherSearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
 
             TextField("Search apps…", text: $query)
                 .focused($isFocused)
@@ -27,6 +28,7 @@ struct LauncherSearchField: View {
                 }
                 .buttonStyle(.plain)
                 .help("Clear search")
+                .accessibilityLabel("Clear search")
             }
         }
         .padding(.horizontal, 2)
