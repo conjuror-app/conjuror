@@ -17,17 +17,15 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             width: LauncherLayout.width,
             height: height
         )
-        guard window.frame.size != targetSize else {
+        let targetFrame = LauncherWindowGeometry.resizedFrame(
+            currentFrame: window.frame,
+            targetSize: targetSize,
+            visibleFrame: window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+        )
+        guard window.frame != targetFrame else {
             return
         }
 
-        let currentFrame = window.frame
-        let targetFrame = NSRect(
-            x: currentFrame.midX - targetSize.width / 2,
-            y: currentFrame.maxY - targetSize.height,
-            width: targetSize.width,
-            height: targetSize.height
-        )
         window.setFrame(targetFrame, display: true)
     }
 
@@ -101,7 +99,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
         store.prepareForActivation()
         Self.resize(window, height: LauncherLayout.collapsedHeight)
-        centerOnMainScreen(window)
+        placeOnPreferredScreen(window)
         NSApp.unhide(nil)
         window.makeKeyAndOrderFront(nil)
 
@@ -123,18 +121,26 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
         hide()
     }
 
-    private func centerOnMainScreen(_ window: NSWindow) {
-        guard let screenFrame = NSScreen.main?.frame else {
+    private func placeOnPreferredScreen(_ window: NSWindow) {
+        guard let screen = preferredScreen() else {
             window.center()
             return
         }
 
-        window.setFrameOrigin(NSPoint(
-            x: screenFrame.midX - window.frame.width / 2,
-            y: screenFrame.midY
-                - window.frame.height / 2
-                + screenFrame.height * 0.15
-        ))
+        window.setFrame(
+            LauncherWindowGeometry.centeredFrame(
+                size: window.frame.size,
+                visibleFrame: screen.visibleFrame
+            ),
+            display: true
+        )
+    }
+
+    private func preferredScreen() -> NSScreen? {
+        let pointerLocation = NSEvent.mouseLocation
+        return NSScreen.screens.first { screen in
+            screen.frame.contains(pointerLocation)
+        } ?? NSScreen.main ?? NSScreen.screens.first
     }
 
     private func focusSearchField(in window: NSWindow) {
@@ -162,23 +168,100 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     }
 }
 
+enum LauncherWindowGeometry {
+    static func centeredFrame(
+        size: NSSize,
+        visibleFrame: NSRect
+    ) -> NSRect {
+        let frame = NSRect(
+            x: visibleFrame.midX - size.width / 2,
+            y: visibleFrame.midY - size.height / 2 + visibleFrame.height * 0.15,
+            width: size.width,
+            height: size.height
+        )
+        return constrainedFrame(frame, to: visibleFrame)
+    }
+
+    static func resizedFrame(
+        currentFrame: NSRect,
+        targetSize: NSSize,
+        visibleFrame: NSRect?
+    ) -> NSRect {
+        let frame = NSRect(
+            x: currentFrame.midX - targetSize.width / 2,
+            y: currentFrame.maxY - targetSize.height,
+            width: targetSize.width,
+            height: targetSize.height
+        )
+        guard let visibleFrame else {
+            return frame
+        }
+        return constrainedFrame(frame, to: visibleFrame)
+    }
+
+    private static func constrainedFrame(
+        _ frame: NSRect,
+        to visibleFrame: NSRect
+    ) -> NSRect {
+        let width = min(frame.width, visibleFrame.width)
+        let height = min(frame.height, visibleFrame.height)
+        let maximumX = visibleFrame.maxX - width
+        let maximumY = visibleFrame.maxY - height
+
+        return NSRect(
+            x: min(max(frame.origin.x, visibleFrame.minX), maximumX),
+            y: min(max(frame.origin.y, visibleFrame.minY), maximumY),
+            width: width,
+            height: height
+        )
+    }
+}
+
+enum LauncherKeyboardNavigation {
+    private static let conflictingModifiers: NSEvent.ModifierFlags = [
+        .command,
+        .control,
+        .option,
+        .shift,
+    ]
+
+    static func direction(
+        forKeyCode keyCode: UInt16,
+        modifiers: NSEvent.ModifierFlags,
+        hasMarkedText: Bool
+    ) -> MoveCommandDirection? {
+        guard !hasMarkedText,
+              modifiers.intersection(conflictingModifiers).isEmpty
+        else {
+            return nil
+        }
+
+        switch Int(keyCode) {
+        case kVK_UpArrow:
+            return .up
+        case kVK_DownArrow:
+            return .down
+        default:
+            return nil
+        }
+    }
+}
+
 private final class LauncherPanel: NSPanel {
     var onMoveSelection: ((MoveCommandDirection) -> Void)?
 
     override var canBecomeKey: Bool { true }
 
     override func sendEvent(_ event: NSEvent) {
-        if event.type == .keyDown {
-            switch Int(event.keyCode) {
-            case kVK_UpArrow:
-                onMoveSelection?(.up)
-                return
-            case kVK_DownArrow:
-                onMoveSelection?(.down)
-                return
-            default:
-                break
-            }
+        if event.type == .keyDown,
+           let direction = LauncherKeyboardNavigation.direction(
+               forKeyCode: event.keyCode,
+               modifiers: event.modifierFlags,
+               hasMarkedText: (firstResponder as? NSTextView)?.hasMarkedText() == true
+           )
+        {
+            onMoveSelection?(direction)
+            return
         }
 
         super.sendEvent(event)
