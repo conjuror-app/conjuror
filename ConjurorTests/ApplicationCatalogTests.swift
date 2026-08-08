@@ -61,6 +61,61 @@ final class ApplicationCatalogTests: XCTestCase {
         XCTAssertEqual(result.first?.bundleIdentifier, "com.apple.Safari")
     }
 
+    func testIncludesApplicationsDirectoryFromMountedVolume() throws {
+        let fileManager = FileManager.default
+        let temporaryDirectory = fileManager.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryDirectory) }
+
+        let mountedApplications = temporaryDirectory
+            .appendingPathComponent("Applications", isDirectory: true)
+        try fileManager.createDirectory(
+            at: mountedApplications,
+            withIntermediateDirectories: true
+        )
+
+        let directories = ApplicationCatalog.applicationDirectories(
+            fileManager: fileManager,
+            mountedVolumeURLs: [temporaryDirectory]
+        )
+
+        XCTAssertTrue(directories.contains(mountedApplications))
+    }
+
+    func testThrowsWhenNoConfiguredDirectoryCanBeRead() throws {
+        let fileManager = FileManager.default
+        let fileURL = fileManager.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        defer { try? fileManager.removeItem(at: fileURL) }
+        try Data().write(to: fileURL)
+
+        XCTAssertThrowsError(
+            try ApplicationCatalog.scan(directories: [fileURL])
+        )
+    }
+
+    func testReturnsEmptyWhenAtLeastOneConfiguredDirectoryIsReadable() throws {
+        let fileManager = FileManager.default
+        let temporaryDirectory = fileManager.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryDirectory) }
+
+        let readableDirectory = temporaryDirectory
+            .appendingPathComponent("Readable", isDirectory: true)
+        let unreadableFile = temporaryDirectory.appendingPathComponent("Not-A-Directory")
+        try fileManager.createDirectory(
+            at: readableDirectory,
+            withIntermediateDirectories: true
+        )
+        try Data().write(to: unreadableFile)
+
+        let candidates = try ApplicationCatalog.scan(
+            directories: [unreadableFile, readableDirectory]
+        )
+
+        XCTAssertTrue(candidates.isEmpty)
+    }
+
     func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
         let candidates = [
             candidate("Beta Copy", id: "dev.example.beta", path: "/System/Applications/Beta.app", priority: 1),
