@@ -32,6 +32,7 @@
 		8A4E35002C55C00100C0A001 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */; };
 		8A4E36002C55C00100C0A001 /* HotKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36102C55C00100C0A001 /* HotKeyStore.swift */; };
 		8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */; };
+		8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		8A4E36102C55C00100C0A001 /* HotKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyStore.swift; sourceTree = "<group>"; };
 		8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyStoreTests.swift; sourceTree = "<group>"; };
+		8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchHistoryStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +174,7 @@
 				8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */,
 				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
 				8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */,
+				8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */,
 				8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */,
 				8A4E34132C55C00100C0A001 /* SettingsStoreTests.swift */,
 			);
@@ -316,6 +319,7 @@
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
+				8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */,
 				8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */,
 				8A4E34032C55C00100C0A001 /* SettingsStoreTests.swift in Sources */,
 			);
