@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var store: LauncherStore
+    @ObservedObject var settingsStore: SettingsStore
     let hotKeyErrorMessage: String?
     let onHide: () -> Void
     let onHeightChange: (CGFloat) -> Void
@@ -69,7 +70,8 @@ struct ContentView: View {
             resultCount: store.filteredApplications.count,
             hasCatalogError: store.catalogErrorMessage != nil,
             hasHotKeyError: hotKeyErrorMessage != nil,
-            hasLaunchError: store.launchErrorMessage != nil
+            hasLaunchError: store.launchErrorMessage != nil,
+            maximumVisibleResults: settingsStore.maximumVisibleResults
         )
     }
 
@@ -183,20 +185,18 @@ struct ContentView: View {
 enum LauncherLayout {
     static let width: CGFloat = 540
     static let collapsedHeight: CGFloat = 54
-    static let maximumExpandedHeight: CGFloat = 360
-
     private static let searchHeight: CGFloat = 52
     private static let dividerHeight: CGFloat = 1
     private static let resultRowHeight: CGFloat = 40
     private static let resultSpacing: CGFloat = 1
     private static let resultsVerticalPadding: CGFloat = 8
-    private static let maximumVisibleResults = 7
 
     static func expandedHeight(
         resultCount: Int,
         hasCatalogError: Bool,
         hasHotKeyError: Bool,
-        hasLaunchError: Bool
+        hasLaunchError: Bool,
+        maximumVisibleResults: Int
     ) -> CGFloat {
         let resultsHeight: CGFloat
         if hasCatalogError {
@@ -212,14 +212,11 @@ enum LauncherLayout {
 
         let statusHeight: CGFloat = hasHotKeyError ? 26 : 0
         let launchErrorHeight: CGFloat = hasLaunchError ? 26 : 0
-        return min(
-            maximumExpandedHeight,
-            searchHeight
-                + dividerHeight
-                + statusHeight
-                + resultsHeight
-                + launchErrorHeight
-        )
+        return searchHeight
+            + dividerHeight
+            + statusHeight
+            + resultsHeight
+            + launchErrorHeight
     }
 }
 
