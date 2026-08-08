@@ -3,17 +3,13 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var store: SettingsStore
-    let onHotKeyChange: (HotKeyConfiguration) -> String?
-    let onShortcutRecordingChange: (Bool) -> Void
-    let onReset: () -> String?
+    @ObservedObject var hotKeyStore: HotKeyStore
 
     var body: some View {
         TabView {
             GeneralSettingsView(
                 store: store,
-                onHotKeyChange: onHotKeyChange,
-                onShortcutRecordingChange: onShortcutRecordingChange,
-                onReset: onReset
+                hotKeyStore: hotKeyStore
             )
             .tabItem {
                 Label("General", systemImage: "gearshape")
@@ -30,9 +26,7 @@ struct SettingsView: View {
 
 private struct GeneralSettingsView: View {
     @ObservedObject var store: SettingsStore
-    let onHotKeyChange: (HotKeyConfiguration) -> String?
-    let onShortcutRecordingChange: (Bool) -> Void
-    let onReset: () -> String?
+    @ObservedObject var hotKeyStore: HotKeyStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -49,10 +43,10 @@ private struct GeneralSettingsView: View {
                 ShortcutRecorder(
                     configuration: store.hotKeyConfiguration,
                     onChange: { configuration in
-                        hotKeyErrorMessage = onHotKeyChange(configuration)
+                        hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration)
                         return hotKeyErrorMessage == nil
                     },
-                    onRecordingChange: onShortcutRecordingChange
+                    onRecordingChange: hotKeyStore.setShortcutRecording
                 )
                 .frame(width: 120, height: 28)
             }
@@ -94,7 +88,7 @@ private struct GeneralSettingsView: View {
             HStack {
                 Spacer()
                 Button("Reset to Defaults") {
-                    hotKeyErrorMessage = onReset()
+                    hotKeyErrorMessage = hotKeyStore.resetSettings()
                 }
             }
         }

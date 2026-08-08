@@ -7,9 +7,7 @@ final class SettingsWindowController: NSWindowController {
 
     init(
         store: SettingsStore,
-        onHotKeyChange: @escaping (HotKeyConfiguration) -> String?,
-        onShortcutRecordingChange: @escaping (Bool) -> Void,
-        onReset: @escaping () -> String?
+        hotKeyStore: HotKeyStore
     ) {
         let window = NSWindow(
             contentRect: NSRect(origin: .zero, size: Self.windowSize),
@@ -23,9 +21,7 @@ final class SettingsWindowController: NSWindowController {
         window.contentViewController = NSHostingController(
             rootView: SettingsView(
                 store: store,
-                onHotKeyChange: onHotKeyChange,
-                onShortcutRecordingChange: onShortcutRecordingChange,
-                onReset: onReset
+                hotKeyStore: hotKeyStore
             )
         )
         window.setContentSize(Self.windowSize)
