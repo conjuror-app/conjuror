@@ -36,6 +36,51 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertEqual(store.selectedApplicationID, applications[0].id)
     }
 
+    func testFilteredApplicationsUpdateWhenQueryChanges() async {
+        let applications = [
+            application("Alpha", id: "dev.example.alpha"),
+            application("Beta", id: "dev.example.beta"),
+        ]
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: applications),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+
+        XCTAssertEqual(store.filteredApplications, applications)
+
+        store.query = "beta"
+
+        XCTAssertEqual(store.filteredApplications, [applications[1]])
+        XCTAssertEqual(store.selectedApplicationID, applications[1].id)
+    }
+
+    func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
+        let applications = [
+            application("Alpha", id: "dev.example.alpha"),
+            application("Beta", id: "dev.example.beta"),
+        ]
+        var didLaunch = false
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: applications),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            onLaunchSuccess: { didLaunch = true }
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+
+        store.open(applications[1])
+        while !didLaunch {
+            await Task.yield()
+        }
+
+        XCTAssertEqual(store.filteredApplications, [applications[1], applications[0]])
+        XCTAssertEqual(store.selectedApplicationID, applications[1].id)
+    }
+
     func testLoadRequestDuringActiveLoadRunsOneFollowUpRefresh() async {
         let firstApplications = [application("Alpha", id: "dev.example.alpha")]
         let refreshedApplications = [application("Beta", id: "dev.example.beta")]
