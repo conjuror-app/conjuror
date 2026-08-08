@@ -19,6 +19,4 @@ xcodebuild test \
   -project Conjuror.xcodeproj \
   -scheme Conjuror \
   -derivedDataPath .derivedData
-
-./script/build_and_run.sh --verify
 ```
