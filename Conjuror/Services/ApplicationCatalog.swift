@@ -177,24 +177,25 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
         let directories = directoryProvider()
         let excludedBundleIdentifier = excludedBundleIdentifier
 
-        return try await Task.detached(priority: .userInitiated) {
+        let candidates = try await Task.detached(priority: .userInitiated) {
             let candidates = try Self.scan(directories: directories)
             return Self.filteredAndDeduplicated(
                 candidates,
                 excludingBundleIdentifier: excludedBundleIdentifier
             )
-            .map { candidate in
-                let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
-                icon.size = NSSize(width: 32, height: 32)
-
-                return InstalledApplication(
-                    displayName: candidate.displayName,
-                    bundleIdentifier: candidate.bundleIdentifier,
-                    url: candidate.url,
-                    icon: icon
-                )
-            }
         }.value
+
+        return candidates.map { candidate in
+            let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
+            icon.size = NSSize(width: 32, height: 32)
+
+            return InstalledApplication(
+                displayName: candidate.displayName,
+                bundleIdentifier: candidate.bundleIdentifier,
+                url: candidate.url,
+                icon: icon
+            )
+        }
     }
 }
 
@@ -210,7 +211,7 @@ private enum ApplicationCatalogError: LocalizedError {
     }
 }
 
-struct ApplicationCatalogCandidate: Equatable {
+struct ApplicationCatalogCandidate: Equatable, Sendable {
     let displayName: String
     let bundleIdentifier: String?
     let url: URL
@@ -220,5 +221,6 @@ struct ApplicationCatalogCandidate: Equatable {
 }
 
 protocol ApplicationCatalogLoading {
+    @MainActor
     func load() async throws -> [InstalledApplication]
 }

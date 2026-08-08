@@ -11,6 +11,9 @@ mounted volumes without external packages.
 
 ## Development
 
+The project enables complete Swift concurrency checking in Debug and Release
+builds.
+
 ```sh
 xcodebuild test \
   -project Conjuror.xcodeproj \
