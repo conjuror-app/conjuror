@@ -98,16 +98,16 @@ final class LauncherStoreTests: XCTestCase {
 
         store.loadApplications()
         store.loadApplications()
-        await catalog.resumeNext(returning: firstApplications)
+        catalog.resumeNext(returning: firstApplications)
         await catalog.waitForLoadCount(2)
 
         XCTAssertTrue(store.isLoading)
-        await catalog.resumeNext(returning: refreshedApplications)
+        catalog.resumeNext(returning: refreshedApplications)
         while store.isLoading {
             await Task.yield()
         }
 
-        let loadCount = await catalog.loadCount
+        let loadCount = catalog.loadCount
         XCTAssertEqual(loadCount, 2)
         XCTAssertEqual(store.applications, refreshedApplications)
         XCTAssertEqual(store.selectedApplicationID, refreshedApplications[0].id)
@@ -262,7 +262,8 @@ private struct LauncherStub: ApplicationLaunching {
     }
 }
 
-private actor ControlledCatalog: ApplicationCatalogLoading {
+@MainActor
+private final class ControlledCatalog: ApplicationCatalogLoading {
     private(set) var loadCount = 0
     private var continuations = [CheckedContinuation<[InstalledApplication], Error>]()
 

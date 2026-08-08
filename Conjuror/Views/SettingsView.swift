@@ -69,7 +69,9 @@ private struct GeneralSettingsView: View {
                     "Visible results",
                     value: Binding(
                         get: { store.maximumVisibleResults },
-                        set: store.setMaximumVisibleResults
+                        set: { value in
+                            store.setMaximumVisibleResults(value)
+                        }
                     ),
                     in: SettingsStore.maximumVisibleResultsRange
                 )

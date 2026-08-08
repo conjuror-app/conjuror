@@ -23,6 +23,7 @@ struct ApplicationLauncher: ApplicationLaunching {
 }
 
 protocol ApplicationLaunching {
+    @MainActor
     func open(_ application: InstalledApplication) async throws
 }
 

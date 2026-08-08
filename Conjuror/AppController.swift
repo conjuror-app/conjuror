@@ -11,7 +11,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     private lazy var hotKeyStore = HotKeyStore(
         settingsStore: settingsStore,
         onHotKeyPressed: { [weak self] in
-            DispatchQueue.main.async {
+            Task { @MainActor [weak self] in
                 self?.toggleLauncher()
             }
         }
