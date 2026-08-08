@@ -68,7 +68,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
             store?.moveSelection(direction)
         }
 
-        let contentView = ContentView(
+        let contentView = LauncherView(
             store: store,
             settingsStore: settingsStore,
             hotKeyErrorMessage: hotKeyErrorMessage,

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct LauncherView: View {
     @ObservedObject var store: LauncherStore
     @ObservedObject var settingsStore: SettingsStore
     let hotKeyErrorMessage: String?
