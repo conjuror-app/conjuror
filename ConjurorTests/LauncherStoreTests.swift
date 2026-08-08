@@ -14,14 +14,12 @@ final class LauncherStoreTests: XCTestCase {
             catalog: CatalogStub(applications: applications),
             launcher: LauncherStub(),
             launchHistory: LaunchHistoryStore(
-                userDefaults: UserDefaults(suiteName: #function)!
+                userDefaults: makeUserDefaults()
             )
         )
 
         store.loadApplications()
-        while store.isLoading {
-            await Task.yield()
-        }
+        await waitForLoadingToFinish(store)
 
         XCTAssertEqual(store.selectedApplicationID, applications[0].id)
 
@@ -46,7 +44,7 @@ final class LauncherStoreTests: XCTestCase {
             catalog: catalog,
             launcher: LauncherStub(),
             launchHistory: LaunchHistoryStore(
-                userDefaults: UserDefaults(suiteName: #function)!
+                userDefaults: makeUserDefaults()
             )
         )
 
@@ -70,6 +68,104 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertEqual(store.selectedApplicationID, refreshedApplications[0].id)
     }
 
+    func testCatalogFailurePublishesErrorAndClearsSelection() async {
+        let store = LauncherStore(
+            catalog: FailingCatalogStub(),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+        )
+
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+
+        XCTAssertTrue(store.applications.isEmpty)
+        XCTAssertNil(store.selectedApplicationID)
+        XCTAssertEqual(
+            store.catalogErrorMessage,
+            "Couldn’t load installed applications. Catalog unavailable"
+        )
+    }
+
+    func testSuccessfulLaunchRecordsHistoryClearsQueryAndCallsSuccess() async {
+        let application = application("Alpha", id: "dev.example.alpha")
+        let userDefaults = makeUserDefaults()
+        let launchHistory = LaunchHistoryStore(userDefaults: userDefaults)
+        var didLaunch = false
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: [application]),
+            launcher: LauncherStub(),
+            launchHistory: launchHistory,
+            onLaunchSuccess: { didLaunch = true }
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+        store.query = "alpha"
+
+        store.openSelectedApplication()
+        while !didLaunch {
+            await Task.yield()
+        }
+
+        XCTAssertEqual(store.query, "")
+        XCTAssertNil(store.launchErrorMessage)
+        XCTAssertNotNil(launchHistory.load()[application.persistenceKey])
+    }
+
+    func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
+        let application = application("Alpha", id: "dev.example.alpha")
+        let launchHistory = LaunchHistoryStore(userDefaults: makeUserDefaults())
+        var didLaunch = false
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: [application]),
+            launcher: LauncherStub(error: TestError.launchFailed),
+            launchHistory: launchHistory,
+            onLaunchSuccess: { didLaunch = true }
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+        store.query = "alpha"
+
+        store.openSelectedApplication()
+        while store.launchErrorMessage == nil {
+            await Task.yield()
+        }
+
+        XCTAssertEqual(store.query, "alpha")
+        XCTAssertEqual(
+            store.launchErrorMessage,
+            "Couldn’t open Alpha. Launch failed"
+        )
+        XCTAssertFalse(didLaunch)
+        XCTAssertTrue(launchHistory.load().isEmpty)
+    }
+
+    func testPrepareForActivationClearsTransientStateAndSelectsFirstResult() async {
+        let applications = [
+            application("Alpha", id: "dev.example.alpha"),
+            application("Beta", id: "dev.example.beta"),
+        ]
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: applications),
+            launcher: LauncherStub(error: TestError.launchFailed),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+        store.query = "beta"
+        store.openSelectedApplication()
+        while store.launchErrorMessage == nil {
+            await Task.yield()
+        }
+        let focusRequest = store.focusRequest
+
+        store.prepareForActivation()
+
+        XCTAssertEqual(store.query, "")
+        XCTAssertNil(store.launchErrorMessage)
+        XCTAssertEqual(store.selectedApplicationID, applications[0].id)
+        XCTAssertNotEqual(store.focusRequest, focusRequest)
+    }
+
     private func application(_ name: String, id: String) -> InstalledApplication {
         InstalledApplication(
             displayName: name,
@@ -77,6 +173,19 @@ final class LauncherStoreTests: XCTestCase {
             url: URL(fileURLWithPath: "/Applications/\(name).app"),
             icon: NSImage(size: NSSize(width: 32, height: 32))
         )
+    }
+
+    private func makeUserDefaults() -> UserDefaults {
+        let suiteName = "LauncherStoreTests.\(UUID().uuidString)"
+        let userDefaults = UserDefaults(suiteName: suiteName)!
+        userDefaults.removePersistentDomain(forName: suiteName)
+        return userDefaults
+    }
+
+    private func waitForLoadingToFinish(_ store: LauncherStore) async {
+        while store.isLoading {
+            await Task.yield()
+        }
     }
 }
 
@@ -88,8 +197,24 @@ private struct CatalogStub: ApplicationCatalogLoading {
     }
 }
 
+private struct FailingCatalogStub: ApplicationCatalogLoading {
+    func load() async throws -> [InstalledApplication] {
+        throw TestError.catalogUnavailable
+    }
+}
+
 private struct LauncherStub: ApplicationLaunching {
-    func open(_ application: InstalledApplication) async throws {}
+    var error: Error?
+
+    init(error: Error? = nil) {
+        self.error = error
+    }
+
+    func open(_ application: InstalledApplication) async throws {
+        if let error {
+            throw error
+        }
+    }
 }
 
 private actor ControlledCatalog: ApplicationCatalogLoading {
@@ -110,6 +235,20 @@ private actor ControlledCatalog: ApplicationCatalogLoading {
     func waitForLoadCount(_ expectedCount: Int) async {
         while loadCount < expectedCount {
             await Task.yield()
+        }
+    }
+}
+
+private enum TestError: LocalizedError {
+    case catalogUnavailable
+    case launchFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .catalogUnavailable:
+            return "Catalog unavailable"
+        case .launchFailed:
+            return "Launch failed"
         }
     }
 }
