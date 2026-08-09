@@ -153,17 +153,6 @@ struct LauncherView: View {
         }
     }
 
-    private func applicationResultRow(_ application: InstalledApplication) -> some View {
-        LauncherResultRow(
-            application: application,
-            isSelected: !store.isCalculatorSelected
-                && application.id == store.selectedApplicationID,
-            onHover: { store.select(application) },
-            onOpen: { store.open(application) }
-        )
-        .id(application.id)
-    }
-
     @ViewBuilder
     private var shortcutResults: some View {
         if store.isLoadingShortcuts, store.shortcuts.isEmpty {
@@ -188,6 +177,17 @@ struct LauncherView: View {
                 }
             }
         }
+    }
+
+    private func applicationResultRow(_ application: InstalledApplication) -> some View {
+        LauncherResultRow(
+            application: application,
+            isSelected: !store.isCalculatorSelected
+                && application.id == store.selectedApplicationID,
+            onHover: { store.select(application) },
+            onOpen: { store.open(application) }
+        )
+        .id(application.id)
     }
 
     private func resultsScrollView<Content: View>(
