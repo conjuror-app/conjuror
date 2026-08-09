@@ -1,5 +1,7 @@
 import Foundation
 
+private typealias MatchRank = ShortcutMatchRank
+
 struct ShortcutRanker {
     struct Index {
         private let shortcuts: [SearchableShortcut]
@@ -163,8 +165,6 @@ private struct ShortcutMatchRank: Equatable, Comparable {
     let category: Int
     var score = 0
 }
-
-private typealias MatchRank = ShortcutMatchRank
 
 private struct RankedShortcut {
     let searchableShortcut: SearchableShortcut

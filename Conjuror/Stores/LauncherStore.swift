@@ -1,11 +1,6 @@
 import Foundation
 import SwiftUI
 
-enum LauncherMode: Equatable, Sendable {
-    case applications
-    case shortcuts
-}
-
 @MainActor
 final class LauncherStore: ObservableObject {
     @Published var query = "" {
@@ -407,4 +402,9 @@ final class LauncherStore: ObservableObject {
         shortcutReloadRequested = false
         loadShortcuts()
     }
+}
+
+enum LauncherMode: Equatable, Sendable {
+    case applications
+    case shortcuts
 }
