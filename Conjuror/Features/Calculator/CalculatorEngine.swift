@@ -1,46 +1,5 @@
 import Foundation
 
-struct CalculatorResult: Equatable, Sendable {
-    let expression: String
-    let display: String
-    let copyText: String
-    let sourceBadge: String?
-    let targetBadge: String?
-
-    init(
-        expression: String,
-        display: String,
-        copyText: String,
-        sourceBadge: String? = nil,
-        targetBadge: String? = nil
-    ) {
-        self.expression = expression
-        self.display = display
-        self.copyText = copyText
-        self.sourceBadge = sourceBadge
-        self.targetBadge = targetBadge
-    }
-}
-
-struct CalculatorFormattingOptions: Equatable, Sendable {
-    static let compact = CalculatorFormattingOptions()
-
-    let localeIdentifier: String
-    let maximumFractionDigits: Int
-
-    init(
-        localeIdentifier: String = Locale.current.identifier,
-        maximumFractionDigits: Int = 10
-    ) {
-        self.localeIdentifier = localeIdentifier
-        self.maximumFractionDigits = maximumFractionDigits
-    }
-}
-
-protocol CalculatorEvaluating {
-    func evaluate(_ expression: String) -> CalculatorResult?
-}
-
 struct CalculatorEngine: CalculatorEvaluating {
     private let formattingOptions: CalculatorFormattingOptions
 
@@ -84,6 +43,78 @@ struct CalculatorEngine: CalculatorEvaluating {
             display: display,
             copyText: copyText
         )
+    }
+}
+
+struct CalculatorResult: Equatable, Sendable {
+    let expression: String
+    let display: String
+    let copyText: String
+    let sourceBadge: String?
+    let targetBadge: String?
+
+    init(
+        expression: String,
+        display: String,
+        copyText: String,
+        sourceBadge: String? = nil,
+        targetBadge: String? = nil
+    ) {
+        self.expression = expression
+        self.display = display
+        self.copyText = copyText
+        self.sourceBadge = sourceBadge
+        self.targetBadge = targetBadge
+    }
+}
+
+struct CalculatorFormattingOptions: Equatable, Sendable {
+    static let compact = CalculatorFormattingOptions()
+
+    let localeIdentifier: String
+    let maximumFractionDigits: Int
+
+    init(
+        localeIdentifier: String = Locale.current.identifier,
+        maximumFractionDigits: Int = 10
+    ) {
+        self.localeIdentifier = localeIdentifier
+        self.maximumFractionDigits = maximumFractionDigits
+    }
+}
+
+protocol CalculatorEvaluating {
+    func evaluate(_ expression: String) -> CalculatorResult?
+}
+
+struct CalculatorNumberFormatter {
+    let options: CalculatorFormattingOptions
+
+    func string(
+        from value: Double,
+        usesGroupingSeparator: Bool
+    ) -> String? {
+        let normalizedValue = value == 0 ? 0 : value
+        let magnitude = Swift.abs(normalizedValue)
+        if magnitude != 0,
+           magnitude < Foundation.pow(10, Double(-options.maximumFractionDigits))
+            || magnitude >= 1e15
+        {
+            return String(
+                format: "%.*g",
+                locale: Locale(identifier: options.localeIdentifier),
+                options.maximumFractionDigits,
+                normalizedValue
+            )
+        }
+
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: options.localeIdentifier)
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = options.maximumFractionDigits
+        formatter.usesGroupingSeparator = usesGroupingSeparator
+        return formatter.string(from: NSNumber(value: normalizedValue))
     }
 }
 
@@ -228,9 +259,22 @@ private struct CalculatorParser {
         let isPercent: Bool
     }
 
-    private let tokens: [CalculatorToken]
+    private static let constants = [
+        "e": M_E,
+        "pi": Double.pi,
+        "π": Double.pi,
+    ]
+
+    private static let functions = Set(["abs", "sqrt"])
+
     private(set) var hasCalculatorIntent = false
+
+    private let tokens: [CalculatorToken]
     private var index = 0
+
+    private var currentToken: CalculatorToken {
+        tokens[index]
+    }
 
     init(tokens: [CalculatorToken]) {
         self.tokens = tokens
@@ -241,10 +285,6 @@ private struct CalculatorParser {
             return nil
         }
         return value.number
-    }
-
-    private var currentToken: CalculatorToken {
-        tokens[index]
     }
 
     private mutating func parseAddition() -> ParsedValue? {
@@ -457,44 +497,5 @@ private struct CalculatorParser {
 
     private mutating func advance() {
         index += 1
-    }
-
-    private static let constants = [
-        "e": M_E,
-        "pi": Double.pi,
-        "π": Double.pi,
-    ]
-
-    private static let functions = Set(["abs", "sqrt"])
-}
-
-struct CalculatorNumberFormatter {
-    let options: CalculatorFormattingOptions
-
-    func string(
-        from value: Double,
-        usesGroupingSeparator: Bool
-    ) -> String? {
-        let normalizedValue = value == 0 ? 0 : value
-        let magnitude = Swift.abs(normalizedValue)
-        if magnitude != 0,
-           magnitude < Foundation.pow(10, Double(-options.maximumFractionDigits))
-            || magnitude >= 1e15
-        {
-            return String(
-                format: "%.*g",
-                locale: Locale(identifier: options.localeIdentifier),
-                options.maximumFractionDigits,
-                normalizedValue
-            )
-        }
-
-        let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: options.localeIdentifier)
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = options.maximumFractionDigits
-        formatter.usesGroupingSeparator = usesGroupingSeparator
-        return formatter.string(from: NSNumber(value: normalizedValue))
     }
 }

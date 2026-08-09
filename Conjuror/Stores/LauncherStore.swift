@@ -38,6 +38,17 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var selectionScrollRequest = 0
     @Published private(set) var focusRequest = 0
 
+    var selectedResultScrollID: String? {
+        switch mode {
+        case .applications:
+            isCalculatorSelected
+                ? Self.calculatorResultScrollID
+                : selectedApplicationID
+        case .shortcuts:
+            selectedShortcutID
+        }
+    }
+
     private let catalog: ApplicationCatalogLoading
     private let calculator: CalculatorEvaluating
     private let calculatorClipboard: CalculatorClipboardWriting
@@ -68,17 +79,6 @@ final class LauncherStore: ObservableObject {
     private var selectedShortcut: AppleShortcut? {
         filteredShortcuts.first { $0.id == selectedShortcutID }
             ?? filteredShortcuts.first
-    }
-
-    var selectedResultScrollID: String? {
-        switch mode {
-        case .applications:
-            isCalculatorSelected
-                ? Self.calculatorResultScrollID
-                : selectedApplicationID
-        case .shortcuts:
-            selectedShortcutID
-        }
     }
 
     init(

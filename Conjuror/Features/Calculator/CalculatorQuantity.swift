@@ -79,10 +79,6 @@ private struct CalculatorUnit: Equatable {
 }
 
 private enum CalculatorUnitRegistry {
-    static func unit(named name: String) -> CalculatorUnit? {
-        unitsByAlias[name.lowercased()]
-    }
-
     private static let unitsByAlias: [String: CalculatorUnit] = {
         var result = [String: CalculatorUnit]()
         for unit in units {
@@ -377,6 +373,10 @@ private enum CalculatorUnitRegistry {
             scaleToBase: 1_099_511_627_776
         ),
     ]
+
+    static func unit(named name: String) -> CalculatorUnit? {
+        unitsByAlias[name.lowercased()]
+    }
 }
 
 private enum CalculatorQuantityToken: Equatable {
@@ -481,6 +481,12 @@ private enum CalculatorQuantityLexer {
 }
 
 private struct CalculatorQuantityParser {
+    struct Evaluation {
+        let value: Double
+        let sourceBadge: String?
+        let targetUnit: CalculatorUnit
+    }
+
     private struct Component {
         let value: Double
         let unit: CalculatorUnit
@@ -494,14 +500,12 @@ private struct CalculatorQuantityParser {
         let componentCount: Int
     }
 
-    struct Evaluation {
-        let value: Double
-        let sourceBadge: String?
-        let targetUnit: CalculatorUnit
-    }
-
     private let tokens: [CalculatorQuantityToken]
     private var index = 0
+
+    private var currentToken: CalculatorQuantityToken {
+        tokens[index]
+    }
 
     init(tokens: [CalculatorQuantityToken]) {
         self.tokens = tokens
@@ -582,10 +586,6 @@ private struct CalculatorQuantityParser {
             sourceBadge: sourceBadge,
             targetUnit: targetUnit
         )
-    }
-
-    private var currentToken: CalculatorQuantityToken {
-        tokens[index]
     }
 
     private mutating func parseTerm() -> Quantity? {
