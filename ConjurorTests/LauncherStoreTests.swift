@@ -279,6 +279,22 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertNil(store.calculatorResult)
     }
 
+    func testReturnCopiesQuantityResultWithUnit() {
+        let clipboard = RecordingCalculatorClipboard()
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            calculatorClipboard: clipboard,
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.query = "1000 m to km"
+
+        store.openSelectedResult()
+
+        XCTAssertEqual(clipboard.text, "1 km")
+        XCTAssertEqual(store.query, "")
+    }
+
     func testCalculatorDoesNotEvaluateInShortcutsMode() {
         let store = LauncherStore(
             catalog: CatalogStub(applications: []),

@@ -4,6 +4,22 @@ struct CalculatorResult: Equatable, Sendable {
     let expression: String
     let display: String
     let copyText: String
+    let sourceBadge: String?
+    let targetBadge: String?
+
+    init(
+        expression: String,
+        display: String,
+        copyText: String,
+        sourceBadge: String? = nil,
+        targetBadge: String? = nil
+    ) {
+        self.expression = expression
+        self.display = display
+        self.copyText = copyText
+        self.sourceBadge = sourceBadge
+        self.targetBadge = targetBadge
+    }
 }
 
 struct CalculatorFormattingOptions: Equatable, Sendable {
@@ -34,9 +50,17 @@ struct CalculatorEngine: CalculatorEvaluating {
 
     func evaluate(_ expression: String) -> CalculatorResult? {
         let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedExpression.isEmpty,
-              let tokens = CalculatorLexer.tokenize(trimmedExpression)
-        else {
+        guard !trimmedExpression.isEmpty else {
+            return nil
+        }
+
+        if let quantityResult = CalculatorQuantityEvaluator(
+            formattingOptions: formattingOptions
+        ).evaluate(trimmedExpression) {
+            return quantityResult
+        }
+
+        guard let tokens = CalculatorLexer.tokenize(trimmedExpression) else {
             return nil
         }
 
@@ -444,7 +468,7 @@ private struct CalculatorParser {
     private static let functions = Set(["abs", "sqrt"])
 }
 
-private struct CalculatorNumberFormatter {
+struct CalculatorNumberFormatter {
     let options: CalculatorFormattingOptions
 
     func string(
