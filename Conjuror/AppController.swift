@@ -42,6 +42,7 @@ final class AppController: NSObject, NSApplicationDelegate {
         configureStatusItem()
         hotKeyStore.register()
         observeWorkspaceChanges()
+        store.loadShortcuts()
     }
 
     func applicationShouldHandleReopen(
