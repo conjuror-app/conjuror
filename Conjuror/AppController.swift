@@ -6,6 +6,9 @@ final class AppController: NSObject, NSApplicationDelegate {
         onLaunchSuccess: { [weak self] in
             self?.hideLauncher()
         },
+        onCalculatorResultCopied: { [weak self] in
+            self?.hideLauncher()
+        },
         onShortcutRunStarted: { [weak self] in
             self?.hideLauncher()
         }

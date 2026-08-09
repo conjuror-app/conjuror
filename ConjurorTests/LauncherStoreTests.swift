@@ -234,6 +234,68 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertEqual(store.selectedShortcutID, shortcuts[1].id)
     }
 
+    func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
+        let application = application("Pine", id: "dev.example.pine")
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: [application]),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.loadApplications()
+        await waitForLoadingToFinish(store)
+
+        store.query = "pi"
+
+        XCTAssertEqual(store.calculatorResult?.expression, "pi")
+        XCTAssertTrue(store.isCalculatorSelected)
+        XCTAssertEqual(store.selectedResultScrollID, LauncherStore.calculatorResultScrollID)
+        XCTAssertEqual(store.filteredApplications, [application])
+
+        store.moveSelection(.down)
+        XCTAssertFalse(store.isCalculatorSelected)
+        XCTAssertEqual(store.selectedApplicationID, application.id)
+
+        store.moveSelection(.up)
+        XCTAssertTrue(store.isCalculatorSelected)
+    }
+
+    func testReturnCopiesCalculatorResultClearsQueryAndRequestsHide() {
+        let clipboard = RecordingCalculatorClipboard()
+        var didRequestHide = false
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            calculatorClipboard: clipboard,
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            onCalculatorResultCopied: { didRequestHide = true }
+        )
+        store.query = "2 + 3"
+
+        store.openSelectedResult()
+
+        XCTAssertEqual(clipboard.text, "5")
+        XCTAssertTrue(didRequestHide)
+        XCTAssertEqual(store.query, "")
+        XCTAssertNil(store.calculatorResult)
+    }
+
+    func testCalculatorDoesNotEvaluateInShortcutsMode() {
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
+            shortcutRunner: ShortcutRunnerStub(),
+            shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+        )
+
+        store.updateQuery(">2 + 3")
+
+        XCTAssertEqual(store.mode, .shortcuts)
+        XCTAssertNil(store.calculatorResult)
+        XCTAssertFalse(store.isCalculatorSelected)
+    }
+
     func testReturnRunsTheSelectedFuzzyShortcut() async {
         let mainBedroom = shortcut("Main Bedroom", id: "main")
         let guestBedroom = shortcut("Guest Bedroom", id: "guest")
@@ -387,6 +449,15 @@ private final class RecordingShortcutRunner: ShortcutRunning {
 
     func run(_ shortcut: AppleShortcut) async throws {
         lastRunShortcut = shortcut
+    }
+}
+
+@MainActor
+private final class RecordingCalculatorClipboard: CalculatorClipboardWriting {
+    private(set) var text: String?
+
+    func write(_ text: String) {
+        self.text = text
     }
 }
 

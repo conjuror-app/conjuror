@@ -3,6 +3,8 @@ import SwiftUI
 
 @MainActor
 final class LauncherStore: ObservableObject {
+    static let calculatorResultScrollID = "calculator-result"
+
     @Published var query = "" {
         didSet {
             refreshCurrentResults()
@@ -23,6 +25,8 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var launchErrorMessage: String?
     @Published private(set) var selectedApplicationID: InstalledApplication.ID?
+    @Published private(set) var calculatorResult: CalculatorResult?
+    @Published private(set) var isCalculatorSelected = false
 
     @Published private(set) var shortcuts = [AppleShortcut]()
     @Published private(set) var filteredShortcuts = [AppleShortcut]()
@@ -35,12 +39,15 @@ final class LauncherStore: ObservableObject {
     @Published private(set) var focusRequest = 0
 
     private let catalog: ApplicationCatalogLoading
+    private let calculator: CalculatorEvaluating
+    private let calculatorClipboard: CalculatorClipboardWriting
     private let launcher: ApplicationLaunching
     private let launchHistory: LaunchHistoryStore
     private let shortcutCatalog: ShortcutCatalogLoading
     private let shortcutRunner: ShortcutRunning
     private let shortcutRunHistory: ShortcutRunHistoryStore
     private let onLaunchSuccess: () -> Void
+    private let onCalculatorResultCopied: () -> Void
     private let onShortcutRunStarted: () -> Void
 
     private var recentLaunches: [String: Date]
@@ -63,23 +70,40 @@ final class LauncherStore: ObservableObject {
             ?? filteredShortcuts.first
     }
 
+    var selectedResultScrollID: String? {
+        switch mode {
+        case .applications:
+            isCalculatorSelected
+                ? Self.calculatorResultScrollID
+                : selectedApplicationID
+        case .shortcuts:
+            selectedShortcutID
+        }
+    }
+
     init(
         catalog: ApplicationCatalogLoading = ApplicationCatalog(),
+        calculator: CalculatorEvaluating = CalculatorEngine(),
+        calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
         launcher: ApplicationLaunching = ApplicationLauncher(),
         launchHistory: LaunchHistoryStore = LaunchHistoryStore(),
         shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
         shortcutRunner: ShortcutRunning = ShortcutRunner(),
         shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
         onLaunchSuccess: @escaping () -> Void = {},
+        onCalculatorResultCopied: @escaping () -> Void = {},
         onShortcutRunStarted: @escaping () -> Void = {}
     ) {
         self.catalog = catalog
+        self.calculator = calculator
+        self.calculatorClipboard = calculatorClipboard
         self.launcher = launcher
         self.launchHistory = launchHistory
         self.shortcutCatalog = shortcutCatalog
         self.shortcutRunner = shortcutRunner
         self.shortcutRunHistory = shortcutRunHistory
         self.onLaunchSuccess = onLaunchSuccess
+        self.onCalculatorResultCopied = onCalculatorResultCopied
         self.onShortcutRunStarted = onShortcutRunStarted
         recentLaunches = launchHistory.load()
         recentShortcutRuns = shortcutRunHistory.load()
@@ -196,7 +220,15 @@ final class LauncherStore: ObservableObject {
     }
 
     func select(_ application: InstalledApplication) {
+        isCalculatorSelected = false
         selectedApplicationID = application.id
+    }
+
+    func selectCalculatorResult() {
+        guard calculatorResult != nil else {
+            return
+        }
+        isCalculatorSelected = true
     }
 
     func select(_ shortcut: AppleShortcut) {
@@ -206,11 +238,22 @@ final class LauncherStore: ObservableObject {
     func moveSelection(_ direction: MoveCommandDirection) {
         switch mode {
         case .applications:
-            selectedApplicationID = movedSelection(
+            let applicationResultIDs = filteredApplications.map(\.id)
+            let resultIDs = calculatorResult == nil
+                ? applicationResultIDs
+                : [Self.calculatorResultScrollID] + applicationResultIDs
+            let selectedID = isCalculatorSelected
+                ? Self.calculatorResultScrollID
+                : selectedApplicationID
+            let movedID = movedSelection(
                 direction,
-                results: filteredApplications.map(\.id),
-                selectedID: selectedApplicationID
+                results: resultIDs,
+                selectedID: selectedID
             )
+            isCalculatorSelected = movedID == Self.calculatorResultScrollID
+            if !isCalculatorSelected {
+                selectedApplicationID = movedID
+            }
         case .shortcuts:
             selectedShortcutID = movedSelection(
                 direction,
@@ -223,7 +266,11 @@ final class LauncherStore: ObservableObject {
     func openSelectedResult() {
         switch mode {
         case .applications:
-            openSelectedApplication()
+            if isCalculatorSelected {
+                copyCalculatorResult()
+            } else {
+                openSelectedApplication()
+            }
         case .shortcuts:
             runSelectedShortcut()
         }
@@ -237,6 +284,7 @@ final class LauncherStore: ObservableObject {
     }
 
     func open(_ application: InstalledApplication) {
+        isCalculatorSelected = false
         selectedApplicationID = application.id
         launchErrorMessage = nil
 
@@ -255,6 +303,15 @@ final class LauncherStore: ObservableObject {
                 launchErrorMessage = "Couldn’t open \(application.displayName). \(error.localizedDescription)"
             }
         }
+    }
+
+    func copyCalculatorResult() {
+        guard let calculatorResult else {
+            return
+        }
+        calculatorClipboard.write(calculatorResult.copyText)
+        query = ""
+        onCalculatorResultCopied()
     }
 
     func runSelectedShortcut() {
@@ -342,8 +399,10 @@ final class LauncherStore: ObservableObject {
 
     private func selectFirstResult() {
         if mode == .applications {
+            isCalculatorSelected = calculatorResult != nil
             selectedApplicationID = filteredApplications.first?.id
         } else {
+            isCalculatorSelected = false
             selectedShortcutID = filteredShortcuts.first?.id
         }
         selectionScrollRequest &+= 1
@@ -365,11 +424,15 @@ final class LauncherStore: ObservableObject {
         if mode == .applications {
             refreshApplications()
         } else {
+            calculatorResult = nil
             refreshShortcuts()
         }
     }
 
     private func refreshApplications() {
+        calculatorResult = mode == .applications
+            ? calculator.evaluate(query)
+            : nil
         filteredApplications = applicationIndex.ranked(
             query: mode == .applications ? query : "",
             recentLaunches: recentLaunches

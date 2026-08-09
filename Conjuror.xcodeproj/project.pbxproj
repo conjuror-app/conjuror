@@ -43,6 +43,10 @@
 		8A4E37062C55C00100C0A001 /* ShortcutCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37172C55C00100C0A001 /* ShortcutCatalogTests.swift */; };
 		8A4E37072C55C00100C0A001 /* ShortcutRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37182C55C00100C0A001 /* ShortcutRankerTests.swift */; };
 		8A4E37082C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37192C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift */; };
+		8A4E38002C55C00100C0A001 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38102C55C00100C0A001 /* CalculatorEngine.swift */; };
+		8A4E38012C55C00100C0A001 /* CalculatorClipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38112C55C00100C0A001 /* CalculatorClipboard.swift */; };
+		8A4E38022C55C00100C0A001 /* CalculatorResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38122C55C00100C0A001 /* CalculatorResultRow.swift */; };
+		8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +99,10 @@
 		8A4E37172C55C00100C0A001 /* ShortcutCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E37182C55C00100C0A001 /* ShortcutRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRankerTests.swift; sourceTree = "<group>"; };
 		8A4E37192C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRunHistoryStoreTests.swift; sourceTree = "<group>"; };
+		8A4E38102C55C00100C0A001 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngine.swift; sourceTree = "<group>"; };
+		8A4E38112C55C00100C0A001 /* CalculatorClipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorClipboard.swift; sourceTree = "<group>"; };
+		8A4E38122C55C00100C0A001 /* CalculatorResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResultRow.swift; sourceTree = "<group>"; };
+		8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +137,7 @@
 			children = (
 				8A4E33192C55C00100C0A001 /* AppController.swift */,
 				8A4E32102C55C00100C0A001 /* ConjurorApp.swift */,
+				8A4E38302C55C00100C0A001 /* Calculator */,
 				8A4E32332C55C00100C0A001 /* Models */,
 				8A4E33302C55C00100C0A001 /* Services */,
 				8A4E33322C55C00100C0A001 /* Stores */,
@@ -200,6 +209,7 @@
 			children = (
 				8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */,
 				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
+				8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */,
 				8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */,
 				8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */,
 				8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */,
@@ -222,6 +232,16 @@
 				8A4E37142C55C00100C0A001 /* ShortcutRunHistoryStore.swift */,
 			);
 			path = Stores;
+			sourceTree = "<group>";
+		};
+		8A4E38302C55C00100C0A001 /* Calculator */ = {
+			isa = PBXGroup;
+			children = (
+				8A4E38112C55C00100C0A001 /* CalculatorClipboard.swift */,
+				8A4E38102C55C00100C0A001 /* CalculatorEngine.swift */,
+				8A4E38122C55C00100C0A001 /* CalculatorResultRow.swift */,
+			);
+			path = Features/Calculator;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -324,6 +344,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A4E33082C55C00100C0A001 /* AppController.swift in Sources */,
+				8A4E38012C55C00100C0A001 /* CalculatorClipboard.swift in Sources */,
+				8A4E38002C55C00100C0A001 /* CalculatorEngine.swift in Sources */,
+				8A4E38022C55C00100C0A001 /* CalculatorResultRow.swift in Sources */,
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
@@ -356,6 +379,7 @@
 			files = (
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
+				8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
 				8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */,
 				8A4E36032C55C00100C0A001 /* LauncherWindowControllerTests.swift in Sources */,
