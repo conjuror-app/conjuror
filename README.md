@@ -4,7 +4,7 @@ Conjuror is a keyboard-first macOS application launcher. Press `⌥ Space` to
 show or hide its single Dockless window, type to rank installed applications,
 use the arrow keys to select, and press Return to open. Type `>` to switch to
 Apple Shortcuts, then search and press Return or click a result to run it. Its
-menu bar item provides quick access to the launcher, Settings, and Quit.
+menu bar item provides access to Settings and Quit.
 
 In application mode, Conjuror also evaluates calculations while you
 type. Calculator answers appear above matching applications; selecting one and

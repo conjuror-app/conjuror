@@ -85,14 +85,6 @@ final class AppController: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
-        let showItem = NSMenuItem(
-            title: "Show",
-            action: #selector(showLauncherFromMenu),
-            keyEquivalent: ""
-        )
-        showItem.target = self
-        menu.addItem(showItem)
-
         let settingsItem = NSMenuItem(
             title: "Settings…",
             action: #selector(showSettingsFromMenu),
@@ -113,10 +105,6 @@ final class AppController: NSObject, NSApplicationDelegate {
 
         statusItem.menu = menu
         self.statusItem = statusItem
-    }
-
-    @objc private func showLauncherFromMenu() {
-        showLauncher()
     }
 
     @objc private func showSettingsFromMenu() {
