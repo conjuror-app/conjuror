@@ -2,9 +2,14 @@ import AppKit
 
 @MainActor
 final class AppController: NSObject, NSApplicationDelegate {
-    private lazy var store = LauncherStore(onLaunchSuccess: { [weak self] in
-        self?.hideLauncher()
-    })
+    private lazy var store = LauncherStore(
+        onLaunchSuccess: { [weak self] in
+            self?.hideLauncher()
+        },
+        onShortcutRunStarted: { [weak self] in
+            self?.hideLauncher()
+        }
+    )
 
     private lazy var settingsStore = SettingsStore()
 

@@ -211,6 +211,111 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertNotEqual(store.focusRequest, focusRequest)
     }
 
+    func testGreaterThanSwitchesToShortcutsAndFiltersFollowingText() async {
+        let shortcuts = [
+            shortcut("Morning Lights", id: "morning"),
+            shortcut("Evening Lights", id: "evening"),
+        ]
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
+            shortcutRunner: ShortcutRunnerStub(),
+            shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+        )
+
+        store.updateQuery(">evening")
+        await waitForShortcutsLoadingToFinish(store)
+
+        XCTAssertEqual(store.mode, .shortcuts)
+        XCTAssertEqual(store.query, "evening")
+        XCTAssertEqual(store.filteredShortcuts, [shortcuts[1]])
+        XCTAssertEqual(store.selectedShortcutID, shortcuts[1].id)
+    }
+
+    func testReturnRunsTheSelectedFuzzyShortcut() async {
+        let mainBedroom = shortcut("Main Bedroom", id: "main")
+        let guestBedroom = shortcut("Guest Bedroom", id: "guest")
+        let runner = RecordingShortcutRunner()
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            shortcutCatalog: ShortcutCatalogStub(
+                shortcuts: [mainBedroom, guestBedroom]
+            ),
+            shortcutRunner: runner,
+            shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.updateQuery(">bedroom")
+        await waitForShortcutsLoadingToFinish(store)
+        store.select(mainBedroom)
+
+        store.openSelectedResult()
+        while runner.lastRunShortcut == nil {
+            await Task.yield()
+        }
+
+        XCTAssertEqual(runner.lastRunShortcut, mainBedroom)
+    }
+
+    func testRunningShortcutHidesImmediatelyAndRecordsSuccessfulRun() async {
+        let shortcut = shortcut("Lights", id: "lights")
+        let history = ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+        var didRequestHide = false
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
+            shortcutRunner: ShortcutRunnerStub(),
+            shortcutRunHistory: history,
+            onShortcutRunStarted: { didRequestHide = true }
+        )
+        store.enterShortcutsMode()
+        await waitForShortcutsLoadingToFinish(store)
+
+        store.runSelectedShortcut()
+
+        XCTAssertTrue(didRequestHide)
+        while history.load()[shortcut.persistenceKey] == nil {
+            await Task.yield()
+        }
+        XCTAssertNil(store.shortcutRunErrorMessage)
+    }
+
+    func testFailedShortcutRunIsShownInShortcutModeOnNextActivation() async {
+        let shortcut = shortcut("Lights", id: "lights")
+        let store = LauncherStore(
+            catalog: CatalogStub(applications: []),
+            launcher: LauncherStub(),
+            launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+            shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
+            shortcutRunner: ShortcutRunnerStub(error: TestError.launchFailed),
+            shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+        )
+        store.updateQuery(">light")
+        await waitForShortcutsLoadingToFinish(store)
+
+        store.runSelectedShortcut()
+        while store.shortcutRunErrorMessage == nil {
+            await Task.yield()
+        }
+        store.prepareForActivation()
+
+        XCTAssertEqual(store.mode, .shortcuts)
+        XCTAssertEqual(store.query, "light")
+        XCTAssertEqual(
+            store.shortcutRunErrorMessage,
+            "Couldn’t run Lights. Launch failed"
+        )
+    }
+
+    private func shortcut(_ name: String, id: String) -> AppleShortcut {
+        AppleShortcut(id: id, name: name, subtitle: "", acceptsInput: false)
+    }
+
     private func application(_ name: String, id: String) -> InstalledApplication {
         InstalledApplication(
             displayName: name,
@@ -232,6 +337,12 @@ final class LauncherStoreTests: XCTestCase {
             await Task.yield()
         }
     }
+
+    private func waitForShortcutsLoadingToFinish(_ store: LauncherStore) async {
+        while store.isLoadingShortcuts {
+            await Task.yield()
+        }
+    }
 }
 
 private struct CatalogStub: ApplicationCatalogLoading {
@@ -245,6 +356,37 @@ private struct CatalogStub: ApplicationCatalogLoading {
 private struct FailingCatalogStub: ApplicationCatalogLoading {
     func load() async throws -> [InstalledApplication] {
         throw TestError.catalogUnavailable
+    }
+}
+
+private struct ShortcutCatalogStub: ShortcutCatalogLoading {
+    let shortcuts: [AppleShortcut]
+
+    func load() async throws -> [AppleShortcut] {
+        shortcuts
+    }
+}
+
+private struct ShortcutRunnerStub: ShortcutRunning {
+    var error: Error?
+
+    init(error: Error? = nil) {
+        self.error = error
+    }
+
+    func run(_ shortcut: AppleShortcut) async throws {
+        if let error {
+            throw error
+        }
+    }
+}
+
+@MainActor
+private final class RecordingShortcutRunner: ShortcutRunning {
+    private(set) var lastRunShortcut: AppleShortcut?
+
+    func run(_ shortcut: AppleShortcut) async throws {
+        lastRunShortcut = shortcut
     }
 }
 
