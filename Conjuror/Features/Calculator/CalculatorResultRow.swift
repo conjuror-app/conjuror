@@ -19,7 +19,15 @@ struct CalculatorResultRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
 
+                if let sourceBadge = result.sourceBadge {
+                    badge(sourceBadge)
+                }
+
                 Spacer(minLength: 12)
+
+                if let targetBadge = result.targetBadge {
+                    badge(targetBadge)
+                }
 
                 Text(result.display)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
@@ -42,7 +50,7 @@ struct CalculatorResultRow: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Calculator result " + result.display)
+        .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Copies the result")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
         .onHover { isHovering in
@@ -51,5 +59,20 @@ struct CalculatorResultRow: View {
             }
         }
         .help("Copy " + result.copyText)
+    }
+
+    private var accessibilityLabel: String {
+        ["Calculator result", result.display, result.targetBadge]
+            .compactMap { $0 }
+            .joined(separator: " ")
+    }
+
+    private func badge(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 5)
+            .frame(height: 18)
+            .background(.primary.opacity(0.06), in: Capsule())
     }
 }
