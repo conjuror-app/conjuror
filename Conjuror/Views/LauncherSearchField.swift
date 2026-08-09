@@ -2,21 +2,31 @@ import SwiftUI
 
 struct LauncherSearchField: View {
     @Binding var query: String
+    let mode: LauncherMode
+    let onToggleMode: () -> Void
     let onOpenSelected: () -> Void
     let focusRequest: Int
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
+            Button(action: onToggleMode) {
+                Image(systemName: mode == .applications ? "magnifyingglass" : "square.stack.3d.up.fill")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(mode == .applications ? Color.secondary : Color.purple)
+                    .frame(width: 18, height: 18)
+            }
+            .buttonStyle(.plain)
+            .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
+            .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
 
-            TextField("Search apps…", text: $query)
-                .focused($isFocused)
-                .font(.system(size: 18, weight: .regular))
-                .textFieldStyle(.plain)
-                .onSubmit(onOpenSelected)
+            TextField(
+                mode == .applications ? "Search apps…" : "Search shortcuts…",
+                text: $query
+            )
+            .focused($isFocused)
+            .font(.system(size: 18, weight: .regular))
+            .textFieldStyle(.plain)
+            .onSubmit(onOpenSelected)
 
             if !query.isEmpty {
                 Button {
