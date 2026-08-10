@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct LauncherResultRow: View {
+struct ApplicationResultRow: View {
     let application: InstalledApplication
     let isSelected: Bool
     let onHover: () -> Void
