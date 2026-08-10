@@ -126,7 +126,7 @@ struct LauncherView: View {
         CalculatorResultRow(
           result: calculatorResult,
           isSelected: store.isCalculatorSelected,
-          onHover: store.selectCalculatorResult,
+          onHover: store.selectCalculatorResultOnHover,
           onCopy: store.copyCalculatorResult
         )
         .id(LauncherStore.calculatorResultScrollID)
@@ -170,7 +170,7 @@ struct LauncherView: View {
           ShortcutResultRow(
             shortcut: shortcut,
             isSelected: shortcut.id == store.selectedShortcutID,
-            onHover: { store.select(shortcut) },
+            onHover: { store.selectOnHover(shortcut) },
             onRun: { store.run(shortcut) }
           )
           .id(shortcut.id)
@@ -184,7 +184,7 @@ struct LauncherView: View {
       application: application,
       isSelected: !store.isCalculatorSelected
         && application.id == store.selectedApplicationID,
-      onHover: { store.select(application) },
+      onHover: { store.selectOnHover(application) },
       onOpen: { store.open(application) }
     )
     .id(application.id)

@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -70,6 +71,7 @@ final class LauncherStore: ObservableObject {
   private var reloadRequested = false
   private var shortcutReloadRequested = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
+  private var lastPointerLocation: NSPoint?
 
   private var selectedApplication: InstalledApplication? {
     filteredApplications.first { $0.id == selectedApplicationID }
@@ -226,6 +228,13 @@ final class LauncherStore: ObservableObject {
     selectedApplicationID = application.id
   }
 
+  func selectOnHover(_ application: InstalledApplication) {
+    guard pointerDidMove() else {
+      return
+    }
+    select(application)
+  }
+
   func selectCalculatorResult() {
     guard calculatorResult != nil else {
       return
@@ -233,11 +242,27 @@ final class LauncherStore: ObservableObject {
     isCalculatorSelected = true
   }
 
+  func selectCalculatorResultOnHover() {
+    guard pointerDidMove() else {
+      return
+    }
+    selectCalculatorResult()
+  }
+
   func select(_ shortcut: AppleShortcut) {
     selectedShortcutID = shortcut.id
   }
 
+  func selectOnHover(_ shortcut: AppleShortcut) {
+    guard pointerDidMove() else {
+      return
+    }
+    select(shortcut)
+  }
+
   func moveSelection(_ direction: MoveCommandDirection) {
+    lastPointerLocation = NSEvent.mouseLocation
+
     switch mode {
     case .applications:
       let applicationResultIDs = filteredApplications.map(\.id)
@@ -376,6 +401,15 @@ final class LauncherStore: ObservableObject {
       selectFirstResult()
     }
     focusRequest &+= 1
+  }
+
+  private func pointerDidMove() -> Bool {
+    let pointerLocation = NSEvent.mouseLocation
+    guard pointerLocation != lastPointerLocation else {
+      return false
+    }
+    lastPointerLocation = pointerLocation
+    return true
   }
 
   private func movedSelection(
