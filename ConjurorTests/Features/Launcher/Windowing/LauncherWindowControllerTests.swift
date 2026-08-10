@@ -74,4 +74,29 @@ final class LauncherWindowControllerTests: XCTestCase {
       )
     )
   }
+
+  func testTextEditingCommandRecognizesStandardShortcuts() {
+    XCTAssertEqual(command("a"), .selectAll)
+    XCTAssertEqual(command("c"), .copy)
+    XCTAssertEqual(command("v"), .paste)
+    XCTAssertEqual(command("x"), .cut)
+    XCTAssertEqual(command("z"), .undo)
+    XCTAssertEqual(command("Z", modifiers: [.command, .shift]), .redo)
+  }
+
+  func testTextEditingCommandIgnoresUnsupportedModifiersAndKeys() {
+    XCTAssertNil(command("a", modifiers: .option))
+    XCTAssertNil(command("b"))
+    XCTAssertNil(command(nil))
+  }
+
+  private func command(
+    _ characters: String?,
+    modifiers: NSEvent.ModifierFlags = .command
+  ) -> LauncherTextEditingCommand? {
+    LauncherTextEditingCommand.command(
+      charactersIgnoringModifiers: characters,
+      modifiers: modifiers
+    )
+  }
 }
