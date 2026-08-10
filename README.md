@@ -17,10 +17,12 @@ operators such as `plus`, `minus`, `times`, `divided by`, and `over`. Examples:
 `2 plus 3 times 4`, `100 + 15%`, `20% of 50`, and `2pi`.
 
 Quantity calculations support length, mass, duration, temperature, volume, and
-decimal or binary data units. Use `to`, `in`, `->`, or `→` for explicit
-conversions, combine compatible units with `+` or `-`, or type composite
-quantities. Examples: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, and
-`5 ft 3 in`. US customary volume units use US definitions.
+decimal or binary data units. A bare quantity automatically converts to a
+sensible counterpart, such as `100 lbs` to kilograms, `1 cm` to inches, or
+`1 mile` to kilometers. Use `to`, `in`, `->`, or `→` to choose an explicit
+target, combine compatible units with `+` or `-`, or type composite quantities.
+Examples: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, and `5 ft 3 in`. US
+customary volume units use US definitions.
 
 The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
 `/System/Applications/Utilities`, `~/Applications`, and application folders on

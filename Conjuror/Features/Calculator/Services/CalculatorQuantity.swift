@@ -95,6 +95,49 @@ private enum CalculatorUnitRegistry {
     return result
   }()
 
+  private static let defaultTargetIDs = [
+    "meter": "foot",
+    "kilometer": "mile",
+    "centimeter": "inch",
+    "millimeter": "inch",
+    "inch": "centimeter",
+    "foot": "meter",
+    "yard": "meter",
+    "mile": "kilometer",
+    "kilogram": "pound",
+    "gram": "ounce",
+    "milligram": "gram",
+    "pound": "kilogram",
+    "ounce": "gram",
+    "second": "minute",
+    "minute": "hour",
+    "hour": "minute",
+    "day": "hour",
+    "week": "day",
+    "celsius": "fahrenheit",
+    "fahrenheit": "celsius",
+    "kelvin": "celsius",
+    "liter": "gallon",
+    "milliliter": "fluid-ounce",
+    "teaspoon": "milliliter",
+    "tablespoon": "milliliter",
+    "cup": "milliliter",
+    "fluid-ounce": "milliliter",
+    "pint": "liter",
+    "quart": "liter",
+    "gallon": "liter",
+    "byte": "bit",
+    "bit": "byte",
+    "kilobyte": "kibibyte",
+    "megabyte": "mebibyte",
+    "gigabyte": "gibibyte",
+    "terabyte": "tebibyte",
+    "kibibyte": "kilobyte",
+    "mebibyte": "megabyte",
+    "gibibyte": "gigabyte",
+    "tebibyte": "terabyte",
+  ]
+
   private static let units = [
     CalculatorUnit(
       id: "meter",
@@ -380,6 +423,13 @@ private enum CalculatorUnitRegistry {
     ),
   ]
 
+  static func defaultTarget(for unit: CalculatorUnit) -> CalculatorUnit? {
+    guard let targetID = defaultTargetIDs[unit.id] else {
+      return nil
+    }
+    return units.first { $0.id == targetID }
+  }
+
   static func unit(named name: String) -> CalculatorUnit? {
     unitsByAlias[name.lowercased()]
   }
@@ -580,11 +630,15 @@ private struct CalculatorQuantityParser {
       }
       targetUnit = parsedTarget
       advance()
+    } else if !hasArithmetic, quantity.componentCount == 1 {
+      guard let defaultTarget = CalculatorUnitRegistry.defaultTarget(for: quantity.firstUnit)
+      else {
+        return nil
+      }
+      targetUnit = defaultTarget
     }
 
-    guard currentToken == .end,
-      hasConversion || hasArithmetic || quantity.componentCount > 1
-    else {
+    guard currentToken == .end else {
       return nil
     }
 
