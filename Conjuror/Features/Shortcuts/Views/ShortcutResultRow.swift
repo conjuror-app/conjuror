@@ -9,10 +9,7 @@ struct ShortcutResultRow: View {
   var body: some View {
     Button(action: onRun) {
       HStack(spacing: 8) {
-        Image(systemName: "square.stack.3d.up.fill")
-          .font(.system(size: 17, weight: .medium))
-          .foregroundStyle(.purple)
-          .frame(width: 26, height: 26)
+        shortcutIcon
 
         Text(shortcut.name)
           .font(.system(size: 14, weight: .medium))
@@ -53,5 +50,21 @@ struct ShortcutResultRow: View {
       }
     }
     .help("Run \(shortcut.name)")
+  }
+
+  @ViewBuilder private var shortcutIcon: some View {
+    if let iconData = shortcut.iconData,
+      let icon = NSImage(data: iconData)
+    {
+      Image(nsImage: icon)
+        .resizable()
+        .interpolation(.high)
+        .frame(width: 26, height: 26)
+    } else {
+      Image(systemName: "square.stack.3d.up.fill")
+        .font(.system(size: 17, weight: .medium))
+        .foregroundStyle(.purple)
+        .frame(width: 26, height: 26)
+    }
   }
 }
