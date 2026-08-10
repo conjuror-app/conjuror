@@ -1,57 +1,57 @@
 import SwiftUI
 
 struct LauncherSearchField: View {
-    @Binding var query: String
-    let mode: LauncherMode
-    let onToggleMode: () -> Void
-    let onOpenSelected: () -> Void
-    let focusRequest: Int
+  @Binding var query: String
+  let mode: LauncherMode
+  let onToggleMode: () -> Void
+  let onOpenSelected: () -> Void
+  let focusRequest: Int
 
-    var body: some View {
-        HStack(spacing: 8) {
-            Button(action: onToggleMode) {
-                Image(systemName: mode == .applications ? "magnifyingglass" : "square.stack.3d.up.fill")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(mode == .applications ? Color.secondary : Color.purple)
-                    .frame(width: 18, height: 18)
-            }
-            .buttonStyle(.plain)
-            .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
-            .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
+  var body: some View {
+    HStack(spacing: 8) {
+      Button(action: onToggleMode) {
+        Image(systemName: mode == .applications ? "magnifyingglass" : "square.stack.3d.up.fill")
+          .font(.system(size: 14, weight: .medium))
+          .foregroundStyle(mode == .applications ? Color.secondary : Color.purple)
+          .frame(width: 18, height: 18)
+      }
+      .buttonStyle(.plain)
+      .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
+      .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
 
-            TextField(
-                mode == .applications ? "Search apps…" : "Search shortcuts…",
-                text: $query
-            )
-            .focused($isFocused)
-            .font(.system(size: 18, weight: .regular))
-            .textFieldStyle(.plain)
-            .onSubmit(onOpenSelected)
+      TextField(
+        mode == .applications ? "Search apps…" : "Search shortcuts…",
+        text: $query
+      )
+      .focused($isFocused)
+      .font(.system(size: 18, weight: .regular))
+      .textFieldStyle(.plain)
+      .onSubmit(onOpenSelected)
 
-            if !query.isEmpty {
-                Button {
-                    query = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Clear search")
-                .accessibilityLabel("Clear search")
-            }
+      if !query.isEmpty {
+        Button {
+          query = ""
+        } label: {
+          Image(systemName: "xmark.circle.fill")
+            .font(.system(size: 13))
+            .foregroundStyle(.tertiary)
         }
-        .padding(.horizontal, 2)
-        .frame(height: 38)
-        .task {
-            isFocused = true
-        }
-        .onChange(of: focusRequest) {
-            DispatchQueue.main.async {
-                isFocused = true
-            }
-        }
+        .buttonStyle(.plain)
+        .help("Clear search")
+        .accessibilityLabel("Clear search")
+      }
     }
+    .padding(.horizontal, 2)
+    .frame(height: 38)
+    .task {
+      isFocused = true
+    }
+    .onChange(of: focusRequest) {
+      DispatchQueue.main.async {
+        isFocused = true
+      }
+    }
+  }
 
-    @FocusState private var isFocused: Bool
+  @FocusState private var isFocused: Bool
 }

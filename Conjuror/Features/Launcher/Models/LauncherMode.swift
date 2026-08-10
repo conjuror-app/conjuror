@@ -1,4 +1,4 @@
 enum LauncherMode: Equatable, Sendable {
-    case applications
-    case shortcuts
+  case applications
+  case shortcuts
 }

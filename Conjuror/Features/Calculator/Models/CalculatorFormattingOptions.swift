@@ -1,16 +1,16 @@
 import Foundation
 
 struct CalculatorFormattingOptions: Equatable, Sendable {
-    static let compact = CalculatorFormattingOptions()
+  static let compact = CalculatorFormattingOptions()
 
-    let localeIdentifier: String
-    let maximumFractionDigits: Int
+  let localeIdentifier: String
+  let maximumFractionDigits: Int
 
-    init(
-        localeIdentifier: String = Locale.current.identifier,
-        maximumFractionDigits: Int = 10
-    ) {
-        self.localeIdentifier = localeIdentifier
-        self.maximumFractionDigits = maximumFractionDigits
-    }
+  init(
+    localeIdentifier: String = Locale.current.identifier,
+    maximumFractionDigits: Int = 10
+  ) {
+    self.localeIdentifier = localeIdentifier
+    self.maximumFractionDigits = maximumFractionDigits
+  }
 }
