@@ -33,9 +33,11 @@ Conjuror accesses Shortcuts Events.
 The project enables complete Swift concurrency checking in Debug and Release
 builds.
 
+Build the app or run its tests with Make:
+
 ```sh
-xcodebuild test \
-  -project Conjuror.xcodeproj \
-  -scheme Conjuror \
-  -derivedDataPath .derivedData
+make build
+make test
 ```
+
+Build artifacts are written to `.derivedData`. Run `make clean` to remove them.
