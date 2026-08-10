@@ -1,5 +1,6 @@
 import AppKit
 import Carbon.HIToolbox
+import SwiftUI
 import XCTest
 
 @testable import Conjuror
@@ -90,6 +91,61 @@ final class LauncherWindowControllerTests: XCTestCase {
     XCTAssertNil(command(nil))
   }
 
+  @MainActor
+  func testPanelRoutesTextEditingShortcutsToActiveTextView() {
+    let panel = makePanel()
+    let textView = RecordingTextView()
+    panel.contentView?.addSubview(textView)
+    XCTAssertTrue(panel.makeFirstResponder(textView))
+
+    for (key, expectedAction) in [
+      ("a", "selectAll"),
+      ("c", "copy"),
+      ("v", "paste"),
+      ("x", "cut"),
+      ("z", "undo"),
+      ("Z", "redo"),
+    ] {
+      let modifiers: NSEvent.ModifierFlags = key == "Z" ? [.command, .shift] : .command
+
+      XCTAssertTrue(panel.performKeyEquivalent(with: keyEvent(key, modifiers: modifiers)))
+      XCTAssertEqual(textView.actions.last, expectedAction)
+    }
+  }
+
+  @MainActor
+  func testPanelDoesNotConsumeTextEditingShortcutOutsideTextEditor() {
+    let panel = makePanel()
+    panel.contentView?.addSubview(NSButton())
+
+    XCTAssertFalse(panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command)))
+  }
+
+  @MainActor
+  func testPanelGivesCommandQPrecedenceOverTextEditingResponder() {
+    let panel = makePanel()
+    let textView = RecordingTextView()
+    var terminateCount = 0
+    panel.onTerminate = { terminateCount += 1 }
+    panel.contentView?.addSubview(textView)
+    XCTAssertTrue(panel.makeFirstResponder(textView))
+
+    XCTAssertTrue(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
+    XCTAssertEqual(terminateCount, 1)
+    XCTAssertTrue(textView.actions.isEmpty)
+  }
+
+  @MainActor
+  func testPanelPreservesArrowKeyNavigation() {
+    let panel = makePanel()
+    var directions: [MoveCommandDirection] = []
+    panel.onMoveSelection = { directions.append($0) }
+
+    panel.sendEvent(keyEvent("", keyCode: UInt16(kVK_DownArrow)))
+
+    XCTAssertEqual(directions, [.down])
+  }
+
   private func command(
     _ characters: String?,
     modifiers: NSEvent.ModifierFlags = .command
@@ -99,4 +155,51 @@ final class LauncherWindowControllerTests: XCTestCase {
       modifiers: modifiers
     )
   }
+
+  @MainActor
+  private func makePanel() -> LauncherPanel {
+    let panel = LauncherPanel(
+      contentRect: NSRect(x: 0, y: 0, width: 200, height: 100),
+      styleMask: [.borderless, .nonactivatingPanel],
+      backing: .buffered,
+      defer: false
+    )
+    panel.contentView = NSView(frame: panel.contentView?.bounds ?? .zero)
+    panel.makeKeyAndOrderFront(nil)
+    addTeardownBlock {
+      panel.close()
+    }
+    return panel
+  }
+
+  @MainActor
+  private func keyEvent(
+    _ characters: String,
+    keyCode: UInt16 = 0,
+    modifiers: NSEvent.ModifierFlags = []
+  ) -> NSEvent {
+    NSEvent.keyEvent(
+      with: .keyDown,
+      location: .zero,
+      modifierFlags: modifiers,
+      timestamp: 0,
+      windowNumber: 0,
+      context: nil,
+      characters: characters,
+      charactersIgnoringModifiers: characters,
+      isARepeat: false,
+      keyCode: keyCode
+    )!
+  }
+}
+
+private final class RecordingTextView: NSTextView {
+  var actions: [String] = []
+
+  override func copy(_ sender: Any?) { actions.append("copy") }
+  override func cut(_ sender: Any?) { actions.append("cut") }
+  override func paste(_ sender: Any?) { actions.append("paste") }
+  override func selectAll(_ sender: Any?) { actions.append("selectAll") }
+  @objc func undo(_ sender: Any?) { actions.append("undo") }
+  @objc func redo(_ sender: Any?) { actions.append("redo") }
 }

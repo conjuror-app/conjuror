@@ -169,9 +169,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   }
 }
 
-private final class LauncherPanel: NSPanel {
+final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
   var onOpenSettings: (() -> Void)?
+  var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
 
   override var canBecomeKey: Bool { true }
 
@@ -197,13 +198,19 @@ private final class LauncherPanel: NSPanel {
         onOpenSettings?()
         return true
       case "q":
-        NSApp.terminate(nil)
+        onTerminate()
         return true
       default:
         break
       }
     }
 
+    let modifiers = event.modifierFlags.intersection([
+      .command,
+      .control,
+      .option,
+      .shift,
+    ])
     if let command = LauncherTextEditingCommand.command(
       charactersIgnoringModifiers: event.charactersIgnoringModifiers,
       modifiers: modifiers
