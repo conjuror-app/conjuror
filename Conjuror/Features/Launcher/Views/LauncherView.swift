@@ -36,6 +36,10 @@ struct LauncherView: View {
 
         resultContent
 
+        if resultCount > 0, catalogErrorMessage == nil {
+          actionFooter
+        }
+
         if let actionErrorMessage {
           actionError(actionErrorMessage)
         }
@@ -117,6 +121,44 @@ struct LauncherView: View {
     case .shortcuts:
       shortcutResults
     }
+  }
+
+  private var actionFooterTitle: String {
+    switch store.mode {
+    case .applications:
+      store.isCalculatorSelected ? "Copy result" : "Launch application"
+    case .shortcuts:
+      "Run shortcut"
+    }
+  }
+
+  private var actionFooter: some View {
+    VStack(spacing: 0) {
+      Divider()
+
+      HStack {
+        Spacer()
+
+        HStack(alignment: .center, spacing: 6) {
+          Text(actionFooterTitle)
+            .frame(height: 16, alignment: .center)
+
+          Text("↵")
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .frame(height: 16, alignment: .center)
+            .accessibilityHidden(true)
+        }
+        .padding(.horizontal, 8)
+        .frame(height: 22)
+        .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 5))
+      }
+      .font(.caption)
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, 10)
+      .frame(height: 28)
+    }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("Press Return to " + actionFooterTitle.lowercased())
   }
 
   @ViewBuilder

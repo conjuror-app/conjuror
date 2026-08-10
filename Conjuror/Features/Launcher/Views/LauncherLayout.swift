@@ -9,6 +9,7 @@ enum LauncherLayout {
   private static let resultRowHeight: CGFloat = 40
   private static let resultSpacing: CGFloat = 1
   private static let resultsVerticalPadding: CGFloat = 8
+  private static let footerHeight: CGFloat = 29
 
   static func expandedHeight(
     resultCount: Int,
@@ -31,11 +32,13 @@ enum LauncherLayout {
     }
 
     let statusHeight: CGFloat = hasHotKeyError ? 26 : 0
+    let footerHeight: CGFloat = resultCount > 0 && !hasCatalogError ? Self.footerHeight : 0
     let launchErrorHeight: CGFloat = hasLaunchError ? 26 : 0
     return searchHeight
       + dividerHeight
       + statusHeight
       + resultsHeight
+      + footerHeight
       + launchErrorHeight
   }
 }
