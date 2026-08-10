@@ -466,8 +466,3 @@ final class LauncherStore: ObservableObject {
         loadShortcuts()
     }
 }
-
-enum LauncherMode: Equatable, Sendable {
-    case applications
-    case shortcuts
-}

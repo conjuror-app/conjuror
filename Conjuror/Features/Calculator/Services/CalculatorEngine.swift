@@ -46,43 +46,6 @@ struct CalculatorEngine: CalculatorEvaluating {
     }
 }
 
-struct CalculatorResult: Equatable, Sendable {
-    let expression: String
-    let display: String
-    let copyText: String
-    let sourceBadge: String?
-    let targetBadge: String?
-
-    init(
-        expression: String,
-        display: String,
-        copyText: String,
-        sourceBadge: String? = nil,
-        targetBadge: String? = nil
-    ) {
-        self.expression = expression
-        self.display = display
-        self.copyText = copyText
-        self.sourceBadge = sourceBadge
-        self.targetBadge = targetBadge
-    }
-}
-
-struct CalculatorFormattingOptions: Equatable, Sendable {
-    static let compact = CalculatorFormattingOptions()
-
-    let localeIdentifier: String
-    let maximumFractionDigits: Int
-
-    init(
-        localeIdentifier: String = Locale.current.identifier,
-        maximumFractionDigits: Int = 10
-    ) {
-        self.localeIdentifier = localeIdentifier
-        self.maximumFractionDigits = maximumFractionDigits
-    }
-}
-
 protocol CalculatorEvaluating {
     func evaluate(_ expression: String) -> CalculatorResult?
 }
