@@ -120,8 +120,10 @@ final class LauncherStore: ObservableObject {
       return
     }
 
-    mode = .shortcuts
     query = String(value.dropFirst())
+    mode = .shortcuts
+    refreshCurrentResults()
+    selectFirstResult()
     loadShortcuts()
   }
 
