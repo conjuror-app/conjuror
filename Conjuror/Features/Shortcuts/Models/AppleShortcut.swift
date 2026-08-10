@@ -11,6 +11,7 @@ struct AppleShortcut: Identifiable, Hashable, Sendable {
   let name: String
   let subtitle: String
   let acceptsInput: Bool
+  let actionCount: Int?
   let color: Color?
   let iconData: Data?
 
@@ -23,6 +24,7 @@ struct AppleShortcut: Identifiable, Hashable, Sendable {
     name: String,
     subtitle: String,
     acceptsInput: Bool,
+    actionCount: Int? = nil,
     color: Color? = nil,
     iconData: Data? = nil
   ) {
@@ -30,6 +32,7 @@ struct AppleShortcut: Identifiable, Hashable, Sendable {
     self.name = name
     self.subtitle = subtitle
     self.acceptsInput = acceptsInput
+    self.actionCount = actionCount
     self.color = color
     self.iconData = iconData
   }

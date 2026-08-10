@@ -9,7 +9,7 @@ enum ShortcutsEventsBridge {
           repeat with candidate in shortcuts
               set shortcutColor to color of candidate
               set {redValue, greenValue, blueValue} to shortcutColor
-              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, {redValue, greenValue, blueValue}, icon of candidate}
+              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, {redValue, greenValue, blueValue}, icon of candidate, action count of candidate}
           end repeat
           return shortcutRecords
       end tell
@@ -55,6 +55,9 @@ enum ShortcutsEventsBridge {
         name: name,
         subtitle: record.atIndex(3)?.stringValue ?? "",
         acceptsInput: record.atIndex(4)?.booleanValue ?? false,
+        actionCount: record.numberOfItems >= 7
+          ? Int(record.atIndex(7)?.int32Value ?? 0)
+          : nil,
         color: shortcutColor(from: record.atIndex(5)),
         iconData: compressedIconData(from: record.atIndex(6))
       )
