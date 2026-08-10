@@ -26,6 +26,38 @@ final class CalculatorQuantityTests: XCTestCase {
     XCTAssertEqual(evaluate("8 bits → bytes"), "1 B")
   }
 
+  func testBareQuantitiesUseSensibleDefaultConversions() {
+    XCTAssertEqual(evaluate("100 lbs"), "45.359237 kg")
+    XCTAssertEqual(evaluate("1 cm"), "0.3937007874 in")
+    XCTAssertEqual(evaluate("1 inch"), "2.54 cm")
+    XCTAssertEqual(evaluate("1 km"), "0.6213711922 mi")
+    XCTAssertEqual(evaluate("1 mile"), "1.609344 km")
+    XCTAssertEqual(evaluate("90 minutes"), "1.5 hr")
+    XCTAssertEqual(evaluate("30 c"), "86 °F")
+    XCTAssertEqual(evaluate("1 GiB"), "1.073741824 GB")
+  }
+
+  func testEveryUnitHasADefaultConversion() {
+    let expectedTargets = [
+      ("m", "ft"), ("km", "mi"), ("cm", "in"), ("mm", "in"),
+      ("inch", "cm"), ("foot", "m"), ("yard", "m"), ("mile", "km"),
+      ("kg", "lb"), ("g", "oz"), ("mg", "g"), ("lb", "kg"), ("oz", "g"),
+      ("second", "min"), ("minute", "hr"), ("hour", "min"), ("day", "hr"),
+      ("week", "day"),
+      ("celsius", "°F"), ("fahrenheit", "°C"), ("kelvin", "°C"),
+      ("liter", "US gal"), ("ml", "US fl oz"), ("tsp", "mL"),
+      ("tbsp", "mL"), ("cup", "mL"), ("floz", "mL"), ("pint", "L"),
+      ("quart", "L"), ("gallon", "L"),
+      ("byte", "bit"), ("bit", "B"), ("kb", "KiB"), ("mb", "MiB"),
+      ("gb", "GiB"), ("tb", "TiB"), ("kib", "kB"), ("mib", "MB"),
+      ("gib", "GB"), ("tib", "TB"),
+    ]
+
+    for (source, target) in expectedTargets {
+      XCTAssertEqual(engine.evaluate("1 \(source)")?.targetBadge, target, source)
+    }
+  }
+
   func testTypedArithmeticUsesLastWrittenUnit() {
     XCTAssertEqual(evaluate("10kg + 500g"), "10500 g")
     XCTAssertEqual(evaluate("2 hours - 30 minutes"), "90 min")
@@ -44,8 +76,8 @@ final class CalculatorQuantityTests: XCTestCase {
     XCTAssertNil(engine.evaluate("10 c + 50 f"))
   }
 
-  func testBareAndIncompatibleQuantitiesStaySilent() {
-    XCTAssertNil(engine.evaluate("10 kg"))
+  func testInvalidAndIncompatibleQuantitiesStaySilent() {
+    XCTAssertNil(engine.evaluate("10 unknown"))
     XCTAssertNil(engine.evaluate("1 kg + 1 m"))
     XCTAssertNil(engine.evaluate("5 ft 3 kg"))
     XCTAssertNil(engine.evaluate("10 km to kg"))
