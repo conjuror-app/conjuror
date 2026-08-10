@@ -10,7 +10,7 @@
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
 		8A4E32022C55C00100C0A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32122C55C00100C0A001 /* Assets.xcassets */; };
-		8A4E32032C55C00100C0A001 /* ConjurorGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */; };
+		8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* Conjuror.icon */; };
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
@@ -74,7 +74,7 @@
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
 		8A4E32122C55C00100C0A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = ConjurorGlass.icon; sourceTree = "<group>"; };
+		8A4E32142C55C00100C0A001 /* Conjuror.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Conjuror.icon; sourceTree = "<group>"; };
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
@@ -215,7 +215,7 @@
 			children = (
 				8A4E32122C55C00100C0A001 /* Assets.xcassets */,
 				8A4E37162C55C00100C0A001 /* Conjuror.entitlements */,
-				8A4E32142C55C00100C0A001 /* ConjurorGlass.icon */,
+				8A4E32142C55C00100C0A001 /* Conjuror.icon */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -643,7 +643,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A4E32022C55C00100C0A001 /* Assets.xcassets in Resources */,
-				8A4E32032C55C00100C0A001 /* ConjurorGlass.icon in Resources */,
+				8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -854,7 +854,7 @@
 		8A4E32922C55C00100C0A001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = ConjurorGlass;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Conjuror;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Conjuror/Resources/Conjuror.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -884,7 +884,7 @@
 		8A4E32932C55C00100C0A001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = ConjurorGlass;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Conjuror;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Conjuror/Resources/Conjuror.entitlements;
 				CODE_SIGN_STYLE = Automatic;
