@@ -7,7 +7,9 @@ enum ShortcutsEventsBridge {
       tell application id "com.apple.shortcuts.events"
           set shortcutRecords to {}
           repeat with candidate in shortcuts
-              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate}
+              set shortcutColor to color of candidate
+              set {redValue, greenValue, blueValue} to shortcutColor
+              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, {redValue, greenValue, blueValue}, icon of candidate}
           end repeat
           return shortcutRecords
       end tell
@@ -52,9 +54,41 @@ enum ShortcutsEventsBridge {
         id: identifier,
         name: name,
         subtitle: record.atIndex(3)?.stringValue ?? "",
-        acceptsInput: record.atIndex(4)?.booleanValue ?? false
+        acceptsInput: record.atIndex(4)?.booleanValue ?? false,
+        color: shortcutColor(from: record.atIndex(5)),
+        iconData: compressedIconData(from: record.atIndex(6))
       )
     }
+  }
+
+  private static func shortcutColor(
+    from descriptor: NSAppleEventDescriptor?
+  ) -> AppleShortcut.Color? {
+    guard let descriptor,
+      descriptor.numberOfItems == 3,
+      let red = descriptor.atIndex(1),
+      let green = descriptor.atIndex(2),
+      let blue = descriptor.atIndex(3)
+    else {
+      return nil
+    }
+
+    return AppleShortcut.Color(
+      red: UInt16(clamping: red.int32Value),
+      green: UInt16(clamping: green.int32Value),
+      blue: UInt16(clamping: blue.int32Value)
+    )
+  }
+
+  private static func compressedIconData(
+    from descriptor: NSAppleEventDescriptor?
+  ) -> Data? {
+    guard let descriptor,
+      let representation = NSBitmapImageRep(data: descriptor.data)
+    else {
+      return nil
+    }
+    return representation.representation(using: .png, properties: [:])
   }
 
   private static func execute(_ source: String) throws -> NSAppleEventDescriptor {
