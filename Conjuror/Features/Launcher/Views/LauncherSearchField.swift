@@ -21,16 +21,22 @@ struct LauncherSearchField: View {
 
       TextField(
         mode == .applications ? "Search apps…" : "Search shortcuts…",
-        text: $query
+        text: $text
       )
       .focused($isFocused)
       .font(.system(size: 18, weight: .regular))
       .textFieldStyle(.plain)
+      .onChange(of: text) {
+        query = text
+        if text != query {
+          text = query
+        }
+      }
       .onSubmit(onOpenSelected)
 
-      if !query.isEmpty {
+      if !text.isEmpty {
         Button {
-          query = ""
+          text = ""
         } label: {
           Image(systemName: "xmark.circle.fill")
             .font(.system(size: 13))
@@ -44,7 +50,11 @@ struct LauncherSearchField: View {
     .padding(.horizontal, 2)
     .frame(height: 38)
     .task {
+      text = query
       isFocused = true
+    }
+    .onChange(of: query) {
+      text = query
     }
     .onChange(of: focusRequest) {
       DispatchQueue.main.async {
@@ -53,5 +63,6 @@ struct LauncherSearchField: View {
     }
   }
 
+  @State private var text = ""
   @FocusState private var isFocused: Bool
 }
