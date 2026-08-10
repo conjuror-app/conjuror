@@ -27,14 +27,52 @@ final class CalculatorQuantityTests: XCTestCase {
   }
 
   func testBareQuantitiesUseSensibleDefaultConversions() {
-    XCTAssertEqual(evaluate("100 lbs"), "45.359237 kg")
-    XCTAssertEqual(evaluate("1 cm"), "0.3937007874 in")
-    XCTAssertEqual(evaluate("1 inch"), "2.54 cm")
-    XCTAssertEqual(evaluate("1 km"), "0.6213711922 mi")
-    XCTAssertEqual(evaluate("1 mile"), "1.609344 km")
-    XCTAssertEqual(evaluate("90 minutes"), "1.5 hr")
-    XCTAssertEqual(evaluate("30 c"), "86 °F")
-    XCTAssertEqual(evaluate("1 GiB"), "1.073741824 GB")
+    let expectations = [
+      ("1 kg", "2.204622622 lb", "kg", "lb"),
+      ("1 g", "0.03527396195 oz", "g", "oz"),
+      ("1 mg", "0.001 g", "mg", "g"),
+      ("100 lbs", "45.359237 kg", "lb", "kg"),
+      ("1 oz", "28.34952312 g", "oz", "g"),
+      ("1 cm", "0.3937007874 in", "cm", "in"),
+      ("1 inch", "2.54 cm", "in", "cm"),
+      ("1 km", "0.6213711922 mi", "km", "mi"),
+      ("1 mile", "1.609344 km", "mi", "km"),
+      ("1 s", "0.01666666667 min", "s", "min"),
+      ("90 minutes", "1.5 hr", "min", "hr"),
+      ("1 hr", "60 min", "hr", "min"),
+      ("1 day", "24 hr", "day", "hr"),
+      ("1 wk", "7 day", "wk", "day"),
+      ("30 c", "86 °F", "°C", "°F"),
+      ("1 f", "-17.22222222 °C", "°F", "°C"),
+      ("1 k", "-272.15 °C", "K", "°C"),
+      ("1 L", "0.2641720524 US gal", "L", "US gal"),
+      ("1 mL", "0.0338140227 US fl oz", "mL", "US fl oz"),
+      ("1 tsp", "4.928921594 mL", "US tsp", "mL"),
+      ("1 tbsp", "14.78676478 mL", "US tbsp", "mL"),
+      ("1 cup", "236.5882365 mL", "US cup", "mL"),
+      ("1 floz", "29.57352956 mL", "US fl oz", "mL"),
+      ("1 pint", "0.473176473 L", "US pt", "L"),
+      ("1 quart", "0.946352946 L", "US qt", "L"),
+      ("1 gallon", "3.785411784 L", "US gal", "L"),
+      ("1 byte", "8 bit", "B", "bit"),
+      ("1 bit", "0.125 B", "bit", "B"),
+      ("1 kb", "0.9765625 KiB", "kB", "KiB"),
+      ("1 mb", "0.9536743164 MiB", "MB", "MiB"),
+      ("1 gb", "0.9313225746 GiB", "GB", "GiB"),
+      ("1 tb", "0.9094947018 TiB", "TB", "TiB"),
+      ("1 kib", "1.024 kB", "KiB", "kB"),
+      ("1 mib", "1.048576 MB", "MiB", "MB"),
+      ("1 GiB", "1.073741824 GB", "GiB", "GB"),
+      ("1 tib", "1.099511628 TB", "TiB", "TB"),
+    ]
+
+    for (expression, copyText, sourceBadge, targetBadge) in expectations {
+      let result = engine.evaluate(expression)
+
+      XCTAssertEqual(result?.copyText, copyText, expression)
+      XCTAssertEqual(result?.sourceBadge, sourceBadge, expression)
+      XCTAssertEqual(result?.targetBadge, targetBadge, expression)
+    }
   }
 
   func testEveryUnitHasADefaultConversion() {
