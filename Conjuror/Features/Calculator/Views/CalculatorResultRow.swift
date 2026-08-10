@@ -33,13 +33,6 @@ struct CalculatorResultRow: View {
           .font(.system(size: 14, weight: .semibold, design: .rounded))
           .foregroundStyle(.primary)
           .lineLimit(1)
-
-        if isSelected {
-          Text("↵")
-            .font(.system(size: 13, weight: .medium, design: .rounded))
-            .foregroundStyle(.tertiary)
-            .accessibilityHidden(true)
-        }
       }
       .padding(.horizontal, 7)
       .frame(height: 40)
