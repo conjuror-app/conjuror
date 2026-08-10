@@ -20,13 +20,6 @@ struct ApplicationResultRow: View {
           .lineLimit(1)
 
         Spacer()
-
-        if isSelected {
-          Text("↵")
-            .font(.system(size: 13, weight: .medium, design: .rounded))
-            .foregroundStyle(.tertiary)
-            .accessibilityHidden(true)
-        }
       }
       .padding(.horizontal, 7)
       .frame(height: 40)
