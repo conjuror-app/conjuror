@@ -10,6 +10,10 @@ enum LauncherKeyboardNavigation {
     .shift,
   ]
 
+  static func hasOnlyCommandModifier(_ modifiers: NSEvent.ModifierFlags) -> Bool {
+    modifiers.intersection(conflictingModifiers) == .command
+  }
+
   static func direction(
     forKeyCode keyCode: UInt16,
     modifiers: NSEvent.ModifierFlags,
