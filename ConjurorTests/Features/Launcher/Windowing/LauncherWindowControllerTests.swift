@@ -42,6 +42,15 @@ final class LauncherWindowControllerTests: XCTestCase {
     XCTAssertEqual(frame, visibleFrame)
   }
 
+  func testCommandShortcutsIgnoreCapsLockAndRejectOtherModifiers() {
+    XCTAssertTrue(
+      LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock])
+    )
+    XCTAssertFalse(
+      LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option])
+    )
+  }
+
   func testKeyboardNavigationIgnoresModifiedArrowsAndMarkedText() {
     XCTAssertNil(
       LauncherKeyboardNavigation.direction(
