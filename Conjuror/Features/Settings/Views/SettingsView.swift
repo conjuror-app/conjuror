@@ -4,12 +4,14 @@ import SwiftUI
 struct SettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
+  @ObservedObject var currencyRateStore: CurrencyRateStore
 
   var body: some View {
     TabView {
       GeneralSettingsView(
         store: store,
-        hotKeyStore: hotKeyStore
+        hotKeyStore: hotKeyStore,
+        currencyRateStore: currencyRateStore
       )
       .tabItem {
         Label("General", systemImage: "gearshape")
@@ -27,6 +29,7 @@ struct SettingsView: View {
 private struct GeneralSettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
+  @ObservedObject var currencyRateStore: CurrencyRateStore
 
   var body: some View {
     VStack(alignment: .leading, spacing: 18) {
@@ -78,6 +81,26 @@ private struct GeneralSettingsView: View {
         .labelsHidden()
       }
 
+      HStack {
+        VStack(alignment: .leading, spacing: 3) {
+          Text("Currency conversion")
+          Text("Download daily exchange rates from Frankfurter. No search text is sent.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+
+        Spacer()
+
+        Toggle(
+          "Currency conversion",
+          isOn: Binding(
+            get: { currencyRateStore.isEnabled },
+            set: { currencyRateStore.setEnabled($0) }
+          )
+        )
+        .labelsHidden()
+      }
+
       if let hotKeyErrorMessage {
         Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
           .font(.caption)
@@ -91,6 +114,7 @@ private struct GeneralSettingsView: View {
         Spacer()
         Button("Reset to Defaults") {
           hotKeyErrorMessage = hotKeyStore.resetSettings()
+          currencyRateStore.setEnabled(false)
         }
       }
     }

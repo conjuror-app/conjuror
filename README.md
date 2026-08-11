@@ -32,6 +32,13 @@ use their stated fixed offsets, so pairs such as `EST`/`EDT`, `CET`/`CEST`, and
 offset. When the source abbreviation is
 omitted, as in `1:00 pm in PDT`, the Mac's current timezone is used with its
 daylight-saving rules for the current date.
+Optional currency conversion supports ISO codes and common symbols, for example
+`100 USD to EUR`, `$50 in GBP`, and `20 EUR → ¥`. A bare amount such as `1 CAD`
+converts to the currency from the user's regional settings. It is disabled by default.
+When enabled in Settings, Conjuror downloads a complete exchange-rate snapshot
+from [Frankfurter](https://frankfurter.dev) once per day; search text is never
+sent. The latest snapshot remains available offline, and disabling the feature
+deletes its cached rates.
 
 The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
 `/System/Applications/Utilities`, `~/Applications`, and application folders on
