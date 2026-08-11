@@ -37,7 +37,8 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   init(
     store: LauncherStore,
     settingsStore: SettingsStore,
-    hotKeyStore: HotKeyStore
+    hotKeyStore: HotKeyStore,
+    onOpenSettings: @escaping () -> Void
   ) {
     self.store = store
 
@@ -64,6 +65,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     panel.onMoveSelection = { [weak store] direction in
       store?.moveSelection(direction)
     }
+    panel.onOpenSettings = onOpenSettings
 
     let contentView = LauncherView(
       store: store,
@@ -169,6 +171,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
 private final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
+  var onOpenSettings: (() -> Void)?
 
   override var canBecomeKey: Bool { true }
 
@@ -188,12 +191,17 @@ private final class LauncherPanel: NSPanel {
   }
 
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
-    let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-    if modifiers == .command,
-      event.charactersIgnoringModifiers?.lowercased() == "q"
-    {
-      NSApp.terminate(nil)
-      return true
+    if LauncherKeyboardNavigation.hasOnlyCommandModifier(event.modifierFlags) {
+      switch event.charactersIgnoringModifiers?.lowercased() {
+      case ",":
+        onOpenSettings?()
+        return true
+      case "q":
+        NSApp.terminate(nil)
+        return true
+      default:
+        break
+      }
     }
 
     return super.performKeyEquivalent(with: event)

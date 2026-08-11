@@ -28,7 +28,10 @@ final class AppController: NSObject, NSApplicationDelegate {
   private lazy var launcherWindowController = LauncherWindowController(
     store: store,
     settingsStore: settingsStore,
-    hotKeyStore: hotKeyStore
+    hotKeyStore: hotKeyStore,
+    onOpenSettings: { [weak self] in
+      self?.showSettingsFromLauncher()
+    }
   )
 
   private lazy var settingsWindowController = SettingsWindowController(
@@ -70,6 +73,13 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   func showLauncher() {
     launcherWindowController.show()
+  }
+
+  private func showSettingsFromLauncher() {
+    hideLauncher()
+    DispatchQueue.main.async { [weak self] in
+      self?.settingsWindowController.show()
+    }
   }
 
   private func configureStatusItem() {
