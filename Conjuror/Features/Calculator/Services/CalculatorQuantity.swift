@@ -15,6 +15,10 @@ struct CalculatorQuantityEvaluator {
 
     let formatter = CalculatorNumberFormatter(options: formattingOptions)
     guard
+      let sourceDisplay = formatter.string(
+        from: evaluation.sourceValue,
+        usesGroupingSeparator: true
+      ),
       let displayValue = formatter.string(
         from: evaluation.value,
         usesGroupingSeparator: true
@@ -31,6 +35,7 @@ struct CalculatorQuantityEvaluator {
       expression: expression,
       display: displayValue,
       copyText: copyValue + " " + evaluation.targetUnit.symbol,
+      sourceDisplay: sourceDisplay,
       sourceBadge: evaluation.sourceBadge,
       targetBadge: evaluation.targetUnit.symbol
     )
@@ -485,6 +490,7 @@ private enum CalculatorQuantityLexer {
 private struct CalculatorQuantityParser {
   struct Evaluation {
     let value: Double
+    let sourceValue: Double
     let sourceBadge: String?
     let targetUnit: CalculatorUnit
   }
@@ -588,6 +594,7 @@ private struct CalculatorQuantityParser {
       : nil
     return Evaluation(
       value: targetUnit.convertFromBase(quantity.baseValue),
+      sourceValue: quantity.firstUnit.convertFromBase(quantity.baseValue),
       sourceBadge: sourceBadge,
       targetUnit: targetUnit
     )

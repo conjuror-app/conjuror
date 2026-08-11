@@ -8,7 +8,7 @@ struct CalculatorFormattingOptions: Equatable, Sendable {
 
   init(
     localeIdentifier: String = Locale.current.identifier,
-    maximumFractionDigits: Int = 10
+    maximumFractionDigits: Int = 6
   ) {
     self.localeIdentifier = localeIdentifier
     self.maximumFractionDigits = maximumFractionDigits

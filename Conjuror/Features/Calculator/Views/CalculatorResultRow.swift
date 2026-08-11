@@ -14,7 +14,7 @@ struct CalculatorResultRow: View {
           .foregroundStyle(.blue)
           .frame(width: 26, height: 26)
 
-        Text(result.expression)
+        Text(result.sourceDisplay ?? result.expression)
           .font(.system(size: 13))
           .foregroundStyle(.secondary)
           .lineLimit(1)
@@ -25,14 +25,14 @@ struct CalculatorResultRow: View {
 
         Spacer(minLength: 12)
 
-        if let targetBadge = result.targetBadge {
-          badge(targetBadge)
-        }
-
         Text(result.display)
           .font(.system(size: 14, weight: .semibold, design: .rounded))
           .foregroundStyle(.primary)
           .lineLimit(1)
+
+        if let targetBadge = result.targetBadge {
+          badge(targetBadge)
+        }
       }
       .padding(.horizontal, 7)
       .frame(height: 40)
