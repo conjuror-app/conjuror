@@ -66,6 +66,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.moveSelection(direction)
     }
     panel.onOpenSettings = onOpenSettings
+    panel.allowsHorizontalNavigation = { [weak store] in
+      store?.mode == .emoji
+    }
 
     let contentView = LauncherView(
       store: store,
@@ -171,6 +174,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
 final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
+  var allowsHorizontalNavigation: (() -> Bool)?
   var onOpenSettings: (() -> Void)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
 
@@ -181,7 +185,8 @@ final class LauncherPanel: NSPanel {
       let direction = LauncherKeyboardNavigation.direction(
         forKeyCode: event.keyCode,
         modifiers: event.modifierFlags,
-        hasMarkedText: (firstResponder as? NSTextView)?.hasMarkedText() == true
+        hasMarkedText: (firstResponder as? NSTextView)?.hasMarkedText() == true,
+        allowsHorizontalNavigation: allowsHorizontalNavigation?() == true
       )
     {
       onMoveSelection?(direction)

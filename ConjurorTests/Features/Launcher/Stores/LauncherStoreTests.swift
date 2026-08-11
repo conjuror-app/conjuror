@@ -235,6 +235,78 @@ final class LauncherStoreTests: XCTestCase {
     XCTAssertEqual(store.selectedShortcutID, shortcuts[1].id)
   }
 
+  func testColonSwitchesToEmojiAndFiltersFollowingText() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":waving hand medium dark")
+
+    XCTAssertEqual(store.mode, .emoji)
+    XCTAssertEqual(store.query, "waving hand medium dark")
+    XCTAssertEqual(store.filteredEmoji.first?.value, "👋🏾")
+  }
+
+  func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
+    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    settings.setPreferredEmojiSkinTone(.mediumDark)
+    let store = LauncherStore(
+      settingsStore: settings,
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":waving hand")
+
+    XCTAssertEqual(store.displayedEmoji.first?.value, "👋🏾")
+    XCTAssertFalse(store.displayedEmoji.contains { $0.value == "👋" })
+  }
+
+  func testHorizontalArrowsNavigateEmojiGrid() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+    store.updateQuery(":")
+    let firstID = store.selectedEmojiID
+
+    store.moveSelection(.right)
+    XCTAssertEqual(store.selectedEmojiID, store.displayedEmoji[1].id)
+
+    store.moveSelection(.left)
+    XCTAssertEqual(store.selectedEmojiID, firstID)
+  }
+
+  func testReturnCopiesEmojiAndRecordsItAsRecent() {
+    let clipboard = RecordingCalculatorClipboard()
+    let userDefaults = makeUserDefaults()
+    let history = EmojiHistoryStore(userDefaults: userDefaults)
+    var didRequestHide = false
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      calculatorClipboard: clipboard,
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: history,
+      onEmojiCopied: { didRequestHide = true }
+    )
+    store.updateQuery(":face with tears of joy")
+
+    store.openSelectedResult()
+
+    XCTAssertEqual(clipboard.text, "😂")
+    XCTAssertEqual(history.load().first, "😂")
+    XCTAssertTrue(didRequestHide)
+    XCTAssertEqual(store.mode, .applications)
+  }
+
   func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
     let application = application("Pine", id: "dev.example.pine")
     let store = LauncherStore(

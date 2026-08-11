@@ -3,7 +3,10 @@ import Combine
 
 @MainActor
 final class AppController: NSObject, NSApplicationDelegate {
+  private lazy var settingsStore = SettingsStore()
+
   private lazy var store = LauncherStore(
+    settingsStore: settingsStore,
     onLaunchSuccess: { [weak self] in
       self?.hideLauncher()
     },
@@ -12,10 +15,12 @@ final class AppController: NSObject, NSApplicationDelegate {
     },
     onShortcutRunStarted: { [weak self] in
       self?.hideLauncher()
+    },
+    onEmojiCopied: { [weak self] in
+      self?.hideLauncher()
     }
   )
 
-  private lazy var settingsStore = SettingsStore()
   private lazy var currencyRateStore = CurrencyRateStore()
 
   private lazy var hotKeyStore = HotKeyStore(
