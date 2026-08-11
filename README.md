@@ -3,8 +3,10 @@
 Conjuror is a keyboard-first macOS application launcher. Press `⌥ Space` to
 show or hide its single Dockless window, type to rank installed applications,
 use the arrow keys to select, and press Return to open. Type `>` to switch to
-Apple Shortcuts, then search and press Return or click a result to run it. Its
-menu bar item provides access to Settings and Quit.
+Apple Shortcuts, then search and press Return or click a result to run it. Type
+`:` to open the emoji grid, search by Unicode name (including gender and skin
+tone), and press Return to copy. Recently copied emoji appear first when the
+emoji search is empty. Its menu bar item provides access to Settings and Quit.
 
 In application mode, Conjuror also evaluates calculations while you
 type. Calculator answers appear above matching applications; selecting one and
@@ -59,3 +61,4 @@ make test
 ```
 
 Build artifacts are written to `.derivedData`. Run `make clean` to remove them.
+Regenerate the checked-in Unicode emoji catalog with `make generate-emoji`.

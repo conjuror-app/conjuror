@@ -61,6 +61,11 @@
 		F65FFF000000000000000009 /* CurrencyRates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000009 /* CurrencyRates.swift */; };
 		F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000A /* CalculatorCurrency.swift */; };
 		F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000B /* CurrencyRateStore.swift */; };
+		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
+		E1000000000000000000002 /* EmojiCatalog.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.gen.swift */; };
+		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
+		E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000004 /* EmojiHistoryStore.swift */; };
+		E1000000000000000000005 /* EmojiResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000005 /* EmojiResultCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -131,6 +136,11 @@
 		F65FFE000000000000000009 /* CurrencyRates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRates.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000A /* CalculatorCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorCurrency.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000B /* CurrencyRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStore.swift; sourceTree = "<group>"; };
+		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji/Models/Emoji.swift; sourceTree = "<group>"; };
+		E2000000000000000000002 /* EmojiCatalog.gen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji/Models/EmojiCatalog.gen.swift; sourceTree = "<group>"; };
+		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji/Services/EmojiRanker.swift; sourceTree = "<group>"; };
+		E2000000000000000000004 /* EmojiHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji/Stores/EmojiHistoryStore.swift; sourceTree = "<group>"; };
+		E2000000000000000000005 /* EmojiResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji/Views/EmojiResultCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +211,11 @@
 			isa = PBXGroup;
 			children = (
 				F65FFD000000000000000003 /* Applications */,
+				E2000000000000000000005 /* EmojiResultCell.swift */,
+				E2000000000000000000004 /* EmojiHistoryStore.swift */,
+				E2000000000000000000003 /* EmojiRanker.swift */,
+				E2000000000000000000002 /* EmojiCatalog.gen.swift */,
+				E2000000000000000000001 /* Emoji.swift */,
 				F65FFBE33028A9F100FB3923 /* Calculator */,
 				F65FFD00000000000000000B /* Launcher */,
 				F65FFD000000000000000010 /* Settings */,
@@ -674,6 +689,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A4E33082C55C00100C0A001 /* AppController.swift in Sources */,
+				E1000000000000000000005 /* EmojiResultCell.swift in Sources */,
+				E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */,
+				E1000000000000000000003 /* EmojiRanker.swift in Sources */,
+				E1000000000000000000002 /* EmojiCatalog.gen.swift in Sources */,
+				E1000000000000000000001 /* Emoji.swift in Sources */,
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,

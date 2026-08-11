@@ -17,7 +17,8 @@ enum LauncherKeyboardNavigation {
   static func direction(
     forKeyCode keyCode: UInt16,
     modifiers: NSEvent.ModifierFlags,
-    hasMarkedText: Bool
+    hasMarkedText: Bool,
+    allowsHorizontalNavigation: Bool = false
   ) -> MoveCommandDirection? {
     guard !hasMarkedText,
       modifiers.intersection(conflictingModifiers).isEmpty
@@ -30,6 +31,10 @@ enum LauncherKeyboardNavigation {
       return .up
     case kVK_DownArrow:
       return .down
+    case kVK_LeftArrow where allowsHorizontalNavigation:
+      return .left
+    case kVK_RightArrow where allowsHorizontalNavigation:
+      return .right
     default:
       return nil
     }

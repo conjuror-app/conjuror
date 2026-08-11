@@ -60,7 +60,7 @@ struct LauncherView: View {
     .onExitCommand {
       if !store.query.isEmpty {
         store.updateQuery("")
-      } else if store.mode == .shortcuts {
+      } else if store.mode != .applications {
         store.returnToApplicationsMode()
       } else {
         onHide()
@@ -69,13 +69,15 @@ struct LauncherView: View {
   }
 
   private var isExpanded: Bool {
-    store.mode == .shortcuts || !store.query.isEmpty
+    store.mode != .applications || !store.query.isEmpty
   }
 
   private var resultCount: Int {
     switch store.mode {
     case .applications:
       store.filteredApplications.count + (store.calculatorResult == nil ? 0 : 1)
+    case .emoji:
+      store.displayedEmoji.count
     case .shortcuts:
       store.filteredShortcuts.count
     }
@@ -85,6 +87,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.catalogErrorMessage
+    case .emoji:
+      nil
     case .shortcuts:
       store.shortcutCatalogErrorMessage
     }
@@ -94,6 +98,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.launchErrorMessage
+    case .emoji:
+      nil
     case .shortcuts:
       store.shortcutRunErrorMessage
     }
@@ -118,6 +124,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       applicationResults
+    case .emoji:
+      emojiResults
     case .shortcuts:
       shortcutResults
     }
@@ -127,6 +135,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.isCalculatorSelected ? "Copy result" : "Launch application"
+    case .emoji:
+      "Copy emoji"
     case .shortcuts:
       "Run shortcut"
     }
@@ -190,6 +200,39 @@ struct LauncherView: View {
       resultsScrollView(selectedID: store.selectedApplicationID) {
         ForEach(store.filteredApplications) { application in
           applicationResultRow(application)
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var emojiResults: some View {
+    if store.displayedEmoji.isEmpty {
+      emptyState(systemImage: "magnifyingglass", message: "No matches")
+    } else {
+      resultsScrollView(selectedID: store.selectedEmojiID) {
+        if store.query.isEmpty, !store.recentEmoji.isEmpty {
+          Text("Recently Used")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
+        }
+        LazyVGrid(
+          columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 9),
+          spacing: 2
+        ) {
+          ForEach(store.displayedEmoji) { emoji in
+            EmojiResultCell(
+              emoji: emoji,
+              isSelected: emoji.id == store.selectedEmojiID,
+              onHover: { store.selectOnHover(emoji) },
+              onCopy: {
+                store.select(emoji); store.copySelectedEmoji()
+              }
+            )
+            .id(emoji.id)
+          }
         }
       }
     }

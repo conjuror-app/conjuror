@@ -101,6 +101,33 @@ private struct GeneralSettingsView: View {
         .labelsHidden()
       }
 
+      HStack {
+        VStack(alignment: .leading, spacing: 3) {
+          Text("Emoji skin tone")
+          Text("Preferred tone for emoji that support it.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+
+        Spacer()
+
+        Picker(
+          "Emoji skin tone",
+          selection: Binding(
+            get: { store.preferredEmojiSkinTone },
+            set: { skinTone in
+              store.setPreferredEmojiSkinTone(skinTone)
+            }
+          )
+        ) {
+          ForEach(EmojiSkinTone.allCases) { skinTone in
+            Text("\(skinTone.exampleEmoji)  \(skinTone.displayName)").tag(skinTone)
+          }
+        }
+        .labelsHidden()
+        .frame(width: 150)
+      }
+
       if let hotKeyErrorMessage {
         Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
           .font(.caption)

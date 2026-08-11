@@ -6,6 +6,18 @@ import SwiftUI
 final class LauncherStore: ObservableObject {
   static let calculatorResultScrollID = "calculator-result"
 
+  private static let skinToneVariants = Dictionary(
+    uniqueKeysWithValues: Emoji.catalog.compactMap { emoji -> (String, Emoji)? in
+      guard emoji.hasSkinTone else { return nil }
+      return (emoji.name, emoji)
+    }
+  )
+
+  private static func emoji(for values: [String]) -> [Emoji] {
+    let byValue = Dictionary(uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) })
+    return values.compactMap { byValue[$0] }
+  }
+
   @Published var query = "" {
     didSet {
       refreshCurrentResults()
@@ -36,6 +48,10 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var shortcutRunErrorMessage: String?
   @Published private(set) var selectedShortcutID: AppleShortcut.ID?
 
+  @Published private(set) var filteredEmoji = Emoji.catalog
+  @Published private(set) var recentEmoji = [Emoji]()
+  @Published private(set) var selectedEmojiID: Emoji.ID?
+
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
@@ -45,11 +61,19 @@ final class LauncherStore: ObservableObject {
       isCalculatorSelected
         ? Self.calculatorResultScrollID
         : selectedApplicationID
+    case .emoji:
+      selectedEmojiID
     case .shortcuts:
       selectedShortcutID
     }
   }
 
+  var displayedEmoji: [Emoji] {
+    let emoji = skinToneAdjustedEmoji
+    return query.isEmpty ? recentEmoji + emoji.filter { !recentEmoji.contains($0) } : emoji
+  }
+
+  private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading
   private let calculator: CalculatorEvaluating
   private let calculatorClipboard: CalculatorClipboardWriting
@@ -61,12 +85,15 @@ final class LauncherStore: ObservableObject {
   private let onLaunchSuccess: () -> Void
   private let onCalculatorResultCopied: () -> Void
   private let onShortcutRunStarted: () -> Void
+  private let emojiHistory: EmojiHistoryStore
+  private let onEmojiCopied: () -> Void
 
   private var recentLaunches: [String: Date]
   private var recentShortcutRuns: [String: Date]
   private var currencySource = CurrencySource.off
   private var applicationIndex = ApplicationRanker.Index(applications: [])
   private var shortcutIndex = ShortcutRanker.Index(shortcuts: [])
+  private let emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
   private var loadTask: Task<Void, Never>?
   private var shortcutLoadTask: Task<Void, Never>?
   private var reloadRequested = false
@@ -74,17 +101,40 @@ final class LauncherStore: ObservableObject {
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
 
+  private var skinToneAdjustedEmoji: [Emoji] {
+    guard !isExplicitSkinToneQuery else { return filteredEmoji }
+
+    return filteredEmoji.compactMap { emoji in
+      guard !emoji.hasSkinTone else { return nil }
+      guard let modifierName = settingsStore.preferredEmojiSkinTone.modifierName else {
+        return emoji
+      }
+      let variantName = "\(emoji.name): \(modifierName)"
+      return Self.skinToneVariants[variantName] ?? emoji
+    }
+  }
+
+  private var isExplicitSkinToneQuery: Bool {
+    let query = query.lowercased()
+    return query.contains("skin tone") || query.contains("light") || query.contains("medium")
+      || query.contains("dark")
+  }
+
   private var selectedApplication: InstalledApplication? {
     filteredApplications.first { $0.id == selectedApplicationID }
       ?? filteredApplications.first
   }
 
   private var selectedShortcut: AppleShortcut? {
-    filteredShortcuts.first { $0.id == selectedShortcutID }
-      ?? filteredShortcuts.first
+    filteredShortcuts.first { $0.id == selectedShortcutID } ?? filteredShortcuts.first
+  }
+
+  private var selectedEmoji: Emoji? {
+    displayedEmoji.first { $0.id == selectedEmojiID } ?? displayedEmoji.first
   }
 
   init(
+    settingsStore: SettingsStore = SettingsStore(),
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
     calculator: CalculatorEvaluating = CalculatorEngine(),
     calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
@@ -93,10 +143,13 @@ final class LauncherStore: ObservableObject {
     shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
     shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
+    emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
     onLaunchSuccess: @escaping () -> Void = {},
     onCalculatorResultCopied: @escaping () -> Void = {},
-    onShortcutRunStarted: @escaping () -> Void = {}
+    onShortcutRunStarted: @escaping () -> Void = {},
+    onEmojiCopied: @escaping () -> Void = {}
   ) {
+    self.settingsStore = settingsStore
     self.catalog = catalog
     self.calculator = calculator
     self.calculatorClipboard = calculatorClipboard
@@ -105,11 +158,14 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
     self.shortcutRunHistory = shortcutRunHistory
+    self.emojiHistory = emojiHistory
     self.onLaunchSuccess = onLaunchSuccess
     self.onCalculatorResultCopied = onCalculatorResultCopied
     self.onShortcutRunStarted = onShortcutRunStarted
+    self.onEmojiCopied = onEmojiCopied
     recentLaunches = launchHistory.load()
     recentShortcutRuns = shortcutRunHistory.load()
+    recentEmoji = Self.emoji(for: emojiHistory.load())
   }
 
   deinit {
@@ -127,16 +183,15 @@ final class LauncherStore: ObservableObject {
   }
 
   func updateQuery(_ value: String) {
-    guard mode == .applications, value.hasPrefix(">") else {
+    guard mode == .applications, let prefix = value.first, prefix == ">" || prefix == ":" else {
       query = value
       return
     }
-
     query = String(value.dropFirst())
-    mode = .shortcuts
+    mode = prefix == ">" ? .shortcuts : .emoji
     refreshCurrentResults()
     selectFirstResult()
-    loadShortcuts()
+    if mode == .shortcuts { loadShortcuts() }
   }
 
   func toggleMode() {
@@ -293,6 +348,13 @@ final class LauncherStore: ObservableObject {
       if !isCalculatorSelected {
         selectedApplicationID = movedID
       }
+    case .emoji:
+      selectedEmojiID = movedSelection(
+        direction,
+        results: displayedEmoji.map(\.id),
+        selectedID: selectedEmojiID,
+        step: 9
+      )
     case .shortcuts:
       selectedShortcutID = movedSelection(
         direction,
@@ -310,6 +372,8 @@ final class LauncherStore: ObservableObject {
       } else {
         openSelectedApplication()
       }
+    case .emoji:
+      copySelectedEmoji()
     case .shortcuts:
       runSelectedShortcut()
     }
@@ -352,6 +416,23 @@ final class LauncherStore: ObservableObject {
     calculatorClipboard.write(calculatorResult.copyText)
     query = ""
     onCalculatorResultCopied()
+  }
+
+  func select(_ emoji: Emoji) { selectedEmojiID = emoji.id }
+
+  func selectOnHover(_ emoji: Emoji) {
+    guard pointerDidMove() else { return }
+    select(emoji)
+  }
+
+  func copySelectedEmoji() {
+    guard let emoji = selectedEmoji else { return }
+    calculatorClipboard.write(emoji.value)
+    emojiHistory.record(emoji)
+    recentEmoji = Self.emoji(for: emojiHistory.load())
+    query = ""
+    mode = .applications
+    onEmojiCopied()
   }
 
   func runSelectedShortcut() {
@@ -426,7 +507,8 @@ final class LauncherStore: ObservableObject {
   private func movedSelection(
     _ direction: MoveCommandDirection,
     results: [String],
-    selectedID: String?
+    selectedID: String?,
+    step: Int = 1
   ) -> String? {
     guard !results.isEmpty else {
       return nil
@@ -436,9 +518,13 @@ final class LauncherStore: ObservableObject {
     let nextIndex: Int
     switch direction {
     case .down:
-      nextIndex = min(currentIndex + 1, results.count - 1)
+      nextIndex = min(currentIndex + step, results.count - 1)
     case .up:
+      nextIndex = max(currentIndex - step, 0)
+    case .left:
       nextIndex = max(currentIndex - 1, 0)
+    case .right:
+      nextIndex = min(currentIndex + 1, results.count - 1)
     default:
       return selectedID
     }
@@ -448,10 +534,14 @@ final class LauncherStore: ObservableObject {
   }
 
   private func selectFirstResult() {
-    if mode == .applications {
+    switch mode {
+    case .applications:
       isCalculatorSelected = calculatorResult != nil
       selectedApplicationID = filteredApplications.first?.id
-    } else {
+    case .emoji:
+      isCalculatorSelected = false
+      selectedEmojiID = displayedEmoji.first?.id
+    case .shortcuts:
       isCalculatorSelected = false
       selectedShortcutID = filteredShortcuts.first?.id
     }
@@ -471,11 +561,11 @@ final class LauncherStore: ObservableObject {
   }
 
   private func refreshCurrentResults() {
-    if mode == .applications {
-      refreshApplications()
-    } else {
-      calculatorResult = nil
-      refreshShortcuts()
+    calculatorResult = nil
+    switch mode {
+    case .applications: refreshApplications()
+    case .emoji: filteredEmoji = emojiIndex.ranked(query: query)
+    case .shortcuts: refreshShortcuts()
     }
   }
 

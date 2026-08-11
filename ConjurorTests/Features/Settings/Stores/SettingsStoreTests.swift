@@ -14,6 +14,7 @@ final class SettingsStoreTests: XCTestCase {
       store.maximumVisibleResults,
       SettingsStore.defaultMaximumVisibleResults
     )
+    XCTAssertEqual(store.preferredEmojiSkinTone, .default)
   }
 
   func testPersistsUpdatedSettings() {
@@ -27,10 +28,12 @@ final class SettingsStoreTests: XCTestCase {
 
     store.setHotKeyConfiguration(hotKey)
     store.setMaximumVisibleResults(9)
+    store.setPreferredEmojiSkinTone(.mediumDark)
 
     let reloadedStore = SettingsStore(userDefaults: userDefaults)
     XCTAssertEqual(reloadedStore.hotKeyConfiguration, hotKey)
     XCTAssertEqual(reloadedStore.maximumVisibleResults, 9)
+    XCTAssertEqual(reloadedStore.preferredEmojiSkinTone, .mediumDark)
   }
 
   func testClampsMaximumVisibleResultsAndResetsDefault() {

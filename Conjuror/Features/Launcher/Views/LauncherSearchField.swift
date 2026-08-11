@@ -10,7 +10,7 @@ struct LauncherSearchField: View {
   var body: some View {
     HStack(spacing: 8) {
       Button(action: onToggleMode) {
-        Image(systemName: mode == .applications ? "magnifyingglass" : "square.stack.3d.up.fill")
+        Image(systemName: modeIcon)
           .font(.system(size: 14, weight: .medium))
           .foregroundStyle(mode == .applications ? Color.secondary : Color.purple)
           .frame(width: 18, height: 18)
@@ -19,20 +19,17 @@ struct LauncherSearchField: View {
       .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
       .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
 
-      TextField(
-        mode == .applications ? "Search apps…" : "Search shortcuts…",
-        text: $text
-      )
-      .focused($isFocused)
-      .font(.system(size: 18, weight: .regular))
-      .textFieldStyle(.plain)
-      .onChange(of: text) {
-        query = text
-        if text != query {
-          text = query
+      TextField(placeholder, text: $text)
+        .focused($isFocused)
+        .font(.system(size: 18, weight: .regular))
+        .textFieldStyle(.plain)
+        .onChange(of: text) {
+          query = text
+          if text != query {
+            text = query
+          }
         }
-      }
-      .onSubmit(onOpenSelected)
+        .onSubmit(onOpenSelected)
 
       if !text.isEmpty {
         Button {
@@ -60,6 +57,22 @@ struct LauncherSearchField: View {
       DispatchQueue.main.async {
         isFocused = true
       }
+    }
+  }
+
+  private var modeIcon: String {
+    switch mode {
+    case .applications: "magnifyingglass"
+    case .emoji: "face.smiling"
+    case .shortcuts: "square.stack.3d.up.fill"
+    }
+  }
+
+  private var placeholder: String {
+    switch mode {
+    case .applications: "Search apps…"
+    case .emoji: "Search emoji…"
+    case .shortcuts: "Search shortcuts…"
     }
   }
 

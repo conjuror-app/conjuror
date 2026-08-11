@@ -52,6 +52,25 @@ final class LauncherWindowControllerTests: XCTestCase {
     )
   }
 
+  func testHorizontalNavigationRequiresOptIn() {
+    XCTAssertNil(
+      LauncherKeyboardNavigation.direction(
+        forKeyCode: UInt16(kVK_LeftArrow),
+        modifiers: [],
+        hasMarkedText: false
+      )
+    )
+    XCTAssertEqual(
+      LauncherKeyboardNavigation.direction(
+        forKeyCode: UInt16(kVK_RightArrow),
+        modifiers: [],
+        hasMarkedText: false,
+        allowsHorizontalNavigation: true
+      ),
+      .right
+    )
+  }
+
   func testKeyboardNavigationIgnoresModifiedArrowsAndMarkedText() {
     XCTAssertNil(
       LauncherKeyboardNavigation.direction(
