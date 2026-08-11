@@ -58,6 +58,9 @@
 		F65FFF000000000000000007 /* CalculatorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000007 /* CalculatorResult.swift */; };
 		F65FFF000000000000000008 /* CalculatorFormattingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000008 /* CalculatorFormattingOptions.swift */; };
 		F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000C /* CalculatorTimeZone.swift */; };
+		F65FFF000000000000000009 /* CurrencyRates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000009 /* CurrencyRates.swift */; };
+		F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000A /* CalculatorCurrency.swift */; };
+		F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000B /* CurrencyRateStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,6 +128,9 @@
 		F65FFE000000000000000007 /* CalculatorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResult.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000008 /* CalculatorFormattingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorFormattingOptions.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000C /* CalculatorTimeZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZone.swift; sourceTree = "<group>"; };
+		F65FFE000000000000000009 /* CurrencyRates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRates.swift; sourceTree = "<group>"; };
+		F65FFE00000000000000000A /* CalculatorCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorCurrency.swift; sourceTree = "<group>"; };
+		F65FFE00000000000000000B /* CurrencyRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,6 +278,7 @@
 			children = (
 				F65FFE000000000000000008 /* CalculatorFormattingOptions.swift */,
 				F65FFE000000000000000007 /* CalculatorResult.swift */,
+				F65FFE000000000000000009 /* CurrencyRates.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -280,9 +287,11 @@
 			isa = PBXGroup;
 			children = (
 				F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */,
+				F65FFE00000000000000000A /* CalculatorCurrency.swift */,
 				F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */,
 				8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */,
 				F65FFE00000000000000000C /* CalculatorTimeZone.swift */,
+				F65FFE00000000000000000B /* CurrencyRateStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -688,9 +697,12 @@
 				8A4E37032C55C00100C0A001 /* ShortcutRanker.swift in Sources */,
 				8A4E37042C55C00100C0A001 /* ShortcutRunHistoryStore.swift in Sources */,
 				F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */,
+				F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */,
 				F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */,
 				F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */,
 				8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */,
+				F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */,
+				F65FFF000000000000000009 /* CurrencyRates.swift in Sources */,
 				F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */,
 				8A4E37052C55C00100C0A001 /* ShortcutResultRow.swift in Sources */,
 				F65FFF000000000000000001 /* LauncherMode.swift in Sources */,
