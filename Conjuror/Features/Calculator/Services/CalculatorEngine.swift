@@ -1,21 +1,31 @@
 import Foundation
 
-struct CalculatorEngine: CalculatorEvaluating {
+struct CalculatorEngine: CurrencyCalculatorEvaluating {
   private let formattingOptions: CalculatorFormattingOptions
   private let currentDate: () -> Date
   private let currentTimeZone: () -> TimeZone
+  private let localeCurrencyCode: String?
 
   init(
     formattingOptions: CalculatorFormattingOptions = .compact,
+    localeCurrencyCode: String? = Locale.current.currency?.identifier,
     currentDate: @escaping () -> Date = { Date() },
     currentTimeZone: @escaping () -> TimeZone = { .autoupdatingCurrent }
   ) {
     self.formattingOptions = formattingOptions
     self.currentDate = currentDate
     self.currentTimeZone = currentTimeZone
+    self.localeCurrencyCode = localeCurrencyCode
   }
 
   func evaluate(_ expression: String) -> CalculatorResult? {
+    evaluate(expression, currencySource: .off)
+  }
+
+  func evaluate(
+    _ expression: String,
+    currencySource: CurrencySource
+  ) -> CalculatorResult? {
     let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmedExpression.isEmpty else {
       return nil
@@ -26,6 +36,14 @@ struct CalculatorEngine: CalculatorEvaluating {
       currentTimeZone: currentTimeZone()
     ).evaluate(trimmedExpression) {
       return timeZoneResult
+    }
+
+    if let currencyResult = CalculatorCurrencyEvaluator(
+      formattingOptions: formattingOptions,
+      localeCurrencyCode: localeCurrencyCode,
+      source: currencySource
+    ).evaluate(trimmedExpression) {
+      return currencyResult
     }
 
     if let quantityResult = CalculatorQuantityEvaluator(
@@ -65,6 +83,13 @@ protocol CalculatorEvaluating {
   func evaluate(_ expression: String) -> CalculatorResult?
 }
 
+protocol CurrencyCalculatorEvaluating: CalculatorEvaluating {
+  func evaluate(
+    _ expression: String,
+    currencySource: CurrencySource
+  ) -> CalculatorResult?
+}
+
 struct CalculatorNumberFormatter {
   private static let maximumExactInteger = 9_007_199_254_740_992.0
 
@@ -89,6 +114,40 @@ struct CalculatorNumberFormatter {
           normalizedValue
         )
       }
+
+    let ungroupedText = ungrouped(text, locale: locale)
+    return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
+  }
+
+  func currencyString(
+    from value: Double,
+    usesGroupingSeparator: Bool
+  ) -> String? {
+    guard value.isFinite else {
+      return nil
+    }
+
+    let normalizedValue = value == 0 ? 0 : value
+    let magnitude = Swift.abs(normalizedValue)
+    let locale = Locale(identifier: options.localeIdentifier)
+    let text: String
+    if magnitude < 1e-9 {
+      text = String(format: "%.2f", locale: locale, 0.0)
+    } else if magnitude >= 0.01 {
+      text = String(format: "%.2f", locale: locale, normalizedValue)
+    } else {
+      let decimalPlaces = 3 - Int(floor(log10(magnitude)))
+      var formatted = String(
+        format: "%.*f",
+        locale: locale,
+        decimalPlaces,
+        normalizedValue
+      )
+      while formatted.hasSuffix("0") {
+        formatted.removeLast()
+      }
+      text = formatted
+    }
 
     let ungroupedText = ungrouped(text, locale: locale)
     return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText

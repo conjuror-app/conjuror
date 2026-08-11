@@ -131,6 +131,73 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertNil(engine.evaluate("10:00 in"))
   }
 
+  func testCurrencyConversionSupportsCodesAndSymbolsWhenEnabled() {
+    let rates = CurrencyRates(
+      base: "USD",
+      rates: ["EUR": 0.8, "GBP": 0.5, "JPY": 100],
+      rateDate: "2026-08-11",
+      fetchedAt: Date()
+    )
+
+    XCTAssertEqual(
+      engine.evaluate("100 USD to EUR", currencySource: .on(rates))?.copyText,
+      "80.00 EUR"
+    )
+    XCTAssertEqual(
+      engine.evaluate("$50 in GBP", currencySource: .on(rates))?.copyText,
+      "25.00 GBP"
+    )
+    XCTAssertEqual(
+      engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText,
+      "2500.00 JPY"
+    )
+  }
+
+  func testBareCurrencyConvertsToLocaleCurrency() {
+    let localeEngine = CalculatorEngine(
+      formattingOptions: CalculatorFormattingOptions(
+        localeIdentifier: "en_GB",
+        maximumSignificantDigits: 10
+      ),
+      localeCurrencyCode: "GBP"
+    )
+    let rates = CurrencyRates(
+      base: "USD",
+      rates: ["CAD": 1.25, "GBP": 0.5],
+      rateDate: "2026-08-11",
+      fetchedAt: Date()
+    )
+
+    let result = localeEngine.evaluate("1 CAD", currencySource: .on(rates))
+    XCTAssertEqual(result?.copyText, "0.40 GBP")
+    XCTAssertEqual(result?.sourceBadge, "CAD")
+    XCTAssertEqual(result?.targetBadge, "GBP")
+    XCTAssertNil(localeEngine.evaluate("1 GBP", currencySource: .on(rates)))
+  }
+
+  func testCurrencyFormattingUsesTwoDecimalsAndWidensBelowOneCent() {
+    let rates = CurrencyRates(
+      base: "USD",
+      rates: ["EUR": 1, "IDR": 18_053],
+      rateDate: "2026-08-11",
+      fetchedAt: Date()
+    )
+
+    XCTAssertEqual(
+      engine.evaluate("123.456 USD to EUR", currencySource: .on(rates))?.copyText,
+      "123.46 EUR"
+    )
+    XCTAssertEqual(
+      engine.evaluate("1 IDR to USD", currencySource: .on(rates))?.copyText,
+      "0.00005539 USD"
+    )
+  }
+
+  func testCurrencyConversionIsSilentWhenDisabledOrRatesUnavailable() {
+    XCTAssertNil(engine.evaluate("100 USD to EUR", currencySource: .off))
+    XCTAssertNil(engine.evaluate("100 USD to EUR", currencySource: .on(nil)))
+  }
+
   func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
     XCTAssertNil(engine.evaluate("123"))
     XCTAssertNil(engine.evaluate("(123)"))

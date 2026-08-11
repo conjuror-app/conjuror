@@ -64,6 +64,7 @@ final class LauncherStore: ObservableObject {
 
   private var recentLaunches: [String: Date]
   private var recentShortcutRuns: [String: Date]
+  private var currencySource = CurrencySource.off
   private var applicationIndex = ApplicationRanker.Index(applications: [])
   private var shortcutIndex = ShortcutRanker.Index(shortcuts: [])
   private var loadTask: Task<Void, Never>?
@@ -114,6 +115,15 @@ final class LauncherStore: ObservableObject {
   deinit {
     loadTask?.cancel()
     shortcutLoadTask?.cancel()
+  }
+
+  func setCurrencySource(_ source: CurrencySource) {
+    guard source != currencySource else {
+      return
+    }
+    currencySource = source
+    refreshCurrentResults()
+    selectFirstResult()
   }
 
   func updateQuery(_ value: String) {
@@ -470,10 +480,13 @@ final class LauncherStore: ObservableObject {
   }
 
   private func refreshApplications() {
-    calculatorResult =
-      mode == .applications
-      ? calculator.evaluate(query)
-      : nil
+    let result: CalculatorResult?
+    if let currencyCalculator = calculator as? CurrencyCalculatorEvaluating {
+      result = currencyCalculator.evaluate(query, currencySource: currencySource)
+    } else {
+      result = calculator.evaluate(query)
+    }
+    calculatorResult = mode == .applications ? result : nil
     filteredApplications = applicationIndex.ranked(
       query: mode == .applications ? query : "",
       recentLaunches: recentLaunches
