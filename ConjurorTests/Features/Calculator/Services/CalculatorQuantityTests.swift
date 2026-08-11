@@ -51,12 +51,13 @@ final class CalculatorQuantityTests: XCTestCase {
     XCTAssertNil(engine.evaluate("10 km to kg"))
   }
 
-  func testQuantityResultCarriesUnitBadges() {
-    let result = engine.evaluate("10kg + 500g")
+  func testQuantityResultCarriesSummarizedSourceAndUnitBadges() {
+    let result = engine.evaluate("1 cm in in")
 
-    XCTAssertEqual(result?.display, "10,500")
-    XCTAssertEqual(result?.sourceBadge, "kg")
-    XCTAssertEqual(result?.targetBadge, "g")
+    XCTAssertEqual(result?.sourceDisplay, "1")
+    XCTAssertEqual(result?.sourceBadge, "cm")
+    XCTAssertEqual(result?.display, "0.3937007874")
+    XCTAssertEqual(result?.targetBadge, "in")
   }
 
   private func evaluate(_ expression: String) -> String? {

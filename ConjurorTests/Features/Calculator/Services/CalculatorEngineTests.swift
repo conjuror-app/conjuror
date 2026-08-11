@@ -45,6 +45,15 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertEqual(result?.copyText, "100000")
   }
 
+  func testCompactFormattingRoundsToSixDecimalPlaces() {
+    let compactEngine = CalculatorEngine(
+      formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
+    )
+
+    XCTAssertEqual(compactEngine.evaluate("2pi")?.copyText, "6.283185")
+    XCTAssertEqual(compactEngine.evaluate("2 / 3")?.copyText, "0.666667")
+  }
+
   func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
     XCTAssertNil(engine.evaluate("123"))
     XCTAssertNil(engine.evaluate("(123)"))
