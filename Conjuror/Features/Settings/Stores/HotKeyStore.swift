@@ -70,6 +70,7 @@ final class HotKeyStore: ObservableObject {
 
   func resetSettings() -> String? {
     settingsStore.resetMaximumVisibleResults()
+    settingsStore.setPreferredEmojiSkinTone(.default)
     return updateConfiguration(.defaultValue)
   }
 

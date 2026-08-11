@@ -8,6 +8,7 @@ final class SettingsStore: ObservableObject {
     static let hotKeyDisplayName = "settings.hotKeyDisplayName"
     static let hotKeyModifiers = "settings.hotKeyModifiers"
     static let maximumVisibleResults = "settings.maximumVisibleResults"
+    static let preferredEmojiSkinTone = "settings.preferredEmojiSkinTone"
   }
 
   static let defaultMaximumVisibleResults = 7
@@ -22,6 +23,7 @@ final class SettingsStore: ObservableObject {
 
   @Published private(set) var hotKeyConfiguration: HotKeyConfiguration
   @Published private(set) var maximumVisibleResults: Int
+  @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
 
   private let userDefaults: UserDefaults
 
@@ -46,6 +48,9 @@ final class SettingsStore: ObservableObject {
       .map { _ in userDefaults.integer(forKey: Key.maximumVisibleResults) }
       ?? Self.defaultMaximumVisibleResults
     maximumVisibleResults = Self.clampedMaximumVisibleResults(storedMaximum)
+    preferredEmojiSkinTone =
+      userDefaults.string(forKey: Key.preferredEmojiSkinTone)
+      .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
   }
 
   func setHotKeyConfiguration(_ configuration: HotKeyConfiguration) {
@@ -59,6 +64,11 @@ final class SettingsStore: ObservableObject {
     let clampedValue = Self.clampedMaximumVisibleResults(value)
     maximumVisibleResults = clampedValue
     userDefaults.set(clampedValue, forKey: Key.maximumVisibleResults)
+  }
+
+  func setPreferredEmojiSkinTone(_ skinTone: EmojiSkinTone) {
+    preferredEmojiSkinTone = skinTone
+    userDefaults.set(skinTone.rawValue, forKey: Key.preferredEmojiSkinTone)
   }
 
   func resetMaximumVisibleResults() {
