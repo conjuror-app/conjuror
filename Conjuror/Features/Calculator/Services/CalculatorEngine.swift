@@ -51,6 +51,8 @@ protocol CalculatorEvaluating {
 }
 
 struct CalculatorNumberFormatter {
+  private static let maximumExactInteger = 9_007_199_254_740_992.0
+
   let options: CalculatorFormattingOptions
 
   func string(
@@ -58,26 +60,51 @@ struct CalculatorNumberFormatter {
     usesGroupingSeparator: Bool
   ) -> String? {
     let normalizedValue = value == 0 ? 0 : value
-    let magnitude = Swift.abs(normalizedValue)
-    if magnitude != 0,
-      magnitude < Foundation.pow(10, Double(-options.maximumFractionDigits))
-        || magnitude >= 1e15
-    {
-      return String(
-        format: "%.*g",
-        locale: Locale(identifier: options.localeIdentifier),
-        options.maximumFractionDigits,
-        normalizedValue
-      )
+    let locale = Locale(identifier: options.localeIdentifier)
+    let text =
+      if normalizedValue.rounded() == normalizedValue,
+        Swift.abs(normalizedValue) <= Self.maximumExactInteger
+      {
+        String(format: "%.0f", locale: locale, normalizedValue)
+      } else {
+        String(
+          format: "%.*g",
+          locale: locale,
+          options.maximumSignificantDigits,
+          normalizedValue
+        )
+      }
+
+    return usesGroupingSeparator ? grouped(text, locale: locale) : text
+  }
+
+  private func grouped(_ text: String, locale: Locale) -> String {
+    guard !text.contains("e"), !text.contains("E") else {
+      return text
     }
 
     let formatter = NumberFormatter()
-    formatter.locale = Locale(identifier: options.localeIdentifier)
-    formatter.numberStyle = .decimal
-    formatter.minimumFractionDigits = 0
-    formatter.maximumFractionDigits = options.maximumFractionDigits
-    formatter.usesGroupingSeparator = usesGroupingSeparator
-    return formatter.string(from: NSNumber(value: normalizedValue))
+    formatter.locale = locale
+    let decimalSeparator = formatter.decimalSeparator ?? "."
+    let groupingSeparator = formatter.groupingSeparator ?? ","
+    let sign = text.hasPrefix("-") ? "-" : ""
+    let unsigned = sign.isEmpty ? text : String(text.dropFirst())
+    let parts = unsigned.components(separatedBy: decimalSeparator)
+    let integer = parts[0]
+    guard integer.count > 3 else {
+      return text
+    }
+
+    var groupedInteger = ""
+    for (index, digit) in integer.enumerated() {
+      if index > 0, (integer.count - index).isMultiple(of: 3) {
+        groupedInteger += groupingSeparator
+      }
+      groupedInteger.append(digit)
+    }
+
+    let fraction = parts.count > 1 ? decimalSeparator + parts[1] : ""
+    return sign + groupedInteger + fraction
   }
 }
 

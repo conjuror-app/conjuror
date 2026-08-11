@@ -6,7 +6,7 @@ final class CalculatorEngineTests: XCTestCase {
   private let engine = CalculatorEngine(
     formattingOptions: CalculatorFormattingOptions(
       localeIdentifier: "en_US_POSIX",
-      maximumFractionDigits: 10
+      maximumSignificantDigits: 10
     )
   )
 
@@ -34,7 +34,7 @@ final class CalculatorEngineTests: XCTestCase {
 
   func testConstantsFunctionsAndImplicitMultiplication() {
     XCTAssertEqual(evaluate("sqrt 9 + abs(-5)"), "8")
-    XCTAssertEqual(evaluate("2pi"), "6.2831853072")
+    XCTAssertEqual(evaluate("2pi"), "6.283185307")
     XCTAssertEqual(evaluate("4(2 + 3)"), "20")
   }
 
@@ -45,13 +45,14 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertEqual(result?.copyText, "100000")
   }
 
-  func testCompactFormattingRoundsToSixDecimalPlaces() {
+  func testCompactFormattingUsesTenSignificantDigits() {
     let compactEngine = CalculatorEngine(
       formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
     )
 
-    XCTAssertEqual(compactEngine.evaluate("2pi")?.copyText, "6.283185")
-    XCTAssertEqual(compactEngine.evaluate("2 / 3")?.copyText, "0.666667")
+    let result = compactEngine.evaluate("2 / 3")
+    XCTAssertEqual(result?.display, "0.6666666667")
+    XCTAssertEqual(result?.copyText, "0.6666666667")
   }
 
   func testAmbiguousInvalidAndIncompleteInputStaysSilent() {

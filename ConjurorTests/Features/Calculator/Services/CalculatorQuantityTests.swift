@@ -6,12 +6,12 @@ final class CalculatorQuantityTests: XCTestCase {
   private let engine = CalculatorEngine(
     formattingOptions: CalculatorFormattingOptions(
       localeIdentifier: "en_US_POSIX",
-      maximumFractionDigits: 10
+      maximumSignificantDigits: 10
     )
   )
 
   func testExplicitConversionsAcrossSupportedDimensions() {
-    XCTAssertEqual(evaluate("10 km to miles"), "6.2137119224 mi")
+    XCTAssertEqual(evaluate("10 km to miles"), "6.213711922 mi")
     XCTAssertEqual(evaluate("1 lb to kg"), "0.45359237 kg")
     XCTAssertEqual(evaluate("2 hours to minutes"), "120 min")
     XCTAssertEqual(evaluate("30 °C to °F"), "86 °F")

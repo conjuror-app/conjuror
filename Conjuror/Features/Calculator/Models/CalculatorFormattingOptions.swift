@@ -4,13 +4,13 @@ struct CalculatorFormattingOptions: Equatable, Sendable {
   static let compact = CalculatorFormattingOptions()
 
   let localeIdentifier: String
-  let maximumFractionDigits: Int
+  let maximumSignificantDigits: Int
 
   init(
     localeIdentifier: String = Locale.current.identifier,
-    maximumFractionDigits: Int = 6
+    maximumSignificantDigits: Int = 10
   ) {
     self.localeIdentifier = localeIdentifier
-    self.maximumFractionDigits = maximumFractionDigits
+    self.maximumSignificantDigits = maximumSignificantDigits
   }
 }
