@@ -6,39 +6,6 @@ import Testing
 @MainActor
 @Suite("Launcher Store")
 struct LauncherStoreTests {
-  @Test("Launcher store: arrow navigation moves selection down and up")
-  func testArrowNavigationMovesSelectionDownAndUp() async {
-    let applications = [
-      application("Alpha", id: "dev.example.alpha"),
-      application("Beta", id: "dev.example.beta"),
-      application("Gamma", id: "dev.example.gamma"),
-    ]
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(
-        userDefaults: makeUserDefaults()
-      )
-    )
-
-    store.loadApplications()
-    await waitForLoadingToFinish(store)
-
-    #expect(store.selectedApplicationID == applications[0].id)
-
-    let scrollRequestAfterLoad = store.selectionScrollRequest
-    store.select(applications[1])
-    #expect(store.selectionScrollRequest == scrollRequestAfterLoad)
-    store.select(applications[0])
-
-    store.moveSelection(.down)
-    #expect(store.selectionScrollRequest != scrollRequestAfterLoad)
-    #expect(store.selectedApplicationID == applications[1].id)
-
-    store.moveSelection(.up)
-    #expect(store.selectedApplicationID == applications[0].id)
-  }
-
   @Test("Launcher store: filtered applications update when the query changes")
   func testFilteredApplicationsUpdateWhenQueryChanges() async {
     let applications = [
@@ -61,29 +28,120 @@ struct LauncherStoreTests {
     #expect(store.selectedApplicationID == applications[1].id)
   }
 
-  @Test("Launcher store: successful launches refresh recent application order")
-  func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
-    let applications = [
-      application("Alpha", id: "dev.example.alpha"),
-      application("Beta", id: "dev.example.beta"),
-    ]
-    var didLaunch = false
+  @Test("Launcher store: preferred skin tone replaces tone-capable base emoji")
+  func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
+    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    settings.setPreferredEmojiSkinTone(.mediumDark)
     let store = LauncherStore(
-      catalog: CatalogStub(applications: applications),
+      settingsStore: settings,
+      catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      onLaunchSuccess: { didLaunch = true }
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
     )
-    store.loadApplications()
-    await waitForLoadingToFinish(store)
 
-    store.open(applications[1])
-    while !didLaunch {
-      await Task.yield()
-    }
+    store.updateQuery(":waving hand")
 
-    #expect(store.filteredApplications == [applications[1], applications[0]])
-    #expect(store.selectedApplicationID == applications[1].id)
+    #expect(store.displayedEmoji.first?.value == "👋🏾")
+    #expect(!(store.displayedEmoji.contains { $0.value == "👋" }))
+  }
+
+  @Test("Launcher store: preferred skin tone replaces gendered couple emoji")
+  func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
+    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    settings.setPreferredEmojiSkinTone(.mediumDark)
+    let store = LauncherStore(
+      settingsStore: settings,
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":kiss woman man")
+
+    #expect(store.displayedEmoji.first?.value == "👩🏾‍❤️‍💋‍👨🏾")
+    #expect(!(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" }))
+  }
+
+  @Test("Launcher store: greater-than switches to shortcuts and filters following text")
+  func testGreaterThanSwitchesToShortcutsAndFiltersFollowingText() async {
+    let shortcuts = [
+      shortcut("Morning Lights", id: "morning"),
+      shortcut("Evening Lights", id: "evening"),
+    ]
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(">evening")
+    await waitForShortcutsLoadingToFinish(store)
+
+    #expect(store.mode == .shortcuts)
+    #expect(store.query == "evening")
+    #expect(store.filteredShortcuts == [shortcuts[1]])
+    #expect(store.selectedShortcutID == shortcuts[1].id)
+  }
+
+  @Test("Launcher store: colon switches to emoji and filters following text")
+  func testColonSwitchesToEmojiAndFiltersFollowingText() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":waving hand medium dark")
+
+    #expect(store.mode == .emoji)
+    #expect(store.query == "waving hand medium dark")
+    #expect(store.filteredEmoji.first?.value == "👋🏾")
+  }
+
+  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
+  func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.cycleMode()
+    #expect(store.mode == .shortcuts)
+
+    store.cycleMode()
+    #expect(store.mode == .emoji)
+
+    store.cycleMode()
+    #expect(store.mode == .applications)
+  }
+
+  @Test("Launcher store: calculator does not evaluate in shortcuts mode")
+  func testCalculatorDoesNotEvaluateInShortcutsMode() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(">2 + 3")
+
+    #expect(store.mode == .shortcuts)
+    #expect((store.calculatorResult) == nil)
+    #expect(!(store.isCalculatorSelected))
   }
 
   @Test("Launcher store: active loads run one follow-up refresh for a load request")
@@ -119,6 +177,31 @@ struct LauncherStoreTests {
     #expect(store.selectedApplicationID == refreshedApplications[0].id)
   }
 
+  @Test("Launcher store: successful launches refresh recent application order")
+  func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
+    let applications = [
+      application("Alpha", id: "dev.example.alpha"),
+      application("Beta", id: "dev.example.beta"),
+    ]
+    var didLaunch = false
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: applications),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      onLaunchSuccess: { didLaunch = true }
+    )
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+
+    store.open(applications[1])
+    while !didLaunch {
+      await Task.yield()
+    }
+
+    #expect(store.filteredApplications == [applications[1], applications[0]])
+    #expect(store.selectedApplicationID == applications[1].id)
+  }
+
   @Test("Launcher store: catalog failures publish errors and clear selection")
   func testCatalogFailurePublishesErrorAndClearsSelection() async {
     let store = LauncherStore(
@@ -135,6 +218,83 @@ struct LauncherStoreTests {
     #expect(
       store.catalogErrorMessage == "Couldn’t load installed applications. Catalog unavailable"
     )
+  }
+
+  @Test("Launcher store: calculator results are pinned before matching applications")
+  func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
+    let application = application("Pine", id: "dev.example.pine")
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: [application]),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+    )
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+
+    store.query = "pi"
+
+    #expect(store.calculatorResult?.expression == "pi")
+    #expect(store.isCalculatorSelected)
+    #expect(store.selectedResultScrollID == LauncherStore.calculatorResultScrollID)
+    #expect(store.filteredApplications == [application])
+
+    store.moveSelection(.down)
+    #expect(!(store.isCalculatorSelected))
+    #expect(store.selectedApplicationID == application.id)
+
+    store.moveSelection(.up)
+    #expect(store.isCalculatorSelected)
+  }
+
+  @Test("Launcher store: arrow navigation moves selection down and up")
+  func testArrowNavigationMovesSelectionDownAndUp() async {
+    let applications = [
+      application("Alpha", id: "dev.example.alpha"),
+      application("Beta", id: "dev.example.beta"),
+      application("Gamma", id: "dev.example.gamma"),
+    ]
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: applications),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(
+        userDefaults: makeUserDefaults()
+      )
+    )
+
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+
+    #expect(store.selectedApplicationID == applications[0].id)
+
+    let scrollRequestAfterLoad = store.selectionScrollRequest
+    store.select(applications[1])
+    #expect(store.selectionScrollRequest == scrollRequestAfterLoad)
+    store.select(applications[0])
+
+    store.moveSelection(.down)
+    #expect(store.selectionScrollRequest != scrollRequestAfterLoad)
+    #expect(store.selectedApplicationID == applications[1].id)
+
+    store.moveSelection(.up)
+    #expect(store.selectedApplicationID == applications[0].id)
+  }
+
+  @Test("Launcher store: horizontal arrows navigate the emoji grid")
+  func testHorizontalArrowsNavigateEmojiGrid() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+    store.updateQuery(":")
+    let firstID = store.selectedEmojiID
+
+    store.moveSelection(.right)
+    #expect(store.selectedEmojiID == store.displayedEmoji[1].id)
+
+    store.moveSelection(.left)
+    #expect(store.selectedEmojiID == firstID)
   }
 
   @Test("Launcher store: successful launches record history, clear the query, and call success")
@@ -189,200 +349,6 @@ struct LauncherStoreTests {
     #expect(launchHistory.load().isEmpty)
   }
 
-  @Test("Launcher store: activation clears transient state and selects the first result")
-  func testPrepareForActivationClearsTransientStateAndSelectsFirstResult() async {
-    let applications = [
-      application("Alpha", id: "dev.example.alpha"),
-      application("Beta", id: "dev.example.beta"),
-    ]
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(error: TestError.launchFailed),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
-    )
-    store.loadApplications()
-    await waitForLoadingToFinish(store)
-    store.query = "beta"
-    store.openSelectedApplication()
-    while store.launchErrorMessage == nil {
-      await Task.yield()
-    }
-    let focusRequest = store.focusRequest
-
-    store.prepareForActivation()
-
-    #expect(store.query == "")
-    #expect((store.launchErrorMessage) == nil)
-    #expect(store.selectedApplicationID == applications[0].id)
-    #expect(store.focusRequest != focusRequest)
-  }
-
-  @Test("Launcher store: greater-than switches to shortcuts and filters following text")
-  func testGreaterThanSwitchesToShortcutsAndFiltersFollowingText() async {
-    let shortcuts = [
-      shortcut("Morning Lights", id: "morning"),
-      shortcut("Evening Lights", id: "evening"),
-    ]
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
-    )
-
-    store.updateQuery(">evening")
-    await waitForShortcutsLoadingToFinish(store)
-
-    #expect(store.mode == .shortcuts)
-    #expect(store.query == "evening")
-    #expect(store.filteredShortcuts == [shortcuts[1]])
-    #expect(store.selectedShortcutID == shortcuts[1].id)
-  }
-
-  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
-  func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
-    )
-
-    store.cycleMode()
-    #expect(store.mode == .shortcuts)
-
-    store.cycleMode()
-    #expect(store.mode == .emoji)
-
-    store.cycleMode()
-    #expect(store.mode == .applications)
-  }
-
-  @Test("Launcher store: colon switches to emoji and filters following text")
-  func testColonSwitchesToEmojiAndFiltersFollowingText() {
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
-    )
-
-    store.updateQuery(":waving hand medium dark")
-
-    #expect(store.mode == .emoji)
-    #expect(store.query == "waving hand medium dark")
-    #expect(store.filteredEmoji.first?.value == "👋🏾")
-  }
-
-  @Test("Launcher store: preferred skin tone replaces tone-capable base emoji")
-  func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
-    let settings = SettingsStore(userDefaults: makeUserDefaults())
-    settings.setPreferredEmojiSkinTone(.mediumDark)
-    let store = LauncherStore(
-      settingsStore: settings,
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
-    )
-
-    store.updateQuery(":waving hand")
-
-    #expect(store.displayedEmoji.first?.value == "👋🏾")
-    #expect(!(store.displayedEmoji.contains { $0.value == "👋" }))
-  }
-
-  @Test("Launcher store: preferred skin tone replaces gendered couple emoji")
-  func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
-    let settings = SettingsStore(userDefaults: makeUserDefaults())
-    settings.setPreferredEmojiSkinTone(.mediumDark)
-    let store = LauncherStore(
-      settingsStore: settings,
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
-    )
-
-    store.updateQuery(":kiss woman man")
-
-    #expect(store.displayedEmoji.first?.value == "👩🏾‍❤️‍💋‍👨🏾")
-    #expect(!(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" }))
-  }
-
-  @Test("Launcher store: horizontal arrows navigate the emoji grid")
-  func testHorizontalArrowsNavigateEmojiGrid() {
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
-    )
-    store.updateQuery(":")
-    let firstID = store.selectedEmojiID
-
-    store.moveSelection(.right)
-    #expect(store.selectedEmojiID == store.displayedEmoji[1].id)
-
-    store.moveSelection(.left)
-    #expect(store.selectedEmojiID == firstID)
-  }
-
-  @Test("Launcher store: Return copies emoji and records it as recent")
-  func testReturnCopiesEmojiAndRecordsItAsRecent() {
-    let clipboard = RecordingCalculatorClipboard()
-    let userDefaults = makeUserDefaults()
-    let history = EmojiHistoryStore(userDefaults: userDefaults)
-    var didRequestHide = false
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      calculatorClipboard: clipboard,
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: history,
-      onEmojiCopied: { didRequestHide = true }
-    )
-    store.updateQuery(":face with tears of joy")
-
-    store.openSelectedResult()
-
-    #expect(clipboard.text == "😂")
-    #expect(history.load().first == "😂")
-    #expect(didRequestHide)
-    #expect(store.mode == .applications)
-  }
-
-  @Test("Launcher store: calculator results are pinned before matching applications")
-  func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
-    let application = application("Pine", id: "dev.example.pine")
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: [application]),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
-    )
-    store.loadApplications()
-    await waitForLoadingToFinish(store)
-
-    store.query = "pi"
-
-    #expect(store.calculatorResult?.expression == "pi")
-    #expect(store.isCalculatorSelected)
-    #expect(store.selectedResultScrollID == LauncherStore.calculatorResultScrollID)
-    #expect(store.filteredApplications == [application])
-
-    store.moveSelection(.down)
-    #expect(!(store.isCalculatorSelected))
-    #expect(store.selectedApplicationID == application.id)
-
-    store.moveSelection(.up)
-    #expect(store.isCalculatorSelected)
-  }
-
   @Test("Launcher store: Return copies calculator results, clears the query, and requests hiding")
   func testReturnCopiesCalculatorResultClearsQueryAndRequestsHide() {
     let clipboard = RecordingCalculatorClipboard()
@@ -421,22 +387,28 @@ struct LauncherStoreTests {
     #expect(store.query == "")
   }
 
-  @Test("Launcher store: calculator does not evaluate in shortcuts mode")
-  func testCalculatorDoesNotEvaluateInShortcutsMode() {
+  @Test("Launcher store: Return copies emoji and records it as recent")
+  func testReturnCopiesEmojiAndRecordsItAsRecent() {
+    let clipboard = RecordingCalculatorClipboard()
+    let userDefaults = makeUserDefaults()
+    let history = EmojiHistoryStore(userDefaults: userDefaults)
+    var didRequestHide = false
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
+      calculatorClipboard: clipboard,
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+      emojiHistory: history,
+      onEmojiCopied: { didRequestHide = true }
     )
+    store.updateQuery(":face with tears of joy")
 
-    store.updateQuery(">2 + 3")
+    store.openSelectedResult()
 
-    #expect(store.mode == .shortcuts)
-    #expect((store.calculatorResult) == nil)
-    #expect(!(store.isCalculatorSelected))
+    #expect(clipboard.text == "😂")
+    #expect(history.load().first == "😂")
+    #expect(didRequestHide)
+    #expect(store.mode == .applications)
   }
 
   @Test("Launcher store: Return runs the selected fuzzy shortcut")
@@ -515,6 +487,34 @@ struct LauncherStoreTests {
     #expect(store.mode == .shortcuts)
     #expect(store.query == "light")
     #expect(store.shortcutRunErrorMessage == "Couldn’t run Lights. Launch failed")
+  }
+
+  @Test("Launcher store: activation clears transient state and selects the first result")
+  func testPrepareForActivationClearsTransientStateAndSelectsFirstResult() async {
+    let applications = [
+      application("Alpha", id: "dev.example.alpha"),
+      application("Beta", id: "dev.example.beta"),
+    ]
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: applications),
+      launcher: LauncherStub(error: TestError.launchFailed),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+    )
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+    store.query = "beta"
+    store.openSelectedApplication()
+    while store.launchErrorMessage == nil {
+      await Task.yield()
+    }
+    let focusRequest = store.focusRequest
+
+    store.prepareForActivation()
+
+    #expect(store.query == "")
+    #expect((store.launchErrorMessage) == nil)
+    #expect(store.selectedApplicationID == applications[0].id)
+    #expect(store.focusRequest != focusRequest)
   }
 
   private func shortcut(_ name: String, id: String) -> AppleShortcut {
