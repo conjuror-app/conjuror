@@ -55,6 +55,82 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertEqual(result?.copyText, "0.6666666667")
   }
 
+  func testExplicitTimeZoneAbbreviationsUseFixedOffsets() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
+
+    let result = engine.evaluate("10:00 BST in EST")
+
+    XCTAssertEqual(result?.sourceDisplay, "10:00")
+    XCTAssertEqual(result?.sourceBadge, "BST")
+    XCTAssertEqual(result?.display, "04:00")
+    XCTAssertEqual(result?.targetBadge, "EST")
+    XCTAssertEqual(result?.copyText, "04:00 EST")
+  }
+
+  func testStandardAndDaylightAbbreviationsHaveDistinctOffsets() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
+
+    XCTAssertEqual(engine.evaluate("10:00 EST in GMT")?.copyText, "15:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 EDT in GMT")?.copyText, "14:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 PST in GMT")?.copyText, "18:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 PDT in GMT")?.copyText, "17:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 CET in GMT")?.copyText, "09:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 CEST in GMT")?.copyText, "08:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 NZST in GMT")?.copyText, "22:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 NZDT in GMT")?.copyText, "21:00 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 NST in GMT")?.copyText, "13:30 GMT")
+    XCTAssertEqual(engine.evaluate("10:00 NDT in GMT")?.copyText, "12:30 GMT")
+  }
+
+  func testTimeZoneConversionSupportsOtherMacOSTimeZoneAbbreviations() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
+
+    XCTAssertEqual(engine.evaluate("10:00 EAT in IST")?.copyText, "12:30 IST")
+    XCTAssertEqual(engine.evaluate("10:00 SGT in WAT")?.copyText, "03:00 WAT")
+  }
+
+  func testTimeZoneConversionUsesCurrentTimeZoneWhenSourceIsOmitted() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
+
+    let result = engine.evaluate("1:00 pm in PDT")
+
+    XCTAssertEqual(result?.sourceBadge, "BST")
+    XCTAssertEqual(result?.display, "5:00 am")
+    XCTAssertEqual(result?.copyText, "5:00 am PDT")
+  }
+
+  func testTimeZoneConversionRefreshesCurrentContextBetweenEvaluations() {
+    var currentDate = ISO8601DateFormatter().date(from: "2026-08-12T12:00:00Z")!
+    var currentTimeZone = TimeZone(identifier: "Europe/London")!
+    let engine = CalculatorEngine(
+      currentDate: { currentDate },
+      currentTimeZone: { currentTimeZone }
+    )
+
+    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "09:00 UTC")
+
+    currentDate = ISO8601DateFormatter().date(from: "2026-10-26T12:00:00Z")!
+    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "10:00 UTC")
+
+    currentTimeZone = TimeZone(identifier: "Asia/Tokyo")!
+    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "01:00 UTC")
+  }
+
+  func testTimeZoneConversionSupportsConnectorsAndWrapsAcrossDays() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
+
+    XCTAssertEqual(engine.evaluate("23:30 UTC → JST")?.copyText, "08:30 JST")
+    XCTAssertEqual(engine.evaluate("9am GMT -> PDT")?.copyText, "2:00 am PDT")
+  }
+
+  func testInvalidTimeZoneInputStaysSilent() {
+    XCTAssertNil(engine.evaluate("25:00 GMT in EST"))
+    XCTAssertNil(engine.evaluate("10:60 GMT in EST"))
+    XCTAssertNil(engine.evaluate("10:00 XYZ in EST"))
+    XCTAssertNil(engine.evaluate("10:00 GMT in XYZ"))
+    XCTAssertNil(engine.evaluate("10:00 in"))
+  }
+
   func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
     XCTAssertNil(engine.evaluate("123"))
     XCTAssertNil(engine.evaluate("(123)"))
@@ -68,5 +144,16 @@ final class CalculatorEngineTests: XCTestCase {
 
   private func evaluate(_ expression: String) -> String? {
     engine.evaluate(expression)?.copyText
+  }
+
+  private func timeZoneEngine(currentTimeZone: TimeZone) -> CalculatorEngine {
+    CalculatorEngine(
+      formattingOptions: CalculatorFormattingOptions(
+        localeIdentifier: "en_US_POSIX",
+        maximumSignificantDigits: 10
+      ),
+      currentDate: { ISO8601DateFormatter().date(from: "2026-08-12T12:00:00Z")! },
+      currentTimeZone: { currentTimeZone }
+    )
   }
 }

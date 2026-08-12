@@ -2,15 +2,30 @@ import Foundation
 
 struct CalculatorEngine: CalculatorEvaluating {
   private let formattingOptions: CalculatorFormattingOptions
+  private let currentDate: () -> Date
+  private let currentTimeZone: () -> TimeZone
 
-  init(formattingOptions: CalculatorFormattingOptions = .compact) {
+  init(
+    formattingOptions: CalculatorFormattingOptions = .compact,
+    currentDate: @escaping () -> Date = { Date() },
+    currentTimeZone: @escaping () -> TimeZone = { .autoupdatingCurrent }
+  ) {
     self.formattingOptions = formattingOptions
+    self.currentDate = currentDate
+    self.currentTimeZone = currentTimeZone
   }
 
   func evaluate(_ expression: String) -> CalculatorResult? {
     let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmedExpression.isEmpty else {
       return nil
+    }
+
+    if let timeZoneResult = CalculatorTimeZoneEvaluator(
+      currentDate: currentDate(),
+      currentTimeZone: currentTimeZone()
+    ).evaluate(trimmedExpression) {
+      return timeZoneResult
     }
 
     if let quantityResult = CalculatorQuantityEvaluator(
