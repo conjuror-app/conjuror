@@ -359,7 +359,7 @@ final class LauncherStore: ObservableObject {
         direction,
         results: displayedEmoji.map(\.id),
         selectedID: selectedEmojiID,
-        step: 9
+        step: LauncherLayout.emojiColumnCount
       )
     case .shortcuts:
       selectedShortcutID = movedSelection(
