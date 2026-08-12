@@ -5,6 +5,29 @@ import Testing
 
 @Suite("Application Catalog")
 struct ApplicationCatalogTests {
+  @Test("Application catalog: mounted-volume Applications directories are included")
+  func testIncludesApplicationsDirectoryFromMountedVolume() throws {
+    let fileManager = FileManager.default
+    let temporaryDirectory = fileManager.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? fileManager.removeItem(at: temporaryDirectory) }
+
+    let mountedApplications =
+      temporaryDirectory
+      .appendingPathComponent("Applications", isDirectory: true)
+    try fileManager.createDirectory(
+      at: mountedApplications,
+      withIntermediateDirectories: true
+    )
+
+    let directories = ApplicationCatalog.applicationDirectories(
+      fileManager: fileManager,
+      mountedVolumeURLs: [temporaryDirectory]
+    )
+
+    #expect(directories.contains(mountedApplications))
+  }
+
   @Test("Application catalog: helper, background, and Conjuror apps are filtered")
   func testFiltersHelpersBackgroundAppsAndConjuror() {
     let candidates = [
@@ -30,6 +53,28 @@ struct ApplicationCatalogTests {
     )
 
     #expect(result.map(\.displayName) == ["Visible"])
+  }
+
+  @Test("Application catalog: applications are deduplicated by bundle identifier and canonical URL")
+  func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
+    let candidates = [
+      candidate(
+        "Beta Copy",
+        id: "dev.example.beta",
+        path: "/System/Applications/Beta.app",
+        priority: 1
+      ),
+      candidate("Beta", id: "dev.example.beta", path: "/Applications/Beta.app", priority: 0),
+      candidate("Path Copy", id: nil, path: "/Applications/Path.app/../Path.app", priority: 1),
+      candidate("Path", id: nil, path: "/Applications/Path.app", priority: 0),
+    ]
+
+    let result = ApplicationCatalog.filteredAndDeduplicated(
+      candidates,
+      excludingBundleIdentifier: nil
+    )
+
+    #expect(result.map(\.displayName) == ["Beta", "Path"])
   }
 
   @Test("Application catalog: top-level symlinked applications are scanned")
@@ -77,29 +122,6 @@ struct ApplicationCatalogTests {
     #expect(result.first?.bundleIdentifier == "com.apple.Safari")
   }
 
-  @Test("Application catalog: mounted-volume Applications directories are included")
-  func testIncludesApplicationsDirectoryFromMountedVolume() throws {
-    let fileManager = FileManager.default
-    let temporaryDirectory = fileManager.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString, isDirectory: true)
-    defer { try? fileManager.removeItem(at: temporaryDirectory) }
-
-    let mountedApplications =
-      temporaryDirectory
-      .appendingPathComponent("Applications", isDirectory: true)
-    try fileManager.createDirectory(
-      at: mountedApplications,
-      withIntermediateDirectories: true
-    )
-
-    let directories = ApplicationCatalog.applicationDirectories(
-      fileManager: fileManager,
-      mountedVolumeURLs: [temporaryDirectory]
-    )
-
-    #expect(directories.contains(mountedApplications))
-  }
-
   @Test("Application catalog: throws when no configured directory is readable")
   func testThrowsWhenNoConfiguredDirectoryCanBeRead() throws {
     let fileManager = FileManager.default
@@ -133,28 +155,6 @@ struct ApplicationCatalogTests {
     )
 
     #expect(candidates.isEmpty)
-  }
-
-  @Test("Application catalog: applications are deduplicated by bundle identifier and canonical URL")
-  func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
-    let candidates = [
-      candidate(
-        "Beta Copy",
-        id: "dev.example.beta",
-        path: "/System/Applications/Beta.app",
-        priority: 1
-      ),
-      candidate("Beta", id: "dev.example.beta", path: "/Applications/Beta.app", priority: 0),
-      candidate("Path Copy", id: nil, path: "/Applications/Path.app/../Path.app", priority: 1),
-      candidate("Path", id: nil, path: "/Applications/Path.app", priority: 0),
-    ]
-
-    let result = ApplicationCatalog.filteredAndDeduplicated(
-      candidates,
-      excludingBundleIdentifier: nil
-    )
-
-    #expect(result.map(\.displayName) == ["Beta", "Path"])
   }
 
   private func candidate(

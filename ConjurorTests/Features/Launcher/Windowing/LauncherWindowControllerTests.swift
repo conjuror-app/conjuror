@@ -133,6 +133,51 @@ struct LauncherWindowControllerTests {
   }
 
   @MainActor
+  @Test("Launcher window controller: the panel routes unmodified Tab to mode cycling")
+  func testPanelRoutesUnmodifiedTabToModeCycling() {
+    let panel = makePanel()
+    defer { panel.close() }
+    var cycleCount = 0
+    panel.onCycleMode = { cycleCount += 1 }
+
+    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab)))
+    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab), modifiers: .control))
+
+    #expect(cycleCount == 1)
+  }
+
+  @MainActor
+  @Test("Launcher window controller: the panel preserves arrow-key navigation")
+  func testPanelPreservesArrowKeyNavigation() {
+    let panel = makePanel()
+    defer { panel.close() }
+    var directions: [MoveCommandDirection] = []
+    panel.onMoveSelection = { directions.append($0) }
+
+    panel.sendEvent(keyEvent("", keyCode: UInt16(kVK_DownArrow)))
+
+    #expect(directions == [.down])
+  }
+
+  @MainActor
+  @Test(
+    "Launcher window controller: the panel gives Command-Q precedence over the text-editing responder"
+  )
+  func testPanelGivesCommandQPrecedenceOverTextEditingResponder() {
+    let panel = makePanel()
+    defer { panel.close() }
+    let textView = RecordingTextView()
+    var terminateCount = 0
+    panel.onTerminate = { terminateCount += 1 }
+    panel.contentView?.addSubview(textView)
+    #expect(panel.makeFirstResponder(textView))
+
+    #expect(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
+    #expect(terminateCount == 1)
+    #expect(textView.actions.isEmpty)
+  }
+
+  @MainActor
   @Test(
     "Launcher window controller: the panel routes text-editing shortcuts to the active text view"
   )
@@ -168,51 +213,6 @@ struct LauncherWindowControllerTests {
     panel.contentView?.addSubview(NSButton())
 
     #expect(!(panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command))))
-  }
-
-  @MainActor
-  @Test(
-    "Launcher window controller: the panel gives Command-Q precedence over the text-editing responder"
-  )
-  func testPanelGivesCommandQPrecedenceOverTextEditingResponder() {
-    let panel = makePanel()
-    defer { panel.close() }
-    let textView = RecordingTextView()
-    var terminateCount = 0
-    panel.onTerminate = { terminateCount += 1 }
-    panel.contentView?.addSubview(textView)
-    #expect(panel.makeFirstResponder(textView))
-
-    #expect(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
-    #expect(terminateCount == 1)
-    #expect(textView.actions.isEmpty)
-  }
-
-  @MainActor
-  @Test("Launcher window controller: the panel preserves arrow-key navigation")
-  func testPanelPreservesArrowKeyNavigation() {
-    let panel = makePanel()
-    defer { panel.close() }
-    var directions: [MoveCommandDirection] = []
-    panel.onMoveSelection = { directions.append($0) }
-
-    panel.sendEvent(keyEvent("", keyCode: UInt16(kVK_DownArrow)))
-
-    #expect(directions == [.down])
-  }
-
-  @MainActor
-  @Test("Launcher window controller: the panel routes unmodified Tab to mode cycling")
-  func testPanelRoutesUnmodifiedTabToModeCycling() {
-    let panel = makePanel()
-    defer { panel.close() }
-    var cycleCount = 0
-    panel.onCycleMode = { cycleCount += 1 }
-
-    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab)))
-    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab), modifiers: .control))
-
-    #expect(cycleCount == 1)
   }
 
   private func command(
