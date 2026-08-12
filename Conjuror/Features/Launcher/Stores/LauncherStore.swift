@@ -208,6 +208,20 @@ final class LauncherStore: ObservableObject {
     }
   }
 
+  func cycleMode() {
+    switch mode {
+    case .applications:
+      enterShortcutsMode()
+    case .shortcuts:
+      mode = .emoji
+      query = ""
+      refreshCurrentResults()
+      selectFirstResult()
+    case .emoji:
+      returnToApplicationsMode()
+    }
+  }
+
   func enterShortcutsMode() {
     mode = .shortcuts
     query = ""

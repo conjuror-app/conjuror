@@ -181,6 +181,18 @@ final class LauncherWindowControllerTests: XCTestCase {
     XCTAssertEqual(directions, [.down])
   }
 
+  @MainActor
+  func testPanelRoutesUnmodifiedTabToModeCycling() {
+    let panel = makePanel()
+    var cycleCount = 0
+    panel.onCycleMode = { cycleCount += 1 }
+
+    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab)))
+    panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab), modifiers: .control))
+
+    XCTAssertEqual(cycleCount, 1)
+  }
+
   private func command(
     _ characters: String?,
     modifiers: NSEvent.ModifierFlags = .command
