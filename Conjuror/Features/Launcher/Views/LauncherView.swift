@@ -110,6 +110,15 @@ struct LauncherView: View {
       return LauncherLayout.collapsedHeight
     }
 
+    if store.mode == .emoji {
+      return LauncherLayout.emojiExpandedHeight(
+        itemCount: resultCount,
+        hasRecentHeader: store.query.isEmpty && !store.recentEmoji.isEmpty,
+        hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
+        maximumVisibleResults: settingsStore.maximumVisibleResults
+      )
+    }
+
     return LauncherLayout.expandedHeight(
       resultCount: resultCount,
       hasCatalogError: catalogErrorMessage != nil,
@@ -216,11 +225,15 @@ struct LauncherView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: LauncherLayout.emojiRecentHeaderHeight)
             .padding(.horizontal, 4)
         }
         LazyVGrid(
-          columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 9),
-          spacing: 2
+          columns: Array(
+            repeating: GridItem(.flexible(), spacing: LauncherLayout.emojiRowSpacing),
+            count: LauncherLayout.emojiColumnCount
+          ),
+          spacing: LauncherLayout.emojiRowSpacing
         ) {
           ForEach(store.displayedEmoji) { emoji in
             EmojiResultCell(

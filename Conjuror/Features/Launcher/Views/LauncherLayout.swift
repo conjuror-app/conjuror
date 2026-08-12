@@ -3,16 +3,44 @@ import CoreGraphics
 enum LauncherLayout {
   static let width: CGFloat = 540
   static let collapsedHeight: CGFloat = 54
+  static let emojiColumnCount = 9
+  static let emojiRowHeight: CGFloat = 42
+  static let emojiRowSpacing: CGFloat = 2
+  static let emojiRecentHeaderHeight: CGFloat = 16
 
   private static let searchHeight: CGFloat = 52
   private static let dividerHeight: CGFloat = 1
-  private static let resultRowHeight: CGFloat = 40
-  private static let resultSpacing: CGFloat = 1
+  private static let defaultResultRowHeight: CGFloat = 40
+  private static let defaultResultSpacing: CGFloat = 1
   private static let resultsVerticalPadding: CGFloat = 8
   private static let footerHeight: CGFloat = 29
 
+  static func emojiExpandedHeight(
+    itemCount: Int,
+    hasRecentHeader: Bool,
+    hasHotKeyError: Bool,
+    maximumVisibleResults: Int
+  ) -> CGFloat {
+    let rowCount = (itemCount + emojiColumnCount - 1) / emojiColumnCount
+    let headerHeight =
+      hasRecentHeader ? emojiRecentHeaderHeight + defaultResultSpacing : 0
+    return expandedHeight(
+      resultCount: rowCount,
+      resultRowHeight: emojiRowHeight,
+      resultSpacing: emojiRowSpacing,
+      resultsHeaderHeight: headerHeight,
+      hasCatalogError: false,
+      hasHotKeyError: hasHotKeyError,
+      hasLaunchError: false,
+      maximumVisibleResults: maximumVisibleResults
+    )
+  }
+
   static func expandedHeight(
     resultCount: Int,
+    resultRowHeight: CGFloat = defaultResultRowHeight,
+    resultSpacing: CGFloat = defaultResultSpacing,
+    resultsHeaderHeight: CGFloat = 0,
     hasCatalogError: Bool,
     hasHotKeyError: Bool,
     hasLaunchError: Bool,
@@ -27,6 +55,7 @@ enum LauncherLayout {
       let visibleResultCount = min(resultCount, maximumVisibleResults)
       resultsHeight =
         resultsVerticalPadding
+        + resultsHeaderHeight
         + CGFloat(visibleResultCount) * resultRowHeight
         + CGFloat(max(visibleResultCount - 1, 0)) * resultSpacing
     }
