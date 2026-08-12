@@ -75,7 +75,18 @@ struct CalculatorNumberFormatter {
         )
       }
 
-    return usesGroupingSeparator ? grouped(text, locale: locale) : text
+    let ungroupedText = ungrouped(text, locale: locale)
+    return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
+  }
+
+  private func ungrouped(_ text: String, locale: Locale) -> String {
+    let formatter = NumberFormatter()
+    formatter.locale = locale
+    guard let groupingSeparator = formatter.groupingSeparator else {
+      return text
+    }
+
+    return text.replacingOccurrences(of: groupingSeparator, with: "")
   }
 
   private func grouped(_ text: String, locale: Locale) -> String {

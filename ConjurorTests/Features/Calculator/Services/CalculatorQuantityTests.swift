@@ -26,6 +26,17 @@ final class CalculatorQuantityTests: XCTestCase {
     XCTAssertEqual(evaluate("8 bits → bytes"), "1 B")
   }
 
+  func testConversionDoesNotDuplicateLocaleGroupingSeparator() {
+    let localeEngine = CalculatorEngine(
+      formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US")
+    )
+
+    let result = localeEngine.evaluate("1 gb in mb")
+
+    XCTAssertEqual(result?.display, "1,000")
+    XCTAssertEqual(result?.copyText, "1000 MB")
+  }
+
   func testBareQuantitiesUseSensibleDefaultConversions() {
     let expectations = [
       ("1 kg", "2.204622622 lb", "kg", "lb"),
