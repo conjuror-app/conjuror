@@ -1,10 +1,12 @@
 import AppKit
-import XCTest
+import Testing
 
 @testable import Conjuror
 
 @MainActor
-final class LauncherStoreTests: XCTestCase {
+@Suite("Launcher Store")
+struct LauncherStoreTests {
+  @Test("Launcher store: arrow navigation moves selection down and up")
   func testArrowNavigationMovesSelectionDownAndUp() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
@@ -22,21 +24,22 @@ final class LauncherStoreTests: XCTestCase {
     store.loadApplications()
     await waitForLoadingToFinish(store)
 
-    XCTAssertEqual(store.selectedApplicationID, applications[0].id)
+    #expect(store.selectedApplicationID == applications[0].id)
 
     let scrollRequestAfterLoad = store.selectionScrollRequest
     store.select(applications[1])
-    XCTAssertEqual(store.selectionScrollRequest, scrollRequestAfterLoad)
+    #expect(store.selectionScrollRequest == scrollRequestAfterLoad)
     store.select(applications[0])
 
     store.moveSelection(.down)
-    XCTAssertNotEqual(store.selectionScrollRequest, scrollRequestAfterLoad)
-    XCTAssertEqual(store.selectedApplicationID, applications[1].id)
+    #expect(store.selectionScrollRequest != scrollRequestAfterLoad)
+    #expect(store.selectedApplicationID == applications[1].id)
 
     store.moveSelection(.up)
-    XCTAssertEqual(store.selectedApplicationID, applications[0].id)
+    #expect(store.selectedApplicationID == applications[0].id)
   }
 
+  @Test("Launcher store: filtered applications update when the query changes")
   func testFilteredApplicationsUpdateWhenQueryChanges() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
@@ -50,14 +53,15 @@ final class LauncherStoreTests: XCTestCase {
     store.loadApplications()
     await waitForLoadingToFinish(store)
 
-    XCTAssertEqual(store.filteredApplications, applications)
+    #expect(store.filteredApplications == applications)
 
     store.query = "beta"
 
-    XCTAssertEqual(store.filteredApplications, [applications[1]])
-    XCTAssertEqual(store.selectedApplicationID, applications[1].id)
+    #expect(store.filteredApplications == [applications[1]])
+    #expect(store.selectedApplicationID == applications[1].id)
   }
 
+  @Test("Launcher store: successful launches refresh recent application order")
   func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
@@ -78,10 +82,11 @@ final class LauncherStoreTests: XCTestCase {
       await Task.yield()
     }
 
-    XCTAssertEqual(store.filteredApplications, [applications[1], applications[0]])
-    XCTAssertEqual(store.selectedApplicationID, applications[1].id)
+    #expect(store.filteredApplications == [applications[1], applications[0]])
+    #expect(store.selectedApplicationID == applications[1].id)
   }
 
+  @Test("Launcher store: active loads run one follow-up refresh for a load request")
   func testLoadRequestDuringActiveLoadRunsOneFollowUpRefresh() async {
     let firstApplications = [application("Alpha", id: "dev.example.alpha")]
     let refreshedApplications = [application("Beta", id: "dev.example.beta")]
@@ -102,18 +107,19 @@ final class LauncherStoreTests: XCTestCase {
     catalog.resumeNext(returning: firstApplications)
     await catalog.waitForLoadCount(2)
 
-    XCTAssertTrue(store.isLoading)
+    #expect(store.isLoading)
     catalog.resumeNext(returning: refreshedApplications)
     while store.isLoading {
       await Task.yield()
     }
 
     let loadCount = catalog.loadCount
-    XCTAssertEqual(loadCount, 2)
-    XCTAssertEqual(store.applications, refreshedApplications)
-    XCTAssertEqual(store.selectedApplicationID, refreshedApplications[0].id)
+    #expect(loadCount == 2)
+    #expect(store.applications == refreshedApplications)
+    #expect(store.selectedApplicationID == refreshedApplications[0].id)
   }
 
+  @Test("Launcher store: catalog failures publish errors and clear selection")
   func testCatalogFailurePublishesErrorAndClearsSelection() async {
     let store = LauncherStore(
       catalog: FailingCatalogStub(),
@@ -124,14 +130,14 @@ final class LauncherStoreTests: XCTestCase {
     store.loadApplications()
     await waitForLoadingToFinish(store)
 
-    XCTAssertTrue(store.applications.isEmpty)
-    XCTAssertNil(store.selectedApplicationID)
-    XCTAssertEqual(
-      store.catalogErrorMessage,
-      "Couldn’t load installed applications. Catalog unavailable"
+    #expect(store.applications.isEmpty)
+    #expect((store.selectedApplicationID) == nil)
+    #expect(
+      store.catalogErrorMessage == "Couldn’t load installed applications. Catalog unavailable"
     )
   }
 
+  @Test("Launcher store: successful launches record history, clear the query, and call success")
   func testSuccessfulLaunchRecordsHistoryClearsQueryAndCallsSuccess() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let userDefaults = makeUserDefaults()
@@ -152,11 +158,12 @@ final class LauncherStoreTests: XCTestCase {
       await Task.yield()
     }
 
-    XCTAssertEqual(store.query, "")
-    XCTAssertNil(store.launchErrorMessage)
-    XCTAssertNotNil(launchHistory.load()[application.persistenceKey])
+    #expect(store.query == "")
+    #expect((store.launchErrorMessage) == nil)
+    #expect((launchHistory.load()[application.persistenceKey]) != nil)
   }
 
+  @Test("Launcher store: failed launches preserve the query and skip history")
   func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let launchHistory = LaunchHistoryStore(userDefaults: makeUserDefaults())
@@ -176,15 +183,13 @@ final class LauncherStoreTests: XCTestCase {
       await Task.yield()
     }
 
-    XCTAssertEqual(store.query, "alpha")
-    XCTAssertEqual(
-      store.launchErrorMessage,
-      "Couldn’t open Alpha. Launch failed"
-    )
-    XCTAssertFalse(didLaunch)
-    XCTAssertTrue(launchHistory.load().isEmpty)
+    #expect(store.query == "alpha")
+    #expect(store.launchErrorMessage == "Couldn’t open Alpha. Launch failed")
+    #expect(!(didLaunch))
+    #expect(launchHistory.load().isEmpty)
   }
 
+  @Test("Launcher store: activation clears transient state and selects the first result")
   func testPrepareForActivationClearsTransientStateAndSelectsFirstResult() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
@@ -206,12 +211,13 @@ final class LauncherStoreTests: XCTestCase {
 
     store.prepareForActivation()
 
-    XCTAssertEqual(store.query, "")
-    XCTAssertNil(store.launchErrorMessage)
-    XCTAssertEqual(store.selectedApplicationID, applications[0].id)
-    XCTAssertNotEqual(store.focusRequest, focusRequest)
+    #expect(store.query == "")
+    #expect((store.launchErrorMessage) == nil)
+    #expect(store.selectedApplicationID == applications[0].id)
+    #expect(store.focusRequest != focusRequest)
   }
 
+  @Test("Launcher store: greater-than switches to shortcuts and filters following text")
   func testGreaterThanSwitchesToShortcutsAndFiltersFollowingText() async {
     let shortcuts = [
       shortcut("Morning Lights", id: "morning"),
@@ -229,12 +235,13 @@ final class LauncherStoreTests: XCTestCase {
     store.updateQuery(">evening")
     await waitForShortcutsLoadingToFinish(store)
 
-    XCTAssertEqual(store.mode, .shortcuts)
-    XCTAssertEqual(store.query, "evening")
-    XCTAssertEqual(store.filteredShortcuts, [shortcuts[1]])
-    XCTAssertEqual(store.selectedShortcutID, shortcuts[1].id)
+    #expect(store.mode == .shortcuts)
+    #expect(store.query == "evening")
+    #expect(store.filteredShortcuts == [shortcuts[1]])
+    #expect(store.selectedShortcutID == shortcuts[1].id)
   }
 
+  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
   func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
@@ -247,15 +254,16 @@ final class LauncherStoreTests: XCTestCase {
     )
 
     store.cycleMode()
-    XCTAssertEqual(store.mode, .shortcuts)
+    #expect(store.mode == .shortcuts)
 
     store.cycleMode()
-    XCTAssertEqual(store.mode, .emoji)
+    #expect(store.mode == .emoji)
 
     store.cycleMode()
-    XCTAssertEqual(store.mode, .applications)
+    #expect(store.mode == .applications)
   }
 
+  @Test("Launcher store: colon switches to emoji and filters following text")
   func testColonSwitchesToEmojiAndFiltersFollowingText() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
@@ -266,11 +274,12 @@ final class LauncherStoreTests: XCTestCase {
 
     store.updateQuery(":waving hand medium dark")
 
-    XCTAssertEqual(store.mode, .emoji)
-    XCTAssertEqual(store.query, "waving hand medium dark")
-    XCTAssertEqual(store.filteredEmoji.first?.value, "👋🏾")
+    #expect(store.mode == .emoji)
+    #expect(store.query == "waving hand medium dark")
+    #expect(store.filteredEmoji.first?.value == "👋🏾")
   }
 
+  @Test("Launcher store: preferred skin tone replaces tone-capable base emoji")
   func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
     let settings = SettingsStore(userDefaults: makeUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
@@ -284,10 +293,11 @@ final class LauncherStoreTests: XCTestCase {
 
     store.updateQuery(":waving hand")
 
-    XCTAssertEqual(store.displayedEmoji.first?.value, "👋🏾")
-    XCTAssertFalse(store.displayedEmoji.contains { $0.value == "👋" })
+    #expect(store.displayedEmoji.first?.value == "👋🏾")
+    #expect(!(store.displayedEmoji.contains { $0.value == "👋" }))
   }
 
+  @Test("Launcher store: preferred skin tone replaces gendered couple emoji")
   func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
     let settings = SettingsStore(userDefaults: makeUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
@@ -301,10 +311,11 @@ final class LauncherStoreTests: XCTestCase {
 
     store.updateQuery(":kiss woman man")
 
-    XCTAssertEqual(store.displayedEmoji.first?.value, "👩🏾‍❤️‍💋‍👨🏾")
-    XCTAssertFalse(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" })
+    #expect(store.displayedEmoji.first?.value == "👩🏾‍❤️‍💋‍👨🏾")
+    #expect(!(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" }))
   }
 
+  @Test("Launcher store: horizontal arrows navigate the emoji grid")
   func testHorizontalArrowsNavigateEmojiGrid() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
@@ -316,12 +327,13 @@ final class LauncherStoreTests: XCTestCase {
     let firstID = store.selectedEmojiID
 
     store.moveSelection(.right)
-    XCTAssertEqual(store.selectedEmojiID, store.displayedEmoji[1].id)
+    #expect(store.selectedEmojiID == store.displayedEmoji[1].id)
 
     store.moveSelection(.left)
-    XCTAssertEqual(store.selectedEmojiID, firstID)
+    #expect(store.selectedEmojiID == firstID)
   }
 
+  @Test("Launcher store: Return copies emoji and records it as recent")
   func testReturnCopiesEmojiAndRecordsItAsRecent() {
     let clipboard = RecordingCalculatorClipboard()
     let userDefaults = makeUserDefaults()
@@ -339,12 +351,13 @@ final class LauncherStoreTests: XCTestCase {
 
     store.openSelectedResult()
 
-    XCTAssertEqual(clipboard.text, "😂")
-    XCTAssertEqual(history.load().first, "😂")
-    XCTAssertTrue(didRequestHide)
-    XCTAssertEqual(store.mode, .applications)
+    #expect(clipboard.text == "😂")
+    #expect(history.load().first == "😂")
+    #expect(didRequestHide)
+    #expect(store.mode == .applications)
   }
 
+  @Test("Launcher store: calculator results are pinned before matching applications")
   func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
     let application = application("Pine", id: "dev.example.pine")
     let store = LauncherStore(
@@ -357,19 +370,20 @@ final class LauncherStoreTests: XCTestCase {
 
     store.query = "pi"
 
-    XCTAssertEqual(store.calculatorResult?.expression, "pi")
-    XCTAssertTrue(store.isCalculatorSelected)
-    XCTAssertEqual(store.selectedResultScrollID, LauncherStore.calculatorResultScrollID)
-    XCTAssertEqual(store.filteredApplications, [application])
+    #expect(store.calculatorResult?.expression == "pi")
+    #expect(store.isCalculatorSelected)
+    #expect(store.selectedResultScrollID == LauncherStore.calculatorResultScrollID)
+    #expect(store.filteredApplications == [application])
 
     store.moveSelection(.down)
-    XCTAssertFalse(store.isCalculatorSelected)
-    XCTAssertEqual(store.selectedApplicationID, application.id)
+    #expect(!(store.isCalculatorSelected))
+    #expect(store.selectedApplicationID == application.id)
 
     store.moveSelection(.up)
-    XCTAssertTrue(store.isCalculatorSelected)
+    #expect(store.isCalculatorSelected)
   }
 
+  @Test("Launcher store: Return copies calculator results, clears the query, and requests hiding")
   func testReturnCopiesCalculatorResultClearsQueryAndRequestsHide() {
     let clipboard = RecordingCalculatorClipboard()
     var didRequestHide = false
@@ -384,12 +398,13 @@ final class LauncherStoreTests: XCTestCase {
 
     store.openSelectedResult()
 
-    XCTAssertEqual(clipboard.text, "5")
-    XCTAssertTrue(didRequestHide)
-    XCTAssertEqual(store.query, "")
-    XCTAssertNil(store.calculatorResult)
+    #expect(clipboard.text == "5")
+    #expect(didRequestHide)
+    #expect(store.query == "")
+    #expect((store.calculatorResult) == nil)
   }
 
+  @Test("Launcher store: Return copies quantity results with their units")
   func testReturnCopiesQuantityResultWithUnit() {
     let clipboard = RecordingCalculatorClipboard()
     let store = LauncherStore(
@@ -402,10 +417,11 @@ final class LauncherStoreTests: XCTestCase {
 
     store.openSelectedResult()
 
-    XCTAssertEqual(clipboard.text, "1 km")
-    XCTAssertEqual(store.query, "")
+    #expect(clipboard.text == "1 km")
+    #expect(store.query == "")
   }
 
+  @Test("Launcher store: calculator does not evaluate in shortcuts mode")
   func testCalculatorDoesNotEvaluateInShortcutsMode() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
@@ -418,11 +434,12 @@ final class LauncherStoreTests: XCTestCase {
 
     store.updateQuery(">2 + 3")
 
-    XCTAssertEqual(store.mode, .shortcuts)
-    XCTAssertNil(store.calculatorResult)
-    XCTAssertFalse(store.isCalculatorSelected)
+    #expect(store.mode == .shortcuts)
+    #expect((store.calculatorResult) == nil)
+    #expect(!(store.isCalculatorSelected))
   }
 
+  @Test("Launcher store: Return runs the selected fuzzy shortcut")
   func testReturnRunsTheSelectedFuzzyShortcut() async {
     let mainBedroom = shortcut("Main Bedroom", id: "main")
     let guestBedroom = shortcut("Guest Bedroom", id: "guest")
@@ -446,9 +463,10 @@ final class LauncherStoreTests: XCTestCase {
       await Task.yield()
     }
 
-    XCTAssertEqual(runner.lastRunShortcut, mainBedroom)
+    #expect(runner.lastRunShortcut == mainBedroom)
   }
 
+  @Test("Launcher store: running shortcuts hide immediately and record successful runs")
   func testRunningShortcutHidesImmediatelyAndRecordsSuccessfulRun() async {
     let shortcut = shortcut("Lights", id: "lights")
     let history = ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
@@ -467,13 +485,14 @@ final class LauncherStoreTests: XCTestCase {
 
     store.runSelectedShortcut()
 
-    XCTAssertTrue(didRequestHide)
+    #expect(didRequestHide)
     while history.load()[shortcut.persistenceKey] == nil {
       await Task.yield()
     }
-    XCTAssertNil(store.shortcutRunErrorMessage)
+    #expect((store.shortcutRunErrorMessage) == nil)
   }
 
+  @Test("Launcher store: failed shortcut runs appear in shortcut mode on next activation")
   func testFailedShortcutRunIsShownInShortcutModeOnNextActivation() async {
     let shortcut = shortcut("Lights", id: "lights")
     let store = LauncherStore(
@@ -493,12 +512,9 @@ final class LauncherStoreTests: XCTestCase {
     }
     store.prepareForActivation()
 
-    XCTAssertEqual(store.mode, .shortcuts)
-    XCTAssertEqual(store.query, "light")
-    XCTAssertEqual(
-      store.shortcutRunErrorMessage,
-      "Couldn’t run Lights. Launch failed"
-    )
+    #expect(store.mode == .shortcuts)
+    #expect(store.query == "light")
+    #expect(store.shortcutRunErrorMessage == "Couldn’t run Lights. Launch failed")
   }
 
   private func shortcut(_ name: String, id: String) -> AppleShortcut {

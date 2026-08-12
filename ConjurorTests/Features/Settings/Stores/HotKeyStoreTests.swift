@@ -1,10 +1,12 @@
 import Foundation
-import XCTest
+import Testing
 
 @testable import Conjuror
 
 @MainActor
-final class HotKeyStoreTests: XCTestCase {
+@Suite("Hot Key Store")
+struct HotKeyStoreTests {
+  @Test("Hot key store: registration failures are published and successful retries clear them")
   func testRegistrationFailureIsPublishedAndSuccessfulRetryClearsIt() {
     let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
     var shouldFail = true
@@ -22,14 +24,15 @@ final class HotKeyStoreTests: XCTestCase {
     )
 
     store.register()
-    XCTAssertEqual(store.registrationErrorMessage, "Shortcut unavailable")
+    #expect(store.registrationErrorMessage == "Shortcut unavailable")
 
     shouldFail = false
-    XCTAssertNil(store.updateConfiguration(.defaultValue))
-    XCTAssertNil(store.registrationErrorMessage)
-    XCTAssertEqual(configurations, [.defaultValue, .defaultValue])
+    #expect((store.updateConfiguration(.defaultValue)) == nil)
+    #expect((store.registrationErrorMessage) == nil)
+    #expect(configurations == [.defaultValue, .defaultValue])
   }
 
+  @Test("Hot key store: rejected replacements do not persist configuration")
   func testRejectedReplacementDoesNotPersistConfiguration() {
     let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
     let replacement = HotKeyConfiguration(
@@ -51,11 +54,12 @@ final class HotKeyStoreTests: XCTestCase {
     store.register()
     let errorMessage = store.updateConfiguration(replacement)
 
-    XCTAssertEqual(errorMessage, "Shortcut unavailable")
-    XCTAssertEqual(settingsStore.hotKeyConfiguration, .defaultValue)
-    XCTAssertNil(store.registrationErrorMessage)
+    #expect(errorMessage == "Shortcut unavailable")
+    #expect(settingsStore.hotKeyConfiguration == .defaultValue)
+    #expect((store.registrationErrorMessage) == nil)
   }
 
+  @Test("Hot key store: recording temporarily unregisters and restores the shortcut")
   func testRecordingTemporarilyUnregistersAndRestoresShortcut() {
     let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
     var registrationCount = 0
@@ -72,8 +76,8 @@ final class HotKeyStoreTests: XCTestCase {
     store.setShortcutRecording(true)
     store.setShortcutRecording(false)
 
-    XCTAssertEqual(registrationCount, 2)
-    XCTAssertNil(store.registrationErrorMessage)
+    #expect(registrationCount == 2)
+    #expect((store.registrationErrorMessage) == nil)
   }
 
   private func makeUserDefaults() -> UserDefaults {

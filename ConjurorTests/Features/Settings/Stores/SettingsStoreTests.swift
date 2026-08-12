@@ -1,22 +1,22 @@
 import Foundation
-import XCTest
+import Testing
 
 @testable import Conjuror
 
 @MainActor
-final class SettingsStoreTests: XCTestCase {
+@Suite("Settings Store")
+struct SettingsStoreTests {
+  @Test("Settings store: default values are used without stored settings")
   func testUsesDefaultValuesWithoutStoredSettings() {
     let userDefaults = makeUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
 
-    XCTAssertEqual(store.hotKeyConfiguration, .defaultValue)
-    XCTAssertEqual(
-      store.maximumVisibleResults,
-      SettingsStore.defaultMaximumVisibleResults
-    )
-    XCTAssertEqual(store.preferredEmojiSkinTone, .default)
+    #expect(store.hotKeyConfiguration == .defaultValue)
+    #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
+    #expect(store.preferredEmojiSkinTone == .default)
   }
 
+  @Test("Settings store: updated settings persist")
   func testPersistsUpdatedSettings() {
     let userDefaults = makeUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
@@ -31,25 +31,20 @@ final class SettingsStoreTests: XCTestCase {
     store.setPreferredEmojiSkinTone(.mediumDark)
 
     let reloadedStore = SettingsStore(userDefaults: userDefaults)
-    XCTAssertEqual(reloadedStore.hotKeyConfiguration, hotKey)
-    XCTAssertEqual(reloadedStore.maximumVisibleResults, 9)
-    XCTAssertEqual(reloadedStore.preferredEmojiSkinTone, .mediumDark)
+    #expect(reloadedStore.hotKeyConfiguration == hotKey)
+    #expect(reloadedStore.maximumVisibleResults == 9)
+    #expect(reloadedStore.preferredEmojiSkinTone == .mediumDark)
   }
 
+  @Test("Settings store: maximum visible results are clamped and the default resets")
   func testClampsMaximumVisibleResultsAndResetsDefault() {
     let store = SettingsStore(userDefaults: makeUserDefaults())
 
     store.setMaximumVisibleResults(100)
-    XCTAssertEqual(
-      store.maximumVisibleResults,
-      SettingsStore.maximumVisibleResultsRange.upperBound
-    )
+    #expect(store.maximumVisibleResults == SettingsStore.maximumVisibleResultsRange.upperBound)
 
     store.resetMaximumVisibleResults()
-    XCTAssertEqual(
-      store.maximumVisibleResults,
-      SettingsStore.defaultMaximumVisibleResults
-    )
+    #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
   }
 
   private func makeUserDefaults() -> UserDefaults {
