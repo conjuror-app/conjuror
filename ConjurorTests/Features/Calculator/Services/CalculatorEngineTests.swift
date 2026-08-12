@@ -149,7 +149,7 @@ final class CalculatorEngineTests: XCTestCase {
     )
     XCTAssertEqual(
       engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText,
-      "2500.00 JPY"
+      "2500 JPY"
     )
   }
 
@@ -175,10 +175,10 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertNil(localeEngine.evaluate("1 GBP", currencySource: .on(rates)))
   }
 
-  func testCurrencyFormattingUsesTwoDecimalsAndWidensBelowOneCent() {
+  func testCurrencyFormattingUsesTargetFractionDigitsAndWidensBelowMinorUnit() {
     let rates = CurrencyRates(
       base: "USD",
-      rates: ["EUR": 1, "IDR": 18_053],
+      rates: ["BHD": 0.376, "EUR": 1, "IDR": 18_053, "JPY": 123.456],
       rateDate: "2026-08-11",
       fetchedAt: Date()
     )
@@ -190,6 +190,14 @@ final class CalculatorEngineTests: XCTestCase {
     XCTAssertEqual(
       engine.evaluate("1 IDR to USD", currencySource: .on(rates))?.copyText,
       "0.00005539 USD"
+    )
+    XCTAssertEqual(
+      engine.evaluate("1 USD to JPY", currencySource: .on(rates))?.copyText,
+      "123 JPY"
+    )
+    XCTAssertEqual(
+      engine.evaluate("1 USD to BHD", currencySource: .on(rates))?.copyText,
+      "0.376 BHD"
     )
   }
 

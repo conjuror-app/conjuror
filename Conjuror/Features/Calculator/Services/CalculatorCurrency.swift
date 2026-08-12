@@ -28,8 +28,16 @@ struct CalculatorCurrencyEvaluator {
         from: conversion.amount,
         usesGroupingSeparator: true
       ),
-      let display = formatter.currencyString(from: value, usesGroupingSeparator: true),
-      let copyValue = formatter.currencyString(from: value, usesGroupingSeparator: false)
+      let display = formatter.currencyString(
+        from: value,
+        currencyCode: conversion.targetCode,
+        usesGroupingSeparator: true
+      ),
+      let copyValue = formatter.currencyString(
+        from: value,
+        currencyCode: conversion.targetCode,
+        usesGroupingSeparator: false
+      )
     else {
       return nil
     }
