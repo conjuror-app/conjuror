@@ -74,6 +74,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     var unreadableDirectories = [URL]()
 
     for (sourcePriority, directory) in directories.enumerated() {
+      try Task.checkCancellation()
       guard fileManager.fileExists(atPath: directory.path) else {
         continue
       }
@@ -97,6 +98,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
       for case let url as URL in enumerator
       where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
+        try Task.checkCancellation()
         guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
           continue
         }
@@ -185,13 +187,18 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     let directories = directoryProvider()
     let excludedBundleIdentifier = excludedBundleIdentifier
 
-    let candidates = try await Task.detached(priority: .userInitiated) {
+    let scanTask = Task.detached(priority: .userInitiated) {
       let candidates = try Self.scan(directories: directories)
       return Self.filteredAndDeduplicated(
         candidates,
         excludingBundleIdentifier: excludedBundleIdentifier
       )
-    }.value
+    }
+    let candidates = try await withTaskCancellationHandler {
+      try await scanTask.value
+    } onCancel: {
+      scanTask.cancel()
+    }
 
     return candidates.map { candidate in
       let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)

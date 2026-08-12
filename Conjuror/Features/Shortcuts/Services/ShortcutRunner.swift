@@ -3,9 +3,15 @@ import Foundation
 struct ShortcutRunner: ShortcutRunning {
   func run(_ shortcut: AppleShortcut) async throws {
     let identifier = shortcut.id
-    try await Task.detached(priority: .userInitiated) {
+    let runTask = Task.detached(priority: .userInitiated) {
       try ShortcutsEventsBridge.runShortcut(identifier: identifier)
-    }.value
+      try Task.checkCancellation()
+    }
+    try await withTaskCancellationHandler {
+      try await runTask.value
+    } onCancel: {
+      runTask.cancel()
+    }
   }
 }
 
