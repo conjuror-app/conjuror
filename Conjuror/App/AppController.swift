@@ -51,6 +51,15 @@ final class AppController: NSObject, NSApplicationDelegate {
     store.loadShortcuts()
   }
 
+  func applicationWillTerminate(_ notification: Notification) {
+    catalogRefreshWorkItem?.cancel()
+    catalogRefreshWorkItem = nil
+
+    let notificationCenter = NSWorkspace.shared.notificationCenter
+    workspaceObservers.forEach(notificationCenter.removeObserver)
+    workspaceObservers.removeAll()
+  }
+
   func applicationShouldHandleReopen(
     _ sender: NSApplication,
     hasVisibleWindows flag: Bool
