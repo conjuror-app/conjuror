@@ -6,6 +6,15 @@ import Testing
 
 @Suite("Launch History Store")
 struct LaunchHistoryStoreTests {
+  @Test("Launch history store: invalid stored representations are ignored")
+  func testInvalidStoredRepresentationIsIgnored() {
+    let userDefaults = makeUserDefaults()
+    userDefaults.set(["invalid": "date"], forKey: "recentSuccessfulLaunches")
+    let store = LaunchHistoryStore(userDefaults: userDefaults)
+
+    #expect(store.load().isEmpty)
+  }
+
   @Test("Launch history store: most recent successful launches are recorded and reloaded")
   func testRecordsAndReloadsMostRecentSuccessfulLaunch() {
     let store = LaunchHistoryStore(userDefaults: makeUserDefaults())
@@ -22,15 +31,6 @@ struct LaunchHistoryStoreTests {
     store.recordLaunch(of: application, at: latestDate)
 
     #expect(store.load() == [application.persistenceKey: latestDate])
-  }
-
-  @Test("Launch history store: invalid stored representations are ignored")
-  func testInvalidStoredRepresentationIsIgnored() {
-    let userDefaults = makeUserDefaults()
-    userDefaults.set(["invalid": "date"], forKey: "recentSuccessfulLaunches")
-    let store = LaunchHistoryStore(userDefaults: userDefaults)
-
-    #expect(store.load().isEmpty)
   }
 
   private func makeUserDefaults() -> UserDefaults {

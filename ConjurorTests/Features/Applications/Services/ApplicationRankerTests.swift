@@ -5,6 +5,30 @@ import Testing
 
 @Suite("Application Ranker")
 struct ApplicationRankerTests {
+  @Test("Application ranking: reusable indexes match one-shot ranking across queries")
+  func testReusableIndexMatchesOneShotRankingAcrossQueries() {
+    let applications = [
+      application("Visual Studio Code", id: "com.microsoft.VSCode"),
+      application("Xcode", id: "com.apple.dt.Xcode"),
+      application("Code Runner", id: "dev.example.runner"),
+    ]
+    let recentLaunches = [
+      applications[1].persistenceKey: Date(timeIntervalSince1970: 20)
+    ]
+    let index = ApplicationRanker.Index(applications: applications)
+
+    for query in ["", "code", "vs", "xcd", "missing"] {
+      #expect(
+        index.ranked(query: query, recentLaunches: recentLaunches)
+          == ApplicationRanker.ranked(
+            applications: applications,
+            query: query,
+            recentLaunches: recentLaunches
+          )
+      )
+    }
+  }
+
   @Test("Application ranking: exact-prefix, token, acronym, and substring matches are ordered")
   func testOrdersExactPrefixTokenAcronymAndSubstringMatches() {
     let applications = [
@@ -114,30 +138,6 @@ struct ApplicationRankerTests {
         "/Applications/Zulu-B.app",
       ]
     )
-  }
-
-  @Test("Application ranking: reusable indexes match one-shot ranking across queries")
-  func testReusableIndexMatchesOneShotRankingAcrossQueries() {
-    let applications = [
-      application("Visual Studio Code", id: "com.microsoft.VSCode"),
-      application("Xcode", id: "com.apple.dt.Xcode"),
-      application("Code Runner", id: "dev.example.runner"),
-    ]
-    let recentLaunches = [
-      applications[1].persistenceKey: Date(timeIntervalSince1970: 20)
-    ]
-    let index = ApplicationRanker.Index(applications: applications)
-
-    for query in ["", "code", "vs", "xcd", "missing"] {
-      #expect(
-        index.ranked(query: query, recentLaunches: recentLaunches)
-          == ApplicationRanker.ranked(
-            applications: applications,
-            query: query,
-            recentLaunches: recentLaunches
-          )
-      )
-    }
   }
 
   private func application(

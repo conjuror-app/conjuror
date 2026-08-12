@@ -5,6 +5,32 @@ import Testing
 
 @Suite("Shortcut Catalog")
 struct ShortcutCatalogTests {
+  @Test("Shortcut catalog: shortcuts that accept input are excluded")
+  func testExcludesShortcutsThatAcceptInput() {
+    let eligible = AppleShortcut(
+      id: "eligible",
+      name: "Lights",
+      subtitle: "",
+      acceptsInput: false
+    )
+    let requiresInput = AppleShortcut(
+      id: "input",
+      name: "Share",
+      subtitle: "",
+      acceptsInput: true
+    )
+
+    #expect(ShortcutCatalog.excludingInputShortcuts([requiresInput, eligible]) == [eligible])
+  }
+
+  @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
+  func testRunScriptUsesTheShortcutIdentifierDirectly() {
+    let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
+
+    #expect(script.contains("run shortcut id \"shortcut-id\""))
+    #expect(!(script.contains("first shortcut")))
+  }
+
   @Test("Shortcut catalog: structured Shortcuts Events responses are parsed")
   func testParsesStructuredShortcutsEventsResponse() throws {
     let response = NSAppleEventDescriptor.list()
@@ -35,32 +61,6 @@ struct ShortcutCatalogTests {
         ),
       ]
     )
-  }
-
-  @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
-  func testRunScriptUsesTheShortcutIdentifierDirectly() {
-    let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
-
-    #expect(script.contains("run shortcut id \"shortcut-id\""))
-    #expect(!(script.contains("first shortcut")))
-  }
-
-  @Test("Shortcut catalog: shortcuts that accept input are excluded")
-  func testExcludesShortcutsThatAcceptInput() {
-    let eligible = AppleShortcut(
-      id: "eligible",
-      name: "Lights",
-      subtitle: "",
-      acceptsInput: false
-    )
-    let requiresInput = AppleShortcut(
-      id: "input",
-      name: "Share",
-      subtitle: "",
-      acceptsInput: true
-    )
-
-    #expect(ShortcutCatalog.excludingInputShortcuts([requiresInput, eligible]) == [eligible])
   }
 
   private func record(

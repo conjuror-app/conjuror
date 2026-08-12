@@ -12,57 +12,6 @@ struct CalculatorEngineTests {
     )
   )
 
-  @Test("Calculator engine: arithmetic precedence and parentheses are evaluated")
-  func testArithmeticPrecedenceAndParentheses() {
-    #expect(evaluate("2 + 3 * 4") == "14")
-    #expect(evaluate("(2 + 3) * 4") == "20")
-    #expect(evaluate("-2^2") == "-4")
-    #expect(evaluate("2^3^2") == "512")
-  }
-
-  @Test("Calculator engine: natural-language operators are recognized")
-  func testNaturalLanguageOperators() {
-    #expect(evaluate("2 plus 3 times 4") == "14")
-    #expect(evaluate("20 divided by 4") == "5")
-    #expect(evaluate("20 over 4") == "5")
-    #expect(evaluate("10 mod 3") == "1")
-    #expect(evaluate("2 to the power of 3") == "8")
-  }
-
-  @Test("Calculator engine: percentages use relative addition semantics")
-  func testPercentagesHaveRelativeAdditionSemantics() {
-    #expect(evaluate("100 + 15%") == "115")
-    #expect(evaluate("100 - 15%") == "85")
-    #expect(evaluate("20% of 50") == "10")
-    #expect(evaluate("10% + 5%") == "0.15")
-  }
-
-  @Test("Calculator engine: constants, functions, and implicit multiplication are evaluated")
-  func testConstantsFunctionsAndImplicitMultiplication() {
-    #expect(evaluate("sqrt 9 + abs(-5)") == "8")
-    #expect(evaluate("2pi") == "6.283185307")
-    #expect(evaluate("4(2 + 3)") == "20")
-  }
-
-  @Test("Calculator engine: scientific notation signals calculator intent")
-  func testScientificNotationSignalsCalculatorIntent() {
-    let result = engine.evaluate("1e5")
-
-    #expect(result?.display == "100,000")
-    #expect(result?.copyText == "100000")
-  }
-
-  @Test("Calculator engine: compact formatting uses ten significant digits")
-  func testCompactFormattingUsesTenSignificantDigits() {
-    let compactEngine = CalculatorEngine(
-      formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
-    )
-
-    let result = compactEngine.evaluate("2 / 3")
-    #expect(result?.display == "0.6666666667")
-    #expect(result?.copyText == "0.6666666667")
-  }
-
   @Test("Calculator engine: explicit time-zone abbreviations use fixed offsets")
   func testExplicitTimeZoneAbbreviationsUseFixedOffsets() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
@@ -183,6 +132,75 @@ struct CalculatorEngineTests {
     #expect((localeEngine.evaluate("1 GBP", currencySource: .on(rates))) == nil)
   }
 
+  @Test("Calculator engine: disabled or unavailable currency conversion stays silent")
+  func testCurrencyConversionIsSilentWhenDisabledOrRatesUnavailable() {
+    #expect((engine.evaluate("100 USD to EUR", currencySource: .off)) == nil)
+    #expect((engine.evaluate("100 USD to EUR", currencySource: .on(nil))) == nil)
+  }
+
+  @Test("Calculator engine: arithmetic precedence and parentheses are evaluated")
+  func testArithmeticPrecedenceAndParentheses() {
+    #expect(evaluate("2 + 3 * 4") == "14")
+    #expect(evaluate("(2 + 3) * 4") == "20")
+    #expect(evaluate("-2^2") == "-4")
+    #expect(evaluate("2^3^2") == "512")
+  }
+
+  @Test("Calculator engine: natural-language operators are recognized")
+  func testNaturalLanguageOperators() {
+    #expect(evaluate("2 plus 3 times 4") == "14")
+    #expect(evaluate("20 divided by 4") == "5")
+    #expect(evaluate("20 over 4") == "5")
+    #expect(evaluate("10 mod 3") == "1")
+    #expect(evaluate("2 to the power of 3") == "8")
+  }
+
+  @Test("Calculator engine: percentages use relative addition semantics")
+  func testPercentagesHaveRelativeAdditionSemantics() {
+    #expect(evaluate("100 + 15%") == "115")
+    #expect(evaluate("100 - 15%") == "85")
+    #expect(evaluate("20% of 50") == "10")
+    #expect(evaluate("10% + 5%") == "0.15")
+  }
+
+  @Test("Calculator engine: constants, functions, and implicit multiplication are evaluated")
+  func testConstantsFunctionsAndImplicitMultiplication() {
+    #expect(evaluate("sqrt 9 + abs(-5)") == "8")
+    #expect(evaluate("2pi") == "6.283185307")
+    #expect(evaluate("4(2 + 3)") == "20")
+  }
+
+  @Test("Calculator engine: scientific notation signals calculator intent")
+  func testScientificNotationSignalsCalculatorIntent() {
+    let result = engine.evaluate("1e5")
+
+    #expect(result?.display == "100,000")
+    #expect(result?.copyText == "100000")
+  }
+
+  @Test("Calculator engine: ambiguous, invalid, and incomplete input stays silent")
+  func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
+    #expect((engine.evaluate("123")) == nil)
+    #expect((engine.evaluate("(123)")) == nil)
+    #expect((engine.evaluate("2 3")) == nil)
+    #expect((engine.evaluate("2 +")) == nil)
+    #expect((engine.evaluate("1 / 0")) == nil)
+    #expect((engine.evaluate("sqrt(-1)")) == nil)
+    #expect((engine.evaluate("1e400")) == nil)
+    #expect((engine.evaluate("notes")) == nil)
+  }
+
+  @Test("Calculator engine: compact formatting uses ten significant digits")
+  func testCompactFormattingUsesTenSignificantDigits() {
+    let compactEngine = CalculatorEngine(
+      formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
+    )
+
+    let result = compactEngine.evaluate("2 / 3")
+    #expect(result?.display == "0.6666666667")
+    #expect(result?.copyText == "0.6666666667")
+  }
+
   @Test(
     "Calculator engine: target fraction digits are respected and values below the minor unit widen"
   )
@@ -202,24 +220,6 @@ struct CalculatorEngineTests {
     )
     #expect(engine.evaluate("1 USD to JPY", currencySource: .on(rates))?.copyText == "123 JPY")
     #expect(engine.evaluate("1 USD to BHD", currencySource: .on(rates))?.copyText == "0.376 BHD")
-  }
-
-  @Test("Calculator engine: disabled or unavailable currency conversion stays silent")
-  func testCurrencyConversionIsSilentWhenDisabledOrRatesUnavailable() {
-    #expect((engine.evaluate("100 USD to EUR", currencySource: .off)) == nil)
-    #expect((engine.evaluate("100 USD to EUR", currencySource: .on(nil))) == nil)
-  }
-
-  @Test("Calculator engine: ambiguous, invalid, and incomplete input stays silent")
-  func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
-    #expect((engine.evaluate("123")) == nil)
-    #expect((engine.evaluate("(123)")) == nil)
-    #expect((engine.evaluate("2 3")) == nil)
-    #expect((engine.evaluate("2 +")) == nil)
-    #expect((engine.evaluate("1 / 0")) == nil)
-    #expect((engine.evaluate("sqrt(-1)")) == nil)
-    #expect((engine.evaluate("1e400")) == nil)
-    #expect((engine.evaluate("notes")) == nil)
   }
 
   private func evaluate(_ expression: String) -> String? {
