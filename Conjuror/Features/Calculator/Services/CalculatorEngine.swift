@@ -121,6 +121,7 @@ struct CalculatorNumberFormatter {
 
   func currencyString(
     from value: Double,
+    currencyCode: String,
     usesGroupingSeparator: Bool
   ) -> String? {
     guard value.isFinite else {
@@ -130,13 +131,15 @@ struct CalculatorNumberFormatter {
     let normalizedValue = value == 0 ? 0 : value
     let magnitude = Swift.abs(normalizedValue)
     let locale = Locale(identifier: options.localeIdentifier)
+    let fractionDigits = currencyFractionDigits(for: currencyCode, locale: locale)
+    let minorUnit = pow(10, -Double(fractionDigits))
     let text: String
     if magnitude < 1e-9 {
-      text = String(format: "%.2f", locale: locale, 0.0)
-    } else if magnitude >= 0.01 {
-      text = String(format: "%.2f", locale: locale, normalizedValue)
+      text = String(format: "%.*f", locale: locale, fractionDigits, 0.0)
+    } else if magnitude >= minorUnit {
+      text = String(format: "%.*f", locale: locale, fractionDigits, normalizedValue)
     } else {
-      let decimalPlaces = 3 - Int(floor(log10(magnitude)))
+      let decimalPlaces = max(fractionDigits, 3 - Int(floor(log10(magnitude))))
       var formatted = String(
         format: "%.*f",
         locale: locale,
@@ -151,6 +154,14 @@ struct CalculatorNumberFormatter {
 
     let ungroupedText = ungrouped(text, locale: locale)
     return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
+  }
+
+  private func currencyFractionDigits(for code: String, locale: Locale) -> Int {
+    let formatter = NumberFormatter()
+    formatter.locale = locale
+    formatter.numberStyle = .currency
+    formatter.currencyCode = code
+    return formatter.maximumFractionDigits
   }
 
   private func ungrouped(_ text: String, locale: Locale) -> String {
