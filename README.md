@@ -24,6 +24,15 @@ target, combine compatible units with `+` or `-`, or type composite quantities.
 Examples: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, and `5 ft 3 in`. US
 customary volume units use US definitions.
 
+Timezone conversion supports timezone abbreviations recognized by macOS and
+12- or 24-hour clock times. Use `to`, `in`, `->`, or `→`, for example `10:00
+BST in EST` or `9am GMT → PDT`. Explicit standard and daylight abbreviations
+use their stated fixed offsets, so pairs such as `EST`/`EDT`, `CET`/`CEST`, and
+`NZST`/`NZDT` remain distinct; other macOS abbreviations use their current
+offset. When the source abbreviation is
+omitted, as in `1:00 pm in PDT`, the Mac's current timezone is used with its
+daylight-saving rules for the current date.
+
 The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
 `/System/Applications/Utilities`, `~/Applications`, and application folders on
 mounted volumes without external packages. Shortcuts that require input are
