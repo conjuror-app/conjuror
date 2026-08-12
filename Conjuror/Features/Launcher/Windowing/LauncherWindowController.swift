@@ -65,6 +65,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     panel.onMoveSelection = { [weak store] direction in
       store?.moveSelection(direction)
     }
+    panel.onCycleMode = { [weak store] in
+      store?.cycleMode()
+    }
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode == .emoji
@@ -174,6 +177,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
 final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
+  var onCycleMode: (() -> Void)?
   var allowsHorizontalNavigation: (() -> Bool)?
   var onOpenSettings: (() -> Void)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
@@ -181,6 +185,14 @@ final class LauncherPanel: NSPanel {
   override var canBecomeKey: Bool { true }
 
   override func sendEvent(_ event: NSEvent) {
+    if event.type == .keyDown,
+      event.keyCode == 48,
+      event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty
+    {
+      onCycleMode?()
+      return
+    }
+
     if event.type == .keyDown,
       let direction = LauncherKeyboardNavigation.direction(
         forKeyCode: event.keyCode,

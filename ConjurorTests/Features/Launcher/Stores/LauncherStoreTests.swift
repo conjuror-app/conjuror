@@ -235,6 +235,27 @@ final class LauncherStoreTests: XCTestCase {
     XCTAssertEqual(store.selectedShortcutID, shortcuts[1].id)
   }
 
+  func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.cycleMode()
+    XCTAssertEqual(store.mode, .shortcuts)
+
+    store.cycleMode()
+    XCTAssertEqual(store.mode, .emoji)
+
+    store.cycleMode()
+    XCTAssertEqual(store.mode, .applications)
+  }
+
   func testColonSwitchesToEmojiAndFiltersFollowingText() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
