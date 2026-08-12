@@ -1,10 +1,12 @@
 import AppKit
 import Foundation
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class LaunchHistoryStoreTests: XCTestCase {
+@Suite("Launch History Store")
+struct LaunchHistoryStoreTests {
+  @Test("Launch history store: most recent successful launches are recorded and reloaded")
   func testRecordsAndReloadsMostRecentSuccessfulLaunch() {
     let store = LaunchHistoryStore(userDefaults: makeUserDefaults())
     let application = InstalledApplication(
@@ -19,15 +21,16 @@ final class LaunchHistoryStoreTests: XCTestCase {
     store.recordLaunch(of: application, at: firstDate)
     store.recordLaunch(of: application, at: latestDate)
 
-    XCTAssertEqual(store.load(), [application.persistenceKey: latestDate])
+    #expect(store.load() == [application.persistenceKey: latestDate])
   }
 
+  @Test("Launch history store: invalid stored representations are ignored")
   func testInvalidStoredRepresentationIsIgnored() {
     let userDefaults = makeUserDefaults()
     userDefaults.set(["invalid": "date"], forKey: "recentSuccessfulLaunches")
     let store = LaunchHistoryStore(userDefaults: userDefaults)
 
-    XCTAssertTrue(store.load().isEmpty)
+    #expect(store.load().isEmpty)
   }
 
   private func makeUserDefaults() -> UserDefaults {

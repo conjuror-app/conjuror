@@ -1,8 +1,9 @@
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class CalculatorQuantityTests: XCTestCase {
+@Suite("Calculator Quantity")
+struct CalculatorQuantityTests {
   private let engine = CalculatorEngine(
     formattingOptions: CalculatorFormattingOptions(
       localeIdentifier: "en_US_POSIX",
@@ -10,22 +11,25 @@ final class CalculatorQuantityTests: XCTestCase {
     )
   )
 
+  @Test("Calculator quantity: explicit conversions work across supported dimensions")
   func testExplicitConversionsAcrossSupportedDimensions() {
-    XCTAssertEqual(evaluate("10 km to miles"), "6.213711922 mi")
-    XCTAssertEqual(evaluate("1 lb to kg"), "0.45359237 kg")
-    XCTAssertEqual(evaluate("2 hours to minutes"), "120 min")
-    XCTAssertEqual(evaluate("30 °C to °F"), "86 °F")
-    XCTAssertEqual(evaluate("-40 c to f"), "-40 °F")
-    XCTAssertEqual(evaluate("1 L to mL"), "1000 mL")
-    XCTAssertEqual(evaluate("1 GiB to MiB"), "1024 MiB")
+    #expect(evaluate("10 km to miles") == "6.213711922 mi")
+    #expect(evaluate("1 lb to kg") == "0.45359237 kg")
+    #expect(evaluate("2 hours to minutes") == "120 min")
+    #expect(evaluate("30 °C to °F") == "86 °F")
+    #expect(evaluate("-40 c to f") == "-40 °F")
+    #expect(evaluate("1 L to mL") == "1000 mL")
+    #expect(evaluate("1 GiB to MiB") == "1024 MiB")
   }
 
+  @Test("Calculator quantity: in and arrow separators are accepted")
   func testConversionAcceptsInAndArrowSeparators() {
-    XCTAssertEqual(evaluate("12 in in cm"), "30.48 cm")
-    XCTAssertEqual(evaluate("1 gallon -> liters"), "3.785411784 L")
-    XCTAssertEqual(evaluate("8 bits → bytes"), "1 B")
+    #expect(evaluate("12 in in cm") == "30.48 cm")
+    #expect(evaluate("1 gallon -> liters") == "3.785411784 L")
+    #expect(evaluate("8 bits → bytes") == "1 B")
   }
 
+  @Test("Calculator quantity: locale grouping separators are not duplicated")
   func testConversionDoesNotDuplicateLocaleGroupingSeparator() {
     let localeEngine = CalculatorEngine(
       formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US")
@@ -33,10 +37,11 @@ final class CalculatorQuantityTests: XCTestCase {
 
     let result = localeEngine.evaluate("1 gb in mb")
 
-    XCTAssertEqual(result?.display, "1,000")
-    XCTAssertEqual(result?.copyText, "1000 MB")
+    #expect(result?.display == "1,000")
+    #expect(result?.copyText == "1000 MB")
   }
 
+  @Test("Calculator quantity: bare quantities use sensible default conversions")
   func testBareQuantitiesUseSensibleDefaultConversions() {
     let expectations = [
       ("1 kg", "2.204622622 lb", "kg", "lb"),
@@ -80,12 +85,13 @@ final class CalculatorQuantityTests: XCTestCase {
     for (expression, copyText, sourceBadge, targetBadge) in expectations {
       let result = engine.evaluate(expression)
 
-      XCTAssertEqual(result?.copyText, copyText, expression)
-      XCTAssertEqual(result?.sourceBadge, sourceBadge, expression)
-      XCTAssertEqual(result?.targetBadge, targetBadge, expression)
+      #expect(result?.copyText == copyText, Comment(rawValue: expression))
+      #expect(result?.sourceBadge == sourceBadge, Comment(rawValue: expression))
+      #expect(result?.targetBadge == targetBadge, Comment(rawValue: expression))
     }
   }
 
+  @Test("Calculator quantity: every unit has a default conversion")
   func testEveryUnitHasADefaultConversion() {
     let expectedTargets = [
       ("m", "ft"), ("km", "mi"), ("cm", "in"), ("mm", "in"),
@@ -103,42 +109,47 @@ final class CalculatorQuantityTests: XCTestCase {
     ]
 
     for (source, target) in expectedTargets {
-      XCTAssertEqual(engine.evaluate("1 \(source)")?.targetBadge, target, source)
+      #expect(engine.evaluate("1 \(source)")?.targetBadge == target, Comment(rawValue: source))
     }
   }
 
+  @Test("Calculator quantity: typed arithmetic uses the last written unit")
   func testTypedArithmeticUsesLastWrittenUnit() {
-    XCTAssertEqual(evaluate("10kg + 500g"), "10500 g")
-    XCTAssertEqual(evaluate("2 hours - 30 minutes"), "90 min")
-    XCTAssertEqual(evaluate("5 feet + 1m"), "2.524 m")
-    XCTAssertEqual(evaluate("1hr + 30min to s"), "5400 s")
+    #expect(evaluate("10kg + 500g") == "10500 g")
+    #expect(evaluate("2 hours - 30 minutes") == "90 min")
+    #expect(evaluate("5 feet + 1m") == "2.524 m")
+    #expect(evaluate("1hr + 30min to s") == "5400 s")
   }
 
+  @Test("Calculator quantity: composite quantities use the leading unit")
   func testCompositeQuantitiesUseLeadingUnit() {
-    XCTAssertEqual(evaluate("5 ft 3 in"), "5.25 ft")
-    XCTAssertEqual(evaluate("1hr30min"), "1.5 hr")
-    XCTAssertEqual(evaluate("5ft 3in to cm"), "160.02 cm")
+    #expect(evaluate("5 ft 3 in") == "5.25 ft")
+    #expect(evaluate("1hr30min") == "1.5 hr")
+    #expect(evaluate("5ft 3in to cm") == "160.02 cm")
   }
 
+  @Test("Calculator quantity: temperature arithmetic requires matching scales")
   func testTemperatureArithmeticRequiresMatchingScales() {
-    XCTAssertEqual(evaluate("10 c + 5 c"), "15 °C")
-    XCTAssertNil(engine.evaluate("10 c + 50 f"))
+    #expect(evaluate("10 c + 5 c") == "15 °C")
+    #expect((engine.evaluate("10 c + 50 f")) == nil)
   }
 
+  @Test("Calculator quantity: invalid and incompatible quantities stay silent")
   func testInvalidAndIncompatibleQuantitiesStaySilent() {
-    XCTAssertNil(engine.evaluate("10 unknown"))
-    XCTAssertNil(engine.evaluate("1 kg + 1 m"))
-    XCTAssertNil(engine.evaluate("5 ft 3 kg"))
-    XCTAssertNil(engine.evaluate("10 km to kg"))
+    #expect((engine.evaluate("10 unknown")) == nil)
+    #expect((engine.evaluate("1 kg + 1 m")) == nil)
+    #expect((engine.evaluate("5 ft 3 kg")) == nil)
+    #expect((engine.evaluate("10 km to kg")) == nil)
   }
 
+  @Test("Calculator quantity: results carry summarized source and unit badges")
   func testQuantityResultCarriesSummarizedSourceAndUnitBadges() {
     let result = engine.evaluate("1 cm in in")
 
-    XCTAssertEqual(result?.sourceDisplay, "1")
-    XCTAssertEqual(result?.sourceBadge, "cm")
-    XCTAssertEqual(result?.display, "0.3937007874")
-    XCTAssertEqual(result?.targetBadge, "in")
+    #expect(result?.sourceDisplay == "1")
+    #expect(result?.sourceBadge == "cm")
+    #expect(result?.display == "0.3937007874")
+    #expect(result?.targetBadge == "in")
   }
 
   private func evaluate(_ expression: String) -> String? {

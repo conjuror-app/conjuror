@@ -1,9 +1,11 @@
 import Foundation
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class ApplicationCatalogTests: XCTestCase {
+@Suite("Application Catalog")
+struct ApplicationCatalogTests {
+  @Test("Application catalog: helper, background, and Conjuror apps are filtered")
   func testFiltersHelpersBackgroundAppsAndConjuror() {
     let candidates = [
       candidate("Visible", id: "dev.example.visible", path: "/Applications/Visible.app"),
@@ -27,9 +29,10 @@ final class ApplicationCatalogTests: XCTestCase {
       excludingBundleIdentifier: "dev.tombell.conjuror"
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Visible"])
+    #expect(result.map(\.displayName) == ["Visible"])
   }
 
+  @Test("Application catalog: top-level symlinked applications are scanned")
   func testScansTopLevelSymlinkedApplications() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
@@ -70,10 +73,11 @@ final class ApplicationCatalogTests: XCTestCase {
       excludingBundleIdentifier: nil
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Safari"])
-    XCTAssertEqual(result.first?.bundleIdentifier, "com.apple.Safari")
+    #expect(result.map(\.displayName) == ["Safari"])
+    #expect(result.first?.bundleIdentifier == "com.apple.Safari")
   }
 
+  @Test("Application catalog: mounted-volume Applications directories are included")
   func testIncludesApplicationsDirectoryFromMountedVolume() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
@@ -93,9 +97,10 @@ final class ApplicationCatalogTests: XCTestCase {
       mountedVolumeURLs: [temporaryDirectory]
     )
 
-    XCTAssertTrue(directories.contains(mountedApplications))
+    #expect(directories.contains(mountedApplications))
   }
 
+  @Test("Application catalog: throws when no configured directory is readable")
   func testThrowsWhenNoConfiguredDirectoryCanBeRead() throws {
     let fileManager = FileManager.default
     let fileURL = fileManager.temporaryDirectory
@@ -103,11 +108,10 @@ final class ApplicationCatalogTests: XCTestCase {
     defer { try? fileManager.removeItem(at: fileURL) }
     try Data().write(to: fileURL)
 
-    XCTAssertThrowsError(
-      try ApplicationCatalog.scan(directories: [fileURL])
-    )
+    #expect(throws: (any Error).self) { try ApplicationCatalog.scan(directories: [fileURL]) }
   }
 
+  @Test("Application catalog: returns empty when at least one configured directory is readable")
   func testReturnsEmptyWhenAtLeastOneConfiguredDirectoryIsReadable() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
@@ -128,9 +132,10 @@ final class ApplicationCatalogTests: XCTestCase {
       directories: [unreadableFile, readableDirectory]
     )
 
-    XCTAssertTrue(candidates.isEmpty)
+    #expect(candidates.isEmpty)
   }
 
+  @Test("Application catalog: applications are deduplicated by bundle identifier and canonical URL")
   func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
     let candidates = [
       candidate(
@@ -149,7 +154,7 @@ final class ApplicationCatalogTests: XCTestCase {
       excludingBundleIdentifier: nil
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Beta", "Path"])
+    #expect(result.map(\.displayName) == ["Beta", "Path"])
   }
 
   private func candidate(

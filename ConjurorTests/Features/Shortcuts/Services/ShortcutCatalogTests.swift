@@ -1,9 +1,11 @@
 import AppKit
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class ShortcutCatalogTests: XCTestCase {
+@Suite("Shortcut Catalog")
+struct ShortcutCatalogTests {
+  @Test("Shortcut catalog: structured Shortcuts Events responses are parsed")
   func testParsesStructuredShortcutsEventsResponse() throws {
     let response = NSAppleEventDescriptor.list()
     response.insert(
@@ -17,9 +19,8 @@ final class ShortcutCatalogTests: XCTestCase {
 
     let shortcuts = try ShortcutsEventsBridge.parseShortcutList(response)
 
-    XCTAssertEqual(
-      shortcuts,
-      [
+    #expect(
+      shortcuts == [
         AppleShortcut(
           id: "first-id",
           name: "Lights",
@@ -36,13 +37,15 @@ final class ShortcutCatalogTests: XCTestCase {
     )
   }
 
+  @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
   func testRunScriptUsesTheShortcutIdentifierDirectly() {
     let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
 
-    XCTAssertTrue(script.contains("run shortcut id \"shortcut-id\""))
-    XCTAssertFalse(script.contains("first shortcut"))
+    #expect(script.contains("run shortcut id \"shortcut-id\""))
+    #expect(!(script.contains("first shortcut")))
   }
 
+  @Test("Shortcut catalog: shortcuts that accept input are excluded")
   func testExcludesShortcutsThatAcceptInput() {
     let eligible = AppleShortcut(
       id: "eligible",
@@ -57,10 +60,7 @@ final class ShortcutCatalogTests: XCTestCase {
       acceptsInput: true
     )
 
-    XCTAssertEqual(
-      ShortcutCatalog.excludingInputShortcuts([requiresInput, eligible]),
-      [eligible]
-    )
+    #expect(ShortcutCatalog.excludingInputShortcuts([requiresInput, eligible]) == [eligible])
   }
 
   private func record(

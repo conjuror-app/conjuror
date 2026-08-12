@@ -1,8 +1,10 @@
-import XCTest
+import Foundation
+import Testing
 
 @testable import Conjuror
 
-final class CalculatorEngineTests: XCTestCase {
+@Suite("Calculator Engine")
+struct CalculatorEngineTests {
   private let engine = CalculatorEngine(
     formattingOptions: CalculatorFormattingOptions(
       localeIdentifier: "en_US_POSIX",
@@ -10,95 +12,106 @@ final class CalculatorEngineTests: XCTestCase {
     )
   )
 
+  @Test("Calculator engine: arithmetic precedence and parentheses are evaluated")
   func testArithmeticPrecedenceAndParentheses() {
-    XCTAssertEqual(evaluate("2 + 3 * 4"), "14")
-    XCTAssertEqual(evaluate("(2 + 3) * 4"), "20")
-    XCTAssertEqual(evaluate("-2^2"), "-4")
-    XCTAssertEqual(evaluate("2^3^2"), "512")
+    #expect(evaluate("2 + 3 * 4") == "14")
+    #expect(evaluate("(2 + 3) * 4") == "20")
+    #expect(evaluate("-2^2") == "-4")
+    #expect(evaluate("2^3^2") == "512")
   }
 
+  @Test("Calculator engine: natural-language operators are recognized")
   func testNaturalLanguageOperators() {
-    XCTAssertEqual(evaluate("2 plus 3 times 4"), "14")
-    XCTAssertEqual(evaluate("20 divided by 4"), "5")
-    XCTAssertEqual(evaluate("20 over 4"), "5")
-    XCTAssertEqual(evaluate("10 mod 3"), "1")
-    XCTAssertEqual(evaluate("2 to the power of 3"), "8")
+    #expect(evaluate("2 plus 3 times 4") == "14")
+    #expect(evaluate("20 divided by 4") == "5")
+    #expect(evaluate("20 over 4") == "5")
+    #expect(evaluate("10 mod 3") == "1")
+    #expect(evaluate("2 to the power of 3") == "8")
   }
 
+  @Test("Calculator engine: percentages use relative addition semantics")
   func testPercentagesHaveRelativeAdditionSemantics() {
-    XCTAssertEqual(evaluate("100 + 15%"), "115")
-    XCTAssertEqual(evaluate("100 - 15%"), "85")
-    XCTAssertEqual(evaluate("20% of 50"), "10")
-    XCTAssertEqual(evaluate("10% + 5%"), "0.15")
+    #expect(evaluate("100 + 15%") == "115")
+    #expect(evaluate("100 - 15%") == "85")
+    #expect(evaluate("20% of 50") == "10")
+    #expect(evaluate("10% + 5%") == "0.15")
   }
 
+  @Test("Calculator engine: constants, functions, and implicit multiplication are evaluated")
   func testConstantsFunctionsAndImplicitMultiplication() {
-    XCTAssertEqual(evaluate("sqrt 9 + abs(-5)"), "8")
-    XCTAssertEqual(evaluate("2pi"), "6.283185307")
-    XCTAssertEqual(evaluate("4(2 + 3)"), "20")
+    #expect(evaluate("sqrt 9 + abs(-5)") == "8")
+    #expect(evaluate("2pi") == "6.283185307")
+    #expect(evaluate("4(2 + 3)") == "20")
   }
 
+  @Test("Calculator engine: scientific notation signals calculator intent")
   func testScientificNotationSignalsCalculatorIntent() {
     let result = engine.evaluate("1e5")
 
-    XCTAssertEqual(result?.display, "100,000")
-    XCTAssertEqual(result?.copyText, "100000")
+    #expect(result?.display == "100,000")
+    #expect(result?.copyText == "100000")
   }
 
+  @Test("Calculator engine: compact formatting uses ten significant digits")
   func testCompactFormattingUsesTenSignificantDigits() {
     let compactEngine = CalculatorEngine(
       formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
     )
 
     let result = compactEngine.evaluate("2 / 3")
-    XCTAssertEqual(result?.display, "0.6666666667")
-    XCTAssertEqual(result?.copyText, "0.6666666667")
+    #expect(result?.display == "0.6666666667")
+    #expect(result?.copyText == "0.6666666667")
   }
 
+  @Test("Calculator engine: explicit time-zone abbreviations use fixed offsets")
   func testExplicitTimeZoneAbbreviationsUseFixedOffsets() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
 
     let result = engine.evaluate("10:00 BST in EST")
 
-    XCTAssertEqual(result?.sourceDisplay, "10:00")
-    XCTAssertEqual(result?.sourceBadge, "BST")
-    XCTAssertEqual(result?.display, "04:00")
-    XCTAssertEqual(result?.targetBadge, "EST")
-    XCTAssertEqual(result?.copyText, "04:00 EST")
+    #expect(result?.sourceDisplay == "10:00")
+    #expect(result?.sourceBadge == "BST")
+    #expect(result?.display == "04:00")
+    #expect(result?.targetBadge == "EST")
+    #expect(result?.copyText == "04:00 EST")
   }
 
+  @Test("Calculator engine: standard and daylight abbreviations use distinct offsets")
   func testStandardAndDaylightAbbreviationsHaveDistinctOffsets() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
-    XCTAssertEqual(engine.evaluate("10:00 EST in GMT")?.copyText, "15:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 EDT in GMT")?.copyText, "14:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 PST in GMT")?.copyText, "18:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 PDT in GMT")?.copyText, "17:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 CET in GMT")?.copyText, "09:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 CEST in GMT")?.copyText, "08:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 NZST in GMT")?.copyText, "22:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 NZDT in GMT")?.copyText, "21:00 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 NST in GMT")?.copyText, "13:30 GMT")
-    XCTAssertEqual(engine.evaluate("10:00 NDT in GMT")?.copyText, "12:30 GMT")
+    #expect(engine.evaluate("10:00 EST in GMT")?.copyText == "15:00 GMT")
+    #expect(engine.evaluate("10:00 EDT in GMT")?.copyText == "14:00 GMT")
+    #expect(engine.evaluate("10:00 PST in GMT")?.copyText == "18:00 GMT")
+    #expect(engine.evaluate("10:00 PDT in GMT")?.copyText == "17:00 GMT")
+    #expect(engine.evaluate("10:00 CET in GMT")?.copyText == "09:00 GMT")
+    #expect(engine.evaluate("10:00 CEST in GMT")?.copyText == "08:00 GMT")
+    #expect(engine.evaluate("10:00 NZST in GMT")?.copyText == "22:00 GMT")
+    #expect(engine.evaluate("10:00 NZDT in GMT")?.copyText == "21:00 GMT")
+    #expect(engine.evaluate("10:00 NST in GMT")?.copyText == "13:30 GMT")
+    #expect(engine.evaluate("10:00 NDT in GMT")?.copyText == "12:30 GMT")
   }
 
+  @Test("Calculator engine: other macOS time-zone abbreviations are supported")
   func testTimeZoneConversionSupportsOtherMacOSTimeZoneAbbreviations() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
-    XCTAssertEqual(engine.evaluate("10:00 EAT in IST")?.copyText, "12:30 IST")
-    XCTAssertEqual(engine.evaluate("10:00 SGT in WAT")?.copyText, "03:00 WAT")
+    #expect(engine.evaluate("10:00 EAT in IST")?.copyText == "12:30 IST")
+    #expect(engine.evaluate("10:00 SGT in WAT")?.copyText == "03:00 WAT")
   }
 
+  @Test("Calculator engine: current time zone is used when the source is omitted")
   func testTimeZoneConversionUsesCurrentTimeZoneWhenSourceIsOmitted() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
 
     let result = engine.evaluate("1:00 pm in PDT")
 
-    XCTAssertEqual(result?.sourceBadge, "BST")
-    XCTAssertEqual(result?.display, "5:00 am")
-    XCTAssertEqual(result?.copyText, "5:00 am PDT")
+    #expect(result?.sourceBadge == "BST")
+    #expect(result?.display == "5:00 am")
+    #expect(result?.copyText == "5:00 am PDT")
   }
 
+  @Test("Calculator engine: current context refreshes between evaluations")
   func testTimeZoneConversionRefreshesCurrentContextBetweenEvaluations() {
     var currentDate = ISO8601DateFormatter().date(from: "2026-08-12T12:00:00Z")!
     var currentTimeZone = TimeZone(identifier: "Europe/London")!
@@ -107,30 +120,33 @@ final class CalculatorEngineTests: XCTestCase {
       currentTimeZone: { currentTimeZone }
     )
 
-    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "09:00 UTC")
+    #expect(engine.evaluate("10:00 in UTC")?.copyText == "09:00 UTC")
 
     currentDate = ISO8601DateFormatter().date(from: "2026-10-26T12:00:00Z")!
-    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "10:00 UTC")
+    #expect(engine.evaluate("10:00 in UTC")?.copyText == "10:00 UTC")
 
     currentTimeZone = TimeZone(identifier: "Asia/Tokyo")!
-    XCTAssertEqual(engine.evaluate("10:00 in UTC")?.copyText, "01:00 UTC")
+    #expect(engine.evaluate("10:00 in UTC")?.copyText == "01:00 UTC")
   }
 
+  @Test("Calculator engine: time-zone connectors and day wrapping are supported")
   func testTimeZoneConversionSupportsConnectorsAndWrapsAcrossDays() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
-    XCTAssertEqual(engine.evaluate("23:30 UTC → JST")?.copyText, "08:30 JST")
-    XCTAssertEqual(engine.evaluate("9am GMT -> PDT")?.copyText, "2:00 am PDT")
+    #expect(engine.evaluate("23:30 UTC → JST")?.copyText == "08:30 JST")
+    #expect(engine.evaluate("9am GMT -> PDT")?.copyText == "2:00 am PDT")
   }
 
+  @Test("Calculator engine: invalid time-zone input stays silent")
   func testInvalidTimeZoneInputStaysSilent() {
-    XCTAssertNil(engine.evaluate("25:00 GMT in EST"))
-    XCTAssertNil(engine.evaluate("10:60 GMT in EST"))
-    XCTAssertNil(engine.evaluate("10:00 XYZ in EST"))
-    XCTAssertNil(engine.evaluate("10:00 GMT in XYZ"))
-    XCTAssertNil(engine.evaluate("10:00 in"))
+    #expect((engine.evaluate("25:00 GMT in EST")) == nil)
+    #expect((engine.evaluate("10:60 GMT in EST")) == nil)
+    #expect((engine.evaluate("10:00 XYZ in EST")) == nil)
+    #expect((engine.evaluate("10:00 GMT in XYZ")) == nil)
+    #expect((engine.evaluate("10:00 in")) == nil)
   }
 
+  @Test("Calculator engine: currency codes and symbols work when enabled")
   func testCurrencyConversionSupportsCodesAndSymbolsWhenEnabled() {
     let rates = CurrencyRates(
       base: "USD",
@@ -139,20 +155,12 @@ final class CalculatorEngineTests: XCTestCase {
       fetchedAt: Date()
     )
 
-    XCTAssertEqual(
-      engine.evaluate("100 USD to EUR", currencySource: .on(rates))?.copyText,
-      "80.00 EUR"
-    )
-    XCTAssertEqual(
-      engine.evaluate("$50 in GBP", currencySource: .on(rates))?.copyText,
-      "25.00 GBP"
-    )
-    XCTAssertEqual(
-      engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText,
-      "2500 JPY"
-    )
+    #expect(engine.evaluate("100 USD to EUR", currencySource: .on(rates))?.copyText == "80.00 EUR")
+    #expect(engine.evaluate("$50 in GBP", currencySource: .on(rates))?.copyText == "25.00 GBP")
+    #expect(engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText == "2500 JPY")
   }
 
+  @Test("Calculator engine: bare currency converts to the locale currency")
   func testBareCurrencyConvertsToLocaleCurrency() {
     let localeEngine = CalculatorEngine(
       formattingOptions: CalculatorFormattingOptions(
@@ -169,12 +177,15 @@ final class CalculatorEngineTests: XCTestCase {
     )
 
     let result = localeEngine.evaluate("1 CAD", currencySource: .on(rates))
-    XCTAssertEqual(result?.copyText, "0.40 GBP")
-    XCTAssertEqual(result?.sourceBadge, "CAD")
-    XCTAssertEqual(result?.targetBadge, "GBP")
-    XCTAssertNil(localeEngine.evaluate("1 GBP", currencySource: .on(rates)))
+    #expect(result?.copyText == "0.40 GBP")
+    #expect(result?.sourceBadge == "CAD")
+    #expect(result?.targetBadge == "GBP")
+    #expect((localeEngine.evaluate("1 GBP", currencySource: .on(rates))) == nil)
   }
 
+  @Test(
+    "Calculator engine: target fraction digits are respected and values below the minor unit widen"
+  )
   func testCurrencyFormattingUsesTargetFractionDigitsAndWidensBelowMinorUnit() {
     let rates = CurrencyRates(
       base: "USD",
@@ -183,38 +194,32 @@ final class CalculatorEngineTests: XCTestCase {
       fetchedAt: Date()
     )
 
-    XCTAssertEqual(
-      engine.evaluate("123.456 USD to EUR", currencySource: .on(rates))?.copyText,
-      "123.46 EUR"
+    #expect(
+      engine.evaluate("123.456 USD to EUR", currencySource: .on(rates))?.copyText == "123.46 EUR"
     )
-    XCTAssertEqual(
-      engine.evaluate("1 IDR to USD", currencySource: .on(rates))?.copyText,
-      "0.00005539 USD"
+    #expect(
+      engine.evaluate("1 IDR to USD", currencySource: .on(rates))?.copyText == "0.00005539 USD"
     )
-    XCTAssertEqual(
-      engine.evaluate("1 USD to JPY", currencySource: .on(rates))?.copyText,
-      "123 JPY"
-    )
-    XCTAssertEqual(
-      engine.evaluate("1 USD to BHD", currencySource: .on(rates))?.copyText,
-      "0.376 BHD"
-    )
+    #expect(engine.evaluate("1 USD to JPY", currencySource: .on(rates))?.copyText == "123 JPY")
+    #expect(engine.evaluate("1 USD to BHD", currencySource: .on(rates))?.copyText == "0.376 BHD")
   }
 
+  @Test("Calculator engine: disabled or unavailable currency conversion stays silent")
   func testCurrencyConversionIsSilentWhenDisabledOrRatesUnavailable() {
-    XCTAssertNil(engine.evaluate("100 USD to EUR", currencySource: .off))
-    XCTAssertNil(engine.evaluate("100 USD to EUR", currencySource: .on(nil)))
+    #expect((engine.evaluate("100 USD to EUR", currencySource: .off)) == nil)
+    #expect((engine.evaluate("100 USD to EUR", currencySource: .on(nil))) == nil)
   }
 
+  @Test("Calculator engine: ambiguous, invalid, and incomplete input stays silent")
   func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
-    XCTAssertNil(engine.evaluate("123"))
-    XCTAssertNil(engine.evaluate("(123)"))
-    XCTAssertNil(engine.evaluate("2 3"))
-    XCTAssertNil(engine.evaluate("2 +"))
-    XCTAssertNil(engine.evaluate("1 / 0"))
-    XCTAssertNil(engine.evaluate("sqrt(-1)"))
-    XCTAssertNil(engine.evaluate("1e400"))
-    XCTAssertNil(engine.evaluate("notes"))
+    #expect((engine.evaluate("123")) == nil)
+    #expect((engine.evaluate("(123)")) == nil)
+    #expect((engine.evaluate("2 3")) == nil)
+    #expect((engine.evaluate("2 +")) == nil)
+    #expect((engine.evaluate("1 / 0")) == nil)
+    #expect((engine.evaluate("sqrt(-1)")) == nil)
+    #expect((engine.evaluate("1e400")) == nil)
+    #expect((engine.evaluate("notes")) == nil)
   }
 
   private func evaluate(_ expression: String) -> String? {
