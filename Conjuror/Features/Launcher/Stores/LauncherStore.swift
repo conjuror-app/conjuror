@@ -317,19 +317,19 @@ final class LauncherStore: ObservableObject {
     selectedApplicationID = application.id
     launchErrorMessage = nil
 
+    let launcher = launcher
     Task { [weak self] in
-      guard let self else {
-        return
-      }
-
       do {
         try await launcher.open(application)
+        guard let self else {
+          return
+        }
         launchHistory.recordLaunch(of: application)
         recentLaunches = launchHistory.load()
         query = ""
         onLaunchSuccess()
       } catch {
-        launchErrorMessage =
+        self?.launchErrorMessage =
           "Couldn’t open \(application.displayName). \(error.localizedDescription)"
       }
     }
@@ -362,20 +362,21 @@ final class LauncherStore: ObservableObject {
     shortcutRunErrorMessage = nil
     onShortcutRunStarted()
 
+    let shortcutRunner = shortcutRunner
     Task { [weak self] in
-      guard let self else {
-        return
-      }
-
       do {
         try await shortcutRunner.run(shortcut)
+        guard let self else {
+          return
+        }
         shortcutRunHistory.recordRun(of: shortcut)
         recentShortcutRuns = shortcutRunHistory.load()
         runningShortcutIDs.remove(shortcut.id)
         query = ""
       } catch {
-        runningShortcutIDs.remove(shortcut.id)
-        shortcutRunErrorMessage = "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
+        self?.runningShortcutIDs.remove(shortcut.id)
+        self?.shortcutRunErrorMessage =
+          "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
       }
     }
   }
