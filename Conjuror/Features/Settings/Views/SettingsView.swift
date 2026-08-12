@@ -8,41 +8,40 @@ struct SettingsView: View {
 
   var body: some View {
     TabView {
-      GeneralSettingsView(
-        store: store,
-        hotKeyStore: hotKeyStore,
-        currencyRateStore: currencyRateStore
-      )
-      .tabItem {
-        Label("General", systemImage: "gearshape")
-      }
+      GeneralSettingsView(store: store, hotKeyStore: hotKeyStore)
+        .tabItem {
+          Label("General", systemImage: "gearshape")
+        }
+
+      EmojiSettingsView(store: store)
+        .tabItem {
+          Label("Emoji", systemImage: "face.smiling")
+        }
+
+      CalculatorSettingsView(currencyRateStore: currencyRateStore)
+        .tabItem {
+          Label("Calculator", systemImage: "function")
+        }
 
       AboutSettingsView()
         .tabItem {
           Label("About", systemImage: "info.circle")
         }
     }
-    .frame(width: 460, height: 300)
+    .frame(width: 520, height: 280)
   }
 }
 
 private struct GeneralSettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
-  @ObservedObject var currencyRateStore: CurrencyRateStore
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 18) {
-      HStack {
-        VStack(alignment: .leading, spacing: 3) {
-          Text("Keyboard shortcut")
-          Text("Show or hide the launcher from anywhere.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-
-        Spacer()
-
+    SettingsPane {
+      SettingsRow(
+        title: "Keyboard shortcut",
+        description: "Show or hide the launcher from anywhere."
+      ) {
         ShortcutRecorder(
           configuration: store.hotKeyConfiguration,
           onChange: { configuration in
@@ -54,78 +53,27 @@ private struct GeneralSettingsView: View {
         .frame(width: 120, height: 28)
       }
 
-      HStack {
-        VStack(alignment: .leading, spacing: 3) {
-          Text("Visible results")
-          Text("Maximum results shown before scrolling.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
+      SettingsRow(
+        title: "Visible results",
+        description: "Maximum results shown before scrolling."
+      ) {
+        HStack {
+          Text("\(store.maximumVisibleResults)")
+            .monospacedDigit()
+            .frame(minWidth: 18)
 
-        Spacer()
-
-        Text("\(store.maximumVisibleResults)")
-          .monospacedDigit()
-          .frame(minWidth: 18)
-
-        Stepper(
-          "Visible results",
-          value: Binding(
-            get: { store.maximumVisibleResults },
-            set: { value in
-              store.setMaximumVisibleResults(value)
-            }
-          ),
-          in: SettingsStore.maximumVisibleResultsRange
-        )
-        .labelsHidden()
-      }
-
-      HStack {
-        VStack(alignment: .leading, spacing: 3) {
-          Text("Currency conversion")
-          Text("Download daily exchange rates from Frankfurter. No search text is sent.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-
-        Spacer()
-
-        Toggle(
-          "Currency conversion",
-          isOn: Binding(
-            get: { currencyRateStore.isEnabled },
-            set: { currencyRateStore.setEnabled($0) }
+          Stepper(
+            "Visible results",
+            value: Binding(
+              get: { store.maximumVisibleResults },
+              set: { value in
+                store.setMaximumVisibleResults(value)
+              }
+            ),
+            in: SettingsStore.maximumVisibleResultsRange
           )
-        )
-        .labelsHidden()
-      }
-
-      HStack {
-        VStack(alignment: .leading, spacing: 3) {
-          Text("Emoji skin tone")
-          Text("Preferred tone for emoji that support it.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+          .labelsHidden()
         }
-
-        Spacer()
-
-        Picker(
-          "Emoji skin tone",
-          selection: Binding(
-            get: { store.preferredEmojiSkinTone },
-            set: { skinTone in
-              store.setPreferredEmojiSkinTone(skinTone)
-            }
-          )
-        ) {
-          ForEach(EmojiSkinTone.allCases) { skinTone in
-            Text("\(skinTone.exampleEmoji)  \(skinTone.displayName)").tag(skinTone)
-          }
-        }
-        .labelsHidden()
-        .frame(width: 150)
       }
 
       if let hotKeyErrorMessage {
@@ -141,14 +89,69 @@ private struct GeneralSettingsView: View {
         Spacer()
         Button("Reset to Defaults") {
           hotKeyErrorMessage = hotKeyStore.resetSettings()
-          currencyRateStore.setEnabled(false)
         }
       }
     }
-    .padding(24)
   }
 
   @State private var hotKeyErrorMessage: String?
+}
+
+private struct EmojiSettingsView: View {
+  @ObservedObject var store: SettingsStore
+
+  var body: some View {
+    SettingsPane {
+      SettingsRow(
+        title: "Preferred skin tone",
+        description: "Automatically apply this tone to emoji that support it."
+      ) {
+        Picker(
+          "Emoji skin tone",
+          selection: Binding(
+            get: { store.preferredEmojiSkinTone },
+            set: { skinTone in
+              store.setPreferredEmojiSkinTone(skinTone)
+            }
+          )
+        ) {
+          ForEach(EmojiSkinTone.allCases) { skinTone in
+            Text("\(skinTone.exampleEmoji)  \(skinTone.displayName)").tag(skinTone)
+          }
+        }
+        .labelsHidden()
+        .frame(width: 170)
+      }
+
+      Spacer()
+    }
+  }
+}
+
+private struct CalculatorSettingsView: View {
+  @ObservedObject var currencyRateStore: CurrencyRateStore
+
+  var body: some View {
+    SettingsPane {
+      SettingsRow(
+        title: "Currency conversion",
+        description: "Download daily exchange rates from Frankfurter. No search text is sent."
+      ) {
+        Toggle(
+          "Currency conversion",
+          isOn: Binding(
+            get: { currencyRateStore.isEnabled },
+            set: { isEnabled in
+              currencyRateStore.setEnabled(isEnabled)
+            }
+          )
+        )
+        .labelsHidden()
+      }
+
+      Spacer()
+    }
+  }
 }
 
 private struct AboutSettingsView: View {
@@ -188,5 +191,36 @@ private struct AboutSettingsView: View {
       Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
       ?? "Unknown"
     return "Version \(version) (\(build))"
+  }
+}
+
+private struct SettingsPane<Content: View>: View {
+  @ViewBuilder let content: Content
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      content
+    }
+    .padding(24)
+  }
+}
+
+private struct SettingsRow<Content: View>: View {
+  let title: String
+  let description: String
+  @ViewBuilder let content: Content
+
+  var body: some View {
+    HStack(alignment: .center) {
+      VStack(alignment: .leading, spacing: 3) {
+        Text(title)
+        Text(description)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+
+      Spacer(minLength: 24)
+      content
+    }
   }
 }

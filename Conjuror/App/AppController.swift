@@ -96,10 +96,8 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   private func showSettingsFromLauncher() {
+    settingsWindowController.show()
     hideLauncher()
-    DispatchQueue.main.async { [weak self] in
-      self?.settingsWindowController.show()
-    }
   }
 
   private func configureStatusItem() {
