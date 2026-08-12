@@ -1,9 +1,11 @@
 import AppKit
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class ApplicationRankerTests: XCTestCase {
+@Suite("Application Ranker")
+struct ApplicationRankerTests {
+  @Test("Application ranking: exact-prefix, token, acronym, and substring matches are ordered")
   func testOrdersExactPrefixTokenAcronymAndSubstringMatches() {
     let applications = [
       application("Code Runner", id: "dev.example.substring"),
@@ -19,12 +21,14 @@ final class ApplicationRankerTests: XCTestCase {
       recentLaunches: [:]
     )
 
-    XCTAssertEqual(
-      result.map(\.displayName),
-      ["Code", "Code Runner", "CodeBox", "Studio Code", "Visual Studio Code"]
+    #expect(
+      result.map(\.displayName) == [
+        "Code", "Code Runner", "CodeBox", "Studio Code", "Visual Studio Code",
+      ]
     )
   }
 
+  @Test("Application ranking: acronym matches follow token matches")
   func testAcronymMatchesAfterTokenMatches() {
     let applications = [
       application("Very Special Code", id: "dev.example.acronym"),
@@ -37,9 +41,10 @@ final class ApplicationRankerTests: XCTestCase {
       recentLaunches: [:]
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["My VS Code", "Very Special Code"])
+    #expect(result.map(\.displayName) == ["My VS Code", "Very Special Code"])
   }
 
+  @Test("Application ranking: fuzzy subsequences match application names")
   func testFuzzySubsequenceMatchesApplicationName() {
     let applications = [
       application("Xylophone", id: "dev.example.xylophone"),
@@ -52,9 +57,10 @@ final class ApplicationRankerTests: XCTestCase {
       recentLaunches: [:]
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Xcode"])
+    #expect(result.map(\.displayName) == ["Xcode"])
   }
 
+  @Test("Application ranking: compact fuzzy matches rank first")
   func testCompactFuzzyMatchesRankFirst() {
     let applications = [
       application("Xylocardial", id: "dev.example.spread"),
@@ -67,9 +73,10 @@ final class ApplicationRankerTests: XCTestCase {
       recentLaunches: [:]
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Xcode", "Xylocardial"])
+    #expect(result.map(\.displayName) == ["Xcode", "Xylocardial"])
   }
 
+  @Test("Application ranking: recent successful launches break equal-match ties")
   func testRecentSuccessfulLaunchBreaksEqualMatchTies() {
     let older = application("Alpha Editor", id: "dev.example.alpha")
     let newer = application("Atlas Editor", id: "dev.example.atlas")
@@ -83,9 +90,10 @@ final class ApplicationRankerTests: XCTestCase {
       ]
     )
 
-    XCTAssertEqual(result.map(\.displayName), ["Atlas Editor", "Alpha Editor"])
+    #expect(result.map(\.displayName) == ["Atlas Editor", "Alpha Editor"])
   }
 
+  @Test("Application ranking: names and paths provide stable ordering without recency")
   func testStableNameAndPathOrderingWithoutRecency() {
     let applications = [
       application("Zulu", id: nil, path: "/Applications/Zulu-B.app"),
@@ -99,9 +107,8 @@ final class ApplicationRankerTests: XCTestCase {
       recentLaunches: [:]
     )
 
-    XCTAssertEqual(
-      result.map(\.url.path),
-      [
+    #expect(
+      result.map(\.url.path) == [
         "/Applications/Alpha.app",
         "/Applications/Zulu-A.app",
         "/Applications/Zulu-B.app",
@@ -109,6 +116,7 @@ final class ApplicationRankerTests: XCTestCase {
     )
   }
 
+  @Test("Application ranking: reusable indexes match one-shot ranking across queries")
   func testReusableIndexMatchesOneShotRankingAcrossQueries() {
     let applications = [
       application("Visual Studio Code", id: "com.microsoft.VSCode"),
@@ -121,13 +129,13 @@ final class ApplicationRankerTests: XCTestCase {
     let index = ApplicationRanker.Index(applications: applications)
 
     for query in ["", "code", "vs", "xcd", "missing"] {
-      XCTAssertEqual(
-        index.ranked(query: query, recentLaunches: recentLaunches),
-        ApplicationRanker.ranked(
-          applications: applications,
-          query: query,
-          recentLaunches: recentLaunches
-        )
+      #expect(
+        index.ranked(query: query, recentLaunches: recentLaunches)
+          == ApplicationRanker.ranked(
+            applications: applications,
+            query: query,
+            recentLaunches: recentLaunches
+          )
       )
     }
   }

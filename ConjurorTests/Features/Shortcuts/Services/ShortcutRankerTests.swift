@@ -1,8 +1,11 @@
-import XCTest
+import Foundation
+import Testing
 
 @testable import Conjuror
 
-final class ShortcutRankerTests: XCTestCase {
+@Suite("Shortcut Ranker")
+struct ShortcutRankerTests {
+  @Test("Shortcut ranking: names follow launcher matching rules")
   func testRanksNamesUsingLauncherMatchingRules() {
     let shortcuts = [
       shortcut("Very Special Code", id: "acronym"),
@@ -17,9 +20,10 @@ final class ShortcutRankerTests: XCTestCase {
       recentRuns: [:]
     )
 
-    XCTAssertEqual(result.map(\.id), ["exact", "prefix", "token", "acronym"])
+    #expect(result.map(\.id) == ["exact", "prefix", "token", "acronym"])
   }
 
+  @Test("Shortcut ranking: subtitle matches and recent runs rank empty queries")
   func testMatchesSubtitleAndUsesRecentRunsForEmptyQuery() {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")
     let second = shortcut("Evening", id: "second", subtitle: "Bedroom lights")
@@ -30,9 +34,10 @@ final class ShortcutRankerTests: XCTestCase {
       recentRuns: [second.persistenceKey: Date(timeIntervalSince1970: 20)]
     )
 
-    XCTAssertEqual(result, [second, first])
+    #expect(result == [second, first])
   }
 
+  @Test("Shortcut ranking: fuzzy subsequences match shortcut names")
   func testFuzzySubsequenceMatchesShortcutName() {
     let shortcuts = [
       shortcut("Xylophone", id: "other"),
@@ -45,7 +50,7 @@ final class ShortcutRankerTests: XCTestCase {
       recentRuns: [:]
     )
 
-    XCTAssertEqual(result.map(\.id), ["match"])
+    #expect(result.map(\.id) == ["match"])
   }
 
   private func shortcut(

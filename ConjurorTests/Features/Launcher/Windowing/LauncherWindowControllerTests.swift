@@ -1,11 +1,13 @@
 import AppKit
 import Carbon.HIToolbox
 import SwiftUI
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class LauncherWindowControllerTests: XCTestCase {
+@Suite("Launcher Window Controller")
+struct LauncherWindowControllerTests {
+  @Test("Launcher window controller: centered frames use visible-frame coordinates")
   func testCenteredFrameUsesVisibleFrameCoordinates() {
     let visibleFrame = NSRect(x: 1_000, y: 50, width: 800, height: 600)
 
@@ -14,10 +16,11 @@ final class LauncherWindowControllerTests: XCTestCase {
       visibleFrame: visibleFrame
     )
 
-    XCTAssertEqual(frame.origin.x, 1_130)
-    XCTAssertEqual(frame.origin.y, 413)
+    #expect(frame.origin.x == 1_130)
+    #expect(frame.origin.y == 413)
   }
 
+  @Test("Launcher window controller: resized frames keep the top edge and stay visible")
   func testResizedFrameKeepsTopEdgeAndStaysVisible() {
     let visibleFrame = NSRect(x: 0, y: 40, width: 1_000, height: 600)
     let currentFrame = NSRect(x: 230, y: 400, width: 540, height: 54)
@@ -28,10 +31,11 @@ final class LauncherWindowControllerTests: XCTestCase {
       visibleFrame: visibleFrame
     )
 
-    XCTAssertEqual(frame.maxY, currentFrame.maxY)
-    XCTAssertGreaterThanOrEqual(frame.minY, visibleFrame.minY)
+    #expect(frame.maxY == currentFrame.maxY)
+    #expect(frame.minY >= visibleFrame.minY)
   }
 
+  @Test("Launcher window controller: window frames are constrained to small visible frames")
   func testWindowFrameIsConstrainedToSmallVisibleFrame() {
     let visibleFrame = NSRect(x: 100, y: 200, width: 400, height: 300)
 
@@ -40,98 +44,104 @@ final class LauncherWindowControllerTests: XCTestCase {
       visibleFrame: visibleFrame
     )
 
-    XCTAssertEqual(frame, visibleFrame)
+    #expect(frame == visibleFrame)
   }
 
+  @MainActor
+  @Test("Launcher window controller: emoji height counts grid rows and the recent header")
   func testEmojiHeightCountsGridRowsAndRecentHeader() {
     let oneItemHeight = emojiHeight(itemCount: 1)
     let nineItemHeight = emojiHeight(itemCount: 9)
     let tenItemHeight = emojiHeight(itemCount: 10)
 
-    XCTAssertEqual(oneItemHeight, nineItemHeight)
-    XCTAssertEqual(
-      tenItemHeight - nineItemHeight,
-      LauncherLayout.emojiRowHeight + LauncherLayout.emojiRowSpacing
+    #expect(oneItemHeight == nineItemHeight)
+    #expect(
+      tenItemHeight - nineItemHeight == LauncherLayout.emojiRowHeight
+        + LauncherLayout.emojiRowSpacing
     )
-    XCTAssertEqual(
-      emojiHeight(itemCount: 9, hasRecentHeader: true) - nineItemHeight,
-      LauncherLayout.emojiRecentHeaderHeight + 1
+    #expect(
+      emojiHeight(itemCount: 9, hasRecentHeader: true) - nineItemHeight == LauncherLayout
+        .emojiRecentHeaderHeight + 1
     )
   }
 
+  @Test("Launcher window controller: command shortcuts ignore Caps Lock and reject other modifiers")
   func testCommandShortcutsIgnoreCapsLockAndRejectOtherModifiers() {
-    XCTAssertTrue(
-      LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock])
-    )
-    XCTAssertFalse(
-      LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option])
-    )
+    #expect(LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock]))
+    #expect(!(LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option])))
   }
 
+  @Test("Launcher window controller: horizontal navigation requires opt-in")
   func testHorizontalNavigationRequiresOptIn() {
-    XCTAssertNil(
-      LauncherKeyboardNavigation.direction(
+    #expect(
+      (LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_LeftArrow),
         modifiers: [],
         hasMarkedText: false
-      )
+      )) == nil
     )
-    XCTAssertEqual(
+    #expect(
       LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_RightArrow),
         modifiers: [],
         hasMarkedText: false,
         allowsHorizontalNavigation: true
-      ),
-      .right
+      ) == .right
     )
   }
 
+  @Test("Launcher window controller: keyboard navigation ignores modified arrows and marked text")
   func testKeyboardNavigationIgnoresModifiedArrowsAndMarkedText() {
-    XCTAssertNil(
-      LauncherKeyboardNavigation.direction(
+    #expect(
+      (LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_UpArrow),
         modifiers: .option,
         hasMarkedText: false
-      )
+      )) == nil
     )
-    XCTAssertNil(
-      LauncherKeyboardNavigation.direction(
+    #expect(
+      (LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_DownArrow),
         modifiers: [],
         hasMarkedText: true
-      )
+      )) == nil
     )
-    XCTAssertNotNil(
-      LauncherKeyboardNavigation.direction(
+    #expect(
+      (LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_DownArrow),
         modifiers: .numericPad,
         hasMarkedText: false
-      )
+      )) != nil
     )
   }
 
+  @Test("Launcher window controller: text-editing commands recognize standard shortcuts")
   func testTextEditingCommandRecognizesStandardShortcuts() {
-    XCTAssertEqual(command("a"), .selectAll)
-    XCTAssertEqual(command("c"), .copy)
-    XCTAssertEqual(command("v"), .paste)
-    XCTAssertEqual(command("x"), .cut)
-    XCTAssertEqual(command("z"), .undo)
-    XCTAssertEqual(command("Z", modifiers: [.command, .shift]), .redo)
+    #expect(command("a") == .selectAll)
+    #expect(command("c") == .copy)
+    #expect(command("v") == .paste)
+    #expect(command("x") == .cut)
+    #expect(command("z") == .undo)
+    #expect(command("Z", modifiers: [.command, .shift]) == .redo)
   }
 
+  @Test("Launcher window controller: text-editing commands ignore unsupported modifiers and keys")
   func testTextEditingCommandIgnoresUnsupportedModifiersAndKeys() {
-    XCTAssertNil(command("a", modifiers: .option))
-    XCTAssertNil(command("b"))
-    XCTAssertNil(command(nil))
+    #expect((command("a", modifiers: .option)) == nil)
+    #expect((command("b")) == nil)
+    #expect((command(nil)) == nil)
   }
 
   @MainActor
+  @Test(
+    "Launcher window controller: the panel routes text-editing shortcuts to the active text view"
+  )
   func testPanelRoutesTextEditingShortcutsToActiveTextView() {
     let panel = makePanel()
+    defer { panel.close() }
     let textView = RecordingTextView()
     panel.contentView?.addSubview(textView)
-    XCTAssertTrue(panel.makeFirstResponder(textView))
+    #expect(panel.makeFirstResponder(textView))
 
     for (key, expectedAction) in [
       ("a", "selectAll"),
@@ -143,54 +153,66 @@ final class LauncherWindowControllerTests: XCTestCase {
     ] {
       let modifiers: NSEvent.ModifierFlags = key == "Z" ? [.command, .shift] : .command
 
-      XCTAssertTrue(panel.performKeyEquivalent(with: keyEvent(key, modifiers: modifiers)))
-      XCTAssertEqual(textView.actions.last, expectedAction)
+      #expect(panel.performKeyEquivalent(with: keyEvent(key, modifiers: modifiers)))
+      #expect(textView.actions.last == expectedAction)
     }
   }
 
   @MainActor
+  @Test(
+    "Launcher window controller: the panel does not consume text-editing shortcuts outside a text editor"
+  )
   func testPanelDoesNotConsumeTextEditingShortcutOutsideTextEditor() {
     let panel = makePanel()
+    defer { panel.close() }
     panel.contentView?.addSubview(NSButton())
 
-    XCTAssertFalse(panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command)))
+    #expect(!(panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command))))
   }
 
   @MainActor
+  @Test(
+    "Launcher window controller: the panel gives Command-Q precedence over the text-editing responder"
+  )
   func testPanelGivesCommandQPrecedenceOverTextEditingResponder() {
     let panel = makePanel()
+    defer { panel.close() }
     let textView = RecordingTextView()
     var terminateCount = 0
     panel.onTerminate = { terminateCount += 1 }
     panel.contentView?.addSubview(textView)
-    XCTAssertTrue(panel.makeFirstResponder(textView))
+    #expect(panel.makeFirstResponder(textView))
 
-    XCTAssertTrue(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
-    XCTAssertEqual(terminateCount, 1)
-    XCTAssertTrue(textView.actions.isEmpty)
+    #expect(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
+    #expect(terminateCount == 1)
+    #expect(textView.actions.isEmpty)
   }
 
   @MainActor
+  @Test("Launcher window controller: the panel preserves arrow-key navigation")
   func testPanelPreservesArrowKeyNavigation() {
     let panel = makePanel()
+    defer { panel.close() }
     var directions: [MoveCommandDirection] = []
     panel.onMoveSelection = { directions.append($0) }
 
     panel.sendEvent(keyEvent("", keyCode: UInt16(kVK_DownArrow)))
 
-    XCTAssertEqual(directions, [.down])
+    #expect(directions == [.down])
   }
 
   @MainActor
+  @Test("Launcher window controller: the panel routes unmodified Tab to mode cycling")
   func testPanelRoutesUnmodifiedTabToModeCycling() {
     let panel = makePanel()
+    defer { panel.close() }
     var cycleCount = 0
     panel.onCycleMode = { cycleCount += 1 }
 
     panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab)))
     panel.sendEvent(keyEvent("\t", keyCode: UInt16(kVK_Tab), modifiers: .control))
 
-    XCTAssertEqual(cycleCount, 1)
+    #expect(cycleCount == 1)
   }
 
   private func command(
@@ -213,9 +235,6 @@ final class LauncherWindowControllerTests: XCTestCase {
     )
     panel.contentView = NSView(frame: panel.contentView?.bounds ?? .zero)
     panel.makeKeyAndOrderFront(nil)
-    addTeardownBlock {
-      panel.close()
-    }
     return panel
   }
 
@@ -239,6 +258,7 @@ final class LauncherWindowControllerTests: XCTestCase {
     )!
   }
 
+  @MainActor
   private func emojiHeight(itemCount: Int, hasRecentHeader: Bool = false) -> CGFloat {
     LauncherLayout.emojiExpandedHeight(
       itemCount: itemCount,

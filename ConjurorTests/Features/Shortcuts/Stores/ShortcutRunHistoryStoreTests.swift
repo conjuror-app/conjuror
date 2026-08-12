@@ -1,9 +1,11 @@
 import Foundation
-import XCTest
+import Testing
 
 @testable import Conjuror
 
-final class ShortcutRunHistoryStoreTests: XCTestCase {
+@Suite("Shortcut Run History Store")
+struct ShortcutRunHistoryStoreTests {
+  @Test("Shortcut run history store: most recent successful runs are recorded and reloaded")
   func testRecordsAndReloadsMostRecentSuccessfulRun() {
     let store = ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
     let shortcut = AppleShortcut(
@@ -18,7 +20,7 @@ final class ShortcutRunHistoryStoreTests: XCTestCase {
     store.recordRun(of: shortcut, at: firstDate)
     store.recordRun(of: shortcut, at: latestDate)
 
-    XCTAssertEqual(store.load(), [shortcut.persistenceKey: latestDate])
+    #expect(store.load() == [shortcut.persistenceKey: latestDate])
   }
 
   private func makeUserDefaults() -> UserDefaults {
