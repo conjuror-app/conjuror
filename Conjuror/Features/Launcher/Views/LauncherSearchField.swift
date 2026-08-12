@@ -12,7 +12,7 @@ struct LauncherSearchField: View {
       Button(action: onToggleMode) {
         Image(systemName: modeIcon)
           .font(.system(size: 14, weight: .medium))
-          .foregroundStyle(mode == .applications ? Color.secondary : Color.purple)
+          .foregroundStyle(modeIconColor)
           .frame(width: 18, height: 18)
       }
       .buttonStyle(.plain)
@@ -65,6 +65,14 @@ struct LauncherSearchField: View {
     case .applications: "magnifyingglass"
     case .emoji: "face.smiling"
     case .shortcuts: "square.stack.3d.up.fill"
+    }
+  }
+
+  private var modeIconColor: Color {
+    switch mode {
+    case .applications: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
+    case .emoji: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
+    case .shortcuts: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
     }
   }
 
