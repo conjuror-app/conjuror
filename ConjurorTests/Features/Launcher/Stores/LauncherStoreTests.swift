@@ -267,6 +267,23 @@ final class LauncherStoreTests: XCTestCase {
     XCTAssertFalse(store.displayedEmoji.contains { $0.value == "👋" })
   }
 
+  func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
+    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    settings.setPreferredEmojiSkinTone(.mediumDark)
+    let store = LauncherStore(
+      settingsStore: settings,
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":kiss woman man")
+
+    XCTAssertEqual(store.displayedEmoji.first?.value, "👩🏾‍❤️‍💋‍👨🏾")
+    XCTAssertFalse(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" })
+  }
+
   func testHorizontalArrowsNavigateEmojiGrid() {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
