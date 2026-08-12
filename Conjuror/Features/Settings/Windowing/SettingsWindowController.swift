@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 final class SettingsWindowController: NSWindowController {
-  private static let windowSize = NSSize(width: 460, height: 300)
+  private static let windowSize = NSSize(width: 520, height: 280)
 
   init(
     store: SettingsStore,

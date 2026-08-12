@@ -11,8 +11,8 @@ final class SettingsStore: ObservableObject {
     static let preferredEmojiSkinTone = "settings.preferredEmojiSkinTone"
   }
 
-  static let defaultMaximumVisibleResults = 7
-  static let maximumVisibleResultsRange = 3...10
+  nonisolated static let defaultMaximumVisibleResults = 7
+  nonisolated static let maximumVisibleResultsRange = 3...10
 
   private static func clampedMaximumVisibleResults(_ value: Int) -> Int {
     min(
