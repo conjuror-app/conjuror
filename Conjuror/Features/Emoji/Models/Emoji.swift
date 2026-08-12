@@ -1,3 +1,5 @@
+import Foundation
+
 struct Emoji: Identifiable, Hashable, Sendable {
   static let catalog = EmojiData.raw.split(separator: "\n").compactMap { line -> Emoji? in
     let fields = line.split(separator: "|", maxSplits: 2, omittingEmptySubsequences: false)
@@ -13,16 +15,29 @@ struct Emoji: Identifiable, Hashable, Sendable {
   var persistenceKey: String { value }
 
   var baseName: String {
-    guard let separator = name.range(of: ": "),
-      EmojiSkinTone.allCases.dropFirst().contains(where: {
-        guard let modifierName = $0.modifierName else { return false }
-        return name[separator.upperBound...].hasPrefix(modifierName)
-      })
-    else { return name }
-    return String(name[..<separator.lowerBound])
+    guard let separator = name.range(of: ": ") else { return name }
+    let descriptors = descriptorComponents(after: separator)
+    let baseDescriptors = descriptors.filter { !EmojiSkinTone.modifierNames.contains($0) }
+    guard baseDescriptors.count != descriptors.count else { return name }
+
+    let prefix = name[..<separator.lowerBound]
+    return baseDescriptors.isEmpty
+      ? String(prefix)
+      : "\(prefix): \(baseDescriptors.joined(separator: ", "))"
   }
 
-  var hasSkinTone: Bool { baseName != name }
+  var hasSkinTone: Bool { !skinToneModifierNames.isEmpty }
+
+  var skinToneModifierNames: [String] {
+    guard let separator = name.range(of: ": ") else { return [] }
+    return descriptorComponents(after: separator).filter(EmojiSkinTone.modifierNames.contains)
+  }
+
+  private func descriptorComponents(after separator: Range<String.Index>) -> [String] {
+    name[separator.upperBound...]
+      .split(separator: ",")
+      .map { $0.trimmingCharacters(in: .whitespaces) }
+  }
 }
 
 enum EmojiSkinTone: String, CaseIterable, Identifiable, Sendable {
@@ -32,6 +47,8 @@ enum EmojiSkinTone: String, CaseIterable, Identifiable, Sendable {
   case medium
   case mediumDark
   case dark
+
+  static let modifierNames = allCases.compactMap(\.modifierName)
 
   var id: String { rawValue }
 

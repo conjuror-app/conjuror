@@ -8,10 +8,16 @@ final class LauncherStore: ObservableObject {
 
   private static let skinToneVariants = Dictionary(
     uniqueKeysWithValues: Emoji.catalog.compactMap { emoji -> (String, Emoji)? in
-      guard emoji.hasSkinTone else { return nil }
-      return (emoji.name, emoji)
+      guard emoji.skinToneModifierNames.count == 1,
+        let modifierName = emoji.skinToneModifierNames.first
+      else { return nil }
+      return (skinToneVariantKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
     }
   )
+
+  private static func skinToneVariantKey(baseName: String, modifierName: String) -> String {
+    "\(baseName)\0\(modifierName)"
+  }
 
   private static func emoji(for values: [String]) -> [Emoji] {
     let byValue = Dictionary(uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) })
@@ -109,8 +115,8 @@ final class LauncherStore: ObservableObject {
       guard let modifierName = settingsStore.preferredEmojiSkinTone.modifierName else {
         return emoji
       }
-      let variantName = "\(emoji.name): \(modifierName)"
-      return Self.skinToneVariants[variantName] ?? emoji
+      let variantKey = Self.skinToneVariantKey(baseName: emoji.name, modifierName: modifierName)
+      return Self.skinToneVariants[variantKey] ?? emoji
     }
   }
 
