@@ -8,11 +8,16 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
   }
 
   func load() async throws -> [AppleShortcut] {
-    try await Task.detached(priority: .userInitiated) {
-      Self.excludingInputShortcuts(
-        try ShortcutsEventsBridge.loadShortcuts()
-      )
-    }.value
+    let loadTask = Task.detached(priority: .userInitiated) {
+      let shortcuts = try ShortcutsEventsBridge.loadShortcuts()
+      try Task.checkCancellation()
+      return Self.excludingInputShortcuts(shortcuts)
+    }
+    return try await withTaskCancellationHandler {
+      try await loadTask.value
+    } onCancel: {
+      loadTask.cancel()
+    }
   }
 }
 
