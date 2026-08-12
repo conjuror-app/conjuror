@@ -43,6 +43,22 @@ final class LauncherWindowControllerTests: XCTestCase {
     XCTAssertEqual(frame, visibleFrame)
   }
 
+  func testEmojiHeightCountsGridRowsAndRecentHeader() {
+    let oneItemHeight = emojiHeight(itemCount: 1)
+    let nineItemHeight = emojiHeight(itemCount: 9)
+    let tenItemHeight = emojiHeight(itemCount: 10)
+
+    XCTAssertEqual(oneItemHeight, nineItemHeight)
+    XCTAssertEqual(
+      tenItemHeight - nineItemHeight,
+      LauncherLayout.emojiRowHeight + LauncherLayout.emojiRowSpacing
+    )
+    XCTAssertEqual(
+      emojiHeight(itemCount: 9, hasRecentHeader: true) - nineItemHeight,
+      LauncherLayout.emojiRecentHeaderHeight + 1
+    )
+  }
+
   func testCommandShortcutsIgnoreCapsLockAndRejectOtherModifiers() {
     XCTAssertTrue(
       LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock])
@@ -209,6 +225,15 @@ final class LauncherWindowControllerTests: XCTestCase {
       isARepeat: false,
       keyCode: keyCode
     )!
+  }
+
+  private func emojiHeight(itemCount: Int, hasRecentHeader: Bool = false) -> CGFloat {
+    LauncherLayout.emojiExpandedHeight(
+      itemCount: itemCount,
+      hasRecentHeader: hasRecentHeader,
+      hasHotKeyError: false,
+      maximumVisibleResults: SettingsStore.defaultMaximumVisibleResults
+    )
   }
 }
 

@@ -11,7 +11,7 @@ struct EmojiResultCell: View {
       Text(emoji.value)
         .font(.system(size: 27))
         .frame(maxWidth: .infinity)
-        .frame(height: 42)
+        .frame(height: LauncherLayout.emojiRowHeight)
         .background(
           isSelected ? Color.accentColor.opacity(0.18) : Color.clear,
           in: RoundedRectangle(cornerRadius: 7)
