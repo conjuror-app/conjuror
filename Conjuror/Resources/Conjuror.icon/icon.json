@@ -13,11 +13,20 @@
       "layers" : [
         {
           "glass" : false,
+          "hidden" : false,
           "image-name" : "03-spark.png",
           "name" : "03-spark"
         }
       ],
-      "name" : "03 Spark"
+      "name" : "03 Spark",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
     },
     {
       "layers" : [
@@ -27,7 +36,15 @@
           "name" : "02-wand"
         }
       ],
-      "name" : "02 Wand"
+      "name" : "02 Wand",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
     },
     {
       "layers" : [
@@ -37,13 +54,22 @@
           "name" : "01-c"
         }
       ],
-      "name" : "01 C"
+      "name" : "01 C",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
     },
     {
       "layers" : [
         {
           "glass" : false,
           "image-name" : "00-curtain-default.png",
+          "name" : "00-curtain-default",
           "opacity-specializations" : [
             {
               "value" : 1
@@ -52,11 +78,12 @@
               "appearance" : "dark",
               "value" : 0
             }
-          ],
-          "name" : "00-curtain-default"
+          ]
         },
         {
           "glass" : false,
+          "image-name" : "00-curtain-dark.png",
+          "name" : "00-curtain-dark",
           "opacity-specializations" : [
             {
               "value" : 0
@@ -65,12 +92,18 @@
               "appearance" : "dark",
               "value" : 1
             }
-          ],
-          "image-name" : "00-curtain-dark.png",
-          "name" : "00-curtain-dark"
+          ]
         }
       ],
-      "name" : "00 Curtain Background"
+      "name" : "00 Curtain Background",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
     }
   ],
   "supported-platforms" : {
