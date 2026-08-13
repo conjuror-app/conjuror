@@ -16,7 +16,10 @@ Plain numbers and incomplete expressions remain regular application searches.
 Supported calculator syntax includes arithmetic and parentheses, powers,
 percentages, `mod`, `pi`, `e`, `sqrt`, `abs`, implicit multiplication, and word
 operators such as `plus`, `minus`, `times`, `divided by`, and `over`. Examples:
-`2 plus 3 times 4`, `100 + 15%`, `20% of 50`, and `2pi`.
+`2 plus 3 times 4`, `100 + 15%`, `20% of 50`, and `2pi`. Chained percentage
+changes compound against each intermediate result, so `123 + 25% + 10%` is
+`169.125`. Group percentages to apply them to the same source value:
+`123 + (25% + 10%)` is `166.05`.
 
 Integer conversion supports decimal, hexadecimal, octal, and binary with
 `decimal`/`dec`, `hexadecimal`/`hex`, `octal`/`oct`, and `binary`/`bin` names.

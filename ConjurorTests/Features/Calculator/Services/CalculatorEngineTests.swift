@@ -208,6 +208,9 @@ struct CalculatorEngineTests {
   func testPercentagesHaveRelativeAdditionSemantics() {
     #expect(evaluate("100 + 15%") == "115")
     #expect(evaluate("100 - 15%") == "85")
+    #expect(evaluate("123 + 25% + 10%") == "169.125")
+    #expect(evaluate("123 - 25% - 10%") == "83.025")
+    #expect(evaluate("123 + (25% + 10%)") == "166.05")
     #expect(evaluate("20% of 50") == "10")
     #expect(evaluate("10% + 5%") == "0.15")
   }
