@@ -46,6 +46,7 @@
 		8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */; };
 		8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */; };
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
+		8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.gen.swift */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
@@ -121,6 +122,7 @@
 		8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngineTests.swift; sourceTree = "<group>"; };
 		8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantity.swift; sourceTree = "<group>"; };
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
+		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.gen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCatalog.gen.swift; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 				F65FFE00000000000000000A /* CalculatorCurrency.swift */,
 				F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */,
 				8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */,
+				8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */,
 				F65FFE00000000000000000C /* CalculatorTimeZone.swift */,
 				F65FFE00000000000000000B /* CurrencyRateStore.swift */,
 			);
@@ -761,6 +764,7 @@
 				F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */,
 				F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */,
 				8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */,
+				8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */,
 				F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */,
 				F65FFF000000000000000009 /* CurrencyRates.swift in Sources */,
 				F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */,
