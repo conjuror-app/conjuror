@@ -18,6 +18,13 @@ percentages, `mod`, `pi`, `e`, `sqrt`, `abs`, implicit multiplication, and word
 operators such as `plus`, `minus`, `times`, `divided by`, and `over`. Examples:
 `2 plus 3 times 4`, `100 + 15%`, `20% of 50`, and `2pi`.
 
+Integer conversion supports decimal, hexadecimal, octal, and binary with
+`decimal`/`dec`, `hexadecimal`/`hex`, `octal`/`oct`, and `binary`/`bin` names.
+Use `to`, `in`, `->`, or `→`, for example `255 to hex` or `0o377 to binary`.
+Hexadecimal, octal, and binary results use `0x`, `0o`, and `0b` prefixes.
+Entering a prefixed integer such as `0xFF` converts it directly to decimal.
+Negative values place the sign before the prefix, such as `-0x2A`.
+
 Quantity calculations support length, mass, duration, temperature, volume, and
 decimal or binary data units. A bare quantity automatically converts to a
 sensible counterpart, such as `100 lbs` to kilograms, `1 cm` to inches, or
