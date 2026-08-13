@@ -43,7 +43,7 @@
       "layers" : [
         {
           "glass" : false,
-          "image-name" : "00-silk-default.png",
+          "image-name" : "00-curtain-default.png",
           "opacity-specializations" : [
             {
               "value" : 1
@@ -53,7 +53,7 @@
               "value" : 0
             }
           ],
-          "name" : "00-silk-default"
+          "name" : "00-curtain-default"
         },
         {
           "glass" : false,
@@ -66,11 +66,11 @@
               "value" : 1
             }
           ],
-          "image-name" : "00-silk-dark.png",
-          "name" : "00-silk-dark"
+          "image-name" : "00-curtain-dark.png",
+          "name" : "00-curtain-dark"
         }
       ],
-      "name" : "00 Silk Background"
+      "name" : "00 Curtain Background"
     }
   ],
   "supported-platforms" : {
