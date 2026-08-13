@@ -38,6 +38,39 @@
         }
       ],
       "name" : "01 C"
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "00-silk-default.png",
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "dark",
+              "value" : 0
+            }
+          ],
+          "name" : "00-silk-default"
+        },
+        {
+          "glass" : false,
+          "opacity-specializations" : [
+            {
+              "value" : 0
+            },
+            {
+              "appearance" : "dark",
+              "value" : 1
+            }
+          ],
+          "image-name" : "00-silk-dark.png",
+          "name" : "00-silk-dark"
+        }
+      ],
+      "name" : "00 Silk Background"
     }
   ],
   "supported-platforms" : {
