@@ -36,6 +36,12 @@ target, combine compatible units with `+` or `-`, or type composite quantities.
 Examples: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, and `5 ft 3 in`. US
 customary volume units use US definitions.
 
+Relative dates support `N minutes/hours/days/weeks/months/years from now` and
+`N minutes/hours/days/weeks/months/years ago`, and include both the resulting
+local date and time. Minutes, hours, days, and weeks may be decimal values;
+months and years must be whole numbers. Examples: `5 days from now`, `1.5 hours
+from now`, and `2 weeks ago`.
+
 Timezone conversion supports timezone abbreviations recognized by macOS and
 12- or 24-hour clock times. Use `to`, `in`, `->`, or `→`, for example `10:00
 BST in EST` or `9am GMT → PDT`. Explicit standard and daylight abbreviations

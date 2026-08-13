@@ -31,6 +31,14 @@ struct CalculatorEngine: CurrencyCalculatorEvaluating {
       return nil
     }
 
+    if let relativeDateResult = CalculatorRelativeDateEvaluator(
+      currentDate: currentDate(),
+      timeZone: currentTimeZone(),
+      localeIdentifier: formattingOptions.localeIdentifier
+    ).evaluate(trimmedExpression) {
+      return relativeDateResult
+    }
+
     if let timeZoneResult = CalculatorTimeZoneEvaluator(
       currentDate: currentDate(),
       currentTimeZone: currentTimeZone()
