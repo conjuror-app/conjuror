@@ -67,6 +67,7 @@
 		F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000A /* CalculatorCurrency.swift */; };
 		F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000B /* CurrencyRateStore.swift */; };
 		F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000C /* CalculatorTimeZone.swift */; };
+		F65FFF00000000000000000D /* CalculatorRelativeDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000D /* CalculatorRelativeDate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +144,7 @@
 		F65FFE00000000000000000A /* CalculatorCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorCurrency.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000B /* CurrencyRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStore.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000C /* CalculatorTimeZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZone.swift; sourceTree = "<group>"; };
+		F65FFE00000000000000000D /* CalculatorRelativeDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -348,6 +350,7 @@
 				F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */,
 				8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */,
 				8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */,
+				F65FFE00000000000000000D /* CalculatorRelativeDate.swift */,
 				F65FFE00000000000000000C /* CalculatorTimeZone.swift */,
 				F65FFE00000000000000000B /* CurrencyRateStore.swift */,
 			);
@@ -762,6 +765,7 @@
 				F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */,
 				F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */,
 				F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */,
+				F65FFF00000000000000000D /* CalculatorRelativeDate.swift in Sources */,
 				F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */,
 				8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */,
 				8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */,
