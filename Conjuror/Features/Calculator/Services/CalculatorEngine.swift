@@ -46,6 +46,10 @@ struct CalculatorEngine: CurrencyCalculatorEvaluating {
       return currencyResult
     }
 
+    if let radixResult = CalculatorRadixEvaluator().evaluate(trimmedExpression) {
+      return radixResult
+    }
+
     if let quantityResult = CalculatorQuantityEvaluator(
       formattingOptions: formattingOptions
     ).evaluate(trimmedExpression) {
