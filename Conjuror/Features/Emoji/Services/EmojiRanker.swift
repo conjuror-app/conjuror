@@ -6,10 +6,13 @@ struct EmojiRanker {
 
     init(emoji: [Emoji]) {
       self.emoji = emoji.map {
-        SearchableEmoji(
+        let normalizedName = EmojiRanker.normalized($0.name)
+        let normalizedKeywords = $0.keywords.map(EmojiRanker.normalized)
+        return SearchableEmoji(
           emoji: $0,
-          normalizedName: EmojiRanker.normalized($0.name),
-          tokens: EmojiRanker.tokens(in: EmojiRanker.normalized($0.name))
+          normalizedName: normalizedName,
+          searchableText: ([normalizedName] + normalizedKeywords).joined(separator: " "),
+          tokens: ([normalizedName] + normalizedKeywords).flatMap(EmojiRanker.tokens)
         )
       }
     }
@@ -29,7 +32,7 @@ struct EmojiRanker {
           candidate.tokens.contains(where: { $0.hasPrefix(queryToken) })
         }) {
           score = 2
-        } else if candidate.normalizedName.contains(query) {
+        } else if candidate.searchableText.contains(query) {
           score = 3
         } else {
           return nil
@@ -63,5 +66,6 @@ struct EmojiRanker {
 private struct SearchableEmoji {
   let emoji: Emoji
   let normalizedName: String
+  let searchableText: String
   let tokens: [String]
 }
