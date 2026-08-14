@@ -47,10 +47,11 @@
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
 		8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
-		E1000000000000000000002 /* EmojiCatalog.gen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.gen.swift */; };
+		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
 		E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000004 /* EmojiHistoryStore.swift */; };
 		E1000000000000000000005 /* EmojiResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000005 /* EmojiResultCell.swift */; };
+		E4000000000000000000001 /* EmojiRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4000000000000000000002 /* EmojiRankerTests.swift */; };
 		F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */; };
 		F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */; };
 		F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */; };
@@ -91,6 +92,7 @@
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
+		E4000000000000000000002 /* EmojiRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRankerTests.swift; sourceTree = "<group>"; };
 		8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConjurorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E33152C55C00100C0A001 /* InstalledApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledApplication.swift; sourceTree = "<group>"; };
 		8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLauncher.swift; sourceTree = "<group>"; };
@@ -123,7 +125,7 @@
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
-		E2000000000000000000002 /* EmojiCatalog.gen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCatalog.gen.swift; sourceTree = "<group>"; };
+		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
 		E2000000000000000000004 /* EmojiHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiHistoryStore.swift; sourceTree = "<group>"; };
 		E2000000000000000000005 /* EmojiResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiResultCell.swift; sourceTree = "<group>"; };
@@ -214,7 +216,6 @@
 			isa = PBXGroup;
 			children = (
 				E2000000000000000000001 /* Emoji.swift */,
-				E2000000000000000000002 /* EmojiCatalog.gen.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -280,6 +281,7 @@
 			children = (
 				8A4E37162C55C00100C0A001 /* Conjuror.entitlements */,
 				8A4E32142C55C00100C0A001 /* Conjuror.icon */,
+				E2000000000000000000002 /* EmojiCatalog.data */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -514,6 +516,7 @@
 			children = (
 				F65FFD00000000000000001C /* Applications */,
 				F65FFD00000000000000001F /* Calculator */,
+				E4000000000000000000003 /* Emoji */,
 				F65FFD000000000000000021 /* Launcher */,
 				F65FFD000000000000000024 /* Settings */,
 				F65FFD000000000000000026 /* Shortcuts */,
@@ -560,6 +563,22 @@
 			children = (
 				8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */,
 				8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E4000000000000000000003 /* Emoji */ = {
+			isa = PBXGroup;
+			children = (
+				E4000000000000000000004 /* Services */,
+			);
+			path = Emoji;
+			sourceTree = "<group>";
+		};
+		E4000000000000000000004 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E4000000000000000000002 /* EmojiRankerTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -713,6 +732,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */,
+				E1000000000000000000002 /* EmojiCatalog.data in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -734,7 +754,6 @@
 				E1000000000000000000005 /* EmojiResultCell.swift in Sources */,
 				E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */,
 				E1000000000000000000003 /* EmojiRanker.swift in Sources */,
-				E1000000000000000000002 /* EmojiCatalog.gen.swift in Sources */,
 				E1000000000000000000001 /* Emoji.swift in Sources */,
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
@@ -786,6 +805,7 @@
 			files = (
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
+				E4000000000000000000001 /* EmojiRankerTests.swift in Sources */,
 				8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */,
 				8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
