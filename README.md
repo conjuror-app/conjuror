@@ -62,7 +62,9 @@ The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
 `/System/Applications/Utilities`, `~/Applications`, and application folders on
 mounted volumes without external packages. Shortcuts that require input are
 currently excluded. macOS asks for Automation permission the first time
-Conjuror accesses Shortcuts Events.
+Conjuror accesses Shortcuts Events. Launch at login is off by default and can
+be enabled in General Settings. If macOS requires approval, Conjuror links to
+the Login Items pane in System Settings.
 
 ## Development
 

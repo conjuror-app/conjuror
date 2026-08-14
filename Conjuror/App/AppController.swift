@@ -22,6 +22,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   )
 
   private lazy var currencyRateStore = CurrencyRateStore()
+  private lazy var launchAtLoginStore = LaunchAtLoginStore()
 
   private lazy var hotKeyStore = HotKeyStore(
     settingsStore: settingsStore,
@@ -44,7 +45,8 @@ final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsWindowController = SettingsWindowController(
     store: settingsStore,
     hotKeyStore: hotKeyStore,
-    currencyRateStore: currencyRateStore
+    currencyRateStore: currencyRateStore,
+    launchAtLoginStore: launchAtLoginStore
   )
 
   private var statusItem: NSStatusItem?
