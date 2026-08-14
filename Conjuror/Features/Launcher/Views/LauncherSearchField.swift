@@ -3,21 +3,17 @@ import SwiftUI
 struct LauncherSearchField: View {
   @Binding var query: String
   let mode: LauncherMode
-  let onToggleMode: () -> Void
   let onOpenSelected: () -> Void
   let focusRequest: Int
 
   var body: some View {
     HStack(spacing: 8) {
-      Button(action: onToggleMode) {
-        Image(systemName: modeIcon)
-          .font(.system(size: 14, weight: .medium))
-          .foregroundStyle(modeIconColor)
-          .frame(width: 18, height: 18)
-      }
-      .buttonStyle(.plain)
-      .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
-      .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
+      Image(systemName: modeIcon)
+        .font(.system(size: 14, weight: .medium))
+        .foregroundStyle(modeIconColor)
+        .frame(width: 18, height: 18)
+        .help(modeHelp)
+        .accessibilityLabel(modeHelp)
 
       TextField(placeholder, text: $text, axis: .horizontal)
         .focused($isFocused)
@@ -74,6 +70,14 @@ struct LauncherSearchField: View {
     case .applications: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
     case .emoji: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
     case .shortcuts: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
+    }
+  }
+
+  private var modeHelp: String {
+    switch mode {
+    case .applications: "Application search mode"
+    case .emoji: "Emoji search mode"
+    case .shortcuts: "Apple Shortcuts search mode"
     }
   }
 

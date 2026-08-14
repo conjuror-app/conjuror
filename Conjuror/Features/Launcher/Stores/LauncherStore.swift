@@ -200,14 +200,6 @@ final class LauncherStore: ObservableObject {
     if mode == .shortcuts { loadShortcuts() }
   }
 
-  func toggleMode() {
-    if mode == .applications {
-      enterShortcutsMode()
-    } else {
-      returnToApplicationsMode()
-    }
-  }
-
   func cycleMode() {
     switch mode {
     case .applications:
