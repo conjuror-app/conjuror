@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
-const version = "16.0";
+const version = "latest";
 const url = `https://unicode.org/Public/emoji/${version}/emoji-test.txt`;
 const output = "Conjuror/Features/Emoji/Models/EmojiCatalog.gen.swift";
 
