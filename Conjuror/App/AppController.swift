@@ -25,9 +25,9 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   private lazy var hotKeyStore = HotKeyStore(
     settingsStore: settingsStore,
-    onHotKeyPressed: { [weak self] in
+    onHotKeyPressed: { [weak self] action in
       Task { @MainActor [weak self] in
-        self?.toggleLauncher()
+        self?.handleHotKey(action)
       }
     }
   )
@@ -93,6 +93,17 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   func showLauncher() {
     launcherWindowController.show()
+  }
+
+  private func handleHotKey(_ action: HotKeyAction) {
+    switch action {
+    case .launcher:
+      toggleLauncher()
+    case .shortcuts:
+      launcherWindowController.toggle(mode: .shortcuts)
+    case .emoji:
+      launcherWindowController.toggle(mode: .emoji)
+    }
   }
 
   private func showSettingsFromLauncher() {

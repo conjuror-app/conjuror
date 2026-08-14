@@ -492,8 +492,16 @@ final class LauncherStore: ObservableObject {
     shortcutRunErrorMessage = nil
   }
 
-  func prepareForActivation() {
-    if shortcutRunErrorMessage != nil {
+  func prepareForActivation(mode requestedMode: LauncherMode? = nil) {
+    if let requestedMode {
+      mode = requestedMode
+      query = ""
+      launchErrorMessage = nil
+      shortcutRunErrorMessage = nil
+      refreshCurrentResults()
+      selectFirstResult()
+      if requestedMode == .shortcuts { loadShortcuts() }
+    } else if shortcutRunErrorMessage != nil {
       mode = .shortcuts
       refreshCurrentResults()
       selectFirstResult()
