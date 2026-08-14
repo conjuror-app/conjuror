@@ -59,8 +59,8 @@ struct HotKeyStoreTests {
     #expect((store.registrationErrorMessage) == nil)
   }
 
-  @Test("Hot key store: recording temporarily unregisters and restores the shortcut")
-  func testRecordingTemporarilyUnregistersAndRestoresShortcut() {
+  @Test("Hot key store: recording temporarily unregisters and restores the shortcuts")
+  func testRecordingTemporarilyUnregistersAndRestoresShortcuts() {
     let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
     var registrationCount = 0
     let store = HotKeyStore(
@@ -77,6 +77,34 @@ struct HotKeyStoreTests {
     store.setShortcutRecording(false)
 
     #expect(registrationCount == HotKeyAction.allCases.count * 2)
+    #expect((store.registrationErrorMessage) == nil)
+  }
+
+  @Test("Hot key store: changing a shortcut while recording restores every shortcut")
+  func testChangingShortcutWhileRecordingRestoresEveryShortcut() {
+    let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
+    var configurations = [HotKeyConfiguration]()
+    let replacement = HotKeyConfiguration(
+      keyCode: 1,
+      modifiers: 2,
+      displayName: "⌘ S"
+    )
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        configurations.append(configuration)
+        return RegistrationToken()
+      }
+    )
+
+    store.register()
+    store.setShortcutRecording(true)
+    #expect((store.updateConfiguration(replacement)) == nil)
+    store.setShortcutRecording(false)
+
+    #expect(configurations.suffix(HotKeyAction.allCases.count).contains(replacement))
+    #expect(configurations.count == HotKeyAction.allCases.count * 2 + 1)
     #expect((store.registrationErrorMessage) == nil)
   }
 

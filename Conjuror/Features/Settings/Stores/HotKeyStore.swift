@@ -81,7 +81,7 @@ final class HotKeyStore: ObservableObject {
   func setShortcutRecording(_ isRecording: Bool) {
     if isRecording {
       registrations.removeAll()
-    } else if registrations.isEmpty {
+    } else {
       register()
     }
   }
