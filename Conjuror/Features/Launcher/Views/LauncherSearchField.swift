@@ -19,9 +19,10 @@ struct LauncherSearchField: View {
       .help(mode == .applications ? "Search Apple Shortcuts (>)" : "Search applications")
       .accessibilityLabel(mode == .applications ? "Switch to shortcuts" : "Switch to applications")
 
-      TextField(placeholder, text: $text)
+      TextField(placeholder, text: $text, axis: .horizontal)
         .focused($isFocused)
         .font(.system(size: 18, weight: .regular))
+        .lineLimit(1)
         .textFieldStyle(.plain)
         .onChange(of: text) {
           query = text
