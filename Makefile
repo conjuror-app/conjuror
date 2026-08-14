@@ -2,7 +2,8 @@ PROJECT := Conjuror.xcodeproj
 SCHEME := Conjuror
 DERIVED_DATA_PATH := .derivedData
 XCODEBUILD := xcodebuild
-XCODEBUILD_ARGS := -project $(PROJECT) -scheme $(SCHEME) -derivedDataPath $(DERIVED_DATA_PATH)
+ARCH := $(shell uname -m)
+XCODEBUILD_ARGS := -project $(PROJECT) -scheme $(SCHEME) -derivedDataPath $(DERIVED_DATA_PATH) -destination 'platform=macOS,arch=$(ARCH)'
 SWIFT_FORMAT := swift format
 SWIFT_SOURCES := Conjuror ConjurorTests
 
