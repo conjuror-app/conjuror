@@ -10,13 +10,13 @@ final class HotKeyStore: ObservableObject {
   @Published private(set) var registrationErrorMessage: String?
 
   private let settingsStore: SettingsStore
-  private let onHotKeyPressed: () -> Void
+  private let onHotKeyPressed: (HotKeyAction) -> Void
   private let registrationFactory: RegistrationFactory
-  private var registration: (any HotKeyRegistration)?
+  private var registrations = [HotKeyAction: any HotKeyRegistration]()
 
   init(
     settingsStore: SettingsStore,
-    onHotKeyPressed: @escaping () -> Void,
+    onHotKeyPressed: @escaping (HotKeyAction) -> Void,
     registrationFactory: @escaping RegistrationFactory = { configuration, handler in
       try GlobalHotKey(configuration: configuration, handler: handler)
     }
@@ -27,43 +27,61 @@ final class HotKeyStore: ObservableObject {
   }
 
   func register() {
+    registrations.removeAll()
     do {
-      registration = try makeRegistration(
-        configuration: settingsStore.hotKeyConfiguration
-      )
+      for action in HotKeyAction.allCases {
+        guard let configuration = settingsStore.hotKeyConfiguration(for: action) else { continue }
+        registrations[action] = try makeRegistration(configuration: configuration, action: action)
+      }
       registrationErrorMessage = nil
     } catch {
-      registration = nil
+      registrations.removeAll()
       registrationErrorMessage = error.localizedDescription
     }
   }
 
-  func updateConfiguration(_ configuration: HotKeyConfiguration) -> String? {
-    if configuration == settingsStore.hotKeyConfiguration {
-      guard registration == nil else {
-        registrationErrorMessage = nil
-        return nil
-      }
-
-      register()
-      return registrationErrorMessage
+  func updateConfiguration(
+    _ configuration: HotKeyConfiguration?,
+    for action: HotKeyAction = .launcher
+  ) -> String? {
+    let existingConfiguration = settingsStore.hotKeyConfiguration(for: action)
+    if configuration == existingConfiguration, registrations[action] != nil || configuration == nil
+    {
+      registrationErrorMessage = nil
+      return nil
     }
 
+    if let configuration,
+      HotKeyAction.allCases.contains(where: {
+        $0 != action && settingsStore.hotKeyConfiguration(for: $0) == configuration
+      })
+    {
+      return "That shortcut is already assigned in Conjuror."
+    }
+
+    registrations[action] = nil
     do {
-      let replacement = try makeRegistration(configuration: configuration)
-      registration = replacement
+      if let configuration {
+        registrations[action] = try makeRegistration(configuration: configuration, action: action)
+      }
       registrationErrorMessage = nil
-      settingsStore.setHotKeyConfiguration(configuration)
+      settingsStore.setHotKeyConfiguration(configuration, for: action)
       return nil
     } catch {
+      if let existingConfiguration {
+        registrations[action] = try? makeRegistration(
+          configuration: existingConfiguration,
+          action: action
+        )
+      }
       return error.localizedDescription
     }
   }
 
   func setShortcutRecording(_ isRecording: Bool) {
     if isRecording {
-      registration = nil
-    } else if registration == nil {
+      registrations.removeAll()
+    } else if registrations.isEmpty {
       register()
     }
   }
@@ -71,12 +89,18 @@ final class HotKeyStore: ObservableObject {
   func resetSettings() -> String? {
     settingsStore.resetMaximumVisibleResults()
     settingsStore.setPreferredEmojiSkinTone(.default)
-    return updateConfiguration(.defaultValue)
+    registrations.removeAll()
+    for action in HotKeyAction.allCases {
+      settingsStore.setHotKeyConfiguration(action.defaultConfiguration, for: action)
+    }
+    register()
+    return registrationErrorMessage
   }
 
   private func makeRegistration(
-    configuration: HotKeyConfiguration
+    configuration: HotKeyConfiguration,
+    action: HotKeyAction
   ) throws -> any HotKeyRegistration {
-    try registrationFactory(configuration, onHotKeyPressed)
+    try registrationFactory(configuration) { [onHotKeyPressed] in onHotKeyPressed(action) }
   }
 }

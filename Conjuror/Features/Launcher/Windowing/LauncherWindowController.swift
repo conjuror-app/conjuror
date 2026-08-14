@@ -95,12 +95,20 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func show() {
+  func toggle(mode: LauncherMode) {
+    if isVisible, store.mode == mode {
+      hide()
+    } else {
+      show(mode: mode)
+    }
+  }
+
+  func show(mode: LauncherMode? = nil) {
     guard let window else {
       return
     }
 
-    store.prepareForActivation()
+    store.prepareForActivation(mode: mode)
     Self.resize(window, height: LauncherLayout.collapsedHeight)
     placeOnPreferredScreen(window)
     NSApp.unhide(nil)

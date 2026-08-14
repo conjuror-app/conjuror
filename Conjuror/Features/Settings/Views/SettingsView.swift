@@ -28,7 +28,7 @@ struct SettingsView: View {
           Label("About", systemImage: "info.circle")
         }
     }
-    .frame(width: 520, height: 280)
+    .frame(width: 520, height: 400)
   }
 }
 
@@ -45,13 +45,27 @@ private struct GeneralSettingsView: View {
         ShortcutRecorder(
           configuration: store.hotKeyConfiguration,
           onChange: { configuration in
-            hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration)
+            hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration, for: .launcher)
             return hotKeyErrorMessage == nil
           },
           onRecordingChange: hotKeyStore.setShortcutRecording
         )
         .frame(width: 120, height: 28)
       }
+
+      optionalShortcutRow(
+        title: "Shortcuts mode",
+        description: "Open the launcher directly in Apple Shortcuts mode.",
+        action: .shortcuts,
+        configuration: store.shortcutsHotKeyConfiguration
+      )
+
+      optionalShortcutRow(
+        title: "Emoji mode",
+        description: "Open the launcher directly in emoji mode.",
+        action: .emoji,
+        configuration: store.emojiHotKeyConfiguration
+      )
 
       SettingsRow(
         title: "Visible results",
@@ -95,6 +109,43 @@ private struct GeneralSettingsView: View {
   }
 
   @State private var hotKeyErrorMessage: String?
+
+  private func optionalShortcutRow(
+    title: String,
+    description: String,
+    action: HotKeyAction,
+    configuration: HotKeyConfiguration?
+  ) -> some View {
+    SettingsRow(title: title, description: description) {
+      HStack {
+        Toggle(
+          title,
+          isOn: Binding(
+            get: { configuration != nil },
+            set: { isEnabled in
+              hotKeyErrorMessage = hotKeyStore.updateConfiguration(
+                isEnabled ? action.defaultConfiguration : nil,
+                for: action
+              )
+            }
+          )
+        )
+        .labelsHidden()
+
+        if let configuration {
+          ShortcutRecorder(
+            configuration: configuration,
+            onChange: { newConfiguration in
+              hotKeyErrorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
+              return hotKeyErrorMessage == nil
+            },
+            onRecordingChange: hotKeyStore.setShortcutRecording
+          )
+          .frame(width: 120, height: 28)
+        }
+      }
+    }
+  }
 }
 
 private struct EmojiSettingsView: View {

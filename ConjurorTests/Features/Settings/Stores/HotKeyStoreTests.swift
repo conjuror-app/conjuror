@@ -13,7 +13,7 @@ struct HotKeyStoreTests {
     var configurations = [HotKeyConfiguration]()
     let store = HotKeyStore(
       settingsStore: settingsStore,
-      onHotKeyPressed: {},
+      onHotKeyPressed: { _ in },
       registrationFactory: { configuration, _ in
         configurations.append(configuration)
         if shouldFail {
@@ -42,7 +42,7 @@ struct HotKeyStoreTests {
     )
     let store = HotKeyStore(
       settingsStore: settingsStore,
-      onHotKeyPressed: {},
+      onHotKeyPressed: { _ in },
       registrationFactory: { configuration, _ in
         if configuration == replacement {
           throw RegistrationError.unavailable
@@ -65,7 +65,7 @@ struct HotKeyStoreTests {
     var registrationCount = 0
     let store = HotKeyStore(
       settingsStore: settingsStore,
-      onHotKeyPressed: {},
+      onHotKeyPressed: { _ in },
       registrationFactory: { _, _ in
         registrationCount += 1
         return RegistrationToken()
@@ -76,7 +76,7 @@ struct HotKeyStoreTests {
     store.setShortcutRecording(true)
     store.setShortcutRecording(false)
 
-    #expect(registrationCount == 2)
+    #expect(registrationCount == HotKeyAction.allCases.count * 2)
     #expect((store.registrationErrorMessage) == nil)
   }
 

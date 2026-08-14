@@ -7,6 +7,7 @@ final class GlobalHotKey: HotKeyRegistration {
   private var eventHandler: EventHandlerRef?
   private var hotKey: EventHotKeyRef?
   private let handler: () -> Void
+  private let identifier = UInt32.random(in: 1...UInt32.max)
 
   init(
     configuration: HotKeyConfiguration,
@@ -20,14 +21,27 @@ final class GlobalHotKey: HotKeyRegistration {
     )
     let installStatus = InstallEventHandler(
       GetApplicationEventTarget(),
-      { _, _, userData in
-        guard let userData else {
+      { _, event, userData in
+        guard let event, let userData else {
           return OSStatus(eventNotHandledErr)
         }
 
         let globalHotKey = Unmanaged<GlobalHotKey>
           .fromOpaque(userData)
           .takeUnretainedValue()
+        var hotKeyID = EventHotKeyID()
+        let status = GetEventParameter(
+          event,
+          EventParamName(kEventParamDirectObject),
+          EventParamType(typeEventHotKeyID),
+          nil,
+          MemoryLayout<EventHotKeyID>.size,
+          nil,
+          &hotKeyID
+        )
+        guard status == noErr, hotKeyID.id == globalHotKey.identifier else {
+          return OSStatus(eventNotHandledErr)
+        }
         globalHotKey.handler()
         return noErr
       },
@@ -41,7 +55,7 @@ final class GlobalHotKey: HotKeyRegistration {
       throw GlobalHotKeyError.installEventHandler(installStatus)
     }
 
-    let hotKeyID = EventHotKeyID(signature: Self.signature, id: 1)
+    let hotKeyID = EventHotKeyID(signature: Self.signature, id: identifier)
     let registrationStatus = RegisterEventHotKey(
       configuration.keyCode,
       configuration.modifiers,
