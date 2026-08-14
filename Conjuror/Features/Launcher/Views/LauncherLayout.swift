@@ -8,6 +8,20 @@ enum LauncherLayout {
   static let emojiRowSpacing: CGFloat = 2
   static let emojiRecentHeaderHeight: CGFloat = 16
 
+  static var windowMargin: CGFloat {
+    if #available(macOS 26.0, *) {
+      return 8
+    }
+    return 0
+  }
+
+  static func windowSize(contentHeight: CGFloat) -> CGSize {
+    CGSize(
+      width: width + windowMargin * 2,
+      height: contentHeight + windowMargin * 2
+    )
+  }
+
   private static let searchHeight: CGFloat = 52
   private static let dividerHeight: CGFloat = 1
   private static let defaultResultRowHeight: CGFloat = 40

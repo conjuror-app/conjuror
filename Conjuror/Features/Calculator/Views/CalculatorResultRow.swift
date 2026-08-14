@@ -39,7 +39,7 @@ struct CalculatorResultRow: View {
       .contentShape(Rectangle())
       .background {
         RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color.primary.opacity(0.07) : .clear)
+          .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
       }
     }
     .buttonStyle(.plain)

@@ -3,19 +3,15 @@ import SwiftUI
 
 @MainActor
 final class LauncherWindowController: NSWindowController, NSWindowDelegate {
-  private static let collapsedWindowSize = NSSize(
-    width: LauncherLayout.width,
-    height: LauncherLayout.collapsedHeight
-  )
+  private static var collapsedWindowSize: NSSize {
+    LauncherLayout.windowSize(contentHeight: LauncherLayout.collapsedHeight)
+  }
 
   private static func resize(
     _ window: NSWindow,
     height: CGFloat
   ) {
-    let targetSize = NSSize(
-      width: LauncherLayout.width,
-      height: height
-    )
+    let targetSize = LauncherLayout.windowSize(contentHeight: height)
     let targetFrame = LauncherWindowGeometry.resizedFrame(
       currentFrame: window.frame,
       targetSize: targetSize,
