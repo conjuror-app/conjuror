@@ -147,6 +147,15 @@ private final class ShortcutRecorderButton: NSButton {
     fatalError("init(coder:) has not been implemented")
   }
 
+  override func performKeyEquivalent(with event: NSEvent) -> Bool {
+    guard isRecording else {
+      return super.performKeyEquivalent(with: event)
+    }
+
+    keyDown(with: event)
+    return true
+  }
+
   override func keyDown(with event: NSEvent) {
     guard isRecording else {
       super.keyDown(with: event)
