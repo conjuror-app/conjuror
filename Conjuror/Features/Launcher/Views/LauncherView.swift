@@ -24,6 +24,7 @@ struct LauncherView: View {
 
       if isExpanded {
         Divider()
+          .padding(.horizontal, 12)
 
         if let hotKeyErrorMessage = hotKeyStore.registrationErrorMessage {
           statusMessage(
@@ -50,6 +51,7 @@ struct LauncherView: View {
       alignment: .top
     )
     .modifier(LauncherSurfaceModifier())
+    .padding(LauncherLayout.windowMargin)
     .task {
       store.loadApplications()
     }
@@ -153,6 +155,7 @@ struct LauncherView: View {
   private var actionFooter: some View {
     VStack(spacing: 0) {
       Divider()
+        .padding(.horizontal, 12)
 
       HStack {
         Spacer()
