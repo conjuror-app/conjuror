@@ -2,14 +2,20 @@ import Foundation
 
 struct Emoji: Identifiable, Hashable, Sendable {
   static let catalog = EmojiData.raw.split(separator: "\n").compactMap { line -> Emoji? in
-    let fields = line.split(separator: "|", maxSplits: 2, omittingEmptySubsequences: false)
-    guard fields.count == 3 else { return nil }
-    return Emoji(value: String(fields[0]), name: String(fields[1]), category: String(fields[2]))
+    let fields = line.split(separator: "|", maxSplits: 3, omittingEmptySubsequences: false)
+    guard fields.count == 4 else { return nil }
+    return Emoji(
+      value: String(fields[0]),
+      name: String(fields[1]),
+      category: String(fields[2]),
+      keywords: fields[3].split(separator: ",").map(String.init)
+    )
   }
 
   let value: String
   let name: String
   let category: String
+  let keywords: [String]
 
   var id: String { value }
   var persistenceKey: String { value }
@@ -84,4 +90,13 @@ enum EmojiSkinTone: String, CaseIterable, Identifiable, Sendable {
     case .dark: "dark skin tone"
     }
   }
+}
+
+private enum EmojiData {
+  static let raw: String = {
+    let url = Bundle.main.url(forResource: "EmojiCatalog", withExtension: "data")!
+    let compressed = try! Data(contentsOf: url) as NSData
+    let data = try! compressed.decompressed(using: .zlib) as Data
+    return String(decoding: data, as: UTF8.self)
+  }()
 }
