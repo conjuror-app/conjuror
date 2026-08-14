@@ -8,7 +8,8 @@ final class SettingsWindowController: NSWindowController {
   init(
     store: SettingsStore,
     hotKeyStore: HotKeyStore,
-    currencyRateStore: CurrencyRateStore
+    currencyRateStore: CurrencyRateStore,
+    launchAtLoginStore: LaunchAtLoginStore
   ) {
     let window = NSWindow(
       contentRect: NSRect(origin: .zero, size: Self.windowSize),
@@ -23,7 +24,8 @@ final class SettingsWindowController: NSWindowController {
       rootView: SettingsView(
         store: store,
         hotKeyStore: hotKeyStore,
-        currencyRateStore: currencyRateStore
+        currencyRateStore: currencyRateStore,
+        launchAtLoginStore: launchAtLoginStore
       )
     )
     window.setContentSize(Self.windowSize)

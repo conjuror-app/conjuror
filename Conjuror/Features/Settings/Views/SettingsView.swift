@@ -5,13 +5,18 @@ struct SettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
   @ObservedObject var currencyRateStore: CurrencyRateStore
+  @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
   var body: some View {
     TabView {
-      GeneralSettingsView(store: store, hotKeyStore: hotKeyStore)
-        .tabItem {
-          Label("General", systemImage: "gearshape")
-        }
+      GeneralSettingsView(
+        store: store,
+        hotKeyStore: hotKeyStore,
+        launchAtLoginStore: launchAtLoginStore
+      )
+      .tabItem {
+        Label("General", systemImage: "gearshape")
+      }
 
       EmojiSettingsView(store: store)
         .tabItem {
@@ -29,12 +34,16 @@ struct SettingsView: View {
         }
     }
     .frame(width: 520, height: 400)
+    .onAppear {
+      launchAtLoginStore.refresh()
+    }
   }
 }
 
 private struct GeneralSettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
+  @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
   var body: some View {
     SettingsPane {
@@ -66,6 +75,40 @@ private struct GeneralSettingsView: View {
         action: .emoji,
         configuration: store.emojiHotKeyConfiguration
       )
+
+      SettingsRow(
+        title: "Launch at login",
+        description: "Start Conjuror automatically when you log in."
+      ) {
+        LaunchAtLoginCheckbox(
+          isOn: launchAtLoginStore.isEnabled,
+          onChange: launchAtLoginStore.setEnabled
+        )
+        .frame(width: 18, height: 18)
+      }
+
+      if launchAtLoginStore.status == .requiresApproval {
+        HStack {
+          Label(
+            "Allow Conjuror in System Settings to finish enabling launch at login.",
+            systemImage: "exclamationmark.triangle"
+          )
+          .font(.caption)
+          .foregroundStyle(.orange)
+
+          Spacer()
+          Button("Open Login Items Settings") {
+            launchAtLoginStore.openLoginItemsSettings()
+          }
+        }
+      }
+
+      if let errorMessage = launchAtLoginStore.errorMessage {
+        Label(errorMessage, systemImage: "exclamationmark.triangle")
+          .font(.caption)
+          .foregroundStyle(.red)
+          .lineLimit(2)
+      }
 
       SettingsRow(
         title: "Visible results",
@@ -145,6 +188,43 @@ private struct GeneralSettingsView: View {
         }
       }
     }
+  }
+}
+
+private struct LaunchAtLoginCheckbox: NSViewRepresentable {
+  @MainActor
+  final class Coordinator: NSObject {
+    var onChange: (Bool) -> Void
+
+    init(onChange: @escaping (Bool) -> Void) {
+      self.onChange = onChange
+    }
+
+    @objc func toggle(_ sender: NSButton) {
+      onChange(sender.state == .on)
+    }
+  }
+
+  let isOn: Bool
+  let onChange: (Bool) -> Void
+
+  func makeCoordinator() -> Coordinator {
+    Coordinator(onChange: onChange)
+  }
+
+  func makeNSView(context: Context) -> NSButton {
+    let button = NSButton(
+      checkboxWithTitle: "",
+      target: context.coordinator,
+      action: #selector(Coordinator.toggle(_:))
+    )
+    button.setAccessibilityLabel("Launch at login")
+    return button
+  }
+
+  func updateNSView(_ button: NSButton, context: Context) {
+    button.state = isOn ? .on : .off
+    context.coordinator.onChange = onChange
   }
 }
 

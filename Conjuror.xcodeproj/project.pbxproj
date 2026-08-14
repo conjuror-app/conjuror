@@ -46,6 +46,8 @@
 		8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */; };
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
 		8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */; };
+		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
+		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
@@ -123,6 +125,8 @@
 		8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantity.swift; sourceTree = "<group>"; };
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
@@ -459,6 +463,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E36102C55C00100C0A001 /* HotKeyStore.swift */,
+				B20000000000000000000001 /* LaunchAtLoginStore.swift */,
 				8A4E34102C55C00100C0A001 /* SettingsStore.swift */,
 			);
 			path = Stores;
@@ -620,6 +625,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */,
+				B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */,
 				8A4E34132C55C00100C0A001 /* SettingsStoreTests.swift */,
 			);
 			path = Stores;
@@ -762,6 +768,7 @@
 				8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */,
 				8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */,
 				8A4E36002C55C00100C0A001 /* HotKeyStore.swift in Sources */,
+				B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */,
 				8A4E33092C55C00100C0A001 /* GlobalHotKey.swift in Sources */,
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
 				8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */,
@@ -809,6 +816,7 @@
 				8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */,
 				8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
+				B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */,
 				8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */,
 				8A4E36032C55C00100C0A001 /* LauncherWindowControllerTests.swift in Sources */,
 				8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */,
