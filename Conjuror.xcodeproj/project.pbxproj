@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
+		C10000000000000000000001 /* LauncherResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* LauncherResultsView.swift */; };
+		C10000000000000000000002 /* LauncherSurfaceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* LauncherSurfaceModifier.swift */; };
 		8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* Conjuror.icon */; };
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
@@ -26,6 +28,13 @@
 		8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */; };
 		8A4E34002C55C00100C0A001 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E34102C55C00100C0A001 /* SettingsStore.swift */; };
 		8A4E34012C55C00100C0A001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E34112C55C00100C0A001 /* SettingsView.swift */; };
+		C10000000000000000000003 /* AboutSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* AboutSettingsView.swift */; };
+		C10000000000000000000004 /* CalculatorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* CalculatorSettingsView.swift */; };
+		C10000000000000000000005 /* EmojiSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* EmojiSettingsView.swift */; };
+		C10000000000000000000006 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000006 /* GeneralSettingsView.swift */; };
+		C10000000000000000000007 /* LaunchAtLoginCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */; };
+		C10000000000000000000008 /* SettingsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* SettingsPane.swift */; };
+		C10000000000000000000009 /* SettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000009 /* SettingsRow.swift */; };
 		8A4E34022C55C00100C0A001 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E34122C55C00100C0A001 /* SettingsWindowController.swift */; };
 		8A4E34032C55C00100C0A001 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E34132C55C00100C0A001 /* SettingsStoreTests.swift */; };
 		8A4E35002C55C00100C0A001 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */; };
@@ -85,6 +94,8 @@
 /* Begin PBXFileReference section */
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
+		C20000000000000000000001 /* LauncherResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000002 /* LauncherSurfaceModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSurfaceModifier.swift; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E32142C55C00100C0A001 /* Conjuror.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Conjuror.icon; sourceTree = "<group>"; };
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
@@ -104,6 +115,13 @@
 		8A4E331B2C55C00100C0A001 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherStoreTests.swift; sourceTree = "<group>"; };
 		8A4E34102C55C00100C0A001 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		8A4E34112C55C00100C0A001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000003 /* AboutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000004 /* CalculatorSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorSettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000005 /* EmojiSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000006 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginCheckbox.swift; sourceTree = "<group>"; };
+		C20000000000000000000008 /* SettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPane.swift; sourceTree = "<group>"; };
+		C20000000000000000000009 /* SettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRow.swift; sourceTree = "<group>"; };
 		8A4E34122C55C00100C0A001 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		8A4E34132C55C00100C0A001 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
 		8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
@@ -415,7 +433,9 @@
 			isa = PBXGroup;
 			children = (
 				F65FFE000000000000000002 /* LauncherLayout.swift */,
+				C20000000000000000000001 /* LauncherResultsView.swift */,
 				8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */,
+				C20000000000000000000002 /* LauncherSurfaceModifier.swift */,
 				8A4E32112C55C00100C0A001 /* LauncherView.swift */,
 			);
 			path = Views;
@@ -472,6 +492,13 @@
 		F65FFD000000000000000014 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C20000000000000000000003 /* AboutSettingsView.swift */,
+				C20000000000000000000004 /* CalculatorSettingsView.swift */,
+				C20000000000000000000005 /* EmojiSettingsView.swift */,
+				C20000000000000000000006 /* GeneralSettingsView.swift */,
+				C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */,
+				C20000000000000000000008 /* SettingsPane.swift */,
+				C20000000000000000000009 /* SettingsRow.swift */,
 				8A4E34112C55C00100C0A001 /* SettingsView.swift */,
 				8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */,
 			);
@@ -773,8 +800,17 @@
 				8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */,
 				8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */,
 				8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */,
+				C10000000000000000000001 /* LauncherResultsView.swift in Sources */,
+				C10000000000000000000002 /* LauncherSurfaceModifier.swift in Sources */,
 				8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */,
 				8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */,
+				C10000000000000000000003 /* AboutSettingsView.swift in Sources */,
+				C10000000000000000000004 /* CalculatorSettingsView.swift in Sources */,
+				C10000000000000000000005 /* EmojiSettingsView.swift in Sources */,
+				C10000000000000000000006 /* GeneralSettingsView.swift in Sources */,
+				C10000000000000000000007 /* LaunchAtLoginCheckbox.swift in Sources */,
+				C10000000000000000000008 /* SettingsPane.swift in Sources */,
+				C10000000000000000000009 /* SettingsRow.swift in Sources */,
 				8A4E34002C55C00100C0A001 /* SettingsStore.swift in Sources */,
 				8A4E34012C55C00100C0A001 /* SettingsView.swift in Sources */,
 				8A4E34022C55C00100C0A001 /* SettingsWindowController.swift in Sources */,
