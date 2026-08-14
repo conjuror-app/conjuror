@@ -15,7 +15,6 @@ struct LauncherView: View {
           set: { value in store.updateQuery(value) }
         ),
         mode: store.mode,
-        onToggleMode: store.toggleMode,
         onOpenSelected: store.openSelectedResult,
         focusRequest: store.focusRequest
       )
