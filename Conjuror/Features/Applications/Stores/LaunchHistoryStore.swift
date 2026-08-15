@@ -21,18 +21,18 @@ struct LaunchHistoryStore {
 }
 
 struct RecencyStore {
-  private let storageKey: String
+  private let storageKey: UserDefaultsKey<[String: Double]>
   private let limit: Int
   private let userDefaults: UserDefaults
 
   init(storageKey: String, limit: Int, userDefaults: UserDefaults = .standard) {
-    self.storageKey = storageKey
+    self.storageKey = UserDefaultsKey(storageKey)
     self.limit = limit
     self.userDefaults = userDefaults
   }
 
   func load() -> [String: Date] {
-    guard let values = userDefaults.dictionary(forKey: storageKey) as? [String: Double] else {
+    guard let values = userDefaults.value(for: storageKey) else {
       return [:]
     }
     return limited(values).mapValues(Date.init(timeIntervalSince1970:))
@@ -43,7 +43,7 @@ struct RecencyStore {
     values[key] = date
     userDefaults.set(
       limited(values.mapValues(\.timeIntervalSince1970)),
-      forKey: storageKey
+      for: storageKey
     )
   }
 
