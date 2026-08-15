@@ -12,6 +12,16 @@ struct CalculatorEngineTests {
     )
   )
 
+  @Test("Calculator input: conversion connectors share one canonical representation")
+  func testConversionConnectorNormalization() {
+    #expect(CalculatorInput.normalizingConversionConnectors(" 1 km → miles ") == "1 km  to  miles")
+    #expect(CalculatorInput.normalizingConversionConnectors("1 km -> miles") == "1 km  to  miles")
+    #expect(
+      CalculatorInput.normalizingConversionConnectors("1 KM IN MILES", lowercased: true)
+        == "1 km in miles"
+    )
+  }
+
   @Test("Calculator engine: relative dates support calendar units in both directions")
   func testRelativeDatesSupportCalendarUnitsInBothDirections() {
     let engine = relativeDateEngine(
