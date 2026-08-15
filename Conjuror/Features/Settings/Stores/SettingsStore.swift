@@ -3,6 +3,12 @@ import Foundation
 
 @MainActor
 final class SettingsStore: ObservableObject {
+  private struct HotKeyKeys {
+    let code: String
+    let displayName: String
+    let modifiers: String
+  }
+
   private enum Key {
     static let hotKeyCode = "settings.hotKeyCode"
     static let hotKeyDisplayName = "settings.hotKeyDisplayName"
@@ -16,6 +22,29 @@ final class SettingsStore: ObservableObject {
     static let optionalHotKeysInitialized = "settings.optionalHotKeysInitialized"
     static let maximumVisibleResults = "settings.maximumVisibleResults"
     static let preferredEmojiSkinTone = "settings.preferredEmojiSkinTone"
+
+    static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
+      switch action {
+      case .launcher:
+        HotKeyKeys(
+          code: hotKeyCode,
+          displayName: hotKeyDisplayName,
+          modifiers: hotKeyModifiers
+        )
+      case .shortcuts:
+        HotKeyKeys(
+          code: shortcutsHotKeyCode,
+          displayName: shortcutsHotKeyDisplayName,
+          modifiers: shortcutsHotKeyModifiers
+        )
+      case .emoji:
+        HotKeyKeys(
+          code: emojiHotKeyCode,
+          displayName: emojiHotKeyDisplayName,
+          modifiers: emojiHotKeyModifiers
+        )
+      }
+    }
   }
 
   nonisolated static let defaultMaximumVisibleResults = 7
@@ -30,17 +59,15 @@ final class SettingsStore: ObservableObject {
 
   private static func loadOptionalHotKey(
     from userDefaults: UserDefaults,
-    codeKey: String,
-    modifiersKey: String,
-    displayNameKey: String
+    keys: HotKeyKeys
   ) -> HotKeyConfiguration? {
-    guard userDefaults.object(forKey: codeKey) != nil,
-      userDefaults.object(forKey: modifiersKey) != nil,
-      let displayName = userDefaults.string(forKey: displayNameKey)
+    guard userDefaults.object(forKey: keys.code) != nil,
+      userDefaults.object(forKey: keys.modifiers) != nil,
+      let displayName = userDefaults.string(forKey: keys.displayName)
     else { return nil }
     return HotKeyConfiguration(
-      keyCode: UInt32(userDefaults.integer(forKey: codeKey)),
-      modifiers: UInt32(userDefaults.integer(forKey: modifiersKey)),
+      keyCode: UInt32(userDefaults.integer(forKey: keys.code)),
+      modifiers: UInt32(userDefaults.integer(forKey: keys.modifiers)),
       displayName: displayName
     )
   }
@@ -73,16 +100,12 @@ final class SettingsStore: ObservableObject {
     shortcutsHotKeyConfiguration =
       Self.loadOptionalHotKey(
         from: userDefaults,
-        codeKey: Key.shortcutsHotKeyCode,
-        modifiersKey: Key.shortcutsHotKeyModifiers,
-        displayNameKey: Key.shortcutsHotKeyDisplayName
+        keys: Key.hotKeyKeys(for: .shortcuts)
       ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.shortcuts.defaultConfiguration)
     emojiHotKeyConfiguration =
       Self.loadOptionalHotKey(
         from: userDefaults,
-        codeKey: Key.emojiHotKeyCode,
-        modifiersKey: Key.emojiHotKeyModifiers,
-        displayNameKey: Key.emojiHotKeyDisplayName
+        keys: Key.hotKeyKeys(for: .emoji)
       ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.emoji.defaultConfiguration)
     let storedMaximum =
       userDefaults.object(forKey: Key.maximumVisibleResults)
@@ -147,18 +170,15 @@ final class SettingsStore: ObservableObject {
     _ configuration: HotKeyConfiguration?,
     for action: HotKeyAction
   ) {
-    let keys =
-      action == .shortcuts
-      ? (Key.shortcutsHotKeyCode, Key.shortcutsHotKeyModifiers, Key.shortcutsHotKeyDisplayName)
-      : (Key.emojiHotKeyCode, Key.emojiHotKeyModifiers, Key.emojiHotKeyDisplayName)
+    let keys = Key.hotKeyKeys(for: action)
     guard let configuration else {
-      userDefaults.removeObject(forKey: keys.0)
-      userDefaults.removeObject(forKey: keys.1)
-      userDefaults.removeObject(forKey: keys.2)
+      userDefaults.removeObject(forKey: keys.code)
+      userDefaults.removeObject(forKey: keys.modifiers)
+      userDefaults.removeObject(forKey: keys.displayName)
       return
     }
-    userDefaults.set(Int(configuration.keyCode), forKey: keys.0)
-    userDefaults.set(Int(configuration.modifiers), forKey: keys.1)
-    userDefaults.set(configuration.displayName, forKey: keys.2)
+    userDefaults.set(Int(configuration.keyCode), forKey: keys.code)
+    userDefaults.set(Int(configuration.modifiers), forKey: keys.modifiers)
+    userDefaults.set(configuration.displayName, forKey: keys.displayName)
   }
 }
