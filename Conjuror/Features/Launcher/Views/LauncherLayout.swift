@@ -7,20 +7,7 @@ enum LauncherLayout {
   static let emojiRowHeight: CGFloat = 42
   static let emojiRowSpacing: CGFloat = 2
   static let emojiRecentHeaderHeight: CGFloat = 16
-
-  static var windowMargin: CGFloat {
-    if #available(macOS 26.0, *) {
-      return 8
-    }
-    return 0
-  }
-
-  static func windowSize(contentHeight: CGFloat) -> CGSize {
-    CGSize(
-      width: width + windowMargin * 2,
-      height: contentHeight + windowMargin * 2
-    )
-  }
+  static let windowMargin: CGFloat = 8
 
   private static let searchHeight: CGFloat = 52
   private static let dividerHeight: CGFloat = 1
@@ -28,6 +15,13 @@ enum LauncherLayout {
   private static let defaultResultSpacing: CGFloat = 1
   private static let resultsVerticalPadding: CGFloat = 8
   private static let footerHeight: CGFloat = 29
+
+  static func windowSize(contentHeight: CGFloat) -> CGSize {
+    CGSize(
+      width: width + windowMargin * 2,
+      height: contentHeight + windowMargin * 2
+    )
+  }
 
   static func emojiExpandedHeight(
     itemCount: Int,
