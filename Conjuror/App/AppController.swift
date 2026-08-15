@@ -44,7 +44,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   private var statusItem: NSStatusItem?
   private var cancellables = Set<AnyCancellable>()
   private var workspaceObservers = [NSObjectProtocol]()
-  private var catalogRefreshWorkItem: DispatchWorkItem?
+  private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
@@ -58,8 +58,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   func applicationWillTerminate(_ notification: Notification) {
-    catalogRefreshWorkItem?.cancel()
-    catalogRefreshWorkItem = nil
+    catalogRefreshDebouncer.cancel()
 
     let notificationCenter = NSWorkspace.shared.notificationCenter
     workspaceObservers.forEach(notificationCenter.removeObserver)
@@ -181,11 +180,30 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   private func scheduleCatalogRefresh() {
-    catalogRefreshWorkItem?.cancel()
-    let workItem = DispatchWorkItem { [weak self] in
+    catalogRefreshDebouncer.schedule { [weak self] in
       self?.store.loadApplications()
     }
-    catalogRefreshWorkItem = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+  }
+}
+
+@MainActor
+private final class MainQueueDebouncer {
+  private let delay: TimeInterval
+  private var workItem: DispatchWorkItem?
+
+  init(delay: TimeInterval) {
+    self.delay = delay
+  }
+
+  func schedule(_ action: @escaping @MainActor () -> Void) {
+    cancel()
+    let workItem = DispatchWorkItem { action() }
+    self.workItem = workItem
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+  }
+
+  func cancel() {
+    workItem?.cancel()
+    workItem = nil
   }
 }
