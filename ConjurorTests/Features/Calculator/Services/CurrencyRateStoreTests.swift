@@ -8,7 +8,7 @@ import Testing
 struct CurrencyRateStoreTests {
   @Test("Currency rate store: refresh task does not retain the store while sleeping")
   func testRefreshTaskDoesNotRetainStoreWhileSleeping() async throws {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     userDefaults.set(true, forKey: "settings.currencyConversionEnabled")
     let cacheURL = FileManager.default.temporaryDirectory
       .appendingPathComponent("CurrencyRateStoreTests-\(UUID().uuidString).json")
@@ -35,7 +35,7 @@ struct CurrencyRateStoreTests {
     #expect(weakStore == nil)
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "CurrencyRateStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)

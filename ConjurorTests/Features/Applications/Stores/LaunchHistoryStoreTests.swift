@@ -8,7 +8,7 @@ import Testing
 struct LaunchHistoryStoreTests {
   @Test("Launch history store: invalid stored representations are ignored")
   func testInvalidStoredRepresentationIsIgnored() {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     userDefaults.set(["invalid": "date"], forKey: "recentSuccessfulLaunches")
     let store = LaunchHistoryStore(userDefaults: userDefaults)
 
@@ -17,7 +17,7 @@ struct LaunchHistoryStoreTests {
 
   @Test("Launch history store: most recent successful launches are recorded and reloaded")
   func testRecordsAndReloadsMostRecentSuccessfulLaunch() {
-    let store = LaunchHistoryStore(userDefaults: makeUserDefaults())
+    let store = LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     let application = InstalledApplication(
       displayName: "Alpha",
       bundleIdentifier: "dev.example.alpha",
@@ -35,7 +35,7 @@ struct LaunchHistoryStoreTests {
 
   @Test("Launch history store: only the 100 most recent launches are retained")
   func testLimitsHistoryToMostRecentLaunches() {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let store = LaunchHistoryStore(userDefaults: userDefaults)
 
     for index in 0..<101 {
@@ -55,7 +55,7 @@ struct LaunchHistoryStoreTests {
     #expect(history["dev.example.application-100"] != nil)
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "LaunchHistoryStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)

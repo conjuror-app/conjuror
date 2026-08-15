@@ -8,7 +8,7 @@ import Testing
 struct HotKeyStoreTests {
   @Test("Hot key store: registration failures are published and successful retries clear them")
   func testRegistrationFailureIsPublishedAndSuccessfulRetryClearsIt() {
-    let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     var shouldFail = true
     var configurations = [HotKeyConfiguration]()
     let store = HotKeyStore(
@@ -34,7 +34,7 @@ struct HotKeyStoreTests {
 
   @Test("Hot key store: rejected replacements do not persist configuration")
   func testRejectedReplacementDoesNotPersistConfiguration() {
-    let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     let replacement = HotKeyConfiguration(
       keyCode: 1,
       modifiers: 2,
@@ -61,7 +61,7 @@ struct HotKeyStoreTests {
 
   @Test("Hot key store: recording temporarily unregisters and restores the shortcuts")
   func testRecordingTemporarilyUnregistersAndRestoresShortcuts() {
-    let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     var registrationCount = 0
     let store = HotKeyStore(
       settingsStore: settingsStore,
@@ -82,7 +82,7 @@ struct HotKeyStoreTests {
 
   @Test("Hot key store: changing a shortcut while recording restores every shortcut")
   func testChangingShortcutWhileRecordingRestoresEveryShortcut() {
-    let settingsStore = SettingsStore(userDefaults: makeUserDefaults())
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     var configurations = [HotKeyConfiguration]()
     let replacement = HotKeyConfiguration(
       keyCode: 1,
@@ -108,7 +108,7 @@ struct HotKeyStoreTests {
     #expect((store.registrationErrorMessage) == nil)
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "HotKeyStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)
