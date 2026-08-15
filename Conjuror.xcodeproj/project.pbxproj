@@ -10,9 +10,11 @@
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		1F938A971522761C62E7EC09 /* ApplicationMaterializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */; };
 		25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */; };
+		3E686564EAD7F24E59932469 /* CalculatorCurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */; };
 		4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */; };
 		4F31CB72FA16681871E437D1 /* LauncherModeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */; };
 		576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1933D48DE907C25080B07446 /* CurrencyRateServices.swift */; };
+		5FAF08C0363790964C5F925B /* CalculatorRadixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */; };
 		6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */; };
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
@@ -53,6 +55,7 @@
 		8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */; };
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
 		8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */; };
+		8C9FFBD375EDF89BE9EAD7A7 /* CalculatorTimeZoneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE9541CB1D3D319B61C027B9 /* CalculatorTimeZoneTests.swift */; };
 		993B3F6DF57B43C6483679CD /* SelectableResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281D2596359BC31892C24545 /* SelectableResultRow.swift */; };
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
@@ -77,6 +80,7 @@
 		E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000004 /* EmojiHistoryStore.swift */; };
 		E1000000000000000000005 /* EmojiResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000005 /* EmojiResultCell.swift */; };
 		E4000000000000000000001 /* EmojiRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4000000000000000000002 /* EmojiRankerTests.swift */; };
+		F6380F8F3E99941C669E467E /* CalculatorRelativeDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */; };
 		F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */; };
 		F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */; };
 		F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */; };
@@ -108,6 +112,7 @@
 
 /* Begin PBXFileReference section */
 		050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorArithmeticParser.swift; sourceTree = "<group>"; };
+		0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRadixTests.swift; sourceTree = "<group>"; };
 		1933D48DE907C25080B07446 /* CurrencyRateServices.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CurrencyRateServices.swift; sourceTree = "<group>"; };
 		2022CEA2BADD865FA4667B16 /* LauncherStoreApplicationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreApplicationTests.swift; sourceTree = "<group>"; };
 		281D2596359BC31892C24545 /* SelectableResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectableResultRow.swift; sourceTree = "<group>"; };
@@ -118,6 +123,8 @@
 		4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreShortcutTests.swift; sourceTree = "<group>"; };
 		681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityParser.swift; sourceTree = "<group>"; };
 		6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreEmojiTests.swift; sourceTree = "<group>"; };
+		7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorCurrencyTests.swift; sourceTree = "<group>"; };
+		7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDateTests.swift; sourceTree = "<group>"; };
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,6 +187,7 @@
 		E2000000000000000000004 /* EmojiHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiHistoryStore.swift; sourceTree = "<group>"; };
 		E2000000000000000000005 /* EmojiResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiResultCell.swift; sourceTree = "<group>"; };
 		E4000000000000000000002 /* EmojiRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRankerTests.swift; sourceTree = "<group>"; };
+		EE9541CB1D3D319B61C027B9 /* CalculatorTimeZoneTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZoneTests.swift; sourceTree = "<group>"; };
 		F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorClipboard.swift; sourceTree = "<group>"; };
 		F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngine.swift; sourceTree = "<group>"; };
 		F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResultRow.swift; sourceTree = "<group>"; };
@@ -686,8 +694,12 @@
 		F65FFD000000000000000020 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */,
 				8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */,
 				8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */,
+				0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */,
+				7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */,
+				EE9541CB1D3D319B61C027B9 /* CalculatorTimeZoneTests.swift */,
 				F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */,
 			);
 			path = Services;
@@ -956,6 +968,10 @@
 				AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */,
 				CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */,
 				BB1F88822512295121208ACE /* LauncherStoreApplicationTests.swift in Sources */,
+				F6380F8F3E99941C669E467E /* CalculatorRelativeDateTests.swift in Sources */,
+				8C9FFBD375EDF89BE9EAD7A7 /* CalculatorTimeZoneTests.swift in Sources */,
+				3E686564EAD7F24E59932469 /* CalculatorCurrencyTests.swift in Sources */,
+				5FAF08C0363790964C5F925B /* CalculatorRadixTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
