@@ -9,12 +9,13 @@ SWIFT_SOURCES := Conjuror ConjurorTests
 ARCHIVE_PATH ?= $(DERIVED_DATA_PATH)/Archives/Conjuror.xcarchive
 EXPORT_PATH ?= $(DERIVED_DATA_PATH)/Export
 NOTARIZATION_PATH ?= $(DERIVED_DATA_PATH)/Notarization
+BUILDS_PATH ?= builds
 NOTARY_PROFILE ?= conjuror-notary
 DIRECT_EXPORT_OPTIONS := export.plist
 EXPORTED_APP := $(EXPORT_PATH)/Conjuror.app
 NOTARIZATION_ARCHIVE := $(NOTARIZATION_PATH)/Conjuror.zip
 
-.PHONY: all build test archive notarize export generate-emoji format lint clean
+.PHONY: all build test archive notarize export zip generate-emoji format lint clean
 
 all: build
 
@@ -44,6 +45,17 @@ export:
 	$(XCODEBUILD) -exportArchive -archivePath "$(ARCHIVE_PATH)" \
 		-exportPath "$(EXPORT_PATH)" -exportOptionsPlist "$(DIRECT_EXPORT_OPTIONS)" \
 		-allowProvisioningUpdates
+
+zip:
+	@test -d "$(EXPORTED_APP)" || (echo "Missing exported app; run 'make notarize' first" >&2; exit 1)
+	xcrun stapler validate "$(EXPORTED_APP)"
+	@version=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$(EXPORTED_APP)/Contents/Info.plist"); \
+	build=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$(EXPORTED_APP)/Contents/Info.plist"); \
+	output="$(BUILDS_PATH)/conjuror-$$version-$$build.zip"; \
+	mkdir -p "$(BUILDS_PATH)"; \
+	rm -f "$$output"; \
+	ditto -c -k --keepParent "$(EXPORTED_APP)" "$$output"; \
+	echo "Created $$output"
 
 generate-emoji:
 	node scripts/generate_emoji.js

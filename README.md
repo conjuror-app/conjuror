@@ -125,6 +125,10 @@ staples and validates the ticket. The finished app is written to
 `.derivedData/Export/Conjuror.app`. A different Keychain profile can be selected with
 `make notarize NOTARY_PROFILE=profile-name`.
 
+Run `make zip` afterward to validate and package the notarized app as
+`builds/conjuror-<marketing-version>-<build-version>.zip`. The `builds` directory is
+ignored by source control.
+
 ### Calculator evaluator precedence
 
 Calculator input is evaluated in this order: relative date, timezone, currency, radix,
