@@ -59,7 +59,10 @@ struct CalculatorTimeZoneEvaluator {
       conversion.sourceAbbreviation
       ?? conversion.sourceTimeZone.abbreviation(for: date)
       ?? conversion.sourceTimeZone.identifier
-    let targetBadge = conversion.targetAbbreviation
+    let targetBadge =
+      conversion.targetAbbreviation
+      ?? conversion.targetTimeZone.abbreviation(for: date)
+      ?? conversion.targetTimeZone.identifier
     let sourceDisplay = format(
       date,
       in: conversion.sourceTimeZone,
@@ -88,17 +91,25 @@ struct CalculatorTimeZoneEvaluator {
       .replacingOccurrences(of: "→", with: " to ")
       .replacingOccurrences(of: "->", with: " to ")
     let lowercased = normalized.lowercased()
-    guard let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
-    else {
-      return nil
-    }
+    let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
 
-    let left = String(normalized[..<connector.lowerBound])
-      .trimmingCharacters(in: .whitespaces)
-    let targetName = String(normalized[connector.upperBound...])
-      .trimmingCharacters(in: .whitespaces)
-    guard let targetTimeZone = timeZone(abbreviated: targetName) else {
-      return nil
+    let left: String
+    let targetTimeZone: TimeZone
+    let targetAbbreviation: String?
+    if let connector {
+      left = String(normalized[..<connector.lowerBound])
+        .trimmingCharacters(in: .whitespaces)
+      let targetName = String(normalized[connector.upperBound...])
+        .trimmingCharacters(in: .whitespaces)
+      guard let explicitTargetTimeZone = timeZone(abbreviated: targetName) else {
+        return nil
+      }
+      targetTimeZone = explicitTargetTimeZone
+      targetAbbreviation = targetName.uppercased()
+    } else {
+      left = normalized
+      targetTimeZone = currentTimeZone
+      targetAbbreviation = nil
     }
 
     let words = left.split(whereSeparator: \.isWhitespace)
@@ -115,6 +126,8 @@ struct CalculatorTimeZoneEvaluator {
       sourceTimeZone = explicitSourceTimeZone
       sourceAbbreviation = sourceName.uppercased()
       timeText = words.dropLast().joined(separator: " ")
+    } else if connector == nil {
+      return nil
     }
 
     guard let time = parseTime(timeText) else {
@@ -125,7 +138,7 @@ struct CalculatorTimeZoneEvaluator {
       sourceTimeZone: sourceTimeZone,
       sourceAbbreviation: sourceAbbreviation,
       targetTimeZone: targetTimeZone,
-      targetAbbreviation: targetName.uppercased()
+      targetAbbreviation: targetAbbreviation
     )
   }
 
@@ -222,7 +235,7 @@ private extension CalculatorTimeZoneEvaluator {
     let sourceTimeZone: TimeZone
     let sourceAbbreviation: String?
     let targetTimeZone: TimeZone
-    let targetAbbreviation: String
+    let targetAbbreviation: String?
   }
 
   struct ParsedTime {
