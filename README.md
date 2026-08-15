@@ -1,91 +1,101 @@
 # Conjuror
 
-Conjuror is a keyboard-first macOS application launcher. Press `⌥ Space` to
-show or hide its single Dockless window, type to rank installed applications,
-use the arrow keys to select, and press Return to open. Type `>` to switch to
-Apple Shortcuts, then search and press Return or click a result to run it. Type
-`:` to open the emoji grid, search by Unicode name (including gender and skin
-tone), and press Return to copy. Recently copied emoji appear first when the
-emoji search is empty. Its menu bar item provides access to Settings and Quit.
+Conjuror is a keyboard-first application launcher for macOS. It provides one fast,
+Dockless interface for opening applications, running Apple Shortcuts, finding emoji,
+and performing everyday calculations and conversions.
 
-In application mode, Conjuror also evaluates calculations while you
-type. Calculator answers appear above matching applications; selecting one and
-pressing Return or clicking it copies the compact result and hides the launcher.
-Plain numbers and incomplete expressions remain regular application searches.
+Conjuror exists to keep common tasks close to the keyboard. Instead of moving between
+a launcher, calculator, emoji picker, and conversion tools—or sending queries to a
+remote service—it ranks and evaluates input locally in a small native app. Network
+access is optional and used only to update currency exchange rates.
 
-Supported calculator syntax includes arithmetic and parentheses, powers,
-percentages, `mod`, `pi`, `e`, `sqrt`, `abs`, implicit multiplication, and word
-operators such as `plus`, `minus`, `times`, `divided by`, and `over`. Examples:
-`2 plus 3 times 4`, `100 + 15%`, `20% of 50`, and `2pi`. Chained percentage
-changes compound against each intermediate result, so `123 + 25% + 10%` is
-`169.125`. Group percentages to apply them to the same source value:
-`123 + (25% + 10%)` is `166.05`.
+## Installation
 
-Integer conversion supports decimal, hexadecimal, octal, and binary with
-`decimal`/`dec`, `hexadecimal`/`hex`, `octal`/`oct`, and `binary`/`bin` names.
-Use `to`, `in`, `->`, or `→`, for example `255 to hex` or `0o377 to binary`.
-Hexadecimal, octal, and binary results use `0x`, `0o`, and `0b` prefixes.
-Entering a prefixed integer such as `0xFF` converts it directly to decimal.
-Negative values place the sign before the prefix, such as `-0x2A`.
+Conjuror currently builds from source and requires macOS 26 or later and a compatible
+version of Xcode.
 
-Quantity calculations support length, mass, duration, temperature, volume, and
-decimal or binary data units. A bare quantity automatically converts to a
-sensible counterpart, such as `100 lbs` to kilograms, `1 cm` to inches, or
-`1 mile` to kilometers. Use `to`, `in`, `->`, or `→` to choose an explicit
-target, combine compatible units with `+` or `-`, or type composite quantities.
-Examples: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, and `5 ft 3 in`. US
-customary volume units use US definitions.
+```sh
+git clone https://github.com/conjuror-app/conjuror.git
+cd conjuror
+make build
+open .derivedData/Build/Products/Debug/Conjuror.app
+```
 
-Relative dates support `N minutes/hours/days/weeks/months/years from now` and
-`N minutes/hours/days/weeks/months/years ago`, and include both the resulting
-local date and time. Minutes, hours, days, and weeks may be decimal values;
-months and years must be whole numbers. Examples: `5 days from now`, `1.5 hours
-from now`, and `2 weeks ago`.
+To install it permanently, copy `Conjuror.app` from
+`.derivedData/Build/Products/Debug` into `/Applications`.
 
-Timezone conversion supports timezone abbreviations recognized by macOS and
-12- or 24-hour clock times. Use `to`, `in`, `->`, or `→`, for example `10:00
-BST in EST` or `9am GMT → PDT`. Explicit standard and daylight abbreviations
-use their stated fixed offsets, so pairs such as `EST`/`EDT`, `CET`/`CEST`, and
-`NZST`/`NZDT` remain distinct; other macOS abbreviations use their current
-offset. A time with just a source abbreviation, such as `12:00 PST`, converts
-to the Mac's current timezone. When the source abbreviation is omitted, as in
-`1:00 pm in PDT`, the Mac's current timezone is used with its daylight-saving
-rules for the current date.
-Optional currency conversion supports ISO codes and common symbols, for example
-`100 USD to EUR`, `$50 in GBP`, and `20 EUR → ¥`. A bare amount such as `1 CAD`
-converts to the currency from the user's regional settings. It is disabled by default.
-When enabled in Settings, Conjuror downloads a complete exchange-rate snapshot
-from [Frankfurter](https://frankfurter.dev) once per day; search text is never
-sent. The latest snapshot remains available offline, and disabling the feature
-deletes its cached rates.
+The first time Conjuror accesses Apple Shortcuts, macOS may request Automation
+permission. Launch at login is disabled by default and can be enabled in General
+Settings.
 
-The app targets macOS 14 and scans `/Applications`, `/System/Applications`,
-`/System/Applications/Utilities`, `~/Applications`, and application folders on
-mounted volumes without external packages. Shortcuts that require input are
-currently excluded. macOS asks for Automation permission the first time
-Conjuror accesses Shortcuts Events. Launch at login is off by default and can
-be enabled in General Settings. If macOS requires approval, Conjuror links to
-the Login Items pane in System Settings.
+## Usage
+
+Press `⌥ Space` to show or hide Conjuror. Type to search, use the arrow keys to change
+the selection, and press Return—or click a result—to perform the selected action.
+The menu bar item provides access to Settings and Quit.
+
+### Applications and calculations
+
+Search normally to rank installed applications. Conjuror scans standard application
+folders, including mounted volumes. In the same mode, it recognizes calculations and
+places their results above matching applications. Selecting a result copies it and
+hides the launcher; plain numbers and incomplete expressions remain regular searches.
+
+Supported input includes:
+
+- Arithmetic, parentheses, powers, percentages, `mod`, `pi`, `e`, `sqrt`, `abs`, and
+  implicit multiplication: `2 plus 3 times 4`, `100 + 15%`, `20% of 50`, `2pi`.
+- Decimal, hexadecimal, octal, and binary conversion: `255 to hex`, `0o377 to binary`,
+  or simply `0xFF`.
+- Length, mass, duration, temperature, volume, and data units: `10 km to miles`,
+  `10kg + 500g`, `30 °C to °F`, `5 ft 3 in`.
+- Relative dates: `5 days from now`, `1.5 hours from now`, `2 weeks ago`.
+- Timezones: `10:00 BST in EST`, `9am GMT → PDT`, `12:00 PST`.
+- Optional currency conversion: `100 USD to EUR`, `$50 in GBP`, `20 EUR → ¥`.
+
+Use `to`, `in`, `->`, or `→` for explicit conversions. Bare quantities and currency
+amounts convert to a sensible counterpart or the currency from your regional settings.
+Currency conversion is disabled by default; when enabled, Conjuror downloads a daily
+exchange-rate snapshot from [Frankfurter](https://frankfurter.dev). Search text is
+never sent, cached rates work offline, and disabling the feature deletes the cache.
+
+### Apple Shortcuts
+
+Type `>` to enter Shortcuts mode, search, then press Return or click a result to run
+it. Shortcuts that require input are currently excluded.
+
+### Emoji
+
+Type `:` to open the emoji grid. Search by Unicode name, including gender and skin
+tone, then press Return to copy the selection. Recently copied emoji appear first
+when the search is empty.
 
 ## Development
 
-The project enables complete Swift concurrency checking in Debug and Release
-builds.
-
-### Calculator evaluator precedence
-
-Calculator input is evaluated in this order: relative date, timezone, currency,
-radix, quantity, then arithmetic. This order is part of the calculator grammar:
-specialized evaluators must reject input they do not fully recognize so that a
-later evaluator can handle it. Preserve the order when adding syntax and add a
-precedence test for expressions accepted by more than one evaluator.
-
-Build the app or run its tests with Make:
+Build and test with Make:
 
 ```sh
 make build
 make test
 ```
 
-Build artifacts are written to `.derivedData`. Run `make clean` to remove them.
-Regenerate the checked-in Unicode emoji catalog with `make generate-emoji`.
+Other useful commands are:
+
+```sh
+make format          # Format Swift sources
+make lint            # Check Swift formatting
+make generate-emoji  # Regenerate the checked-in Unicode emoji catalog
+make clean            # Remove build output
+```
+
+Build artifacts are written to `.derivedData`. Emoji generation requires Node.js; the
+version used by the project is declared in `.mise.toml`. The project enables complete
+Swift concurrency checking in Debug and Release builds.
+
+### Calculator evaluator precedence
+
+Calculator input is evaluated in this order: relative date, timezone, currency, radix,
+quantity, then arithmetic. This order is part of the calculator grammar: specialized
+evaluators must reject input they do not fully recognize so a later evaluator can
+handle it. Preserve the order when adding syntax, and add a precedence test for
+expressions accepted by more than one evaluator.
