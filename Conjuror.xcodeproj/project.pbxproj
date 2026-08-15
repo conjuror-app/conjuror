@@ -46,6 +46,7 @@
 		8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */; };
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
 		8A4E3A002C55C00100C0A001 /* CalculatorRadix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */; };
+		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
 		C10000000000000000000001 /* LauncherResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* LauncherResultsView.swift */; };
@@ -93,6 +94,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,6 +191,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		29FAB1032CCAF1E264B14362 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */,
+			);
+			name = Support;
+			path = Support;
+			sourceTree = "<group>";
+		};
 		8A4E32302C55C00100C0A001 = {
 			isa = PBXGroup;
 			children = (
@@ -221,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				F65FFD00000000000000001B /* Features */,
+				29FAB1032CCAF1E264B14362 /* Support */,
 			);
 			path = ConjurorTests;
 			sourceTree = "<group>";
@@ -864,6 +876,7 @@
 				8A4E37062C55C00100C0A001 /* ShortcutCatalogTests.swift in Sources */,
 				8A4E37072C55C00100C0A001 /* ShortcutRankerTests.swift in Sources */,
 				8A4E37082C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift in Sources */,
+				9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

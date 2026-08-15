@@ -8,7 +8,7 @@ import Testing
 struct SettingsStoreTests {
   @Test("Settings store: default values are used without stored settings")
   func testUsesDefaultValuesWithoutStoredSettings() {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
 
     #expect(store.hotKeyConfiguration == .defaultValue)
@@ -18,7 +18,7 @@ struct SettingsStoreTests {
 
   @Test("Settings store: updated settings persist")
   func testPersistsUpdatedSettings() {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
     let hotKey = HotKeyConfiguration(
       keyCode: 1,
@@ -38,7 +38,7 @@ struct SettingsStoreTests {
 
   @Test("Settings store: maximum visible results are clamped and the default resets")
   func testClampsMaximumVisibleResultsAndResetsDefault() {
-    let store = SettingsStore(userDefaults: makeUserDefaults())
+    let store = SettingsStore(userDefaults: makeTestUserDefaults())
 
     store.setMaximumVisibleResults(100)
     #expect(store.maximumVisibleResults == SettingsStore.maximumVisibleResultsRange.upperBound)
@@ -47,7 +47,7 @@ struct SettingsStoreTests {
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "SettingsStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)

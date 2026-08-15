@@ -7,7 +7,7 @@ import Testing
 struct ShortcutRunHistoryStoreTests {
   @Test("Shortcut run history store: most recent successful runs are recorded and reloaded")
   func testRecordsAndReloadsMostRecentSuccessfulRun() {
-    let store = ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+    let store = ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     let shortcut = AppleShortcut(
       id: "shortcut-id",
       name: "Lights",
@@ -25,7 +25,7 @@ struct ShortcutRunHistoryStoreTests {
 
   @Test("Shortcut run history store: only the 100 most recent runs are retained")
   func testLimitsHistoryToMostRecentRuns() {
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let store = ShortcutRunHistoryStore(userDefaults: userDefaults)
 
     for index in 0..<101 {
@@ -45,7 +45,7 @@ struct ShortcutRunHistoryStoreTests {
     #expect(history["shortcut:shortcut-100"] != nil)
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "ShortcutRunHistoryStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)

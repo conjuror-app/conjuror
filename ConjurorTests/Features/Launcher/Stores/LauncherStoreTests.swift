@@ -15,7 +15,7 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -30,14 +30,14 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: preferred skin tone replaces tone-capable base emoji")
   func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
-    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
     let store = LauncherStore(
       settingsStore: settings,
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(":waving hand")
@@ -48,14 +48,14 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: preferred skin tone replaces gendered couple emoji")
   func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
-    let settings = SettingsStore(userDefaults: makeUserDefaults())
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
     let store = LauncherStore(
       settingsStore: settings,
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(":kiss woman man")
@@ -73,10 +73,10 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
       shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(">evening")
@@ -93,8 +93,8 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(":waving hand medium dark")
@@ -109,11 +109,11 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
       shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(":")
@@ -136,11 +136,11 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
       shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.cycleMode()
@@ -158,10 +158,10 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
       shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(">2 + 3")
@@ -180,7 +180,7 @@ struct LauncherStoreTests {
       catalog: catalog,
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(
-        userDefaults: makeUserDefaults()
+        userDefaults: makeTestUserDefaults()
       )
     )
 
@@ -214,7 +214,7 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
@@ -234,7 +234,7 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: FailingCatalogStub(),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     )
 
     store.loadApplications()
@@ -253,7 +253,7 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -284,7 +284,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(
-        userDefaults: makeUserDefaults()
+        userDefaults: makeTestUserDefaults()
       )
     )
 
@@ -311,8 +311,8 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(":")
     let firstID = store.selectedEmojiID
@@ -327,7 +327,7 @@ struct LauncherStoreTests {
   @Test("Launcher store: successful launches record history, clear the query, and call success")
   func testSuccessfulLaunchRecordsHistoryClearsQueryAndCallsSuccess() async {
     let application = application("Alpha", id: "dev.example.alpha")
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let launchHistory = LaunchHistoryStore(userDefaults: userDefaults)
     var didLaunch = false
     let store = LauncherStore(
@@ -353,7 +353,7 @@ struct LauncherStoreTests {
   @Test("Launcher store: failed launches preserve the query and skip history")
   func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
     let application = application("Alpha", id: "dev.example.alpha")
-    let launchHistory = LaunchHistoryStore(userDefaults: makeUserDefaults())
+    let launchHistory = LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     var didStartLaunch = false
     var didLaunch = false
     let store = LauncherStore(
@@ -389,7 +389,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
     )
     store.query = "2 + 3"
@@ -409,7 +409,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.query = "1000 m to km"
 
@@ -422,14 +422,14 @@ struct LauncherStoreTests {
   @Test("Launcher store: Return copies emoji and records it as recent")
   func testReturnCopiesEmojiAndRecordsItAsRecent() {
     let clipboard = RecordingCalculatorClipboard()
-    let userDefaults = makeUserDefaults()
+    let userDefaults = makeTestUserDefaults()
     let history = EmojiHistoryStore(userDefaults: userDefaults)
     var didRequestHide = false
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       emojiHistory: history,
       onEvent: { if $0 == .emojiCopied { didRequestHide = true } }
     )
@@ -451,12 +451,12 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(
         shortcuts: [mainBedroom, guestBedroom]
       ),
       shortcutRunner: runner,
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">bedroom")
     await waitForShortcutsLoadingToFinish(store)
@@ -473,12 +473,12 @@ struct LauncherStoreTests {
   @Test("Launcher store: running shortcuts hide immediately and record successful runs")
   func testRunningShortcutHidesImmediatelyAndRecordsSuccessfulRun() async {
     let shortcut = shortcut("Lights", id: "lights")
-    let history = ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+    let history = ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     var didRequestHide = false
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(),
       shortcutRunHistory: history,
@@ -502,10 +502,10 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(error: TestError.launchFailed),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults())
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">light")
     await waitForShortcutsLoadingToFinish(store)
@@ -530,7 +530,7 @@ struct LauncherStoreTests {
     let store = LauncherStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(error: TestError.launchFailed),
-      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults())
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -562,7 +562,7 @@ struct LauncherStoreTests {
     )
   }
 
-  private func makeUserDefaults() -> UserDefaults {
+  private func makeTestUserDefaults() -> UserDefaults {
     let suiteName = "LauncherStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
     userDefaults.removePersistentDomain(forName: suiteName)
