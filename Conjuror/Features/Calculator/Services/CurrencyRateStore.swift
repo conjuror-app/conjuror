@@ -8,7 +8,9 @@ final class CurrencyRateStore: ObservableObject {
   static let refreshInterval: TimeInterval = 24 * 60 * 60
 
   private static let logger = Logger(subsystem: "Conjuror", category: "CurrencyRates")
-  private static let enabledKey = "settings.currencyConversionEnabled"
+  private static let enabledKey = UserDefaultsKey<Bool>(
+    "settings.currencyConversionEnabled"
+  )
   private static let retryInterval: TimeInterval = 15 * 60
 
   @Published private(set) var isEnabled: Bool
@@ -31,7 +33,7 @@ final class CurrencyRateStore: ObservableObject {
     self.userDefaults = userDefaults
     cache = CurrencyRateCache(url: cacheURL ?? CurrencyRateCache.defaultURL())
     client = CurrencyRateClient(session: session)
-    isEnabled = userDefaults.bool(forKey: Self.enabledKey)
+    isEnabled = userDefaults.value(for: Self.enabledKey) ?? false
 
     if isEnabled {
       do {
@@ -68,7 +70,7 @@ final class CurrencyRateStore: ObservableObject {
       return
     }
     isEnabled = enabled
-    userDefaults.set(enabled, forKey: Self.enabledKey)
+    userDefaults.set(enabled, for: Self.enabledKey)
     if enabled {
       start()
     } else {

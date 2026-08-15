@@ -4,24 +4,28 @@ import Foundation
 @MainActor
 final class SettingsStore: ObservableObject {
   private struct HotKeyKeys {
-    let code: String
-    let displayName: String
-    let modifiers: String
+    let code: UserDefaultsKey<Int>
+    let displayName: UserDefaultsKey<String>
+    let modifiers: UserDefaultsKey<Int>
   }
 
   private enum Key {
-    static let hotKeyCode = "settings.hotKeyCode"
-    static let hotKeyDisplayName = "settings.hotKeyDisplayName"
-    static let hotKeyModifiers = "settings.hotKeyModifiers"
-    static let shortcutsHotKeyCode = "settings.shortcutsHotKeyCode"
-    static let shortcutsHotKeyDisplayName = "settings.shortcutsHotKeyDisplayName"
-    static let shortcutsHotKeyModifiers = "settings.shortcutsHotKeyModifiers"
-    static let emojiHotKeyCode = "settings.emojiHotKeyCode"
-    static let emojiHotKeyDisplayName = "settings.emojiHotKeyDisplayName"
-    static let emojiHotKeyModifiers = "settings.emojiHotKeyModifiers"
-    static let optionalHotKeysInitialized = "settings.optionalHotKeysInitialized"
-    static let maximumVisibleResults = "settings.maximumVisibleResults"
-    static let preferredEmojiSkinTone = "settings.preferredEmojiSkinTone"
+    static let hotKeyCode = UserDefaultsKey<Int>("settings.hotKeyCode")
+    static let hotKeyDisplayName = UserDefaultsKey<String>("settings.hotKeyDisplayName")
+    static let hotKeyModifiers = UserDefaultsKey<Int>("settings.hotKeyModifiers")
+    static let shortcutsHotKeyCode = UserDefaultsKey<Int>("settings.shortcutsHotKeyCode")
+    static let shortcutsHotKeyDisplayName = UserDefaultsKey<String>(
+      "settings.shortcutsHotKeyDisplayName"
+    )
+    static let shortcutsHotKeyModifiers = UserDefaultsKey<Int>("settings.shortcutsHotKeyModifiers")
+    static let emojiHotKeyCode = UserDefaultsKey<Int>("settings.emojiHotKeyCode")
+    static let emojiHotKeyDisplayName = UserDefaultsKey<String>("settings.emojiHotKeyDisplayName")
+    static let emojiHotKeyModifiers = UserDefaultsKey<Int>("settings.emojiHotKeyModifiers")
+    static let optionalHotKeysInitialized = UserDefaultsKey<Bool>(
+      "settings.optionalHotKeysInitialized"
+    )
+    static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
+    static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       switch action {
@@ -61,13 +65,13 @@ final class SettingsStore: ObservableObject {
     from userDefaults: UserDefaults,
     keys: HotKeyKeys
   ) -> HotKeyConfiguration? {
-    guard userDefaults.object(forKey: keys.code) != nil,
-      userDefaults.object(forKey: keys.modifiers) != nil,
-      let displayName = userDefaults.string(forKey: keys.displayName)
+    guard userDefaults.value(for: keys.code) != nil,
+      userDefaults.value(for: keys.modifiers) != nil,
+      let displayName = userDefaults.value(for: keys.displayName)
     else { return nil }
     return HotKeyConfiguration(
-      keyCode: UInt32(userDefaults.integer(forKey: keys.code)),
-      modifiers: UInt32(userDefaults.integer(forKey: keys.modifiers)),
+      keyCode: UInt32((userDefaults.value(for: keys.code) ?? 0)),
+      modifiers: UInt32((userDefaults.value(for: keys.modifiers) ?? 0)),
       displayName: displayName
     )
   }
@@ -83,20 +87,21 @@ final class SettingsStore: ObservableObject {
   init(userDefaults: UserDefaults = .standard) {
     self.userDefaults = userDefaults
 
-    if userDefaults.object(forKey: Key.hotKeyCode) != nil,
-      userDefaults.object(forKey: Key.hotKeyModifiers) != nil,
-      let displayName = userDefaults.string(forKey: Key.hotKeyDisplayName)
+    if userDefaults.value(for: Key.hotKeyCode) != nil,
+      userDefaults.value(for: Key.hotKeyModifiers) != nil,
+      let displayName = userDefaults.value(for: Key.hotKeyDisplayName)
     {
       hotKeyConfiguration = HotKeyConfiguration(
-        keyCode: UInt32(userDefaults.integer(forKey: Key.hotKeyCode)),
-        modifiers: UInt32(userDefaults.integer(forKey: Key.hotKeyModifiers)),
+        keyCode: UInt32((userDefaults.value(for: Key.hotKeyCode) ?? 0)),
+        modifiers: UInt32((userDefaults.value(for: Key.hotKeyModifiers) ?? 0)),
         displayName: displayName
       )
     } else {
       hotKeyConfiguration = .defaultValue
     }
 
-    let optionalHotKeysInitialized = userDefaults.bool(forKey: Key.optionalHotKeysInitialized)
+    let optionalHotKeysInitialized =
+      (userDefaults.value(for: Key.optionalHotKeysInitialized) ?? false)
     shortcutsHotKeyConfiguration =
       Self.loadOptionalHotKey(
         from: userDefaults,
@@ -108,16 +113,15 @@ final class SettingsStore: ObservableObject {
         keys: Key.hotKeyKeys(for: .emoji)
       ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.emoji.defaultConfiguration)
     let storedMaximum =
-      userDefaults.object(forKey: Key.maximumVisibleResults)
-      .map { _ in userDefaults.integer(forKey: Key.maximumVisibleResults) }
+      userDefaults.value(for: Key.maximumVisibleResults)
       ?? Self.defaultMaximumVisibleResults
     maximumVisibleResults = Self.clampedMaximumVisibleResults(storedMaximum)
     preferredEmojiSkinTone =
-      userDefaults.string(forKey: Key.preferredEmojiSkinTone)
+      userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
 
     if !optionalHotKeysInitialized {
-      userDefaults.set(true, forKey: Key.optionalHotKeysInitialized)
+      userDefaults.set(true, for: Key.optionalHotKeysInitialized)
       persistOptionalHotKey(shortcutsHotKeyConfiguration, for: .shortcuts)
       persistOptionalHotKey(emojiHotKeyConfiguration, for: .emoji)
     }
@@ -139,9 +143,9 @@ final class SettingsStore: ObservableObject {
     case .launcher:
       guard let configuration else { return }
       hotKeyConfiguration = configuration
-      userDefaults.set(Int(configuration.keyCode), forKey: Key.hotKeyCode)
-      userDefaults.set(Int(configuration.modifiers), forKey: Key.hotKeyModifiers)
-      userDefaults.set(configuration.displayName, forKey: Key.hotKeyDisplayName)
+      userDefaults.set(Int(configuration.keyCode), for: Key.hotKeyCode)
+      userDefaults.set(Int(configuration.modifiers), for: Key.hotKeyModifiers)
+      userDefaults.set(configuration.displayName, for: Key.hotKeyDisplayName)
     case .shortcuts:
       shortcutsHotKeyConfiguration = configuration
       persistOptionalHotKey(configuration, for: action)
@@ -154,12 +158,12 @@ final class SettingsStore: ObservableObject {
   func setMaximumVisibleResults(_ value: Int) {
     let clampedValue = Self.clampedMaximumVisibleResults(value)
     maximumVisibleResults = clampedValue
-    userDefaults.set(clampedValue, forKey: Key.maximumVisibleResults)
+    userDefaults.set(clampedValue, for: Key.maximumVisibleResults)
   }
 
   func setPreferredEmojiSkinTone(_ skinTone: EmojiSkinTone) {
     preferredEmojiSkinTone = skinTone
-    userDefaults.set(skinTone.rawValue, forKey: Key.preferredEmojiSkinTone)
+    userDefaults.set(skinTone.rawValue, for: Key.preferredEmojiSkinTone)
   }
 
   func resetMaximumVisibleResults() {
@@ -172,13 +176,13 @@ final class SettingsStore: ObservableObject {
   ) {
     let keys = Key.hotKeyKeys(for: action)
     guard let configuration else {
-      userDefaults.removeObject(forKey: keys.code)
-      userDefaults.removeObject(forKey: keys.modifiers)
-      userDefaults.removeObject(forKey: keys.displayName)
+      userDefaults.removeValue(for: keys.code)
+      userDefaults.removeValue(for: keys.modifiers)
+      userDefaults.removeValue(for: keys.displayName)
       return
     }
-    userDefaults.set(Int(configuration.keyCode), forKey: keys.code)
-    userDefaults.set(Int(configuration.modifiers), forKey: keys.modifiers)
-    userDefaults.set(configuration.displayName, forKey: keys.displayName)
+    userDefaults.set(Int(configuration.keyCode), for: keys.code)
+    userDefaults.set(Int(configuration.modifiers), for: keys.modifiers)
+    userDefaults.set(configuration.displayName, for: keys.displayName)
   }
 }
