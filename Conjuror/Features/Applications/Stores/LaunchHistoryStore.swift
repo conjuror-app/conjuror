@@ -1,39 +1,59 @@
 import Foundation
 
 struct LaunchHistoryStore {
-  private static let storageKey = "recentSuccessfulLaunches"
-  private static let limit = 100
+  private let store: RecencyStore
 
-  private static func limited(_ values: [String: Double]) -> [String: Double] {
-    Dictionary(
-      uniqueKeysWithValues:
-        values
-        .sorted { $0.value > $1.value }
-        .prefix(Self.limit)
-        .map { ($0.key, $0.value) }
+  init(userDefaults: UserDefaults = .standard) {
+    store = RecencyStore(
+      storageKey: "recentSuccessfulLaunches",
+      limit: 100,
+      userDefaults: userDefaults
     )
   }
 
+  func load() -> [String: Date] {
+    store.load()
+  }
+
+  func recordLaunch(of application: InstalledApplication, at date: Date = Date()) {
+    store.record(key: application.persistenceKey, at: date)
+  }
+}
+
+struct RecencyStore {
+  private let storageKey: String
+  private let limit: Int
   private let userDefaults: UserDefaults
 
-  init(userDefaults: UserDefaults = .standard) {
+  init(storageKey: String, limit: Int, userDefaults: UserDefaults = .standard) {
+    self.storageKey = storageKey
+    self.limit = limit
     self.userDefaults = userDefaults
   }
 
   func load() -> [String: Date] {
-    guard let storedValues = userDefaults.dictionary(forKey: Self.storageKey) as? [String: Double]
-    else {
+    guard let values = userDefaults.dictionary(forKey: storageKey) as? [String: Double] else {
       return [:]
     }
-
-    return Self.limited(storedValues).mapValues(Date.init(timeIntervalSince1970:))
+    return limited(values).mapValues(Date.init(timeIntervalSince1970:))
   }
 
-  func recordLaunch(of application: InstalledApplication, at date: Date = Date()) {
-    var launches = load()
-    launches[application.persistenceKey] = date
+  func record(key: String, at date: Date = Date()) {
+    var values = load()
+    values[key] = date
+    userDefaults.set(
+      limited(values.mapValues(\.timeIntervalSince1970)),
+      forKey: storageKey
+    )
+  }
 
-    let storedValues = Self.limited(launches.mapValues(\.timeIntervalSince1970))
-    userDefaults.set(storedValues, forKey: Self.storageKey)
+  private func limited(_ values: [String: Double]) -> [String: Double] {
+    Dictionary(
+      uniqueKeysWithValues:
+        values
+        .sorted { $0.value > $1.value }
+        .prefix(limit)
+        .map { ($0.key, $0.value) }
+    )
   }
 }
