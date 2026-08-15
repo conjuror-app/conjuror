@@ -155,18 +155,14 @@ final class LauncherStore: ObservableObject {
   private let calculator: CalculatorEvaluating
   private let calculatorClipboard: CalculatorClipboardWriting
   private let launcher: ApplicationLaunching
-  private let launchHistory: LaunchHistoryStore
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
-  private let shortcutRunHistory: ShortcutRunHistoryStore
   private let emojiHistory: EmojiHistoryStore
+  private let applicationController: LauncherApplicationController
+  private let shortcutController: LauncherShortcutController
   private let onEvent: (LauncherEvent) -> Void
 
-  private var recentLaunches: [String: Date]
-  private var recentShortcutRuns: [String: Date]
   private var currencySource = CurrencySource.off
-  private var applicationIndex = ApplicationRanker.Index(applications: [])
-  private var shortcutIndex = ShortcutRanker.Index(shortcuts: [])
   private let emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
   private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
   private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
@@ -221,14 +217,12 @@ final class LauncherStore: ObservableObject {
     self.calculator = calculator
     self.calculatorClipboard = calculatorClipboard
     self.launcher = launcher
-    self.launchHistory = launchHistory
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
-    self.shortcutRunHistory = shortcutRunHistory
     self.emojiHistory = emojiHistory
+    applicationController = LauncherApplicationController(history: launchHistory)
+    shortcutController = LauncherShortcutController(history: shortcutRunHistory)
     self.onEvent = onEvent
-    recentLaunches = launchHistory.load()
-    recentShortcutRuns = shortcutRunHistory.load()
     recentEmoji = Self.emoji(for: emojiHistory.load())
   }
 
@@ -426,8 +420,7 @@ final class LauncherStore: ObservableObject {
       operation: { try await launcher.open(application) },
       onSuccess: { [weak self] in
         guard let self else { return }
-        launchHistory.recordLaunch(of: application)
-        recentLaunches = launchHistory.load()
+        applicationController.record(application)
         query = ""
         onEvent(.launchSucceeded)
       },
@@ -487,8 +480,7 @@ final class LauncherStore: ObservableObject {
       operation: { try await shortcutRunner.run(shortcut) },
       onSuccess: { [weak self] in
         guard let self else { return }
-        shortcutRunHistory.recordRun(of: shortcut)
-        recentShortcutRuns = shortcutRunHistory.load()
+        shortcutController.record(shortcut)
         runningShortcutIDs.remove(shortcut.id)
         query = ""
       },
@@ -608,13 +600,13 @@ final class LauncherStore: ObservableObject {
 
   private func replaceApplications(with applications: [InstalledApplication]) {
     self.applications = applications
-    applicationIndex = ApplicationRanker.Index(applications: applications)
+    applicationController.replace(applications)
     refreshApplications()
   }
 
   private func replaceShortcuts(with shortcuts: [AppleShortcut]) {
     self.shortcuts = shortcuts
-    shortcutIndex = ShortcutRanker.Index(shortcuts: shortcuts)
+    shortcutController.replace(shortcuts)
     refreshShortcuts()
   }
 
@@ -635,16 +627,14 @@ final class LauncherStore: ObservableObject {
       result = calculator.evaluate(query)
     }
     calculatorResult = mode == .applications ? result : nil
-    filteredApplications = applicationIndex.ranked(
-      query: mode == .applications ? query : "",
-      recentLaunches: recentLaunches
+    filteredApplications = applicationController.ranked(
+      query: mode == .applications ? query : ""
     )
   }
 
   private func refreshShortcuts() {
-    filteredShortcuts = shortcutIndex.ranked(
-      query: mode == .shortcuts ? query : "",
-      recentRuns: recentShortcutRuns
+    filteredShortcuts = shortcutController.ranked(
+      query: mode == .shortcuts ? query : ""
     )
   }
 
