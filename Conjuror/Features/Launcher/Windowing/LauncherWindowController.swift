@@ -46,13 +46,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     )
     panel.backgroundColor = .clear
     panel.isOpaque = false
-    if #available(macOS 26.0, *) {
-      // Liquid Glass provides its own shaped edge and shadow. The window's
-      // legacy shadow follows the rectangular panel bounds.
-      panel.hasShadow = false
-    } else {
-      panel.hasShadow = true
-    }
+    // Liquid Glass provides its own shaped edge and shadow. The window's
+    // legacy shadow follows the rectangular panel bounds.
+    panel.hasShadow = false
     panel.isFloatingPanel = true
     panel.isMovableByWindowBackground = false
     panel.level = .floating
