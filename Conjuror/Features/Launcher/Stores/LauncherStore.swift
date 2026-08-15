@@ -79,7 +79,9 @@ final class LauncherStore: ObservableObject {
 
   var displayedEmoji: [Emoji] {
     let emoji = skinToneAdjustedEmoji
-    return query.isEmpty ? recentEmoji + emoji.filter { !recentEmoji.contains($0) } : emoji
+    guard query.isEmpty else { return emoji }
+    let recentIDs = Set(recentEmoji.map(\.id))
+    return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
 
   private let settingsStore: SettingsStore
