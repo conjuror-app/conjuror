@@ -68,16 +68,11 @@ final class CurrencyRateStore: ObservableObject {
     }
     refreshTask?.cancel()
     refreshTask = Task { [weak self] in
-      while !Task.isCancelled, let self, self.isEnabled {
-        let age = max(0, self.rates.map { Date().timeIntervalSince($0.fetchedAt) } ?? .infinity)
-        if age < Self.refreshInterval {
-          try? await Task.sleep(for: .seconds(Self.refreshInterval - age))
-          continue
+      while !Task.isCancelled {
+        guard let delay = await self?.nextRefreshDelay() else {
+          return
         }
-        let succeeded = await self.fetchAndStore()
-        try? await Task.sleep(
-          for: .seconds(succeeded ? Self.refreshInterval : Self.retryInterval)
-        )
+        try? await Task.sleep(for: .seconds(delay))
       }
     }
   }
@@ -104,6 +99,18 @@ final class CurrencyRateStore: ObservableObject {
       return false
     }
     return await fetchAndStore()
+  }
+
+  private func nextRefreshDelay() async -> TimeInterval? {
+    guard isEnabled else {
+      return nil
+    }
+
+    let age = max(0, rates.map { Date().timeIntervalSince($0.fetchedAt) } ?? .infinity)
+    if age < Self.refreshInterval {
+      return Self.refreshInterval - age
+    }
+    return await fetchAndStore() ? Self.refreshInterval : Self.retryInterval
   }
 
   private func fetchAndStore() async -> Bool {

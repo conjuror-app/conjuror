@@ -23,6 +23,28 @@ struct ShortcutRunHistoryStoreTests {
     #expect(store.load() == [shortcut.persistenceKey: latestDate])
   }
 
+  @Test("Shortcut run history store: only the 100 most recent runs are retained")
+  func testLimitsHistoryToMostRecentRuns() {
+    let userDefaults = makeUserDefaults()
+    let store = ShortcutRunHistoryStore(userDefaults: userDefaults)
+
+    for index in 0..<101 {
+      let shortcut = AppleShortcut(
+        id: "shortcut-\(index)",
+        name: "Shortcut \(index)",
+        subtitle: "",
+        acceptsInput: false
+      )
+      store.recordRun(of: shortcut, at: Date(timeIntervalSince1970: Double(index)))
+    }
+
+    let history = store.load()
+    #expect(history.count == 100)
+    #expect(userDefaults.dictionary(forKey: "recentSuccessfulShortcutRuns")?.count == 100)
+    #expect(history["shortcut:shortcut-0"] == nil)
+    #expect(history["shortcut:shortcut-100"] != nil)
+  }
+
   private func makeUserDefaults() -> UserDefaults {
     let suiteName = "ShortcutRunHistoryStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!

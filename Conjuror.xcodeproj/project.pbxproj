@@ -77,6 +77,7 @@
 		F65FFF000000000000000009 /* CurrencyRates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000009 /* CurrencyRates.swift */; };
 		F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000A /* CalculatorCurrency.swift */; };
 		F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000B /* CurrencyRateStore.swift */; };
+		F65FFF10000000000000000B /* CurrencyRateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */; };
 		F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000C /* CalculatorTimeZone.swift */; };
 		F65FFF00000000000000000D /* CalculatorRelativeDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000D /* CalculatorRelativeDate.swift */; };
 /* End PBXBuildFile section */
@@ -165,6 +166,7 @@
 		F65FFE000000000000000009 /* CurrencyRates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRates.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000A /* CalculatorCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorCurrency.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000B /* CurrencyRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStore.swift; sourceTree = "<group>"; };
+		F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStoreTests.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000C /* CalculatorTimeZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZone.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000D /* CalculatorRelativeDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -611,6 +613,7 @@
 			children = (
 				8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */,
 				8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */,
+				F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -851,6 +854,7 @@
 				E4000000000000000000001 /* EmojiRankerTests.swift in Sources */,
 				8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */,
 				8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */,
+				F65FFF10000000000000000B /* CurrencyRateStoreTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
 				B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */,
 				8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */,

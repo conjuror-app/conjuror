@@ -33,6 +33,28 @@ struct LaunchHistoryStoreTests {
     #expect(store.load() == [application.persistenceKey: latestDate])
   }
 
+  @Test("Launch history store: only the 100 most recent launches are retained")
+  func testLimitsHistoryToMostRecentLaunches() {
+    let userDefaults = makeUserDefaults()
+    let store = LaunchHistoryStore(userDefaults: userDefaults)
+
+    for index in 0..<101 {
+      let application = InstalledApplication(
+        displayName: "Application \(index)",
+        bundleIdentifier: "dev.example.application-\(index)",
+        url: URL(fileURLWithPath: "/Applications/Application-\(index).app"),
+        icon: NSImage(size: NSSize(width: 32, height: 32))
+      )
+      store.recordLaunch(of: application, at: Date(timeIntervalSince1970: Double(index)))
+    }
+
+    let history = store.load()
+    #expect(history.count == 100)
+    #expect(userDefaults.dictionary(forKey: "recentSuccessfulLaunches")?.count == 100)
+    #expect(history["dev.example.application-0"] == nil)
+    #expect(history["dev.example.application-100"] != nil)
+  }
+
   private func makeUserDefaults() -> UserDefaults {
     let suiteName = "LaunchHistoryStoreTests.\(UUID().uuidString)"
     let userDefaults = UserDefaults(suiteName: suiteName)!
