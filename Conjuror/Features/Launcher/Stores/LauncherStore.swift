@@ -2,6 +2,14 @@ import AppKit
 import Foundation
 import SwiftUI
 
+enum LauncherEvent: Equatable {
+  case calculatorResultCopied
+  case emojiCopied
+  case launchStarted
+  case launchSucceeded
+  case shortcutRunStarted
+}
+
 @MainActor
 final class LauncherStore: ObservableObject {
   static let calculatorResultScrollID = "calculator-result"
@@ -93,12 +101,8 @@ final class LauncherStore: ObservableObject {
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
   private let shortcutRunHistory: ShortcutRunHistoryStore
-  private let onLaunchStarted: () -> Void
-  private let onLaunchSuccess: () -> Void
-  private let onCalculatorResultCopied: () -> Void
-  private let onShortcutRunStarted: () -> Void
   private let emojiHistory: EmojiHistoryStore
-  private let onEmojiCopied: () -> Void
+  private let onEvent: (LauncherEvent) -> Void
 
   private var recentLaunches: [String: Date]
   private var recentShortcutRuns: [String: Date]
@@ -156,11 +160,7 @@ final class LauncherStore: ObservableObject {
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
     shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
-    onLaunchStarted: @escaping () -> Void = {},
-    onLaunchSuccess: @escaping () -> Void = {},
-    onCalculatorResultCopied: @escaping () -> Void = {},
-    onShortcutRunStarted: @escaping () -> Void = {},
-    onEmojiCopied: @escaping () -> Void = {}
+    onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
     self.catalog = catalog
@@ -172,11 +172,7 @@ final class LauncherStore: ObservableObject {
     self.shortcutRunner = shortcutRunner
     self.shortcutRunHistory = shortcutRunHistory
     self.emojiHistory = emojiHistory
-    self.onLaunchStarted = onLaunchStarted
-    self.onLaunchSuccess = onLaunchSuccess
-    self.onCalculatorResultCopied = onCalculatorResultCopied
-    self.onShortcutRunStarted = onShortcutRunStarted
-    self.onEmojiCopied = onEmojiCopied
+    self.onEvent = onEvent
     recentLaunches = launchHistory.load()
     recentShortcutRuns = shortcutRunHistory.load()
     recentEmoji = Self.emoji(for: emojiHistory.load())
@@ -414,7 +410,7 @@ final class LauncherStore: ObservableObject {
     isCalculatorSelected = false
     selectedApplicationID = application.id
     launchErrorMessage = nil
-    onLaunchStarted()
+    onEvent(.launchStarted)
 
     let launcher = launcher
     Task { [weak self] in
@@ -426,7 +422,7 @@ final class LauncherStore: ObservableObject {
         launchHistory.recordLaunch(of: application)
         recentLaunches = launchHistory.load()
         query = ""
-        onLaunchSuccess()
+        onEvent(.launchSucceeded)
       } catch {
         self?.launchErrorMessage =
           "Couldn’t open \(application.displayName). \(error.localizedDescription)"
@@ -440,7 +436,7 @@ final class LauncherStore: ObservableObject {
     }
     calculatorClipboard.write(calculatorResult.copyText)
     query = ""
-    onCalculatorResultCopied()
+    onEvent(.calculatorResultCopied)
   }
 
   func select(_ emoji: Emoji) { selectedEmojiID = emoji.id }
@@ -457,7 +453,7 @@ final class LauncherStore: ObservableObject {
     recentEmoji = Self.emoji(for: emojiHistory.load())
     query = ""
     mode = .applications
-    onEmojiCopied()
+    onEvent(.emojiCopied)
   }
 
   func runSelectedShortcut() {
@@ -476,7 +472,7 @@ final class LauncherStore: ObservableObject {
 
     selectedShortcutID = shortcut.id
     shortcutRunErrorMessage = nil
-    onShortcutRunStarted()
+    onEvent(.shortcutRunStarted)
 
     let shortcutRunner = shortcutRunner
     Task { [weak self] in
