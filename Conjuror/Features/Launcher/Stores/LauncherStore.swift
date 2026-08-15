@@ -6,6 +6,10 @@ import SwiftUI
 final class LauncherStore: ObservableObject {
   static let calculatorResultScrollID = "calculator-result"
 
+  private static let emojiByValue = Dictionary(
+    uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) }
+  )
+
   private static let skinToneVariants = Dictionary(
     uniqueKeysWithValues: Emoji.catalog.compactMap { emoji -> (String, Emoji)? in
       guard emoji.skinToneModifierNames.count == 1,
@@ -20,8 +24,7 @@ final class LauncherStore: ObservableObject {
   }
 
   private static func emoji(for values: [String]) -> [Emoji] {
-    let byValue = Dictionary(uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) })
-    return values.compactMap { byValue[$0] }
+    values.compactMap { emojiByValue[$0] }
   }
 
   @Published var query = "" {
