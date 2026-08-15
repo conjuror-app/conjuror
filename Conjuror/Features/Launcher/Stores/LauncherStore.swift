@@ -10,9 +10,15 @@ enum LauncherEvent: Equatable {
   case shortcutRunStarted
 }
 
+enum LauncherResultID: Hashable {
+  case application(InstalledApplication.ID)
+  case calculator
+  case emoji(Emoji.ID)
+  case shortcut(AppleShortcut.ID)
+}
+
 @MainActor
 final class LauncherStore: ObservableObject {
-  static let calculatorResultScrollID = "calculator-result"
 
   private static let emojiByValue = Dictionary(
     uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) }
@@ -72,16 +78,14 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
-  var selectedResultScrollID: String? {
+  var selectedResultScrollID: LauncherResultID? {
     switch mode {
     case .applications:
-      isCalculatorSelected
-        ? Self.calculatorResultScrollID
-        : selectedApplicationID
+      isCalculatorSelected ? .calculator : selectedApplicationID.map(LauncherResultID.application)
     case .emoji:
-      selectedEmojiID
+      selectedEmojiID.map(LauncherResultID.emoji)
     case .shortcuts:
-      selectedShortcutID
+      selectedShortcutID.map(LauncherResultID.shortcut)
     }
   }
 
@@ -335,23 +339,23 @@ final class LauncherStore: ObservableObject {
 
     switch mode {
     case .applications:
-      let applicationResultIDs = filteredApplications.map(\.id)
+      let applicationResultIDs = filteredApplications.map { LauncherResultID.application($0.id) }
       let resultIDs =
         calculatorResult == nil
         ? applicationResultIDs
-        : [Self.calculatorResultScrollID] + applicationResultIDs
-      let selectedID =
+        : [.calculator] + applicationResultIDs
+      let selectedID: LauncherResultID? =
         isCalculatorSelected
-        ? Self.calculatorResultScrollID
-        : selectedApplicationID
+        ? .calculator
+        : selectedApplicationID.map(LauncherResultID.application)
       let movedID = movedSelection(
         direction,
         results: resultIDs,
         selectedID: selectedID
       )
-      isCalculatorSelected = movedID == Self.calculatorResultScrollID
-      if !isCalculatorSelected {
-        selectedApplicationID = movedID
+      isCalculatorSelected = movedID == .calculator
+      if case .application(let applicationID) = movedID {
+        selectedApplicationID = applicationID
       }
     case .emoji:
       selectedEmojiID = movedSelection(
@@ -522,17 +526,17 @@ final class LauncherStore: ObservableObject {
     return true
   }
 
-  private func movedSelection(
+  private func movedSelection<ID: Equatable>(
     _ direction: MoveCommandDirection,
-    results: [String],
-    selectedID: String?,
+    results: [ID],
+    selectedID: ID?,
     step: Int = 1
-  ) -> String? {
+  ) -> ID? {
     guard !results.isEmpty else {
       return nil
     }
 
-    let currentIndex = results.firstIndex(of: selectedID ?? "") ?? 0
+    let currentIndex = selectedID.flatMap(results.firstIndex(of:)) ?? 0
     let nextIndex: Int
     switch direction {
     case .down:
