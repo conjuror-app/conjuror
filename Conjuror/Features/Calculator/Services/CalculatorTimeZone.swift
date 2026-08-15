@@ -85,11 +85,7 @@ struct CalculatorTimeZoneEvaluator {
   }
 
   private func parse(_ expression: String) -> Conversion? {
-    let normalized =
-      expression
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .replacingOccurrences(of: "→", with: " to ")
-      .replacingOccurrences(of: "->", with: " to ")
+    let normalized = CalculatorInput.normalizingConversionConnectors(expression)
     let lowercased = normalized.lowercased()
     let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
 

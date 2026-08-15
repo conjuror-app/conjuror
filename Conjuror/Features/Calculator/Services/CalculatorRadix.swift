@@ -2,16 +2,15 @@ import Foundation
 
 struct CalculatorRadixEvaluator {
   func evaluate(_ expression: String) -> CalculatorResult? {
-    let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedExpression = CalculatorInput.trimmed(expression)
     guard !trimmedExpression.isEmpty else {
       return nil
     }
 
-    let canonicalExpression =
-      trimmedExpression
-      .lowercased()
-      .replacingOccurrences(of: "->", with: " to ")
-      .replacingOccurrences(of: "→", with: " to ")
+    let canonicalExpression = CalculatorInput.normalizingConversionConnectors(
+      trimmedExpression,
+      lowercased: true
+    )
     let parts = canonicalExpression.split(whereSeparator: { $0.isWhitespace }).map(String.init)
 
     let sourceText: String
