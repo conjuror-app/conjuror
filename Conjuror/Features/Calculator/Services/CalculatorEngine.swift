@@ -31,37 +31,26 @@ struct CalculatorEngine: CurrencyCalculatorEvaluating {
       return nil
     }
 
-    if let relativeDateResult = CalculatorRelativeDateEvaluator(
-      currentDate: currentDate(),
-      timeZone: currentTimeZone(),
-      localeIdentifier: formattingOptions.localeIdentifier
-    ).evaluate(trimmedExpression) {
-      return relativeDateResult
-    }
-
-    if let timeZoneResult = CalculatorTimeZoneEvaluator(
-      currentDate: currentDate(),
-      currentTimeZone: currentTimeZone()
-    ).evaluate(trimmedExpression) {
-      return timeZoneResult
-    }
-
-    if let currencyResult = CalculatorCurrencyEvaluator(
-      formattingOptions: formattingOptions,
-      localeCurrencyCode: localeCurrencyCode,
-      source: currencySource
-    ).evaluate(trimmedExpression) {
-      return currencyResult
-    }
-
-    if let radixResult = CalculatorRadixEvaluator().evaluate(trimmedExpression) {
-      return radixResult
-    }
-
-    if let quantityResult = CalculatorQuantityEvaluator(
-      formattingOptions: formattingOptions
-    ).evaluate(trimmedExpression) {
-      return quantityResult
+    let evaluators: [(String) -> CalculatorResult?] = [
+      CalculatorRelativeDateEvaluator(
+        currentDate: currentDate(),
+        timeZone: currentTimeZone(),
+        localeIdentifier: formattingOptions.localeIdentifier
+      ).evaluate,
+      CalculatorTimeZoneEvaluator(
+        currentDate: currentDate(),
+        currentTimeZone: currentTimeZone()
+      ).evaluate,
+      CalculatorCurrencyEvaluator(
+        formattingOptions: formattingOptions,
+        localeCurrencyCode: localeCurrencyCode,
+        source: currencySource
+      ).evaluate,
+      CalculatorRadixEvaluator().evaluate,
+      CalculatorQuantityEvaluator(formattingOptions: formattingOptions).evaluate,
+    ]
+    if let specializedResult = evaluators.lazy.compactMap({ $0(trimmedExpression) }).first {
+      return specializedResult
     }
 
     guard let tokens = CalculatorLexer.tokenize(trimmedExpression) else {
