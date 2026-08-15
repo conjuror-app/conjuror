@@ -72,6 +72,14 @@ the Login Items pane in System Settings.
 The project enables complete Swift concurrency checking in Debug and Release
 builds.
 
+### Calculator evaluator precedence
+
+Calculator input is evaluated in this order: relative date, timezone, currency,
+radix, quantity, then arithmetic. This order is part of the calculator grammar:
+specialized evaluators must reject input they do not fully recognize so that a
+later evaluator can handle it. Preserve the order when adding syntax and add a
+precedence test for expressions accepted by more than one evaluator.
+
 Build the app or run its tests with Make:
 
 ```sh
