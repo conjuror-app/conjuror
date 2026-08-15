@@ -189,12 +189,16 @@ final class LauncherStore: ObservableObject {
   }
 
   func updateQuery(_ value: String) {
-    guard mode == .applications, let prefix = value.first, prefix == ">" || prefix == ":" else {
+    guard let prefix = value.first, [";", ">", ":"].contains(prefix) else {
       query = value
       return
     }
     query = String(value.dropFirst())
-    mode = prefix == ">" ? .shortcuts : .emoji
+    switch prefix {
+    case ";": mode = .applications
+    case ">": mode = .shortcuts
+    default: mode = .emoji
+    }
     refreshCurrentResults()
     selectFirstResult()
     if mode == .shortcuts { loadShortcuts() }
