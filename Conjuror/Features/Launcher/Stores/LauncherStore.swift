@@ -368,21 +368,20 @@ final class LauncherStore: ObservableObject {
     onEvent(.launchStarted)
 
     let launcher = launcher
-    Task { [weak self] in
-      do {
-        try await launcher.open(application)
-        guard let self else {
-          return
-        }
+    perform(
+      operation: { try await launcher.open(application) },
+      onSuccess: { [weak self] in
+        guard let self else { return }
         launchHistory.recordLaunch(of: application)
         recentLaunches = launchHistory.load()
         query = ""
         onEvent(.launchSucceeded)
-      } catch {
+      },
+      onFailure: { [weak self] error in
         self?.launchErrorMessage =
           "Couldn’t open \(application.displayName). \(error.localizedDescription)"
       }
-    }
+    )
   }
 
   func copyCalculatorResult() {
@@ -430,22 +429,21 @@ final class LauncherStore: ObservableObject {
     onEvent(.shortcutRunStarted)
 
     let shortcutRunner = shortcutRunner
-    Task { [weak self] in
-      do {
-        try await shortcutRunner.run(shortcut)
-        guard let self else {
-          return
-        }
+    perform(
+      operation: { try await shortcutRunner.run(shortcut) },
+      onSuccess: { [weak self] in
+        guard let self else { return }
         shortcutRunHistory.recordRun(of: shortcut)
         recentShortcutRuns = shortcutRunHistory.load()
         runningShortcutIDs.remove(shortcut.id)
         query = ""
-      } catch {
+      },
+      onFailure: { [weak self] error in
         self?.runningShortcutIDs.remove(shortcut.id)
         self?.shortcutRunErrorMessage =
           "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
       }
-    }
+    )
   }
 
   func clearLaunchError() {
@@ -470,6 +468,24 @@ final class LauncherStore: ObservableObject {
       transition(to: .applications)
     }
     focusRequest &+= 1
+  }
+
+  private func perform(
+    operation: @escaping () async throws -> Void,
+    onSuccess: @escaping () -> Void,
+    onFailure: @escaping (Error) -> Void
+  ) {
+    Task {
+      do {
+        try await operation()
+        guard !Task.isCancelled else { return }
+        onSuccess()
+      } catch is CancellationError {
+        return
+      } catch {
+        onFailure(error)
+      }
+    }
   }
 
   private func transition(to mode: LauncherMode, query: String? = "") {
