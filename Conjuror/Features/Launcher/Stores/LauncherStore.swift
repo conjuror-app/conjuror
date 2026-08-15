@@ -114,10 +114,8 @@ final class LauncherStore: ObservableObject {
   private var applicationIndex = ApplicationRanker.Index(applications: [])
   private var shortcutIndex = ShortcutRanker.Index(shortcuts: [])
   private let emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
-  private var loadTask: Task<Void, Never>?
-  private var shortcutLoadTask: Task<Void, Never>?
-  private var reloadRequested = false
-  private var shortcutReloadRequested = false
+  private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
+  private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
 
@@ -180,11 +178,6 @@ final class LauncherStore: ObservableObject {
     recentEmoji = Self.emoji(for: emojiHistory.load())
   }
 
-  deinit {
-    loadTask?.cancel()
-    shortcutLoadTask?.cancel()
-  }
-
   func setCurrencySource(_ source: CurrencySource) {
     guard source != currencySource else {
       return
@@ -228,73 +221,46 @@ final class LauncherStore: ObservableObject {
   }
 
   func loadApplications() {
-    guard !isLoading else {
-      reloadRequested = true
-      return
-    }
-
-    isLoading = true
     catalogErrorMessage = nil
-
     let catalog = catalog
-    loadTask = Task { [weak self] in
-      do {
-        let loadedApplications = try await catalog.load()
-        guard let self, !Task.isCancelled else {
-          return
+    applicationLoader.load(
+      operation: catalog.load,
+      onLoadingChange: { [weak self] in self?.isLoading = $0 },
+      completion: { [weak self] result in
+        guard let self else { return }
+        switch result {
+        case .success(let applications):
+          replaceApplications(with: applications)
+          if mode == .applications { selectFirstResult() }
+        case .failure(let error):
+          replaceApplications(with: [])
+          catalogErrorMessage =
+            "Couldn’t load installed applications. \(error.localizedDescription)"
+          selectedApplicationID = nil
         }
-        replaceApplications(with: loadedApplications)
-        if mode == .applications {
-          selectFirstResult()
-        }
-        finishLoadingApplications()
-      } catch is CancellationError {
-        self?.finishLoadingApplications()
-      } catch {
-        guard let self else {
-          return
-        }
-        replaceApplications(with: [])
-        catalogErrorMessage = "Couldn’t load installed applications. \(error.localizedDescription)"
-        selectedApplicationID = nil
-        finishLoadingApplications()
       }
-    }
+    )
   }
 
   func loadShortcuts() {
-    guard !isLoadingShortcuts else {
-      shortcutReloadRequested = true
-      return
-    }
-
-    isLoadingShortcuts = true
     shortcutCatalogErrorMessage = nil
-
     let shortcutCatalog = shortcutCatalog
-    shortcutLoadTask = Task { [weak self] in
-      do {
-        let loadedShortcuts = try await shortcutCatalog.load()
-        guard let self, !Task.isCancelled else {
-          return
+    shortcutsLoader.load(
+      operation: shortcutCatalog.load,
+      onLoadingChange: { [weak self] in self?.isLoadingShortcuts = $0 },
+      completion: { [weak self] result in
+        guard let self else { return }
+        switch result {
+        case .success(let shortcuts):
+          replaceShortcuts(with: shortcuts)
+          if mode == .shortcuts { selectFirstResult() }
+        case .failure(let error):
+          replaceShortcuts(with: [])
+          shortcutCatalogErrorMessage = "Couldn’t load shortcuts. \(error.localizedDescription)"
+          selectedShortcutID = nil
         }
-        replaceShortcuts(with: loadedShortcuts)
-        if mode == .shortcuts {
-          selectFirstResult()
-        }
-        finishLoadingShortcuts()
-      } catch is CancellationError {
-        self?.finishLoadingShortcuts()
-      } catch {
-        guard let self else {
-          return
-        }
-        replaceShortcuts(with: [])
-        shortcutCatalogErrorMessage = "Couldn’t load shortcuts. \(error.localizedDescription)"
-        selectedShortcutID = nil
-        finishLoadingShortcuts()
       }
-    }
+    )
   }
 
   func select(_ application: InstalledApplication) {
@@ -612,23 +578,84 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  private func finishLoadingApplications() {
-    isLoading = false
-    loadTask = nil
-    guard reloadRequested else {
-      return
-    }
-    reloadRequested = false
-    loadApplications()
+}
+
+@MainActor
+private final class CatalogReloadCoordinator<Value> {
+  private var task: Task<Void, Never>?
+  private var reloadRequested = false
+
+  deinit {
+    task?.cancel()
   }
 
-  private func finishLoadingShortcuts() {
-    isLoadingShortcuts = false
-    shortcutLoadTask = nil
-    guard shortcutReloadRequested else {
+  func load(
+    operation: @escaping () async throws -> [Value],
+    onLoadingChange: @escaping (Bool) -> Void,
+    completion: @escaping (Result<[Value], Error>) -> Void
+  ) {
+    guard task == nil else {
+      reloadRequested = true
       return
     }
-    shortcutReloadRequested = false
-    loadShortcuts()
+    onLoadingChange(true)
+    start(
+      operation: operation,
+      onLoadingChange: onLoadingChange,
+      completion: completion
+    )
+  }
+
+  func cancel() {
+    task?.cancel()
+    task = nil
+    reloadRequested = false
+  }
+
+  private func start(
+    operation: @escaping () async throws -> [Value],
+    onLoadingChange: @escaping (Bool) -> Void,
+    completion: @escaping (Result<[Value], Error>) -> Void
+  ) {
+    task = Task { [weak self] in
+      let result: Result<[Value], Error>
+      do {
+        result = .success(try await operation())
+      } catch is CancellationError {
+        self?.finish(
+          operation: operation,
+          onLoadingChange: onLoadingChange,
+          completion: completion
+        )
+        return
+      } catch {
+        result = .failure(error)
+      }
+      guard !Task.isCancelled else { return }
+      completion(result)
+      self?.finish(
+        operation: operation,
+        onLoadingChange: onLoadingChange,
+        completion: completion
+      )
+    }
+  }
+
+  private func finish(
+    operation: @escaping () async throws -> [Value],
+    onLoadingChange: @escaping (Bool) -> Void,
+    completion: @escaping (Result<[Value], Error>) -> Void
+  ) {
+    task = nil
+    if reloadRequested {
+      reloadRequested = false
+      start(
+        operation: operation,
+        onLoadingChange: onLoadingChange,
+        completion: completion
+      )
+    } else {
+      onLoadingChange(false)
+    }
   }
 }
