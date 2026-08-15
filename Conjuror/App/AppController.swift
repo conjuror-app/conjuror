@@ -7,7 +7,7 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
-    onLaunchSuccess: { [weak self] in
+    onLaunchStarted: { [weak self] in
       self?.hideLauncher()
     },
     onCalculatorResultCopied: { [weak self] in
@@ -61,6 +61,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     observeWorkspaceChanges()
     observeCurrencyRates()
     currencyRateStore.start()
+    store.loadApplications()
     store.loadShortcuts()
   }
 

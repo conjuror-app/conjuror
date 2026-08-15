@@ -52,9 +52,6 @@ struct LauncherView: View {
     )
     .modifier(LauncherSurfaceModifier())
     .padding(LauncherLayout.windowMargin)
-    .task {
-      store.loadApplications()
-    }
     .onChange(of: contentHeight) {
       onHeightChange(contentHeight)
     }
