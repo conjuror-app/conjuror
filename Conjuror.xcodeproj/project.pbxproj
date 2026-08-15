@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
+		1F938A971522761C62E7EC09 /* ApplicationMaterializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */; };
 		4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */; };
 		4F31CB72FA16681871E437D1 /* LauncherModeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */; };
 		576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1933D48DE907C25080B07446 /* CurrencyRateServices.swift */; };
@@ -158,6 +159,7 @@
 		C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginCheckbox.swift; sourceTree = "<group>"; };
 		C20000000000000000000008 /* SettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPane.swift; sourceTree = "<group>"; };
 		C20000000000000000000009 /* SettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRow.swift; sourceTree = "<group>"; };
+		C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ApplicationMaterializer.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
@@ -372,6 +374,7 @@
 			children = (
 				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
 				8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */,
+				C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */,
 				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
 			);
 			path = Services;
@@ -874,6 +877,7 @@
 				6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */,
 				4F31CB72FA16681871E437D1 /* LauncherModeState.swift in Sources */,
 				576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */,
+				1F938A971522761C62E7EC09 /* ApplicationMaterializer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

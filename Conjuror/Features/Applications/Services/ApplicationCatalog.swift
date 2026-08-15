@@ -1,4 +1,3 @@
-import AppKit
 import Foundation
 
 struct ApplicationCatalog: ApplicationCatalogLoading {
@@ -175,13 +174,16 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
   private let directoryProvider: () -> [URL]
   private let excludedBundleIdentifier: String?
+  private let materializer: ApplicationMaterializing
 
   init(
     directoryProvider: @escaping () -> [URL] = { Self.applicationDirectories() },
-    excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
+    excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier,
+    materializer: ApplicationMaterializing = ApplicationMaterializer()
   ) {
     self.directoryProvider = directoryProvider
     self.excludedBundleIdentifier = excludedBundleIdentifier
+    self.materializer = materializer
   }
 
   func load() async throws -> [InstalledApplication] {
@@ -201,17 +203,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       scanTask.cancel()
     }
 
-    return candidates.map { candidate in
-      let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
-      icon.size = NSSize(width: 32, height: 32)
-
-      return InstalledApplication(
-        displayName: candidate.displayName,
-        bundleIdentifier: candidate.bundleIdentifier,
-        url: candidate.url,
-        icon: icon
-      )
-    }
+    return materializer.materialize(candidates)
   }
 }
 
