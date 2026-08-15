@@ -7,16 +7,8 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
-    onLaunchStarted: { [weak self] in
-      self?.hideLauncher()
-    },
-    onCalculatorResultCopied: { [weak self] in
-      self?.hideLauncher()
-    },
-    onShortcutRunStarted: { [weak self] in
-      self?.hideLauncher()
-    },
-    onEmojiCopied: { [weak self] in
+    onEvent: { [weak self] event in
+      guard event != .launchSucceeded else { return }
       self?.hideLauncher()
     }
   )

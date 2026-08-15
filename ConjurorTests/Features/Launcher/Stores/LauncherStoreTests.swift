@@ -215,7 +215,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      onLaunchSuccess: { didLaunch = true }
+      onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -334,7 +334,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(),
       launchHistory: launchHistory,
-      onLaunchSuccess: { didLaunch = true }
+      onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -360,8 +360,10 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(error: TestError.launchFailed),
       launchHistory: launchHistory,
-      onLaunchStarted: { didStartLaunch = true },
-      onLaunchSuccess: { didLaunch = true }
+      onEvent: { event in
+        if event == .launchStarted { didStartLaunch = true }
+        if event == .launchSucceeded { didLaunch = true }
+      }
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -388,7 +390,7 @@ struct LauncherStoreTests {
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
-      onCalculatorResultCopied: { didRequestHide = true }
+      onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
     )
     store.query = "2 + 3"
 
@@ -429,7 +431,7 @@ struct LauncherStoreTests {
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
       emojiHistory: history,
-      onEmojiCopied: { didRequestHide = true }
+      onEvent: { if $0 == .emojiCopied { didRequestHide = true } }
     )
     store.updateQuery(":face with tears of joy")
 
@@ -480,7 +482,7 @@ struct LauncherStoreTests {
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(),
       shortcutRunHistory: history,
-      onShortcutRunStarted: { didRequestHide = true }
+      onEvent: { if $0 == .shortcutRunStarted { didRequestHide = true } }
     )
     store.enterShortcutsMode()
     await waitForShortcutsLoadingToFinish(store)
