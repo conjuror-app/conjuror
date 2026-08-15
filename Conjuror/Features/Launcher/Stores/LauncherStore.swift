@@ -131,9 +131,7 @@ final class LauncherStore: ObservableObject {
   }
 
   private var isExplicitSkinToneQuery: Bool {
-    let query = query.lowercased()
-    return query.contains("skin tone") || query.contains("light") || query.contains("medium")
-      || query.contains("dark")
+    EmojiRanker.explicitlyRequestsSkinTone(query)
   }
 
   private var selectedApplication: InstalledApplication? {
