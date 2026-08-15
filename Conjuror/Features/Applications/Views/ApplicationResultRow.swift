@@ -7,37 +7,25 @@ struct ApplicationResultRow: View {
   let onOpen: () -> Void
 
   var body: some View {
-    Button(action: onOpen) {
-      HStack(spacing: 8) {
-        Image(nsImage: application.icon)
-          .resizable()
-          .interpolation(.high)
-          .frame(width: 26, height: 26)
+    SelectableResultRow(
+      isSelected: isSelected,
+      accessibilityLabel: application.displayName,
+      accessibilityHint: "Opens the application",
+      help: "Open \(application.displayName)",
+      action: onOpen,
+      onHover: onHover
+    ) {
+      Image(nsImage: application.icon)
+        .resizable()
+        .interpolation(.high)
+        .frame(width: 26, height: 26)
 
-        Text(application.displayName)
-          .font(.system(size: 14, weight: .medium))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
+      Text(application.displayName)
+        .font(.system(size: 14, weight: .medium))
+        .foregroundStyle(.primary)
+        .lineLimit(1)
 
-        Spacer()
-      }
-      .padding(.horizontal, 7)
-      .frame(height: 40)
-      .contentShape(Rectangle())
-      .background {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
-      }
+      Spacer()
     }
-    .buttonStyle(.plain)
-    .accessibilityLabel(application.displayName)
-    .accessibilityHint("Opens the application")
-    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
-    .onHover { isHovering in
-      if isHovering {
-        onHover()
-      }
-    }
-    .help("Open \(application.displayName)")
   }
 }
