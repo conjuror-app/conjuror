@@ -1,12 +1,5 @@
 @preconcurrency import Foundation
 
-enum FileAccessStatus {
-  case notChecked
-  case granted
-  case partiallyGranted
-  case denied
-}
-
 @MainActor
 protocol FileAccessAuthorizing {
   func requestAccess()
@@ -18,40 +11,23 @@ protocol FileSearching {
 }
 
 @MainActor
-final class FileAccessAuthorizer: ObservableObject, FileAccessAuthorizing {
-  @Published private(set) var status = FileAccessStatus.notChecked
-  @Published private(set) var unavailableFolders = [String]()
-
+final class FileAccessAuthorizer: FileAccessAuthorizing {
   func requestAccess() {
     let fileManager = FileManager.default
-    let directories: [(String, FileManager.SearchPathDirectory)] = [
-      ("Desktop", .desktopDirectory),
-      ("Documents", .documentDirectory),
-      ("Downloads", .downloadsDirectory),
+    let directories: [FileManager.SearchPathDirectory] = [
+      .desktopDirectory,
+      .documentDirectory,
+      .downloadsDirectory,
     ]
-    unavailableFolders = directories.compactMap { name, directory in
+    for directory in directories {
       guard let url = fileManager.urls(for: directory, in: .userDomainMask).first else {
-        return name
+        continue
       }
-      do {
-        _ = try fileManager.contentsOfDirectory(
-          at: url,
-          includingPropertiesForKeys: nil,
-          options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-        )
-        return nil
-      } catch {
-        return name
-      }
-    }
-
-    switch unavailableFolders.count {
-    case 0:
-      status = .granted
-    case directories.count:
-      status = .denied
-    default:
-      status = .partiallyGranted
+      _ = try? fileManager.contentsOfDirectory(
+        at: url,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+      )
     }
   }
 }

@@ -111,7 +111,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
 }
 
 private struct FilesSettingsView: View {
-  @ObservedObject var accessAuthorizer: FileAccessAuthorizer
+  let accessAuthorizer: FileAccessAuthorizer
 
   var body: some View {
     SettingsPane {
@@ -124,16 +124,6 @@ private struct FilesSettingsView: View {
         }
       }
 
-      Label(statusText, systemImage: statusImage)
-        .font(.caption)
-        .foregroundStyle(statusColor)
-
-      if !accessAuthorizer.unavailableFolders.isEmpty {
-        Text("Unavailable: \(accessAuthorizer.unavailableFolders.joined(separator: ", "))")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-
       Text(
         "macOS controls access to protected folders. Approve each prompt to include that folder in file search results."
       )
@@ -141,33 +131,6 @@ private struct FilesSettingsView: View {
       .foregroundStyle(.secondary)
 
       Spacer()
-    }
-  }
-
-  private var statusText: String {
-    switch accessAuthorizer.status {
-    case .notChecked: "Permission status has not been checked."
-    case .granted: "Access granted to all protected folders."
-    case .partiallyGranted: "Access granted to some protected folders."
-    case .denied: "Access has not been granted."
-    }
-  }
-
-  private var statusImage: String {
-    switch accessAuthorizer.status {
-    case .notChecked: "questionmark.circle"
-    case .granted: "checkmark.circle.fill"
-    case .partiallyGranted: "exclamationmark.triangle.fill"
-    case .denied: "xmark.circle.fill"
-    }
-  }
-
-  private var statusColor: Color {
-    switch accessAuthorizer.status {
-    case .notChecked: .secondary
-    case .granted: .green
-    case .partiallyGranted: .orange
-    case .denied: .red
     }
   }
 }
