@@ -10,6 +10,7 @@
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */; };
 		4F31CB72FA16681871E437D1 /* LauncherModeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */; };
+		576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1933D48DE907C25080B07446 /* CurrencyRateServices.swift */; };
 		6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */; };
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
@@ -99,6 +100,7 @@
 
 /* Begin PBXFileReference section */
 		050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorArithmeticParser.swift; sourceTree = "<group>"; };
+		1933D48DE907C25080B07446 /* CurrencyRateServices.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CurrencyRateServices.swift; sourceTree = "<group>"; };
 		3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorUnitRegistry.swift; sourceTree = "<group>"; };
 		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityParser.swift; sourceTree = "<group>"; };
@@ -414,6 +416,7 @@
 				F65FFE00000000000000000D /* CalculatorRelativeDate.swift */,
 				F65FFE00000000000000000C /* CalculatorTimeZone.swift */,
 				3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */,
+				1933D48DE907C25080B07446 /* CurrencyRateServices.swift */,
 				F65FFE00000000000000000B /* CurrencyRateStore.swift */,
 			);
 			path = Services;
@@ -870,6 +873,7 @@
 				0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */,
 				6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */,
 				4F31CB72FA16681871E437D1 /* LauncherModeState.swift in Sources */,
+				576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,27 +6,8 @@ final class CurrencyRateStore: ObservableObject {
   static let providerURL = URL(string: "https://frankfurter.dev")!
   static let refreshInterval: TimeInterval = 24 * 60 * 60
 
-  private static let endpoint = URL(
-    string: "https://api.frankfurter.dev/v2/rates?base=USD"
-  )!
   private static let enabledKey = "settings.currencyConversionEnabled"
   private static let retryInterval: TimeInterval = 15 * 60
-
-  private static func defaultCacheURL() -> URL {
-    let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(Bundle.main.bundleIdentifier ?? "Conjuror", isDirectory: true)
-    try? FileManager.default.createDirectory(
-      at: directory,
-      withIntermediateDirectories: true
-    )
-    return directory.appendingPathComponent("currency-rates.json")
-  }
-
-  private static func makeSession() -> URLSession {
-    let configuration = URLSessionConfiguration.ephemeral
-    configuration.urlCache = nil
-    return URLSession(configuration: configuration)
-  }
 
   @Published private(set) var isEnabled: Bool
   @Published private(set) var rates: CurrencyRates?
@@ -35,8 +16,8 @@ final class CurrencyRateStore: ObservableObject {
     isEnabled ? .on(rates) : .off
   }
 
-  private let cacheURL: URL
-  private let session: URLSession
+  private let cache: CurrencyRateCache
+  private let client: CurrencyRateClient
   private let userDefaults: UserDefaults
   private var refreshTask: Task<Void, Never>?
 
@@ -46,15 +27,12 @@ final class CurrencyRateStore: ObservableObject {
     session: URLSession? = nil
   ) {
     self.userDefaults = userDefaults
-    self.cacheURL = cacheURL ?? Self.defaultCacheURL()
-    self.session = session ?? Self.makeSession()
+    cache = CurrencyRateCache(url: cacheURL ?? CurrencyRateCache.defaultURL())
+    client = CurrencyRateClient(session: session)
     isEnabled = userDefaults.bool(forKey: Self.enabledKey)
 
-    if isEnabled,
-      let data = try? Data(contentsOf: self.cacheURL),
-      let cachedRates = try? JSONDecoder().decode(CurrencyRates.self, from: data)
-    {
-      rates = cachedRates
+    if isEnabled {
+      rates = try? cache.load()
     }
   }
 
@@ -89,7 +67,7 @@ final class CurrencyRateStore: ObservableObject {
       refreshTask?.cancel()
       refreshTask = nil
       rates = nil
-      try? FileManager.default.removeItem(at: cacheURL)
+      try? cache.remove()
     }
   }
 
@@ -119,49 +97,12 @@ final class CurrencyRateStore: ObservableObject {
     }
 
     do {
-      let request = URLRequest(url: Self.endpoint, timeoutInterval: 20)
-      let (data, response) = try await session.data(for: request)
-      guard isEnabled,
-        let response = response as? HTTPURLResponse,
-        response.statusCode == 200
-      else {
-        return false
-      }
-      let rows = try JSONDecoder().decode([RateRow].self, from: data)
-      guard let first = rows.first else {
-        return false
-      }
-      var table = [String: Double]()
-      for row in rows
-      where row.base == first.base && row.rate.isFinite && row.rate > 0 {
-        table[row.quote] = row.rate
-      }
-      guard !table.isEmpty else {
-        return false
-      }
-      let snapshot = CurrencyRates(
-        base: first.base,
-        rates: table,
-        rateDate: first.date,
-        fetchedAt: Date()
-      )
-      guard isEnabled else {
-        return false
-      }
+      guard let snapshot = try await client.fetch(), isEnabled else { return false }
       rates = snapshot
-      let directory = cacheURL.deletingLastPathComponent()
-      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-      try JSONEncoder().encode(snapshot).write(to: cacheURL, options: .atomic)
+      try cache.save(snapshot)
       return true
     } catch {
       return false
     }
   }
-}
-
-private struct RateRow: Decodable {
-  let date: String
-  let base: String
-  let quote: String
-  let rate: Double
 }
