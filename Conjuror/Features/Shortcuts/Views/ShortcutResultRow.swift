@@ -7,42 +7,30 @@ struct ShortcutResultRow: View {
   let onRun: () -> Void
 
   var body: some View {
-    Button(action: onRun) {
-      HStack(spacing: 8) {
-        shortcutIcon
+    SelectableResultRow(
+      isSelected: isSelected,
+      accessibilityLabel: shortcut.name,
+      accessibilityHint: "Runs the shortcut",
+      help: "Run \(shortcut.name)",
+      action: onRun,
+      onHover: onHover
+    ) {
+      shortcutIcon
 
-        Text(shortcut.name)
-          .font(.system(size: 14, weight: .medium))
-          .foregroundStyle(.primary)
+      Text(shortcut.name)
+        .font(.system(size: 14, weight: .medium))
+        .foregroundStyle(.primary)
+        .lineLimit(1)
+
+      Spacer()
+
+      if let actionCount = shortcut.actionCount, actionCount > 0 {
+        Text("\(actionCount) \(actionCount == 1 ? "action" : "actions")")
+          .font(.caption)
+          .foregroundStyle(.secondary)
           .lineLimit(1)
-
-        Spacer()
-
-        if let actionCount = shortcut.actionCount, actionCount > 0 {
-          Text("\(actionCount) \(actionCount == 1 ? "action" : "actions")")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-        }
-      }
-      .padding(.horizontal, 7)
-      .frame(height: 40)
-      .contentShape(Rectangle())
-      .background {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
       }
     }
-    .buttonStyle(.plain)
-    .accessibilityLabel(shortcut.name)
-    .accessibilityHint("Runs the shortcut")
-    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
-    .onHover { isHovering in
-      if isHovering {
-        onHover()
-      }
-    }
-    .help("Run \(shortcut.name)")
   }
 
   @ViewBuilder private var shortcutIcon: some View {

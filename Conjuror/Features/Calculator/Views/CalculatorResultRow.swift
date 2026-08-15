@@ -7,51 +7,39 @@ struct CalculatorResultRow: View {
   let onCopy: () -> Void
 
   var body: some View {
-    Button(action: onCopy) {
-      HStack(spacing: 8) {
-        Image(systemName: "equal.circle.fill")
-          .font(.system(size: 22))
-          .foregroundStyle(.blue)
-          .frame(width: 26, height: 26)
+    SelectableResultRow(
+      isSelected: isSelected,
+      accessibilityLabel: accessibilityLabel,
+      accessibilityHint: "Copies the result",
+      help: "Copy " + result.copyText,
+      action: onCopy,
+      onHover: onHover
+    ) {
+      Image(systemName: "equal.circle.fill")
+        .font(.system(size: 22))
+        .foregroundStyle(.blue)
+        .frame(width: 26, height: 26)
 
-        Text(result.sourceDisplay ?? result.expression)
-          .font(.system(size: 13))
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
+      Text(result.sourceDisplay ?? result.expression)
+        .font(.system(size: 13))
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
 
-        if let sourceBadge = result.sourceBadge {
-          badge(sourceBadge)
-        }
-
-        Spacer(minLength: 12)
-
-        Text(result.display)
-          .font(.system(size: 14, weight: .semibold, design: .rounded))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
-
-        if let targetBadge = result.targetBadge {
-          badge(targetBadge)
-        }
+      if let sourceBadge = result.sourceBadge {
+        badge(sourceBadge)
       }
-      .padding(.horizontal, 7)
-      .frame(height: 40)
-      .contentShape(Rectangle())
-      .background {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
+
+      Spacer(minLength: 12)
+
+      Text(result.display)
+        .font(.system(size: 14, weight: .semibold, design: .rounded))
+        .foregroundStyle(.primary)
+        .lineLimit(1)
+
+      if let targetBadge = result.targetBadge {
+        badge(targetBadge)
       }
     }
-    .buttonStyle(.plain)
-    .accessibilityLabel(accessibilityLabel)
-    .accessibilityHint("Copies the result")
-    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
-    .onHover { isHovering in
-      if isHovering {
-        onHover()
-      }
-    }
-    .help("Copy " + result.copyText)
   }
 
   private var accessibilityLabel: String {
