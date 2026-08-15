@@ -25,7 +25,7 @@ struct LauncherResultsView: View {
           onHover: store.selectCalculatorResultOnHover,
           onCopy: store.copyCalculatorResult
         )
-        .id(LauncherStore.calculatorResultScrollID)
+        .id(LauncherResultID.calculator)
 
         ForEach(store.filteredApplications) { application in
           applicationResultRow(application)
@@ -41,7 +41,7 @@ struct LauncherResultsView: View {
         message: store.query.isEmpty ? "No applications found" : "No matches"
       )
     } else {
-      resultsScrollView(selectedID: store.selectedApplicationID) {
+      resultsScrollView(selectedID: store.selectedResultScrollID) {
         ForEach(store.filteredApplications) { application in
           applicationResultRow(application)
         }
@@ -54,7 +54,7 @@ struct LauncherResultsView: View {
     if store.displayedEmoji.isEmpty {
       emptyState(systemImage: "magnifyingglass", message: "No matches")
     } else {
-      resultsScrollView(selectedID: store.selectedEmojiID) {
+      resultsScrollView(selectedID: store.selectedResultScrollID) {
         if store.query.isEmpty, !store.recentEmoji.isEmpty {
           Text("Recently Used")
             .font(.caption)
@@ -79,7 +79,7 @@ struct LauncherResultsView: View {
                 store.select(emoji); store.copySelectedEmoji()
               }
             )
-            .id(emoji.id)
+            .id(LauncherResultID.emoji(emoji.id))
           }
         }
       }
@@ -98,7 +98,7 @@ struct LauncherResultsView: View {
         message: store.query.isEmpty ? "No shortcuts without input found" : "No matches"
       )
     } else {
-      resultsScrollView(selectedID: store.selectedShortcutID) {
+      resultsScrollView(selectedID: store.selectedResultScrollID) {
         ForEach(store.filteredShortcuts) { shortcut in
           ShortcutResultRow(
             shortcut: shortcut,
@@ -106,7 +106,7 @@ struct LauncherResultsView: View {
             onHover: { store.selectOnHover(shortcut) },
             onRun: { store.run(shortcut) }
           )
-          .id(shortcut.id)
+          .id(LauncherResultID.shortcut(shortcut.id))
         }
       }
     }
@@ -120,11 +120,11 @@ struct LauncherResultsView: View {
       onHover: { store.selectOnHover(application) },
       onOpen: { store.open(application) }
     )
-    .id(application.id)
+    .id(LauncherResultID.application(application.id))
   }
 
   private func resultsScrollView<Content: View>(
-    selectedID: String?,
+    selectedID: LauncherResultID?,
     @ViewBuilder content: @escaping () -> Content
   ) -> some View {
     ScrollViewReader { proxy in
