@@ -4,6 +4,12 @@ import Testing
 
 @Suite("Emoji Ranker")
 struct EmojiRankerTests {
+  @Test("Emoji ranker: recognizes explicit skin-tone searches")
+  func testRecognizesExplicitSkinToneQueries() {
+    #expect(EmojiRanker.explicitlyRequestsSkinTone("medium-dark skin tone"))
+    #expect(!EmojiRanker.explicitlyRequestsSkinTone("waving hand"))
+  }
+
   @Test("Emoji ranking: CLDR keywords match emoji")
   func testCLDRKeywordsMatchEmoji() throws {
     let emoji = try #require(Emoji.catalog.first { $0.value == "😂" })
