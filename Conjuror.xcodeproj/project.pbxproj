@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */; };
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
 		8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* Conjuror.icon */; };
@@ -94,6 +95,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorUnitRegistry.swift; sourceTree = "<group>"; };
 		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
@@ -403,6 +405,7 @@
 				8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */,
 				F65FFE00000000000000000D /* CalculatorRelativeDate.swift */,
 				F65FFE00000000000000000C /* CalculatorTimeZone.swift */,
+				3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */,
 				F65FFE00000000000000000B /* CurrencyRateStore.swift */,
 			);
 			path = Services;
@@ -854,6 +857,7 @@
 				F65FFF000000000000000006 /* HotKeyConfiguration.swift in Sources */,
 				F65FFF000000000000000007 /* CalculatorResult.swift in Sources */,
 				F65FFF000000000000000008 /* CalculatorFormattingOptions.swift in Sources */,
+				4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
