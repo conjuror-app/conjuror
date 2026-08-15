@@ -69,6 +69,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
   static func scan(directories: [URL]) throws -> [ApplicationCatalogCandidate] {
     let fileManager = FileManager.default
     var candidates = [ApplicationCatalogCandidate]()
+    var candidatePaths = Set<String>()
     var readableDirectoryCount = 0
     var unreadableDirectories = [URL]()
 
@@ -79,6 +80,25 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       }
 
       let keys: [URLResourceKey] = [.isDirectoryKey, .isPackageKey]
+
+      // Some system-provided applications, including Safari, are top-level symlinks marked
+      // hidden by Finder. A recursive enumerator that skips hidden files omits them entirely.
+      let topLevelApplications =
+        (try? fileManager.contentsOfDirectory(
+          at: directory,
+          includingPropertiesForKeys: keys,
+          options: []
+        )) ?? []
+      for url in topLevelApplications
+      where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
+        try Task.checkCancellation()
+        guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
+          continue
+        }
+        candidates.append(candidate)
+        candidatePaths.insert(canonicalURL(url).path)
+      }
+
       var enumerationError: Error?
       guard
         let enumerator = fileManager.enumerator(
@@ -98,10 +118,13 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       for case let url as URL in enumerator
       where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
         try Task.checkCancellation()
-        guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
+        guard !candidatePaths.contains(canonicalURL(url).path),
+          let candidate = candidate(at: url, sourcePriority: sourcePriority)
+        else {
           continue
         }
         candidates.append(candidate)
+        candidatePaths.insert(canonicalURL(url).path)
       }
 
       if enumerationError != nil {
@@ -178,7 +201,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
   init(
     directoryProvider: @escaping () -> [URL] = { Self.applicationDirectories() },
-    excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier,
+    excludedBundleIdentifier: String? = nil,
     materializer: ApplicationMaterializing = ApplicationMaterializer()
   ) {
     self.directoryProvider = directoryProvider

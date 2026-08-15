@@ -55,6 +55,22 @@ struct ApplicationCatalogTests {
     #expect(result.map(\.displayName) == ["Visible"])
   }
 
+  @Test("Application catalog: Conjuror is included when its bundle identifier is not excluded")
+  func testIncludesConjurorByDefault() {
+    let conjuror = candidate(
+      "Conjuror",
+      id: "dev.tombell.conjuror",
+      path: "/Applications/Conjuror.app"
+    )
+
+    let result = ApplicationCatalog.filteredAndDeduplicated(
+      [conjuror],
+      excludingBundleIdentifier: nil
+    )
+
+    #expect(result == [conjuror])
+  }
+
   @Test("Application catalog: applications are deduplicated by bundle identifier and canonical URL")
   func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
     let candidates = [
