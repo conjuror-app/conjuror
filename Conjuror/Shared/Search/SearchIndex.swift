@@ -23,6 +23,20 @@ struct SearchIndex<Item> {
     }
   }
 
+  private static func areInIncreasingOrder(
+    _ lhs: RankedCandidate,
+    _ rhs: RankedCandidate
+  ) -> Bool {
+    if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
+    if lhs.lastUse != rhs.lastUse {
+      return (lhs.lastUse ?? .distantPast) > (rhs.lastUse ?? .distantPast)
+    }
+    if lhs.candidate.normalizedName != rhs.candidate.normalizedName {
+      return lhs.candidate.normalizedName < rhs.candidate.normalizedName
+    }
+    return lhs.candidate.candidate.stableKey < rhs.candidate.candidate.stableKey
+  }
+
   private let candidates: [SearchableCandidate]
 
   init(candidates: [Candidate]) {
@@ -53,19 +67,6 @@ struct SearchIndex<Item> {
     .map(\.candidate.candidate.item)
   }
 
-  private static func areInIncreasingOrder(
-    _ lhs: RankedCandidate,
-    _ rhs: RankedCandidate
-  ) -> Bool {
-    if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
-    if lhs.lastUse != rhs.lastUse {
-      return (lhs.lastUse ?? .distantPast) > (rhs.lastUse ?? .distantPast)
-    }
-    if lhs.candidate.normalizedName != rhs.candidate.normalizedName {
-      return lhs.candidate.normalizedName < rhs.candidate.normalizedName
-    }
-    return lhs.candidate.candidate.stableKey < rhs.candidate.candidate.stableKey
-  }
 }
 
 private extension SearchIndex {
