@@ -94,6 +94,19 @@ struct CalculatorEngineTests {
     #expect(engine.evaluate("10:00 SGT in WAT")?.copyText == "03:00 WAT")
   }
 
+  @Test("Calculator engine: bare time-zone input converts to the current time zone")
+  func testBareTimeZoneInputConvertsToCurrentTimeZone() {
+    let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
+
+    let result = engine.evaluate("12:00 PST")
+
+    #expect(result?.sourceDisplay == "12:00")
+    #expect(result?.sourceBadge == "PST")
+    #expect(result?.display == "21:00")
+    #expect(result?.targetBadge == "BST")
+    #expect(result?.copyText == "21:00 BST")
+  }
+
   @Test("Calculator engine: current time zone is used when the source is omitted")
   func testTimeZoneConversionUsesCurrentTimeZoneWhenSourceIsOmitted() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
@@ -138,6 +151,7 @@ struct CalculatorEngineTests {
     #expect((engine.evaluate("10:00 XYZ in EST")) == nil)
     #expect((engine.evaluate("10:00 GMT in XYZ")) == nil)
     #expect((engine.evaluate("10:00 in")) == nil)
+    #expect((engine.evaluate("10:00")) == nil)
   }
 
   @Test("Calculator engine: currency codes and symbols work when enabled")

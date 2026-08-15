@@ -47,9 +47,10 @@ Timezone conversion supports timezone abbreviations recognized by macOS and
 BST in EST` or `9am GMT → PDT`. Explicit standard and daylight abbreviations
 use their stated fixed offsets, so pairs such as `EST`/`EDT`, `CET`/`CEST`, and
 `NZST`/`NZDT` remain distinct; other macOS abbreviations use their current
-offset. When the source abbreviation is
-omitted, as in `1:00 pm in PDT`, the Mac's current timezone is used with its
-daylight-saving rules for the current date.
+offset. A time with just a source abbreviation, such as `12:00 PST`, converts
+to the Mac's current timezone. When the source abbreviation is omitted, as in
+`1:00 pm in PDT`, the Mac's current timezone is used with its daylight-saving
+rules for the current date.
 Optional currency conversion supports ISO codes and common symbols, for example
 `100 USD to EUR`, `$50 in GBP`, and `20 EUR → ¥`. A bare amount such as `1 CAD`
 converts to the currency from the user's regional settings. It is disabled by default.
