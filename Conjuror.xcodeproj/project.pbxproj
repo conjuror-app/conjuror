@@ -77,9 +77,9 @@
 		F65FFF000000000000000009 /* CurrencyRates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000009 /* CurrencyRates.swift */; };
 		F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000A /* CalculatorCurrency.swift */; };
 		F65FFF00000000000000000B /* CurrencyRateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000B /* CurrencyRateStore.swift */; };
-		F65FFF10000000000000000B /* CurrencyRateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */; };
 		F65FFF00000000000000000C /* CalculatorTimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000C /* CalculatorTimeZone.swift */; };
 		F65FFF00000000000000000D /* CalculatorRelativeDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE00000000000000000D /* CalculatorRelativeDate.swift */; };
+		F65FFF10000000000000000B /* CurrencyRateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -166,9 +166,9 @@
 		F65FFE000000000000000009 /* CurrencyRates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRates.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000A /* CalculatorCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorCurrency.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000B /* CurrencyRateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStore.swift; sourceTree = "<group>"; };
-		F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStoreTests.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000C /* CalculatorTimeZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZone.swift; sourceTree = "<group>"; };
 		F65FFE00000000000000000D /* CalculatorRelativeDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDate.swift; sourceTree = "<group>"; };
+		F65FFE10000000000000000B /* CurrencyRateStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRateStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
