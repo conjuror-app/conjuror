@@ -77,8 +77,8 @@ struct ApplicationCatalogTests {
     #expect(result.map(\.displayName) == ["Beta", "Path"])
   }
 
-  @Test("Application catalog: top-level symlinked applications are scanned")
-  func testScansTopLevelSymlinkedApplications() throws {
+  @Test("Application catalog: top-level symlinked agent applications are scanned")
+  func testScansTopLevelSymlinkedAgentApplications() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
       .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -98,6 +98,7 @@ struct ApplicationCatalogTests {
       "CFBundleIdentifier": "com.apple.Safari",
       "CFBundleName": "Safari",
       "CFBundlePackageType": "APPL",
+      "LSUIElement": true,
     ]
     let infoData = try PropertyListSerialization.data(
       fromPropertyList: info,

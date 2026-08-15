@@ -145,8 +145,9 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       bundleIdentifier: bundle.bundleIdentifier,
       url: canonicalURL(url),
       sourcePriority: sourcePriority,
-      isBackgroundOnly: (info["LSUIElement"] as? Bool == true)
-        || (info["LSBackgroundOnly"] as? Bool == true),
+      // Agent applications (LSUIElement) can still be user-facing launch targets, such as
+      // Raycast. Only exclude applications that explicitly run in the background.
+      isBackgroundOnly: info["LSBackgroundOnly"] as? Bool == true,
       isHelper: isHelper
     )
   }
