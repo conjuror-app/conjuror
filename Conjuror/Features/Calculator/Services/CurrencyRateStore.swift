@@ -1,11 +1,13 @@
 import Combine
 import Foundation
+import OSLog
 
 @MainActor
 final class CurrencyRateStore: ObservableObject {
   static let providerURL = URL(string: "https://frankfurter.dev")!
   static let refreshInterval: TimeInterval = 24 * 60 * 60
 
+  private static let logger = Logger(subsystem: "Conjuror", category: "CurrencyRates")
   private static let enabledKey = "settings.currencyConversionEnabled"
   private static let retryInterval: TimeInterval = 15 * 60
 
@@ -32,7 +34,13 @@ final class CurrencyRateStore: ObservableObject {
     isEnabled = userDefaults.bool(forKey: Self.enabledKey)
 
     if isEnabled {
-      rates = try? cache.load()
+      do {
+        rates = try cache.load()
+      } catch CocoaError.fileReadNoSuchFile {
+        // An empty cache is expected before the first successful refresh.
+      } catch {
+        Self.logger.error("Unable to load cached currency rates: \(error.localizedDescription)")
+      }
     }
   }
 
@@ -67,7 +75,11 @@ final class CurrencyRateStore: ObservableObject {
       refreshTask?.cancel()
       refreshTask = nil
       rates = nil
-      try? cache.remove()
+      do {
+        try cache.remove()
+      } catch {
+        Self.logger.error("Unable to remove cached currency rates: \(error.localizedDescription)")
+      }
     }
   }
 
@@ -101,7 +113,10 @@ final class CurrencyRateStore: ObservableObject {
       rates = snapshot
       try cache.save(snapshot)
       return true
+    } catch is CancellationError {
+      return false
     } catch {
+      Self.logger.error("Unable to refresh currency rates: \(error.localizedDescription)")
       return false
     }
   }
