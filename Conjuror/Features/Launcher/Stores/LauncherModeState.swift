@@ -29,6 +29,13 @@ struct LauncherEmojiState {
   var selectedID: Emoji.ID?
 }
 
+struct LauncherFilesState {
+  var items = [FileSearchResult]()
+  var isSearching = false
+  var errorMessage: String?
+  var selectedID: FileSearchResult.ID?
+}
+
 @MainActor
 final class CatalogReloadCoordinator<Value> {
   private var task: Task<Void, Never>?

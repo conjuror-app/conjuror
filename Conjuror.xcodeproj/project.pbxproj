@@ -17,6 +17,8 @@
 		576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1933D48DE907C25080B07446 /* CurrencyRateServices.swift */; };
 		5FAF08C0363790964C5F925B /* CalculatorRadixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */; };
 		6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */; };
+		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
+		3374A46E1971672A575C51A9 /* FileResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */; };
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
 		8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* Conjuror.icon */; };
@@ -61,6 +63,7 @@
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
 		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
+		A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
 		BB1F88822512295121208ACE /* LauncherStoreApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022CEA2BADD865FA4667B16 /* LauncherStoreApplicationTests.swift */; };
@@ -75,6 +78,7 @@
 		C10000000000000000000009 /* SettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000009 /* SettingsRow.swift */; };
 		C80E94548069D50514B9FB8B /* UserDefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */; };
 		CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */; };
+		C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
@@ -127,6 +131,7 @@
 		6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreEmojiTests.swift; sourceTree = "<group>"; };
 		7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorCurrencyTests.swift; sourceTree = "<group>"; };
 		7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDateTests.swift; sourceTree = "<group>"; };
+		5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileResultRow.swift; path = FileResultRow.swift; sourceTree = "<group>"; };
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -170,6 +175,9 @@
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeState.swift; sourceTree = "<group>"; };
+		8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileOpener.swift; sourceTree = "<group>"; };
+		BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchResult.swift; sourceTree = "<group>"; };
+		BEA4E28D5375C102150ABE1F /* FileSearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchService.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStore.swift; sourceTree = "<group>"; };
@@ -263,6 +271,34 @@
 			);
 			name = Search;
 			path = Search;
+			sourceTree = "<group>";
+		};
+		64475840AD1E2D0F98630476 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */,
+			);
+			name = Views;
+			path = Views;
+			sourceTree = "<group>";
+		};
+		67CE5F87327A25E7F7DBFAD7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */,
+				BEA4E28D5375C102150ABE1F /* FileSearchService.swift */,
+			);
+			name = Services;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		86AC481CA408697992AE8CA9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */,
+			);
+			name = Models;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		8A4E32302C55C00100C0A001 = {
@@ -362,6 +398,17 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		ECCD4201FE00EDFC74E93397 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				86AC481CA408697992AE8CA9 /* Models */,
+				67CE5F87327A25E7F7DBFAD7 /* Services */,
+				64475840AD1E2D0F98630476 /* Views */,
+			);
+			name = Files;
+			path = Files;
+			sourceTree = "<group>";
+		};
 		F65FFBE33028A9F100FB3923 /* Calculator */ = {
 			isa = PBXGroup;
 			children = (
@@ -378,6 +425,7 @@
 				F65FFD000000000000000003 /* Applications */,
 				F65FFBE33028A9F100FB3923 /* Calculator */,
 				E3000000000000000000001 /* Emoji */,
+				ECCD4201FE00EDFC74E93397 /* Files */,
 				F65FFD00000000000000000B /* Launcher */,
 				F65FFD000000000000000010 /* Settings */,
 				F65FFD000000000000000016 /* Shortcuts */,
@@ -946,6 +994,10 @@
 				9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */,
 				25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */,
 				4517DB1E73BB1B5B84C9E9AD /* LauncherModeControllers.swift in Sources */,
+				C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */,
+				263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */,
+				A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */,
+				3374A46E1971672A575C51A9 /* FileResultRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1120,13 +1172,16 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = Y54Z78V9M7;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Conjuror uses Shortcuts Events to list and run your Apple Shortcuts.";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Conjuror searches file and folder names on your Desktop.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Conjuror searches file and folder names in Documents.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Conjuror searches file and folder names in Downloads.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1150,13 +1205,16 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = Y54Z78V9M7;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Conjuror uses Shortcuts Events to list and run your Apple Shortcuts.";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Conjuror searches file and folder names on your Desktop.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Conjuror searches file and folder names in Documents.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Conjuror searches file and folder names in Downloads.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

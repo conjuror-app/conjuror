@@ -5,6 +5,7 @@ import SwiftUI
 enum LauncherEvent: Equatable {
   case calculatorResultCopied
   case emojiCopied
+  case fileOpened
   case launchStarted
   case launchSucceeded
   case shortcutRunStarted
@@ -14,6 +15,7 @@ enum LauncherResultID: Hashable {
   case application(InstalledApplication.ID)
   case calculator
   case emoji(Emoji.ID)
+  case file(FileSearchResult.ID)
   case shortcut(AppleShortcut.ID)
 }
 
@@ -124,6 +126,23 @@ final class LauncherStore: ObservableObject {
     set { emojiState.selectedID = newValue }
   }
 
+  private(set) var fileResults: [FileSearchResult] {
+    get { filesState.items }
+    set { filesState.items = newValue }
+  }
+  private(set) var isSearchingFiles: Bool {
+    get { filesState.isSearching }
+    set { filesState.isSearching = newValue }
+  }
+  private(set) var fileSearchErrorMessage: String? {
+    get { filesState.errorMessage }
+    set { filesState.errorMessage = newValue }
+  }
+  private(set) var selectedFileID: FileSearchResult.ID? {
+    get { filesState.selectedID }
+    set { filesState.selectedID = newValue }
+  }
+
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
@@ -131,6 +150,7 @@ final class LauncherStore: ObservableObject {
   @Published private var calculatorState = LauncherCalculatorState()
   @Published private var shortcutsState = LauncherShortcutsState()
   @Published private var emojiState = LauncherEmojiState()
+  @Published private var filesState = LauncherFilesState()
 
   var selectedResultScrollID: LauncherResultID? {
     switch mode {
@@ -138,6 +158,8 @@ final class LauncherStore: ObservableObject {
       isCalculatorSelected ? .calculator : selectedApplicationID.map(LauncherResultID.application)
     case .emoji:
       selectedEmojiID.map(LauncherResultID.emoji)
+    case .files:
+      selectedFileID.map(LauncherResultID.file)
     case .shortcuts:
       selectedShortcutID.map(LauncherResultID.shortcut)
     }
@@ -157,9 +179,11 @@ final class LauncherStore: ObservableObject {
   private let launcher: ApplicationLaunching
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
+  private let fileOpener: FileOpening
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: LauncherApplicationController
   private let shortcutController: LauncherShortcutController
+  private let fileController: LauncherFileController
   private let onEvent: (LauncherEvent) -> Void
 
   private var currencySource = CurrencySource.off
@@ -199,6 +223,10 @@ final class LauncherStore: ObservableObject {
     displayedEmoji.first { $0.id == selectedEmojiID } ?? displayedEmoji.first
   }
 
+  private var selectedFile: FileSearchResult? {
+    fileResults.first { $0.id == selectedFileID } ?? fileResults.first
+  }
+
   init(
     settingsStore: SettingsStore = SettingsStore(),
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
@@ -210,6 +238,8 @@ final class LauncherStore: ObservableObject {
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
     shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
+    fileSearcher: FileSearching = SpotlightFileSearchService(),
+    fileOpener: FileOpening = FileOpener(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
@@ -220,8 +250,10 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
     self.emojiHistory = emojiHistory
+    self.fileOpener = fileOpener
     applicationController = LauncherApplicationController(history: launchHistory)
     shortcutController = LauncherShortcutController(history: shortcutRunHistory)
+    fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
     recentEmoji = Self.emoji(for: emojiHistory.load())
   }
@@ -236,7 +268,7 @@ final class LauncherStore: ObservableObject {
   }
 
   func updateQuery(_ value: String) {
-    guard let prefix = value.first, [";", ">", ":"].contains(prefix) else {
+    guard let prefix = value.first, [";", ">", ":", "/"].contains(prefix) else {
       query = value
       return
     }
@@ -244,7 +276,8 @@ final class LauncherStore: ObservableObject {
       switch prefix {
       case ";": .applications
       case ">": .shortcuts
-      default: .emoji
+      case ":": .emoji
+      default: .files
       }
     transition(to: requestedMode, query: String(value.dropFirst()))
   }
@@ -256,6 +289,11 @@ final class LauncherStore: ObservableObject {
     case .shortcuts:
       transition(to: .emoji)
     case .emoji:
+      mode = .files
+      query = ""
+      refreshCurrentResults()
+      selectFirstResult()
+    case .files:
       returnToApplicationsMode()
     }
   }
@@ -378,6 +416,12 @@ final class LauncherStore: ObservableObject {
         selectedID: selectedEmojiID,
         step: LauncherLayout.emojiColumnCount
       )
+    case .files:
+      selectedFileID = movedSelection(
+        direction,
+        results: fileResults.map(\.id),
+        selectedID: selectedFileID
+      )
     case .shortcuts:
       selectedShortcutID = movedSelection(
         direction,
@@ -397,6 +441,8 @@ final class LauncherStore: ObservableObject {
       }
     case .emoji:
       copySelectedEmoji()
+    case .files:
+      openSelectedFile()
     case .shortcuts:
       runSelectedShortcut()
     }
@@ -457,6 +503,28 @@ final class LauncherStore: ObservableObject {
     onEvent(.emojiCopied)
   }
 
+  func select(_ file: FileSearchResult) {
+    selectedFileID = file.id
+  }
+
+  func selectOnHover(_ file: FileSearchResult) {
+    guard pointerDidMove() else { return }
+    select(file)
+  }
+
+  func openSelectedFile() {
+    guard let file = selectedFile else { return }
+    selectedFileID = file.id
+    fileSearchErrorMessage = nil
+    do {
+      try fileOpener.open(file.url)
+      query = ""
+      onEvent(.fileOpened)
+    } catch {
+      fileSearchErrorMessage = "Couldn’t open \(file.displayName). \(error.localizedDescription)"
+    }
+  }
+
   func runSelectedShortcut() {
     guard let shortcut = selectedShortcut else {
       return
@@ -498,6 +566,10 @@ final class LauncherStore: ObservableObject {
 
   func clearShortcutRunError() {
     shortcutRunErrorMessage = nil
+  }
+
+  func clearFileSearchError() {
+    fileSearchErrorMessage = nil
   }
 
   func prepareForActivation(mode requestedMode: LauncherMode? = nil) {
@@ -591,6 +663,9 @@ final class LauncherStore: ObservableObject {
     case .emoji:
       isCalculatorSelected = false
       selectedEmojiID = displayedEmoji.first?.id
+    case .files:
+      isCalculatorSelected = false
+      selectedFileID = fileResults.first?.id
     case .shortcuts:
       isCalculatorSelected = false
       selectedShortcutID = filteredShortcuts.first?.id
@@ -612,10 +687,39 @@ final class LauncherStore: ObservableObject {
 
   private func refreshCurrentResults() {
     calculatorResult = nil
+    if mode != .files {
+      fileController.cancel()
+      isSearchingFiles = false
+    }
     switch mode {
     case .applications: refreshApplications()
     case .emoji: filteredEmoji = emojiIndex.ranked(query: query)
+    case .files: searchFiles()
     case .shortcuts: refreshShortcuts()
+    }
+  }
+
+  private func searchFiles() {
+    fileSearchErrorMessage = nil
+    fileController.search(query: query) { [weak self] update in
+      guard let self, mode == .files else { return }
+      switch update {
+      case .cleared:
+        fileResults = []
+        selectedFileID = nil
+        isSearchingFiles = false
+      case .searching:
+        isSearchingFiles = true
+      case .results(let results):
+        fileResults = results
+        selectedFileID = results.first?.id
+        isSearchingFiles = false
+      case .failed(let error):
+        fileResults = []
+        selectedFileID = nil
+        fileSearchErrorMessage = "Couldn’t search files. \(error.localizedDescription)"
+        isSearchingFiles = false
+      }
     }
   }
 

@@ -18,31 +18,47 @@ struct LauncherStoreTests {
     await waitForShortcutsLoadingToFinish(store)
     #expect(store.mode == .shortcuts)
 
-    store.updateQuery(":")
-    #expect(store.mode == .emoji)
+    store.updateQuery("/notes")
+    #expect(store.mode == .files)
 
     store.updateQuery(";conjuror")
     #expect(store.mode == .applications)
     #expect(store.query == "conjuror")
   }
 
-  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
-  func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
-    let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
+  @Test("Launcher store: slash switches to files and publishes search results")
+  func testSlashSwitchesToFilesAndSearches() async {
+    let result = FileSearchResult(
+      url: URL(fileURLWithPath: "/Users/example/Documents/Notes.txt"),
+      displayName: "Notes.txt",
+      isDirectory: false,
+      modificationDate: nil
     )
+    let store = makeStore(fileSearcher: FileSearcherStub(results: [result]))
+
+    store.updateQuery("/notes")
+    while store.isSearchingFiles {
+      try? await Task.sleep(for: .milliseconds(10))
+    }
+
+    #expect(store.mode == .files)
+    #expect(store.query == "notes")
+    #expect(store.fileResults == [result])
+    #expect(store.selectedFileID == result.id)
+  }
+
+  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, files, and applications")
+  func testTabModeCycleVisitsShortcutsEmojiFilesAndApplications() {
+    let store = makeStore()
 
     store.cycleMode()
     #expect(store.mode == .shortcuts)
 
     store.cycleMode()
     #expect(store.mode == .emoji)
+
+    store.cycleMode()
+    #expect(store.mode == .files)
 
     store.cycleMode()
     #expect(store.mode == .applications)
@@ -209,6 +225,8 @@ struct LauncherStoreTests {
     shortcutRunner: ShortcutRunning = ShortcutRunnerStub(),
     shortcutRunHistory: ShortcutRunHistoryStore? = nil,
     emojiHistory: EmojiHistoryStore? = nil,
+    fileSearcher: FileSearching = FileSearcherStub(results: []),
+    fileOpener: FileOpening = FileOpener(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
@@ -223,6 +241,8 @@ struct LauncherStoreTests {
       shortcutRunHistory: shortcutRunHistory
         ?? ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
+      fileSearcher: fileSearcher,
+      fileOpener: fileOpener,
       onEvent: onEvent
     )
   }
@@ -258,6 +278,14 @@ struct CatalogStub: ApplicationCatalogLoading {
 
   func load() async throws -> [InstalledApplication] {
     applications
+  }
+}
+
+struct FileSearcherStub: FileSearching {
+  let results: [FileSearchResult]
+
+  func search(query: String) async throws -> [FileSearchResult] {
+    results
   }
 }
 

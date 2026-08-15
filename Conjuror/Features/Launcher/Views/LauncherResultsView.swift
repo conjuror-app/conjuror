@@ -10,6 +10,8 @@ struct LauncherResultsView: View {
       applicationResults
     case .emoji:
       emojiResults
+    case .files:
+      fileResults
     case .shortcuts:
       shortcutResults
     }
@@ -81,6 +83,35 @@ struct LauncherResultsView: View {
             )
             .id(LauncherResultID.emoji(emoji.id))
           }
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var fileResults: some View {
+    if store.isSearchingFiles, store.fileResults.isEmpty {
+      loadingState("Searching files…")
+    } else if let errorMessage = store.fileSearchErrorMessage {
+      errorState(errorMessage, retry: { store.updateQuery(store.query) })
+    } else if store.fileResults.isEmpty {
+      emptyState(
+        systemImage: store.query.isEmpty ? "doc.text.magnifyingglass" : "magnifyingglass",
+        message: store.query.isEmpty ? "Type to search files and folders" : "No matches"
+      )
+    } else {
+      resultsScrollView(selectedID: store.selectedResultScrollID) {
+        ForEach(store.fileResults) { file in
+          FileResultRow(
+            result: file,
+            isSelected: file.id == store.selectedFileID,
+            onHover: { store.selectOnHover(file) },
+            onOpen: {
+              store.select(file)
+              store.openSelectedFile()
+            }
+          )
+          .id(file.id)
         }
       }
     }
