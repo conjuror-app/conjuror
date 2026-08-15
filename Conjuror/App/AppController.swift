@@ -4,9 +4,14 @@ import Combine
 @MainActor
 final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsStore = SettingsStore()
+  private lazy var fileAccessAuthorizer = FileAccessAuthorizer()
+  private lazy var fileSearchService = SpotlightFileSearchService(
+    accessAuthorizer: fileAccessAuthorizer
+  )
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
+    fileSearcher: fileSearchService,
     onEvent: { [weak self] event in
       guard event != .launchSucceeded else { return }
       self?.hideLauncher()
@@ -38,7 +43,8 @@ final class AppController: NSObject, NSApplicationDelegate {
     store: settingsStore,
     hotKeyStore: hotKeyStore,
     currencyRateStore: currencyRateStore,
-    launchAtLoginStore: launchAtLoginStore
+    launchAtLoginStore: launchAtLoginStore,
+    fileAccessAuthorizer: fileAccessAuthorizer
   )
 
   private var statusItem: NSStatusItem?

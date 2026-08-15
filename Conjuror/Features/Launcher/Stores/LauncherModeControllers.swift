@@ -24,6 +24,56 @@ final class LauncherApplicationController {
   }
 }
 
+@MainActor
+final class LauncherFileController {
+  enum Update {
+    case cleared
+    case searching
+    case results([FileSearchResult])
+    case failed(Error)
+  }
+
+  private let searcher: FileSearching
+  private var task: Task<Void, Never>?
+
+  init(searcher: FileSearching) {
+    self.searcher = searcher
+  }
+
+  deinit {
+    task?.cancel()
+  }
+
+  func search(query: String, onUpdate: @escaping (Update) -> Void) {
+    task?.cancel()
+    let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !query.isEmpty else {
+      onUpdate(.cleared)
+      return
+    }
+
+    onUpdate(.searching)
+    let searcher = searcher
+    task = Task {
+      do {
+        try await Task.sleep(for: .milliseconds(75))
+        let results = try await searcher.search(query: query)
+        guard !Task.isCancelled else { return }
+        onUpdate(.results(results))
+      } catch is CancellationError {
+      } catch {
+        guard !Task.isCancelled else { return }
+        onUpdate(.failed(error))
+      }
+    }
+  }
+
+  func cancel() {
+    task?.cancel()
+    task = nil
+  }
+}
+
 final class LauncherShortcutController {
   private let history: ShortcutRunHistoryStore
   private var index = ShortcutRanker.Index(shortcuts: [])

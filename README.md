@@ -70,6 +70,12 @@ Type `:` to open the emoji grid. Search by Unicode name, including gender and sk
 tone, then press Return to copy the selection. Recently copied emoji appear first
 when the search is empty.
 
+### Files and folders
+
+Type `/` to search Spotlight-indexed files and folders by name, then press Return to
+open the selected item. Search stays on-device and normal macOS privacy permissions
+still apply.
+
 ## Development
 
 Build and test with Make:

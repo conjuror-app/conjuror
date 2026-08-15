@@ -61,6 +61,7 @@ struct LauncherSearchField: View {
     switch mode {
     case .applications: "magnifyingglass"
     case .emoji: "face.smiling"
+    case .files: "doc.text.magnifyingglass"
     case .shortcuts: "square.stack.3d.up.fill"
     }
   }
@@ -69,6 +70,7 @@ struct LauncherSearchField: View {
     switch mode {
     case .applications: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
     case .emoji: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
+    case .files: Color(red: 80 / 255, green: 160 / 255, blue: 246 / 255)
     case .shortcuts: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
     }
   }
@@ -77,6 +79,7 @@ struct LauncherSearchField: View {
     switch mode {
     case .applications: "Application search mode"
     case .emoji: "Emoji search mode"
+    case .files: "File and folder search mode"
     case .shortcuts: "Apple Shortcuts search mode"
     }
   }
@@ -85,6 +88,7 @@ struct LauncherSearchField: View {
     switch mode {
     case .applications: "Search apps…"
     case .emoji: "Search emoji…"
+    case .files: "Search files and folders…"
     case .shortcuts: "Search shortcuts…"
     }
   }

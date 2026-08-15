@@ -74,6 +74,8 @@ struct LauncherView: View {
       store.filteredApplications.count + (store.calculatorResult == nil ? 0 : 1)
     case .emoji:
       store.displayedEmoji.count
+    case .files:
+      store.fileResults.count
     case .shortcuts:
       store.filteredShortcuts.count
     }
@@ -85,6 +87,8 @@ struct LauncherView: View {
       store.catalogErrorMessage
     case .emoji:
       nil
+    case .files:
+      store.fileSearchErrorMessage
     case .shortcuts:
       store.shortcutCatalogErrorMessage
     }
@@ -96,6 +100,8 @@ struct LauncherView: View {
       store.launchErrorMessage
     case .emoji:
       nil
+    case .files:
+      store.fileSearchErrorMessage
     case .shortcuts:
       store.shortcutRunErrorMessage
     }
@@ -130,6 +136,8 @@ struct LauncherView: View {
       store.isCalculatorSelected ? "Copy result" : "Launch application"
     case .emoji:
       "Copy emoji"
+    case .files:
+      "Open item"
     case .shortcuts:
       "Run shortcut"
     }
@@ -176,10 +184,15 @@ struct LauncherView: View {
       Spacer()
 
       Button {
-        if store.mode == .applications {
+        switch store.mode {
+        case .applications:
           store.clearLaunchError()
-        } else {
+        case .files:
+          store.clearFileSearchError()
+        case .shortcuts:
           store.clearShortcutRunError()
+        case .emoji:
+          break
         }
       } label: {
         Image(systemName: "xmark")
