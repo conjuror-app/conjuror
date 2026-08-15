@@ -98,6 +98,33 @@ Build artifacts are written to `.derivedData`. Emoji generation requires Node.js
 version used by the project is declared in `.mise.toml`. The project enables complete
 Swift concurrency checking in Debug and Release builds.
 
+### Direct distribution
+
+The Xcode archive, Developer ID notarization upload, and final app export can be run
+from the command line:
+
+```sh
+make archive
+make notarize
+```
+
+These targets mirror Xcode's Custom → Direct Distribution workflow. They require an
+Apple Developer account configured in Xcode, access to a Developer ID Application
+certificate, and a `notarytool` Keychain profile named `conjuror-notary`. Create the
+profile once with:
+
+```sh
+xcrun notarytool store-credentials conjuror-notary \
+  --apple-id "YOUR_APPLE_ID" \
+  --team-id "Y54Z78V9M7" \
+  --password "YOUR_APP_SPECIFIC_PASSWORD"
+```
+
+`make notarize` exports the app, submits it to Apple, waits for notarization, and then
+staples and validates the ticket. The finished app is written to
+`.derivedData/Export/Conjuror.app`. A different Keychain profile can be selected with
+`make notarize NOTARY_PROFILE=profile-name`.
+
 ### Calculator evaluator precedence
 
 Calculator input is evaluated in this order: relative date, timezone, currency, radix,
