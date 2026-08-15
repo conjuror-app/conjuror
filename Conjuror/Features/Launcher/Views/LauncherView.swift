@@ -61,8 +61,6 @@ struct LauncherView: View {
     .onExitCommand {
       if !store.query.isEmpty {
         store.updateQuery("")
-      } else if store.mode != .applications {
-        store.returnToApplicationsMode()
       } else {
         onHide()
       }

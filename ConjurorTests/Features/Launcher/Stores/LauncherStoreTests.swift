@@ -104,6 +104,33 @@ struct LauncherStoreTests {
     #expect(store.filteredEmoji.first?.value == "👋🏾")
   }
 
+  @Test("Launcher store: mode prefixes switch between all modes")
+  func testModePrefixesSwitchBetweenAllModes() async {
+    let store = LauncherStore(
+      catalog: CatalogStub(applications: []),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeUserDefaults())
+    )
+
+    store.updateQuery(":")
+    #expect(store.mode == .emoji)
+
+    store.updateQuery(">")
+    await waitForShortcutsLoadingToFinish(store)
+    #expect(store.mode == .shortcuts)
+
+    store.updateQuery(":")
+    #expect(store.mode == .emoji)
+
+    store.updateQuery(";conjuror")
+    #expect(store.mode == .applications)
+    #expect(store.query == "conjuror")
+  }
+
   @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
   func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
     let store = LauncherStore(
