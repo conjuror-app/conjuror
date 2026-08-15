@@ -354,11 +354,13 @@ struct LauncherStoreTests {
   func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let launchHistory = LaunchHistoryStore(userDefaults: makeUserDefaults())
+    var didStartLaunch = false
     var didLaunch = false
     let store = LauncherStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(error: TestError.launchFailed),
       launchHistory: launchHistory,
+      onLaunchStarted: { didStartLaunch = true },
       onLaunchSuccess: { didLaunch = true }
     )
     store.loadApplications()
@@ -366,6 +368,7 @@ struct LauncherStoreTests {
     store.query = "alpha"
 
     store.openSelectedApplication()
+    #expect(didStartLaunch)
     while store.launchErrorMessage == nil {
       await Task.yield()
     }
@@ -516,8 +519,8 @@ struct LauncherStoreTests {
     #expect(store.shortcutRunErrorMessage == "Couldn’t run Lights. Launch failed")
   }
 
-  @Test("Launcher store: activation clears transient state and selects the first result")
-  func testPrepareForActivationClearsTransientStateAndSelectsFirstResult() async {
+  @Test("Launcher store: activation restores a failed launch")
+  func testPrepareForActivationRestoresFailedLaunch() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
@@ -538,9 +541,9 @@ struct LauncherStoreTests {
 
     store.prepareForActivation()
 
-    #expect(store.query == "")
-    #expect((store.launchErrorMessage) == nil)
-    #expect(store.selectedApplicationID == applications[0].id)
+    #expect(store.query == "beta")
+    #expect(store.launchErrorMessage == "Couldn’t open Beta. Launch failed")
+    #expect(store.selectedApplicationID == applications[1].id)
     #expect(store.focusRequest != focusRequest)
   }
 

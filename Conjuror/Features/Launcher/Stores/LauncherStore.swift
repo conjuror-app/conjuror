@@ -88,6 +88,7 @@ final class LauncherStore: ObservableObject {
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
   private let shortcutRunHistory: ShortcutRunHistoryStore
+  private let onLaunchStarted: () -> Void
   private let onLaunchSuccess: () -> Void
   private let onCalculatorResultCopied: () -> Void
   private let onShortcutRunStarted: () -> Void
@@ -150,6 +151,7 @@ final class LauncherStore: ObservableObject {
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
     shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
+    onLaunchStarted: @escaping () -> Void = {},
     onLaunchSuccess: @escaping () -> Void = {},
     onCalculatorResultCopied: @escaping () -> Void = {},
     onShortcutRunStarted: @escaping () -> Void = {},
@@ -165,6 +167,7 @@ final class LauncherStore: ObservableObject {
     self.shortcutRunner = shortcutRunner
     self.shortcutRunHistory = shortcutRunHistory
     self.emojiHistory = emojiHistory
+    self.onLaunchStarted = onLaunchStarted
     self.onLaunchSuccess = onLaunchSuccess
     self.onCalculatorResultCopied = onCalculatorResultCopied
     self.onShortcutRunStarted = onShortcutRunStarted
@@ -406,6 +409,7 @@ final class LauncherStore: ObservableObject {
     isCalculatorSelected = false
     selectedApplicationID = application.id
     launchErrorMessage = nil
+    onLaunchStarted()
 
     let launcher = launcher
     Task { [weak self] in
@@ -505,6 +509,10 @@ final class LauncherStore: ObservableObject {
       refreshCurrentResults()
       selectFirstResult()
       if requestedMode == .shortcuts { loadShortcuts() }
+    } else if launchErrorMessage != nil {
+      mode = .applications
+      refreshCurrentResults()
+      selectFirstResult()
     } else if shortcutRunErrorMessage != nil {
       mode = .shortcuts
       refreshCurrentResults()
