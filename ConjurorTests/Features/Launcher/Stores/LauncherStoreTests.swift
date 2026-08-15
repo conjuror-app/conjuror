@@ -12,11 +12,7 @@ struct LauncherStoreTests {
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
     ]
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore(applications: applications)
     store.loadApplications()
     await waitForLoadingToFinish(store)
 
@@ -32,13 +28,7 @@ struct LauncherStoreTests {
   func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
-    let store = LauncherStore(
-      settingsStore: settings,
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore(settingsStore: settings)
 
     store.updateQuery(":waving hand")
 
@@ -50,13 +40,7 @@ struct LauncherStoreTests {
   func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
-    let store = LauncherStore(
-      settingsStore: settings,
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore(settingsStore: settings)
 
     store.updateQuery(":kiss woman man")
 
@@ -70,14 +54,7 @@ struct LauncherStoreTests {
       shortcut("Morning Lights", id: "morning"),
       shortcut("Evening Lights", id: "evening"),
     ]
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore(shortcuts: shortcuts)
 
     store.updateQuery(">evening")
     await waitForShortcutsLoadingToFinish(store)
@@ -90,12 +67,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: colon switches to emoji and filters following text")
   func testColonSwitchesToEmojiAndFiltersFollowingText() {
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore()
 
     store.updateQuery(":waving hand medium dark")
 
@@ -106,15 +78,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: mode prefixes switch between all modes")
   func testModePrefixesSwitchBetweenAllModes() async {
-    let store = LauncherStore(
-      catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore()
 
     store.updateQuery(":")
     #expect(store.mode == .emoji)
@@ -547,6 +511,23 @@ struct LauncherStoreTests {
     #expect(store.launchErrorMessage == "Couldn’t open Beta. Launch failed")
     #expect(store.selectedApplicationID == applications[1].id)
     #expect(store.focusRequest != focusRequest)
+  }
+
+  private func makeStore(
+    applications: [InstalledApplication] = [],
+    shortcuts: [AppleShortcut] = [],
+    settingsStore: SettingsStore? = nil
+  ) -> LauncherStore {
+    LauncherStore(
+      settingsStore: settingsStore ?? SettingsStore(userDefaults: makeTestUserDefaults()),
+      catalog: CatalogStub(applications: applications),
+      launcher: LauncherStub(),
+      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
+      shortcutRunner: ShortcutRunnerStub(),
+      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
+    )
   }
 
   private func shortcut(_ name: String, id: String) -> AppleShortcut {
