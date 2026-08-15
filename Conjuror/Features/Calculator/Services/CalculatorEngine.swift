@@ -26,7 +26,7 @@ struct CalculatorEngine: CurrencyCalculatorEvaluating {
     _ expression: String,
     currencySource: CurrencySource
   ) -> CalculatorResult? {
-    let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedExpression = CalculatorInput.trimmed(expression)
     guard !trimmedExpression.isEmpty else {
       return nil
     }
@@ -88,6 +88,22 @@ struct CalculatorEngine: CurrencyCalculatorEvaluating {
       display: display,
       copyText: copyText
     )
+  }
+}
+
+enum CalculatorInput {
+  static func trimmed(_ expression: String) -> String {
+    expression.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  static func normalizingConversionConnectors(
+    _ expression: String,
+    lowercased: Bool = false
+  ) -> String {
+    let normalized = trimmed(expression)
+      .replacingOccurrences(of: "→", with: " to ")
+      .replacingOccurrences(of: "->", with: " to ")
+    return lowercased ? normalized.lowercased() : normalized
   }
 }
 

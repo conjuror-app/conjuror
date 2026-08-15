@@ -445,11 +445,10 @@ private enum CalculatorQuantityToken: Equatable {
 
 private enum CalculatorQuantityLexer {
   static func tokenize(_ expression: String) -> [CalculatorQuantityToken]? {
-    let canonicalExpression =
-      expression
-      .lowercased()
-      .replacingOccurrences(of: "->", with: " to ")
-      .replacingOccurrences(of: "→", with: " to ")
+    let canonicalExpression = CalculatorInput.normalizingConversionConnectors(
+      expression,
+      lowercased: true
+    )
     let characters = Array(canonicalExpression)
     var index = 0
     var tokens = [CalculatorQuantityToken]()
