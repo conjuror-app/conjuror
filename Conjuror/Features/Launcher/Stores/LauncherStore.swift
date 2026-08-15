@@ -195,15 +195,13 @@ final class LauncherStore: ObservableObject {
       query = value
       return
     }
-    query = String(value.dropFirst())
-    switch prefix {
-    case ";": mode = .applications
-    case ">": mode = .shortcuts
-    default: mode = .emoji
-    }
-    refreshCurrentResults()
-    selectFirstResult()
-    if mode == .shortcuts { loadShortcuts() }
+    let requestedMode: LauncherMode =
+      switch prefix {
+      case ";": .applications
+      case ">": .shortcuts
+      default: .emoji
+      }
+    transition(to: requestedMode, query: String(value.dropFirst()))
   }
 
   func cycleMode() {
@@ -211,29 +209,18 @@ final class LauncherStore: ObservableObject {
     case .applications:
       enterShortcutsMode()
     case .shortcuts:
-      mode = .emoji
-      query = ""
-      refreshCurrentResults()
-      selectFirstResult()
+      transition(to: .emoji)
     case .emoji:
       returnToApplicationsMode()
     }
   }
 
   func enterShortcutsMode() {
-    mode = .shortcuts
-    query = ""
-    shortcutRunErrorMessage = nil
-    refreshCurrentResults()
-    selectFirstResult()
-    loadShortcuts()
+    transition(to: .shortcuts)
   }
 
   func returnToApplicationsMode() {
-    mode = .applications
-    query = ""
-    refreshCurrentResults()
-    selectFirstResult()
+    transition(to: .applications)
   }
 
   func loadApplications() {
@@ -501,29 +488,29 @@ final class LauncherStore: ObservableObject {
 
   func prepareForActivation(mode requestedMode: LauncherMode? = nil) {
     if let requestedMode {
-      mode = requestedMode
-      query = ""
       launchErrorMessage = nil
       shortcutRunErrorMessage = nil
-      refreshCurrentResults()
-      selectFirstResult()
-      if requestedMode == .shortcuts { loadShortcuts() }
+      transition(to: requestedMode)
     } else if launchErrorMessage != nil {
-      mode = .applications
-      refreshCurrentResults()
-      selectFirstResult()
+      transition(to: .applications, query: nil)
     } else if shortcutRunErrorMessage != nil {
-      mode = .shortcuts
-      refreshCurrentResults()
-      selectFirstResult()
-      loadShortcuts()
+      transition(to: .shortcuts, query: nil)
     } else {
-      mode = .applications
-      query = ""
       launchErrorMessage = nil
-      selectFirstResult()
+      transition(to: .applications)
     }
     focusRequest &+= 1
+  }
+
+  private func transition(to mode: LauncherMode, query: String? = "") {
+    self.mode = mode
+    if let query {
+      self.query = query
+    } else {
+      refreshCurrentResults()
+      selectFirstResult()
+    }
+    if mode == .shortcuts { loadShortcuts() }
   }
 
   private func pointerDidMove() -> Bool {
