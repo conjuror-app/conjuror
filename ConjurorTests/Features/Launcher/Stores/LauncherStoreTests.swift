@@ -97,7 +97,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, and applications")
   func testTabModeCycleVisitsShortcutsEmojiAndApplications() {
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -119,7 +119,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: calculator does not evaluate in shortcuts mode")
   func testCalculatorDoesNotEvaluateInShortcutsMode() {
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -140,7 +140,7 @@ struct LauncherStoreTests {
     let firstApplications = [application("Alpha", id: "dev.example.alpha")]
     let refreshedApplications = [application("Beta", id: "dev.example.beta")]
     let catalog = ControlledCatalog()
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: catalog,
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(
@@ -175,7 +175,7 @@ struct LauncherStoreTests {
       application("Beta", id: "dev.example.beta"),
     ]
     var didLaunch = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -195,7 +195,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: catalog failures publish errors and clear selection")
   func testCatalogFailurePublishesErrorAndClearsSelection() async {
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: FailingCatalogStub(),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
@@ -214,7 +214,7 @@ struct LauncherStoreTests {
   @Test("Launcher store: calculator results are pinned before matching applications")
   func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
     let application = application("Pine", id: "dev.example.pine")
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
@@ -244,7 +244,7 @@ struct LauncherStoreTests {
       application("Beta", id: "dev.example.beta"),
       application("Gamma", id: "dev.example.gamma"),
     ]
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(
@@ -272,7 +272,7 @@ struct LauncherStoreTests {
 
   @Test("Launcher store: horizontal arrows navigate the emoji grid")
   func testHorizontalArrowsNavigateEmojiGrid() {
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -294,7 +294,7 @@ struct LauncherStoreTests {
     let userDefaults = makeTestUserDefaults()
     let launchHistory = LaunchHistoryStore(userDefaults: userDefaults)
     var didLaunch = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(),
       launchHistory: launchHistory,
@@ -320,7 +320,7 @@ struct LauncherStoreTests {
     let launchHistory = LaunchHistoryStore(userDefaults: makeTestUserDefaults())
     var didStartLaunch = false
     var didLaunch = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(error: TestError.launchFailed),
       launchHistory: launchHistory,
@@ -349,7 +349,7 @@ struct LauncherStoreTests {
   func testReturnCopiesCalculatorResultClearsQueryAndRequestsHide() {
     let clipboard = RecordingCalculatorClipboard()
     var didRequestHide = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
@@ -369,7 +369,7 @@ struct LauncherStoreTests {
   @Test("Launcher store: Return copies quantity results with their units")
   func testReturnCopiesQuantityResultWithUnit() {
     let clipboard = RecordingCalculatorClipboard()
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
@@ -389,7 +389,7 @@ struct LauncherStoreTests {
     let userDefaults = makeTestUserDefaults()
     let history = EmojiHistoryStore(userDefaults: userDefaults)
     var didRequestHide = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
@@ -412,7 +412,7 @@ struct LauncherStoreTests {
     let mainBedroom = shortcut("Main Bedroom", id: "main")
     let guestBedroom = shortcut("Guest Bedroom", id: "guest")
     let runner = RecordingShortcutRunner()
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -439,7 +439,7 @@ struct LauncherStoreTests {
     let shortcut = shortcut("Lights", id: "lights")
     let history = ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
     var didRequestHide = false
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -463,7 +463,7 @@ struct LauncherStoreTests {
   @Test("Launcher store: failed shortcut runs appear in shortcut mode on next activation")
   func testFailedShortcutRunIsShownInShortcutModeOnNextActivation() async {
     let shortcut = shortcut("Lights", id: "lights")
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -491,7 +491,7 @@ struct LauncherStoreTests {
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
     ]
-    let store = LauncherStore(
+    let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(error: TestError.launchFailed),
       launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
@@ -516,17 +516,31 @@ struct LauncherStoreTests {
   private func makeStore(
     applications: [InstalledApplication] = [],
     shortcuts: [AppleShortcut] = [],
-    settingsStore: SettingsStore? = nil
+    settingsStore: SettingsStore? = nil,
+    catalog: ApplicationCatalogLoading? = nil,
+    calculator: CalculatorEvaluating = CalculatorEngine(),
+    calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
+    launcher: ApplicationLaunching = LauncherStub(),
+    launchHistory: LaunchHistoryStore? = nil,
+    shortcutCatalog: ShortcutCatalogLoading? = nil,
+    shortcutRunner: ShortcutRunning = ShortcutRunnerStub(),
+    shortcutRunHistory: ShortcutRunHistoryStore? = nil,
+    emojiHistory: EmojiHistoryStore? = nil,
+    onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
       settingsStore: settingsStore ?? SettingsStore(userDefaults: makeTestUserDefaults()),
-      catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: shortcuts),
-      shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
+      catalog: catalog ?? CatalogStub(applications: applications),
+      calculator: calculator,
+      calculatorClipboard: calculatorClipboard,
+      launcher: launcher,
+      launchHistory: launchHistory ?? LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      shortcutCatalog: shortcutCatalog ?? ShortcutCatalogStub(shortcuts: shortcuts),
+      shortcutRunner: shortcutRunner,
+      shortcutRunHistory: shortcutRunHistory
+        ?? ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
+      emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
+      onEvent: onEvent
     )
   }
 
@@ -541,13 +555,6 @@ struct LauncherStoreTests {
       url: URL(fileURLWithPath: "/Applications/\(name).app"),
       icon: NSImage(size: NSSize(width: 32, height: 32))
     )
-  }
-
-  private func makeTestUserDefaults() -> UserDefaults {
-    let suiteName = "LauncherStoreTests.\(UUID().uuidString)"
-    let userDefaults = UserDefaults(suiteName: suiteName)!
-    userDefaults.removePersistentDomain(forName: suiteName)
-    return userDefaults
   }
 
   private func waitForLoadingToFinish(_ store: LauncherStore) async {
