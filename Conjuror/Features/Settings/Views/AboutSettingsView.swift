@@ -2,9 +2,9 @@ import AppKit
 import SwiftUI
 
 struct AboutSettingsView: View {
-  private static let githubURL = URL(string: "https://github.com/tombell/conjuror")!
-  private static let licenseURL = URL(
-    string: "https://github.com/tombell/conjuror/blob/main/LICENSE"
+  private static let githubURL = URL(string: "https://github.com/conjuror-app")!
+  private static let reportBugURL = URL(
+    string: "https://github.com/conjuror-app/releases/discussions"
   )!
 
   var body: some View {
@@ -23,7 +23,7 @@ struct AboutSettingsView: View {
 
       HStack(spacing: 16) {
         Link("GitHub", destination: Self.githubURL)
-        Link("License", destination: Self.licenseURL)
+        Link("Report bug", destination: Self.reportBugURL)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
