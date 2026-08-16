@@ -89,6 +89,8 @@ final class HotKeyStore: ObservableObject {
   func resetSettings() -> String? {
     settingsStore.resetMaximumVisibleResults()
     settingsStore.setPreferredEmojiSkinTone(.default)
+    settingsStore.setLauncherBorderStyle(.cyan)
+    settingsStore.setLauncherCustomBorderColor(.default)
     registrations.removeAll()
     for action in HotKeyAction.allCases {
       settingsStore.setHotKeyConfiguration(action.defaultConfiguration, for: action)

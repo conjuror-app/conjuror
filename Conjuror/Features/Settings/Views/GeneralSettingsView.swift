@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct GeneralSettingsView: View {
@@ -57,6 +58,41 @@ struct GeneralSettingsView: View {
       }
 
       SettingsRow(
+        title: "Launcher border",
+        description: "Add a coloured border to improve contrast."
+      ) {
+        HStack {
+          Picker(
+            "Launcher border",
+            selection: Binding(
+              get: { store.launcherBorderStyle },
+              set: { store.setLauncherBorderStyle($0) }
+            )
+          ) {
+            ForEach(LauncherBorderStyle.allCases) { style in
+              Label {
+                Text(style.displayName)
+              } icon: {
+                Image(nsImage: borderSwatch(for: style))
+              }
+              .tag(style)
+            }
+          }
+          .labelsHidden()
+          .frame(width: 110)
+
+          if store.launcherBorderStyle == .custom {
+            ColorPicker(
+              "Custom border colour",
+              selection: customBorderColor,
+              supportsOpacity: false
+            )
+            .labelsHidden()
+          }
+        }
+      }
+
+      SettingsRow(
         title: "Visible results",
         description: "Maximum results shown before scrolling."
       ) {
@@ -97,5 +133,61 @@ struct GeneralSettingsView: View {
     }
   }
 
+  private var customBorderColor: Binding<Color> {
+    Binding(
+      get: {
+        Color(
+          red: store.launcherCustomBorderColor.red,
+          green: store.launcherCustomBorderColor.green,
+          blue: store.launcherCustomBorderColor.blue
+        )
+      },
+      set: { color in
+        guard let color = NSColor(color).usingColorSpace(.sRGB) else { return }
+        store.setLauncherCustomBorderColor(
+          LauncherBorderColor(
+            red: color.redComponent,
+            green: color.greenComponent,
+            blue: color.blueComponent
+          )
+        )
+      }
+    )
+  }
+
   @State private var hotKeyErrorMessage: String?
+
+  private func borderSwatch(for style: LauncherBorderStyle) -> NSImage {
+    let image = NSImage(size: NSSize(width: 10, height: 10))
+    image.lockFocus()
+
+    let circle = NSBezierPath(ovalIn: NSRect(x: 1, y: 1, width: 8, height: 8))
+    if style == .disabled {
+      NSColor.secondaryLabelColor.setStroke()
+      circle.lineWidth = 1
+      circle.stroke()
+    } else {
+      let color = borderColorComponents(for: style)
+      NSColor(
+        srgbRed: color.red,
+        green: color.green,
+        blue: color.blue,
+        alpha: 1
+      ).setFill()
+      circle.fill()
+    }
+
+    image.unlockFocus()
+    image.isTemplate = false
+    return image
+  }
+
+  private func borderColorComponents(for style: LauncherBorderStyle) -> LauncherBorderColor {
+    switch style {
+    case .disabled, .cyan: .default
+    case .purple: LauncherBorderColor(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
+    case .yellow: LauncherBorderColor(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
+    case .custom: store.launcherCustomBorderColor
+    }
+  }
 }

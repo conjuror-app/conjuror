@@ -16,6 +16,8 @@ struct SettingsStoreTests {
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
     #expect(store.preferredEmojiSkinTone == .default)
     #expect(store.isFilesModuleEnabled)
+    #expect(store.launcherBorderStyle == .cyan)
+    #expect(store.launcherCustomBorderColor == .default)
   }
 
   @Test("Settings store: updated settings persist")
@@ -32,12 +34,19 @@ struct SettingsStoreTests {
     store.setMaximumVisibleResults(9)
     store.setPreferredEmojiSkinTone(.mediumDark)
     store.setFilesModuleEnabled(false)
+    store.setLauncherBorderStyle(.custom)
+    store.setLauncherCustomBorderColor(LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3))
 
     let reloadedStore = SettingsStore(userDefaults: userDefaults)
     #expect(reloadedStore.hotKeyConfiguration == hotKey)
     #expect(reloadedStore.maximumVisibleResults == 9)
     #expect(reloadedStore.preferredEmojiSkinTone == .mediumDark)
     #expect(!reloadedStore.isFilesModuleEnabled)
+    #expect(reloadedStore.launcherBorderStyle == .custom)
+    #expect(
+      reloadedStore.launcherCustomBorderColor
+        == LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3)
+    )
   }
 
   @Test("Settings store: maximum visible results are clamped and the default resets")
