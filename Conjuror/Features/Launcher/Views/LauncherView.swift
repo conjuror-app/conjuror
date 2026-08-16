@@ -148,7 +148,13 @@ struct LauncherView: View {
       Divider()
         .padding(.horizontal, 12)
 
-      HStack {
+      HStack(spacing: 12) {
+        HStack(spacing: 12) {
+          footerHint(keys: store.mode == .emoji ? "←↑↓→" : "↑↓", title: "Navigate")
+          footerHint(keys: "Tab", title: "Mode")
+          footerHint(keys: "Esc", title: store.query.isEmpty ? "Close" : "Clear")
+        }
+
         Spacer()
 
         HStack(alignment: .center, spacing: 6) {
@@ -171,6 +177,16 @@ struct LauncherView: View {
     }
     .accessibilityElement(children: .combine)
     .accessibilityLabel("Press Return to " + actionFooterTitle.lowercased())
+  }
+
+  private func footerHint(keys: String, title: String) -> some View {
+    HStack(spacing: 4) {
+      Text(keys)
+        .font(.system(size: 10, weight: .medium, design: .rounded))
+        .foregroundStyle(.tertiary)
+
+      Text(title)
+    }
   }
 
   private func actionError(_ message: String) -> some View {
