@@ -21,6 +21,10 @@ final class SettingsStore: ObservableObject {
     static let emojiHotKeyCode = UserDefaultsKey<Int>("settings.emojiHotKeyCode")
     static let emojiHotKeyDisplayName = UserDefaultsKey<String>("settings.emojiHotKeyDisplayName")
     static let emojiHotKeyModifiers = UserDefaultsKey<Int>("settings.emojiHotKeyModifiers")
+    static let filesHotKeyCode = UserDefaultsKey<Int>("settings.filesHotKeyCode")
+    static let filesHotKeyDisplayName = UserDefaultsKey<String>("settings.filesHotKeyDisplayName")
+    static let filesHotKeyModifiers = UserDefaultsKey<Int>("settings.filesHotKeyModifiers")
+    static let filesHotKeyInitialized = UserDefaultsKey<Bool>("settings.filesHotKeyInitialized")
     static let optionalHotKeysInitialized = UserDefaultsKey<Bool>(
       "settings.optionalHotKeysInitialized"
     )
@@ -46,6 +50,12 @@ final class SettingsStore: ObservableObject {
           code: emojiHotKeyCode,
           displayName: emojiHotKeyDisplayName,
           modifiers: emojiHotKeyModifiers
+        )
+      case .files:
+        HotKeyKeys(
+          code: filesHotKeyCode,
+          displayName: filesHotKeyDisplayName,
+          modifiers: filesHotKeyModifiers
         )
       }
     }
@@ -79,6 +89,7 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var hotKeyConfiguration: HotKeyConfiguration
   @Published private(set) var shortcutsHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var emojiHotKeyConfiguration: HotKeyConfiguration?
+  @Published private(set) var filesHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
 
@@ -112,6 +123,12 @@ final class SettingsStore: ObservableObject {
         from: userDefaults,
         keys: Key.hotKeyKeys(for: .emoji)
       ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.emoji.defaultConfiguration)
+    let filesHotKeyInitialized = userDefaults.value(for: Key.filesHotKeyInitialized) ?? false
+    filesHotKeyConfiguration =
+      Self.loadOptionalHotKey(
+        from: userDefaults,
+        keys: Key.hotKeyKeys(for: .files)
+      ) ?? (filesHotKeyInitialized ? nil : HotKeyAction.files.defaultConfiguration)
     let storedMaximum =
       userDefaults.value(for: Key.maximumVisibleResults)
       ?? Self.defaultMaximumVisibleResults
@@ -125,6 +142,10 @@ final class SettingsStore: ObservableObject {
       persistOptionalHotKey(shortcutsHotKeyConfiguration, for: .shortcuts)
       persistOptionalHotKey(emojiHotKeyConfiguration, for: .emoji)
     }
+    if !filesHotKeyInitialized {
+      userDefaults.set(true, for: Key.filesHotKeyInitialized)
+      persistOptionalHotKey(filesHotKeyConfiguration, for: .files)
+    }
   }
 
   func hotKeyConfiguration(for action: HotKeyAction) -> HotKeyConfiguration? {
@@ -132,6 +153,7 @@ final class SettingsStore: ObservableObject {
     case .launcher: hotKeyConfiguration
     case .shortcuts: shortcutsHotKeyConfiguration
     case .emoji: emojiHotKeyConfiguration
+    case .files: filesHotKeyConfiguration
     }
   }
 
@@ -151,6 +173,9 @@ final class SettingsStore: ObservableObject {
       persistOptionalHotKey(configuration, for: action)
     case .emoji:
       emojiHotKeyConfiguration = configuration
+      persistOptionalHotKey(configuration, for: action)
+    case .files:
+      filesHotKeyConfiguration = configuration
       persistOptionalHotKey(configuration, for: action)
     }
   }

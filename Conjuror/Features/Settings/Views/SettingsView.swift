@@ -69,11 +69,17 @@ struct SettingsView: View {
         launchAtLoginStore: launchAtLoginStore
       )
     case .emoji:
-      EmojiSettingsView(store: store)
+      EmojiSettingsView(store: store, hotKeyStore: hotKeyStore)
+    case .shortcuts:
+      ShortcutsSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .calculator:
       CalculatorSettingsView(currencyRateStore: currencyRateStore)
     case .files:
-      FilesSettingsView(accessAuthorizer: fileAccessAuthorizer)
+      FilesSettingsView(
+        store: store,
+        hotKeyStore: hotKeyStore,
+        accessAuthorizer: fileAccessAuthorizer
+      )
     case .about:
       AboutSettingsView()
     }
@@ -83,6 +89,7 @@ struct SettingsView: View {
 private enum SettingsSection: String, CaseIterable, Identifiable {
   case general
   case emoji
+  case shortcuts
   case calculator
   case files
   case about
@@ -93,6 +100,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     switch self {
     case .general: "General"
     case .emoji: "Emoji"
+    case .shortcuts: "Shortcuts"
     case .calculator: "Calculator"
     case .files: "Files"
     case .about: "About"
@@ -103,6 +111,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     switch self {
     case .general: "gearshape"
     case .emoji: "face.smiling"
+    case .shortcuts: "square.stack.3d.up"
     case .calculator: "function"
     case .files: "folder"
     case .about: "info.circle"
@@ -110,11 +119,92 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
   }
 }
 
+struct ModeShortcutSettingsRow: View {
+  let description: String
+  let action: HotKeyAction
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
+
+  var body: some View {
+    Group {
+      SettingsRow(title: "Keyboard shortcut", description: description) {
+        HStack {
+          Toggle(
+            "Keyboard shortcut",
+            isOn: Binding(
+              get: { configuration != nil },
+              set: { isEnabled in
+                errorMessage = hotKeyStore.updateConfiguration(
+                  isEnabled ? action.defaultConfiguration : nil,
+                  for: action
+                )
+              }
+            )
+          )
+          .labelsHidden()
+
+          if let configuration {
+            ShortcutRecorder(
+              configuration: configuration,
+              onChange: { newConfiguration in
+                errorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
+                return errorMessage == nil
+              },
+              onRecordingChange: hotKeyStore.setShortcutRecording
+            )
+            .frame(width: 120, height: 28)
+          }
+        }
+      }
+
+      if let errorMessage {
+        Label(errorMessage, systemImage: "exclamationmark.triangle")
+          .font(.caption)
+          .foregroundStyle(.red)
+          .lineLimit(2)
+      }
+    }
+  }
+
+  private var configuration: HotKeyConfiguration? {
+    store.hotKeyConfiguration(for: action)
+  }
+
+  @State private var errorMessage: String?
+}
+
+private struct ShortcutsSettingsView: View {
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
+
+  var body: some View {
+    SettingsPane {
+      ModeShortcutSettingsRow(
+        description: "Open the launcher directly in Apple Shortcuts mode.",
+        action: .shortcuts,
+        store: store,
+        hotKeyStore: hotKeyStore
+      )
+
+      Spacer()
+    }
+  }
+}
+
 private struct FilesSettingsView: View {
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
   let accessAuthorizer: FileAccessAuthorizer
 
   var body: some View {
     SettingsPane {
+      ModeShortcutSettingsRow(
+        description: "Open the launcher directly in files mode.",
+        action: .files,
+        store: store,
+        hotKeyStore: hotKeyStore
+      )
+
       SettingsRow(
         title: "Protected folders",
         description: "Allow Conjuror to find files in Desktop, Documents, and Downloads."

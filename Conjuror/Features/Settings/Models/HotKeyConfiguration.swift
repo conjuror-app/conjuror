@@ -16,6 +16,7 @@ enum HotKeyAction: CaseIterable, Hashable {
   case launcher
   case shortcuts
   case emoji
+  case files
 
   var defaultConfiguration: HotKeyConfiguration {
     switch self {
@@ -31,6 +32,12 @@ enum HotKeyAction: CaseIterable, Hashable {
         keyCode: UInt32(kVK_ANSI_E),
         modifiers: UInt32(optionKey | shiftKey),
         displayName: "⌥⇧ E"
+      )
+    case .files:
+      HotKeyConfiguration(
+        keyCode: UInt32(kVK_ANSI_F),
+        modifiers: UInt32(cmdKey | shiftKey),
+        displayName: "⌘⇧ F"
       )
     }
   }

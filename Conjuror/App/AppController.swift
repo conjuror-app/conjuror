@@ -103,6 +103,8 @@ final class AppController: NSObject, NSApplicationDelegate {
       launcherWindowController.toggle(mode: .shortcuts)
     case .emoji:
       launcherWindowController.toggle(mode: .emoji)
+    case .files:
+      launcherWindowController.toggle(mode: .files)
     }
   }
 
