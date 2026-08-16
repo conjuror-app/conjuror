@@ -146,12 +146,6 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
-  @Published private var applicationState = LauncherApplicationState()
-  @Published private var calculatorState = LauncherCalculatorState()
-  @Published private var shortcutsState = LauncherShortcutsState()
-  @Published private var emojiState = LauncherEmojiState()
-  @Published private var filesState = LauncherFilesState()
-
   var selectedResultScrollID: LauncherResultID? {
     switch mode {
     case .applications:
@@ -171,6 +165,12 @@ final class LauncherStore: ObservableObject {
     let recentIDs = Set(recentEmoji.map(\.id))
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
+
+  @Published private var applicationState = LauncherApplicationState()
+  @Published private var calculatorState = LauncherCalculatorState()
+  @Published private var shortcutsState = LauncherShortcutsState()
+  @Published private var emojiState = LauncherEmojiState()
+  @Published private var filesState = LauncherFilesState()
 
   private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading
@@ -272,6 +272,10 @@ final class LauncherStore: ObservableObject {
       query = value
       return
     }
+    if prefix == "/", !settingsStore.isFilesModuleEnabled {
+      query = value
+      return
+    }
     let requestedMode: LauncherMode =
       switch prefix {
       case ";": .applications
@@ -289,10 +293,11 @@ final class LauncherStore: ObservableObject {
     case .shortcuts:
       transition(to: .emoji)
     case .emoji:
-      mode = .files
-      query = ""
-      refreshCurrentResults()
-      selectFirstResult()
+      if settingsStore.isFilesModuleEnabled {
+        transition(to: .files)
+      } else {
+        returnToApplicationsMode()
+      }
     case .files:
       returnToApplicationsMode()
     }
@@ -607,6 +612,7 @@ final class LauncherStore: ObservableObject {
   }
 
   private func transition(to mode: LauncherMode, query: String? = "") {
+    let mode = mode == .files && !settingsStore.isFilesModuleEnabled ? .applications : mode
     self.mode = mode
     if let query {
       self.query = query

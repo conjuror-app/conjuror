@@ -15,6 +15,7 @@ struct SettingsStoreTests {
     #expect(store.filesHotKeyConfiguration == HotKeyAction.files.defaultConfiguration)
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
     #expect(store.preferredEmojiSkinTone == .default)
+    #expect(store.isFilesModuleEnabled)
   }
 
   @Test("Settings store: updated settings persist")
@@ -30,11 +31,13 @@ struct SettingsStoreTests {
     store.setHotKeyConfiguration(hotKey)
     store.setMaximumVisibleResults(9)
     store.setPreferredEmojiSkinTone(.mediumDark)
+    store.setFilesModuleEnabled(false)
 
     let reloadedStore = SettingsStore(userDefaults: userDefaults)
     #expect(reloadedStore.hotKeyConfiguration == hotKey)
     #expect(reloadedStore.maximumVisibleResults == 9)
     #expect(reloadedStore.preferredEmojiSkinTone == .mediumDark)
+    #expect(!reloadedStore.isFilesModuleEnabled)
   }
 
   @Test("Settings store: maximum visible results are clamped and the default resets")

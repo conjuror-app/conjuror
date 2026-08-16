@@ -47,6 +47,25 @@ struct LauncherStoreTests {
     #expect(store.selectedFileID == result.id)
   }
 
+  @Test("Launcher store: disabled files module is skipped by prefixes and mode cycling")
+  func testDisabledFilesModuleIsSkipped() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setFilesModuleEnabled(false)
+    let store = makeStore(settingsStore: settingsStore)
+
+    store.updateQuery("/notes")
+    #expect(store.mode == .applications)
+    #expect(store.query == "/notes")
+
+    store.updateQuery(":")
+    #expect(store.mode == .emoji)
+    store.cycleMode()
+    #expect(store.mode == .applications)
+
+    store.prepareForActivation(mode: .files)
+    #expect(store.mode == .applications)
+  }
+
   @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, files, and applications")
   func testTabModeCycleVisitsShortcutsEmojiFilesAndApplications() {
     let store = makeStore()

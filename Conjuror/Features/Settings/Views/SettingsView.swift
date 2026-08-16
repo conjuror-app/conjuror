@@ -198,27 +198,43 @@ private struct FilesSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      ModeShortcutSettingsRow(
-        description: "Open the launcher directly in files mode.",
-        action: .files,
-        store: store,
-        hotKeyStore: hotKeyStore
-      )
-
       SettingsRow(
-        title: "Protected folders",
-        description: "Allow Conjuror to find files in Desktop, Documents, and Downloads."
+        title: "Files module",
+        description: "Search Spotlight-indexed files and folders from the launcher."
       ) {
-        Button("Grant Access") {
-          accessAuthorizer.requestAccess()
-        }
+        Toggle(
+          "Files module",
+          isOn: Binding(
+            get: { store.isFilesModuleEnabled },
+            set: store.setFilesModuleEnabled
+          )
+        )
+        .labelsHidden()
       }
 
-      Text(
-        "macOS controls access to protected folders. Approve each prompt to include that folder in file search results."
-      )
-      .font(.caption)
-      .foregroundStyle(.secondary)
+      if store.isFilesModuleEnabled {
+        ModeShortcutSettingsRow(
+          description: "Open the launcher directly in files mode.",
+          action: .files,
+          store: store,
+          hotKeyStore: hotKeyStore
+        )
+
+        SettingsRow(
+          title: "Protected folders",
+          description: "Allow Conjuror to find files in Desktop, Documents, and Downloads."
+        ) {
+          Button("Grant Access") {
+            accessAuthorizer.requestAccess()
+          }
+        }
+
+        Text(
+          "macOS controls access to protected folders. Approve each prompt to include that folder in file search results."
+        )
+        .font(.caption)
+        .foregroundStyle(.secondary)
+      }
 
       Spacer()
     }
