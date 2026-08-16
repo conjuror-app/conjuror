@@ -30,6 +30,7 @@ final class SettingsStore: ObservableObject {
     )
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
+    static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       switch action {
@@ -92,6 +93,7 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var filesHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
+  @Published private(set) var isFilesModuleEnabled: Bool
 
   private let userDefaults: UserDefaults
 
@@ -136,6 +138,7 @@ final class SettingsStore: ObservableObject {
     preferredEmojiSkinTone =
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
+    isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
 
     if !optionalHotKeysInitialized {
       userDefaults.set(true, for: Key.optionalHotKeysInitialized)
@@ -189,6 +192,11 @@ final class SettingsStore: ObservableObject {
   func setPreferredEmojiSkinTone(_ skinTone: EmojiSkinTone) {
     preferredEmojiSkinTone = skinTone
     userDefaults.set(skinTone.rawValue, for: Key.preferredEmojiSkinTone)
+  }
+
+  func setFilesModuleEnabled(_ isEnabled: Bool) {
+    isFilesModuleEnabled = isEnabled
+    userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
   }
 
   func resetMaximumVisibleResults() {
