@@ -206,7 +206,9 @@ private struct FilesSettingsView: View {
           "Files module",
           isOn: Binding(
             get: { store.isFilesModuleEnabled },
-            set: store.setFilesModuleEnabled
+            set: { isEnabled in
+              store.setFilesModuleEnabled(isEnabled)
+            }
           )
         )
         .labelsHidden()
