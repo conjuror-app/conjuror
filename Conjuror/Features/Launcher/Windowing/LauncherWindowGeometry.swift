@@ -7,7 +7,7 @@ enum LauncherWindowGeometry {
   ) -> NSRect {
     let frame = NSRect(
       x: visibleFrame.midX - size.width / 2,
-      y: visibleFrame.midY - size.height / 2 + visibleFrame.height * 0.15,
+      y: visibleFrame.midY - size.height / 2 + visibleFrame.height * 0.25,
       width: size.width,
       height: size.height
     )

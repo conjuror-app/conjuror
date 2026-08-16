@@ -17,7 +17,7 @@ struct LauncherWindowControllerTests {
     )
 
     #expect(frame.origin.x == 1_130)
-    #expect(frame.origin.y == 413)
+    #expect(frame.origin.y == 473)
   }
 
   @Test("Launcher window controller: resized frames keep the top edge and stay visible")
