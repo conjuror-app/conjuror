@@ -50,7 +50,12 @@ struct LauncherView: View {
       height: contentHeight,
       alignment: .top
     )
-    .modifier(LauncherSurfaceModifier())
+    .modifier(
+      LauncherSurfaceModifier(
+        borderStyle: settingsStore.launcherBorderStyle,
+        customBorderColor: settingsStore.launcherCustomBorderColor
+      )
+    )
     .padding(LauncherLayout.windowMargin)
     .onChange(of: contentHeight) {
       onHeightChange(contentHeight)

@@ -31,6 +31,10 @@ final class SettingsStore: ObservableObject {
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
+    static let launcherBorderStyle = UserDefaultsKey<String>("settings.launcherBorderStyle")
+    static let launcherBorderRed = UserDefaultsKey<Double>("settings.launcherBorderRed")
+    static let launcherBorderGreen = UserDefaultsKey<Double>("settings.launcherBorderGreen")
+    static let launcherBorderBlue = UserDefaultsKey<Double>("settings.launcherBorderBlue")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       switch action {
@@ -94,6 +98,8 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  @Published private(set) var launcherBorderStyle: LauncherBorderStyle
+  @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
 
   private let userDefaults: UserDefaults
 
@@ -139,6 +145,14 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
+    launcherBorderStyle =
+      userDefaults.value(for: Key.launcherBorderStyle)
+      .flatMap(LauncherBorderStyle.init(rawValue:)) ?? .cyan
+    launcherCustomBorderColor = LauncherBorderColor(
+      red: userDefaults.value(for: Key.launcherBorderRed) ?? LauncherBorderColor.default.red,
+      green: userDefaults.value(for: Key.launcherBorderGreen) ?? LauncherBorderColor.default.green,
+      blue: userDefaults.value(for: Key.launcherBorderBlue) ?? LauncherBorderColor.default.blue
+    )
 
     if !optionalHotKeysInitialized {
       userDefaults.set(true, for: Key.optionalHotKeysInitialized)
@@ -199,6 +213,18 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
   }
 
+  func setLauncherBorderStyle(_ style: LauncherBorderStyle) {
+    launcherBorderStyle = style
+    userDefaults.set(style.rawValue, for: Key.launcherBorderStyle)
+  }
+
+  func setLauncherCustomBorderColor(_ color: LauncherBorderColor) {
+    launcherCustomBorderColor = color
+    userDefaults.set(color.red, for: Key.launcherBorderRed)
+    userDefaults.set(color.green, for: Key.launcherBorderGreen)
+    userDefaults.set(color.blue, for: Key.launcherBorderBlue)
+  }
+
   func resetMaximumVisibleResults() {
     setMaximumVisibleResults(Self.defaultMaximumVisibleResults)
   }
@@ -218,4 +244,36 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(Int(configuration.modifiers), for: keys.modifiers)
     userDefaults.set(configuration.displayName, for: keys.displayName)
   }
+}
+
+enum LauncherBorderStyle: String, CaseIterable, Identifiable {
+  case disabled
+  case cyan
+  case purple
+  case yellow
+  case custom
+
+  var id: Self { self }
+
+  var displayName: String {
+    switch self {
+    case .disabled: "Disabled"
+    case .cyan: "Cyan"
+    case .purple: "Purple"
+    case .yellow: "Yellow"
+    case .custom: "Custom"
+    }
+  }
+}
+
+struct LauncherBorderColor: Equatable {
+  static let `default` = LauncherBorderColor(
+    red: 66 / 255,
+    green: 216 / 255,
+    blue: 239 / 255
+  )
+
+  let red: Double
+  let green: Double
+  let blue: Double
 }
