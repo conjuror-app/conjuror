@@ -21,6 +21,7 @@ final class SettingsWindowController: NSWindowController {
     window.title = "Settings"
     window.isReleasedWhenClosed = false
     window.animationBehavior = .documentWindow
+    window.collectionBehavior = [.moveToActiveSpace]
     window.contentViewController = NSHostingController(
       rootView: SettingsView(
         store: store,
