@@ -28,7 +28,10 @@ test:
 archive:
 	rm -rf "$(ARCHIVE_PATH)"
 	$(XCODEBUILD) -project $(PROJECT) -scheme $(SCHEME) -configuration Release \
-		-destination 'generic/platform=macOS' -archivePath "$(ARCHIVE_PATH)" archive
+		-destination 'generic/platform=macOS' -archivePath "$(ARCHIVE_PATH)" \
+		DEBUG_INFORMATION_FORMAT=dwarf-with-dsym archive
+	@test -d "$(ARCHIVE_PATH)/dSYMs/Conjuror.app.dSYM" || \
+		(echo "Archive is missing Conjuror.app.dSYM" >&2; exit 1)
 
 notarize: export
 	rm -rf "$(NOTARIZATION_PATH)"
