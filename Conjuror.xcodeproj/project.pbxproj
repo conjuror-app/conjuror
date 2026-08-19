@@ -10,6 +10,8 @@
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		1F938A971522761C62E7EC09 /* ApplicationMaterializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */; };
 		25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */; };
+		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
+		3374A46E1971672A575C51A9 /* FileResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */; };
 		3E686564EAD7F24E59932469 /* CalculatorCurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */; };
 		4024D2563C26B32BED03B487 /* CalculatorUnitRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */; };
 		4517DB1E73BB1B5B84C9E9AD /* LauncherModeControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097C35F08DF3A76049793562 /* LauncherModeControllers.swift */; };
@@ -17,8 +19,6 @@
 		576795BF00E7A82B2DA8D2C9 /* CurrencyRateServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1933D48DE907C25080B07446 /* CurrencyRateServices.swift */; };
 		5FAF08C0363790964C5F925B /* CalculatorRadixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */; };
 		6F3556DC3146C0E4E93603D9 /* CalculatorQuantityParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */; };
-		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
-		3374A46E1971672A575C51A9 /* FileResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */; };
 		8A4E32002C55C00100C0A001 /* ConjurorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32102C55C00100C0A001 /* ConjurorApp.swift */; };
 		8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32112C55C00100C0A001 /* LauncherView.swift */; };
 		8A4E32032C55C00100C0A001 /* Conjuror.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8A4E32142C55C00100C0A001 /* Conjuror.icon */; };
@@ -62,8 +62,8 @@
 		993B3F6DF57B43C6483679CD /* SelectableResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281D2596359BC31892C24545 /* SelectableResultRow.swift */; };
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
-		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */; };
+		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
 		BB1F88822512295121208ACE /* LauncherStoreApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022CEA2BADD865FA4667B16 /* LauncherStoreApplicationTests.swift */; };
@@ -76,15 +76,16 @@
 		C10000000000000000000007 /* LaunchAtLoginCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */; };
 		C10000000000000000000008 /* SettingsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* SettingsPane.swift */; };
 		C10000000000000000000009 /* SettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000009 /* SettingsRow.swift */; };
+		C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */; };
 		C80E94548069D50514B9FB8B /* UserDefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */; };
 		CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */; };
-		C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
 		E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000004 /* EmojiHistoryStore.swift */; };
 		E1000000000000000000005 /* EmojiResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000005 /* EmojiResultCell.swift */; };
 		E4000000000000000000001 /* EmojiRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4000000000000000000002 /* EmojiRankerTests.swift */; };
+		F10000000000000000000001 /* FileSearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* FileSearchServiceTests.swift */; };
 		F6380F8F3E99941C669E467E /* CalculatorRelativeDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */; };
 		F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */; };
 		F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */; };
@@ -127,11 +128,11 @@
 		44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
 		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreShortcutTests.swift; sourceTree = "<group>"; };
+		5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileResultRow.swift; path = FileResultRow.swift; sourceTree = "<group>"; };
 		681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityParser.swift; sourceTree = "<group>"; };
 		6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreEmojiTests.swift; sourceTree = "<group>"; };
 		7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorCurrencyTests.swift; sourceTree = "<group>"; };
 		7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRelativeDateTests.swift; sourceTree = "<group>"; };
-		5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileResultRow.swift; path = FileResultRow.swift; sourceTree = "<group>"; };
 		8A4E32102C55C00100C0A001 /* ConjurorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjurorApp.swift; sourceTree = "<group>"; };
 		8A4E32112C55C00100C0A001 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
 		8A4E32132C55C00100C0A001 /* Conjuror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conjuror.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -174,13 +175,13 @@
 		8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantity.swift; sourceTree = "<group>"; };
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
-		924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeState.swift; sourceTree = "<group>"; };
 		8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileOpener.swift; sourceTree = "<group>"; };
-		BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchResult.swift; sourceTree = "<group>"; };
-		BEA4E28D5375C102150ABE1F /* FileSearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchService.swift; sourceTree = "<group>"; };
+		924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeState.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStore.swift; sourceTree = "<group>"; };
+		BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchResult.swift; sourceTree = "<group>"; };
+		BEA4E28D5375C102150ABE1F /* FileSearchService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileSearchService.swift; sourceTree = "<group>"; };
 		C20000000000000000000001 /* LauncherResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherResultsView.swift; sourceTree = "<group>"; };
 		C20000000000000000000002 /* LauncherSurfaceModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSurfaceModifier.swift; sourceTree = "<group>"; };
 		C20000000000000000000003 /* AboutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsView.swift; sourceTree = "<group>"; };
@@ -198,6 +199,7 @@
 		E2000000000000000000005 /* EmojiResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiResultCell.swift; sourceTree = "<group>"; };
 		E4000000000000000000002 /* EmojiRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRankerTests.swift; sourceTree = "<group>"; };
 		EE9541CB1D3D319B61C027B9 /* CalculatorTimeZoneTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorTimeZoneTests.swift; sourceTree = "<group>"; };
+		F20000000000000000000001 /* FileSearchServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSearchServiceTests.swift; sourceTree = "<group>"; };
 		F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorClipboard.swift; sourceTree = "<group>"; };
 		F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngine.swift; sourceTree = "<group>"; };
 		F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResultRow.swift; sourceTree = "<group>"; };
@@ -407,6 +409,22 @@
 			);
 			name = Files;
 			path = Files;
+			sourceTree = "<group>";
+		};
+		F30000000000000000000001 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				F30000000000000000000002 /* Services */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
+		F30000000000000000000002 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F20000000000000000000001 /* FileSearchServiceTests.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		F65FFBE33028A9F100FB3923 /* Calculator */ = {
@@ -701,6 +719,7 @@
 				F65FFD00000000000000001C /* Applications */,
 				F65FFD00000000000000001F /* Calculator */,
 				E4000000000000000000003 /* Emoji */,
+				F30000000000000000000001 /* Files */,
 				F65FFD000000000000000021 /* Launcher */,
 				F65FFD000000000000000024 /* Settings */,
 				F65FFD000000000000000026 /* Shortcuts */,
@@ -1007,6 +1026,7 @@
 			files = (
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
+				F10000000000000000000001 /* FileSearchServiceTests.swift in Sources */,
 				E4000000000000000000001 /* EmojiRankerTests.swift in Sources */,
 				8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */,
 				8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */,
