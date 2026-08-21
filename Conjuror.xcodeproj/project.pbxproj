@@ -26,6 +26,7 @@
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
+		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
 		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
@@ -140,6 +141,7 @@
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
+		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
@@ -476,6 +478,7 @@
 			children = (
 				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
 				8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */,
+				A20000000000000000000001 /* SystemSettingsCatalog.swift */,
 				C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */,
 				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
 			);
@@ -935,6 +938,7 @@
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
+				A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */,
 				8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */,
 				8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */,
 				8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */,

@@ -730,6 +730,12 @@ final class LauncherStore: ObservableObject {
   }
 
   private func refreshApplications() {
+    let searchableApplications =
+      settingsStore.showsSystemSettingsItems && !query.trimmingCharacters(in: .whitespaces).isEmpty
+      ? applications + SystemSettingsCatalog.items
+      : applications
+    applicationController.replace(searchableApplications)
+
     let result: CalculatorResult?
     if let currencyCalculator = calculator as? CurrencyCalculatorEvaluating {
       result = currencyCalculator.evaluate(query, currencySource: currencySource)

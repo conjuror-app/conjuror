@@ -31,6 +31,7 @@ final class SettingsStore: ObservableObject {
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
+    static let showsSystemSettingsItems = UserDefaultsKey<Bool>("settings.showsSystemSettingsItems")
     static let launcherBorderStyle = UserDefaultsKey<String>("settings.launcherBorderStyle")
     static let launcherBorderRed = UserDefaultsKey<Double>("settings.launcherBorderRed")
     static let launcherBorderGreen = UserDefaultsKey<Double>("settings.launcherBorderGreen")
@@ -98,6 +99,7 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  @Published private(set) var showsSystemSettingsItems: Bool
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
 
@@ -145,6 +147,7 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
+    showsSystemSettingsItems = userDefaults.value(for: Key.showsSystemSettingsItems) ?? true
     launcherBorderStyle =
       userDefaults.value(for: Key.launcherBorderStyle)
       .flatMap(LauncherBorderStyle.init(rawValue:)) ?? .cyan
@@ -211,6 +214,11 @@ final class SettingsStore: ObservableObject {
   func setFilesModuleEnabled(_ isEnabled: Bool) {
     isFilesModuleEnabled = isEnabled
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
+  }
+
+  func setShowsSystemSettingsItems(_ showsItems: Bool) {
+    showsSystemSettingsItems = showsItems
+    userDefaults.set(showsItems, for: Key.showsSystemSettingsItems)
   }
 
   func setLauncherBorderStyle(_ style: LauncherBorderStyle) {

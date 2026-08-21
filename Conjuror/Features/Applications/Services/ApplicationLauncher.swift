@@ -2,6 +2,13 @@ import AppKit
 
 struct ApplicationLauncher: ApplicationLaunching {
   func open(_ application: InstalledApplication) async throws {
+    if case .systemSettings(let url) = application.launchTarget {
+      guard NSWorkspace.shared.open(url) else {
+        throw ApplicationLaunchError.settingsURLNotOpened
+      }
+      return
+    }
+
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = true
 
@@ -29,8 +36,14 @@ protocol ApplicationLaunching {
 
 private enum ApplicationLaunchError: LocalizedError {
   case noRunningApplication
+  case settingsURLNotOpened
 
   var errorDescription: String? {
-    "The application did not start."
+    switch self {
+    case .noRunningApplication:
+      "The application did not start."
+    case .settingsURLNotOpened:
+      "System Settings did not open."
+    }
   }
 }
