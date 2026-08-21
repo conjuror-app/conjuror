@@ -7,18 +7,10 @@ struct LauncherSurfaceModifier: ViewModifier {
   private let cornerRadius: CGFloat = 16
 
   private var borderColor: Color {
-    switch borderStyle {
-    case .disabled: .clear
-    case .cyan: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
-    case .purple: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
-    case .yellow: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
-    case .custom:
-      Color(
-        red: customBorderColor.red,
-        green: customBorderColor.green,
-        blue: customBorderColor.blue
-      )
-    }
+    LauncherAccentColor.color(
+      for: borderStyle,
+      customBorderColor: customBorderColor
+    )
   }
 
   func body(content: Content) -> some View {
@@ -33,5 +25,25 @@ struct LauncherSurfaceModifier: ViewModifier {
             .allowsHitTesting(false)
         }
       }
+  }
+}
+
+enum LauncherAccentColor {
+  static func color(
+    for borderStyle: LauncherBorderStyle,
+    customBorderColor: LauncherBorderColor
+  ) -> Color {
+    switch borderStyle {
+    case .disabled: .secondary
+    case .cyan: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
+    case .purple: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
+    case .yellow: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
+    case .custom:
+      Color(
+        red: customBorderColor.red,
+        green: customBorderColor.green,
+        blue: customBorderColor.blue
+      )
+    }
   }
 }

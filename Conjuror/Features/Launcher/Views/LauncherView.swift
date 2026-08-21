@@ -15,6 +15,10 @@ struct LauncherView: View {
           set: { value in store.updateQuery(value) }
         ),
         mode: store.mode,
+        iconColor: LauncherAccentColor.color(
+          for: settingsStore.launcherBorderStyle,
+          customBorderColor: settingsStore.launcherCustomBorderColor
+        ),
         onOpenSelected: store.openSelectedResult,
         focusRequest: store.focusRequest
       )

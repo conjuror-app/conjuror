@@ -3,26 +3,10 @@ import SwiftUI
 
 struct GeneralSettingsView: View {
   @ObservedObject var store: SettingsStore
-  @ObservedObject var hotKeyStore: HotKeyStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
   var body: some View {
     SettingsPane {
-      SettingsRow(
-        title: "Keyboard shortcut",
-        description: "Show or hide the launcher from anywhere."
-      ) {
-        ShortcutRecorder(
-          configuration: store.hotKeyConfiguration,
-          onChange: { configuration in
-            hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration, for: .launcher)
-            return hotKeyErrorMessage == nil
-          },
-          onRecordingChange: hotKeyStore.setShortcutRecording
-        )
-        .frame(width: 120, height: 28)
-      }
-
       SettingsRow(
         title: "Launch at login",
         description: "Start Conjuror automatically when you log in."
@@ -58,26 +42,12 @@ struct GeneralSettingsView: View {
       }
 
       SettingsRow(
-        title: "System Settings results",
-        description: "Include System Settings sections in application search."
-      ) {
-        Toggle(
-          "System Settings results",
-          isOn: Binding(
-            get: { store.showsSystemSettingsItems },
-            set: { store.setShowsSystemSettingsItems($0) }
-          )
-        )
-        .labelsHidden()
-      }
-
-      SettingsRow(
-        title: "Launcher border",
-        description: "Add a coloured border to improve contrast."
+        title: "Accent colour",
+        description: "Set the colour of the launcher border and mode icons."
       ) {
         HStack {
           Picker(
-            "Launcher border",
+            "Accent colour",
             selection: Binding(
               get: { store.launcherBorderStyle },
               set: { store.setLauncherBorderStyle($0) }
@@ -97,7 +67,7 @@ struct GeneralSettingsView: View {
 
           if store.launcherBorderStyle == .custom {
             ColorPicker(
-              "Custom border colour",
+              "Custom accent colour",
               selection: customBorderColor,
               supportsOpacity: false
             )
@@ -129,21 +99,7 @@ struct GeneralSettingsView: View {
         }
       }
 
-      if let hotKeyErrorMessage {
-        Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
-      }
-
       Spacer()
-
-      HStack {
-        Spacer()
-        Button("Reset to Defaults") {
-          hotKeyErrorMessage = hotKeyStore.resetSettings()
-        }
-      }
     }
   }
 
@@ -168,8 +124,6 @@ struct GeneralSettingsView: View {
       }
     )
   }
-
-  @State private var hotKeyErrorMessage: String?
 
   private func borderSwatch(for style: LauncherBorderStyle) -> NSImage {
     let image = NSImage(size: NSSize(width: 10, height: 10))

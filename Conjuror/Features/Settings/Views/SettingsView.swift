@@ -65,9 +65,10 @@ struct SettingsView: View {
     case .general:
       GeneralSettingsView(
         store: store,
-        hotKeyStore: hotKeyStore,
         launchAtLoginStore: launchAtLoginStore
       )
+    case .apps:
+      AppsSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .emoji:
       EmojiSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .shortcuts:
@@ -88,6 +89,7 @@ struct SettingsView: View {
 
 private enum SettingsSection: String, CaseIterable, Identifiable {
   case general
+  case apps
   case emoji
   case shortcuts
   case calculator
@@ -99,6 +101,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
   var title: String {
     switch self {
     case .general: "General"
+    case .apps: "Apps"
     case .emoji: "Emoji"
     case .shortcuts: "Shortcuts"
     case .calculator: "Calculator"
@@ -110,6 +113,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
   var systemImage: String {
     switch self {
     case .general: "gearshape"
+    case .apps: "square.grid.2x2"
     case .emoji: "face.smiling"
     case .shortcuts: "square.stack.3d.up"
     case .calculator: "function"
@@ -117,6 +121,62 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case .about: "info.circle"
     }
   }
+}
+
+private struct AppsSettingsView: View {
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
+
+  var body: some View {
+    SettingsPane {
+      SettingsRow(
+        title: "Keyboard shortcut",
+        description: "Show or hide the apps launcher from anywhere."
+      ) {
+        ShortcutRecorder(
+          configuration: store.hotKeyConfiguration,
+          onChange: { configuration in
+            hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration, for: .launcher)
+            return hotKeyErrorMessage == nil
+          },
+          onRecordingChange: hotKeyStore.setShortcutRecording
+        )
+        .frame(width: 120, height: 28)
+      }
+
+      SettingsRow(
+        title: "System Settings results",
+        description: "Include System Settings sections in apps search."
+      ) {
+        Toggle(
+          "System Settings results",
+          isOn: Binding(
+            get: { store.showsSystemSettingsItems },
+            set: { store.setShowsSystemSettingsItems($0) }
+          )
+        )
+        .labelsHidden()
+      }
+
+      if let hotKeyErrorMessage {
+        Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
+          .font(.caption)
+          .foregroundStyle(.red)
+          .lineLimit(2)
+      }
+
+      Spacer()
+
+      HStack {
+        Spacer()
+        Button("Reset to Defaults") {
+          hotKeyErrorMessage = hotKeyStore.resetSettings()
+        }
+      }
+    }
+  }
+
+  @State private var hotKeyErrorMessage: String?
 }
 
 struct ModeShortcutSettingsRow: View {

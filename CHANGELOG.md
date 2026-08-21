@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a dedicated Apps section in settings.
+- Added an accent colour setting shared by the launcher border and mode icons.
 - Added fuzzy file and folder name search.
 - Added System Settings sections to application search.
 - Fixed Keychain Access and Passwords missing from application search.

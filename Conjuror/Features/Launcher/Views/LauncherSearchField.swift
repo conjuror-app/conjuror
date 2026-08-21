@@ -3,6 +3,7 @@ import SwiftUI
 struct LauncherSearchField: View {
   @Binding var query: String
   let mode: LauncherMode
+  let iconColor: Color
   let onOpenSelected: () -> Void
   let focusRequest: Int
 
@@ -10,7 +11,7 @@ struct LauncherSearchField: View {
     HStack(spacing: 8) {
       Image(systemName: modeIcon)
         .font(.system(size: 14, weight: .medium))
-        .foregroundStyle(modeIconColor)
+        .foregroundStyle(iconColor)
         .frame(width: 18, height: 18)
         .help(modeHelp)
         .accessibilityLabel(modeHelp)
@@ -63,15 +64,6 @@ struct LauncherSearchField: View {
     case .emoji: "face.smiling"
     case .files: "doc.text.magnifyingglass"
     case .shortcuts: "square.stack.3d.up.fill"
-    }
-  }
-
-  private var modeIconColor: Color {
-    switch mode {
-    case .applications: Color(red: 66 / 255, green: 216 / 255, blue: 239 / 255)
-    case .emoji: Color(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
-    case .files: Color(red: 80 / 255, green: 160 / 255, blue: 246 / 255)
-    case .shortcuts: Color(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
     }
   }
 
