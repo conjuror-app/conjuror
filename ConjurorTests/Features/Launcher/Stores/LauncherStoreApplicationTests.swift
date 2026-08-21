@@ -23,6 +23,27 @@ extension LauncherStoreTests {
     #expect(store.selectedApplicationID == applications[1].id)
   }
 
+  @Test("Launcher store: System Settings sections appear in application search")
+  func testSystemSettingsSectionsAppearInApplicationSearch() {
+    let store = makeStore()
+
+    store.query = "bluetooth"
+
+    #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
+    #expect(store.filteredApplications.first?.isSystemSettingsItem == true)
+  }
+
+  @Test("Launcher store: System Settings sections can be hidden")
+  func testSystemSettingsSectionsCanBeHidden() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setShowsSystemSettingsItems(false)
+    let store = makeStore(settingsStore: settingsStore)
+
+    store.query = "bluetooth"
+
+    #expect(store.filteredApplications.isEmpty)
+  }
+
   @Test("Launcher store: successful launches refresh recent application order")
   func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
     let applications = [

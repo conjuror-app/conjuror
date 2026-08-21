@@ -58,6 +58,20 @@ struct GeneralSettingsView: View {
       }
 
       SettingsRow(
+        title: "System Settings results",
+        description: "Include System Settings sections in application search."
+      ) {
+        Toggle(
+          "System Settings results",
+          isOn: Binding(
+            get: { store.showsSystemSettingsItems },
+            set: { store.setShowsSystemSettingsItems($0) }
+          )
+        )
+        .labelsHidden()
+      }
+
+      SettingsRow(
         title: "Launcher border",
         description: "Add a coloured border to improve contrast."
       ) {

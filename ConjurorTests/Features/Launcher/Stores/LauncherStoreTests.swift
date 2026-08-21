@@ -150,7 +150,7 @@ struct LauncherStoreTests {
     #expect(store.calculatorResult?.expression == "pi")
     #expect(store.isCalculatorSelected)
     #expect(store.selectedResultScrollID == .calculator)
-    #expect(store.filteredApplications == [application])
+    #expect(store.filteredApplications.first == application)
 
     store.moveSelection(.down)
     #expect(!(store.isCalculatorSelected))
