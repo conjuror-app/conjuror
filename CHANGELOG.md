@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added fuzzy file and folder name search.
+- Added System Settings sections to application search.
 - Fixed the settings window reopening on a previously active macOS Space.
 
 ## 1.0 alpha (9)
