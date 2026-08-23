@@ -209,16 +209,7 @@ struct LauncherView: View {
       Spacer()
 
       Button {
-        switch store.mode {
-        case .applications:
-          store.clearLaunchError()
-        case .files:
-          store.clearFileSearchError()
-        case .shortcuts:
-          store.clearShortcutRunError()
-        case .emoji:
-          break
-        }
+        store.clearActionError()
       } label: {
         Image(systemName: "xmark")
       }

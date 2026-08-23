@@ -491,16 +491,13 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  func clearLaunchError() {
-    launchErrorMessage = nil
-  }
-
-  func clearShortcutRunError() {
-    shortcutRunErrorMessage = nil
-  }
-
-  func clearFileSearchError() {
-    fileSearchErrorMessage = nil
+  func clearActionError() {
+    switch mode {
+    case .applications: launchErrorMessage = nil
+    case .emoji: break
+    case .files: fileSearchErrorMessage = nil
+    case .shortcuts: shortcutRunErrorMessage = nil
+    }
   }
 
   func prepareForActivation(mode requestedMode: LauncherMode? = nil) {
