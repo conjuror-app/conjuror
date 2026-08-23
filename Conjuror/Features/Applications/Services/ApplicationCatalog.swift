@@ -204,26 +204,14 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     url.standardizedFileURL.resolvingSymlinksInPath()
   }
 
-  private let directoryProvider: () -> [URL]
-  private let excludedBundleIdentifier: String?
-
-  init(
-    directoryProvider: @escaping () -> [URL] = { Self.applicationDirectories() },
-    excludedBundleIdentifier: String? = nil
-  ) {
-    self.directoryProvider = directoryProvider
-    self.excludedBundleIdentifier = excludedBundleIdentifier
-  }
-
   func load() async throws -> [InstalledApplication] {
-    let directories = directoryProvider()
-    let excludedBundleIdentifier = excludedBundleIdentifier
+    let directories = Self.applicationDirectories()
 
     let scanTask = Task.detached(priority: .userInitiated) {
       let candidates = try Self.scan(directories: directories)
       return Self.filteredAndDeduplicated(
         candidates,
-        excludingBundleIdentifier: excludedBundleIdentifier
+        excludingBundleIdentifier: nil
       )
     }
     let candidates = try await withTaskCancellationHandler {
