@@ -26,7 +26,6 @@
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
-		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
 		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
@@ -63,6 +62,7 @@
 		993B3F6DF57B43C6483679CD /* SelectableResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281D2596359BC31892C24545 /* SelectableResultRow.swift */; };
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
+		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
 		A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */; };
 		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
@@ -142,7 +142,6 @@
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
-		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
@@ -179,6 +178,7 @@
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileOpener.swift; sourceTree = "<group>"; };
 		924384E49BADAE0F7B8F00E1 /* LauncherModeState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeState.swift; sourceTree = "<group>"; };
+		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStore.swift; sourceTree = "<group>"; };
@@ -496,9 +496,9 @@
 			children = (
 				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
 				8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */,
-				A20000000000000000000001 /* SystemSettingsCatalog.swift */,
 				C272F78314390887BC71A4E4 /* ApplicationMaterializer.swift */,
 				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
+				A20000000000000000000001 /* SystemSettingsCatalog.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";

@@ -235,7 +235,8 @@ struct ApplicationCatalogTests {
     packageType: String,
     in directory: URL
   ) throws {
-    let contentsURL = directory
+    let contentsURL =
+      directory
       .appendingPathComponent("\(name).app", isDirectory: true)
       .appendingPathComponent("Contents", isDirectory: true)
     try FileManager.default.createDirectory(at: contentsURL, withIntermediateDirectories: true)
