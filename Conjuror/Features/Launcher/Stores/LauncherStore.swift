@@ -280,18 +280,11 @@ final class LauncherStore: ObservableObject {
     select(application)
   }
 
-  func selectCalculatorResult() {
-    guard calculatorResult != nil else {
+  func selectCalculatorResultOnHover() {
+    guard pointerDidMove(), calculatorResult != nil else {
       return
     }
     isCalculatorSelected = true
-  }
-
-  func selectCalculatorResultOnHover() {
-    guard pointerDidMove() else {
-      return
-    }
-    selectCalculatorResult()
   }
 
   func select(_ shortcut: AppleShortcut) {
