@@ -34,6 +34,8 @@ final class FileAccessAuthorizer: FileAccessAuthorizing {
 
 @MainActor
 final class SpotlightFileSearchService: FileSearching {
+  private static let candidateLimit = 1_000
+  private static let gatheringDeadline = Duration.milliseconds(500)
   private static let resultLimit = 200
 
   private let accessAuthorizer: FileAccessAuthorizing
@@ -49,9 +51,14 @@ final class SpotlightFileSearchService: FileSearching {
 
     requestAccessIfNeeded()
 
-    let operation = SpotlightSearchOperation(query: query, limit: Self.resultLimit)
-    return await withTaskCancellationHandler {
-      await operation.results()
+    let operation = SpotlightSearchOperation(
+      query: query,
+      limit: Self.resultLimit,
+      candidateLimit: Self.candidateLimit,
+      gatheringDeadline: Self.gatheringDeadline
+    )
+    return try await withTaskCancellationHandler {
+      try await operation.results()
     } onCancel: {
       Task { @MainActor in operation.cancel() }
     }
@@ -64,73 +71,126 @@ final class SpotlightFileSearchService: FileSearching {
   }
 }
 
+enum SpotlightFileSearchError: LocalizedError, Equatable {
+  case timedOut
+  case unavailable
+
+  var errorDescription: String? {
+    switch self {
+    case .timedOut:
+      "Spotlight took too long to respond."
+    case .unavailable:
+      "Spotlight file search is unavailable."
+    }
+  }
+}
+
 @MainActor
-private final class SpotlightSearchOperation: @unchecked Sendable {
+final class SpotlightSearchOperation: @unchecked Sendable {
   private let metadataQuery: NSMetadataQuery
   private let query: String
   private let limit: Int
-  private var continuation: CheckedContinuation<[FileSearchResult], Never>?
-  private var observer: NSObjectProtocol?
+  private let candidateLimit: Int
+  private let gatheringDeadline: Duration
+  private var continuation: CheckedContinuation<[FileSearchResult], Error>?
+  private var observers = [NSObjectProtocol]()
+  private var deadlineTask: Task<Void, Never>?
 
-  init(query: String, limit: Int) {
+  init(
+    query: String,
+    limit: Int,
+    candidateLimit: Int,
+    gatheringDeadline: Duration,
+    metadataQuery: NSMetadataQuery = NSMetadataQuery()
+  ) {
     self.query = query
     self.limit = limit
+    self.candidateLimit = candidateLimit
+    self.gatheringDeadline = gatheringDeadline
+    self.metadataQuery = metadataQuery
 
-    let metadataQuery = NSMetadataQuery()
     metadataQuery.searchScopes = [NSMetadataQueryLocalComputerScope]
     metadataQuery.predicate = NSPredicate(
       format: "%K LIKE[cd] %@",
       NSMetadataItemDisplayNameKey,
       SpotlightFilenameQuery.pattern(for: query)
     )
-    metadataQuery.sortDescriptors = [
-      NSSortDescriptor(
-        key: NSMetadataItemDisplayNameKey,
-        ascending: true,
-        selector: #selector(NSString.localizedStandardCompare(_:))
-      )
-    ]
-    self.metadataQuery = metadataQuery
+    metadataQuery.notificationBatchingInterval = 0.05
   }
 
-  func results() async -> [FileSearchResult] {
-    guard !Task.isCancelled else { return [] }
-    return await withCheckedContinuation { continuation in
+  func results() async throws -> [FileSearchResult] {
+    guard !Task.isCancelled else { throw CancellationError() }
+    return try await withCheckedThrowingContinuation { continuation in
       self.continuation = continuation
-      observer = NotificationCenter.default.addObserver(
-        forName: .NSMetadataQueryDidFinishGathering,
-        object: metadataQuery,
-        queue: .main
-      ) { [weak self] _ in
-        MainActor.assumeIsolated {
-          self?.finish()
-        }
+      let notificationCenter = NotificationCenter.default
+      observers = [
+        notificationCenter.addObserver(
+          forName: .NSMetadataQueryDidFinishGathering,
+          object: metadataQuery,
+          queue: .main
+        ) { [weak self] _ in
+          MainActor.assumeIsolated {
+            self?.finish()
+          }
+        },
+        notificationCenter.addObserver(
+          forName: .NSMetadataQueryGatheringProgress,
+          object: metadataQuery,
+          queue: .main
+        ) { [weak self] _ in
+          MainActor.assumeIsolated {
+            self?.finishIfCandidateLimitReached()
+          }
+        },
+      ]
+
+      guard metadataQuery.start() else {
+        complete(with: .failure(SpotlightFileSearchError.unavailable))
+        return
       }
-      metadataQuery.start()
+
+      let gatheringDeadline = gatheringDeadline
+      deadlineTask = Task { @MainActor [weak self] in
+        try? await Task.sleep(for: gatheringDeadline)
+        guard !Task.isCancelled, let self else { return }
+        guard metadataQuery.resultCount > 0 else {
+          complete(with: .failure(SpotlightFileSearchError.timedOut))
+          return
+        }
+        finish()
+      }
     }
   }
 
   func cancel() {
-    complete(with: [])
+    complete(with: .failure(CancellationError()))
+  }
+
+  private func finishIfCandidateLimitReached() {
+    guard metadataQuery.resultCount >= candidateLimit else { return }
+    finish()
   }
 
   private func finish() {
+    guard continuation != nil else { return }
     metadataQuery.disableUpdates()
-    let results = (0..<metadataQuery.resultCount).compactMap { index in
+    let candidateCount = min(metadataQuery.resultCount, candidateLimit)
+    let results = (0..<candidateCount).compactMap { index in
       Self.result(from: metadataQuery.result(at: index))
     }
     let rankedResults = FileResultRanker.ranked(results: results, query: query)
-    complete(with: Array(rankedResults.prefix(limit)))
+    complete(with: .success(Array(rankedResults.prefix(limit))))
   }
 
-  private func complete(with results: [FileSearchResult]) {
+  private func complete(with result: Result<[FileSearchResult], Error>) {
+    guard let continuation else { return }
+    self.continuation = nil
+    deadlineTask?.cancel()
+    deadlineTask = nil
     metadataQuery.stop()
-    if let observer {
-      NotificationCenter.default.removeObserver(observer)
-      self.observer = nil
-    }
-    continuation?.resume(returning: results)
-    continuation = nil
+    observers.forEach(NotificationCenter.default.removeObserver)
+    observers.removeAll()
+    continuation.resume(with: result)
   }
 
   nonisolated private static func result(from value: Any) -> FileSearchResult? {
@@ -139,17 +199,15 @@ private final class SpotlightSearchOperation: @unchecked Sendable {
     else { return nil }
 
     let url = URL(fileURLWithPath: path)
-    let resourceValues = try? url.resourceValues(
-      forKeys: [.isDirectoryKey, .contentModificationDateKey, .isHiddenKey]
-    )
-    guard resourceValues?.isHidden != true else { return nil }
+    guard item.value(forAttribute: "kMDItemFSInvisible") as? Bool != true else { return nil }
+    let contentTypeTree = item.value(forAttribute: "kMDItemContentTypeTree") as? [String]
 
     return FileSearchResult(
       url: url,
       displayName: item.value(forAttribute: NSMetadataItemDisplayNameKey) as? String
         ?? url.lastPathComponent,
-      isDirectory: resourceValues?.isDirectory ?? false,
-      modificationDate: resourceValues?.contentModificationDate
+      isDirectory: contentTypeTree?.contains("public.folder") ?? false,
+      modificationDate: item.value(forAttribute: "kMDItemContentModificationDate") as? Date
     )
   }
 }

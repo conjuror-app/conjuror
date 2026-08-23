@@ -26,6 +26,8 @@ final class LauncherApplicationController {
 
 @MainActor
 final class LauncherFileController {
+  static let minimumQueryLength = 2
+
   enum Update {
     case cleared
     case searching
@@ -47,7 +49,7 @@ final class LauncherFileController {
   func search(query: String, onUpdate: @escaping (Update) -> Void) {
     task?.cancel()
     let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !query.isEmpty else {
+    guard query.count >= Self.minimumQueryLength else {
       onUpdate(.cleared)
       return
     }
@@ -56,7 +58,7 @@ final class LauncherFileController {
     let searcher = searcher
     task = Task {
       do {
-        try await Task.sleep(for: .milliseconds(75))
+        try await Task.sleep(for: .milliseconds(200))
         let results = try await searcher.search(query: query)
         guard !Task.isCancelled else { return }
         onUpdate(.results(results))

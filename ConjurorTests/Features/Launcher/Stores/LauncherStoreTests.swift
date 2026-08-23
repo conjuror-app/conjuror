@@ -47,6 +47,26 @@ struct LauncherStoreTests {
     #expect(store.selectedFileID == result.id)
   }
 
+  @Test("Launcher store: file search waits for two characters")
+  func testFileSearchWaitsForTwoCharacters() async {
+    let fileSearcher = RecordingFileSearcher()
+    let store = makeStore(fileSearcher: fileSearcher)
+
+    store.updateQuery("/n")
+    await Task.yield()
+
+    #expect(store.mode == .files)
+    #expect(!store.isSearchingFiles)
+    #expect(fileSearcher.queries.isEmpty)
+
+    store.updateQuery("no")
+    while store.isSearchingFiles {
+      try? await Task.sleep(for: .milliseconds(10))
+    }
+
+    #expect(fileSearcher.queries == ["no"])
+  }
+
   @Test("Launcher store: disabled files module is skipped by prefixes and mode cycling")
   func testDisabledFilesModuleIsSkipped() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
@@ -305,6 +325,16 @@ struct FileSearcherStub: FileSearching {
 
   func search(query: String) async throws -> [FileSearchResult] {
     results
+  }
+}
+
+@MainActor
+final class RecordingFileSearcher: FileSearching {
+  private(set) var queries = [String]()
+
+  func search(query: String) async throws -> [FileSearchResult] {
+    queries.append(query)
+    return []
   }
 }
 

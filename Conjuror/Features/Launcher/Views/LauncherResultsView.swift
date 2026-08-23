@@ -97,7 +97,7 @@ struct LauncherResultsView: View {
     } else if store.fileResults.isEmpty {
       emptyState(
         systemImage: store.query.isEmpty ? "doc.text.magnifyingglass" : "magnifyingglass",
-        message: store.query.isEmpty ? "Type to search files and folders" : "No matches"
+        message: fileEmptyStateMessage
       )
     } else {
       resultsScrollView(selectedID: store.selectedResultScrollID) {
@@ -115,6 +115,17 @@ struct LauncherResultsView: View {
         }
       }
     }
+  }
+
+  private var fileEmptyStateMessage: String {
+    let query = store.query.trimmingCharacters(in: .whitespacesAndNewlines)
+    if query.isEmpty {
+      return "Type to search files and folders"
+    }
+    if query.count < LauncherFileController.minimumQueryLength {
+      return "Type at least 2 characters"
+    }
+    return "No matches"
   }
 
   @ViewBuilder
