@@ -110,6 +110,18 @@ struct FileSearchServiceTests {
     #expect(SpotlightFilenameQuery.patterns(for: "\\") == ["*\\\\*"])
   }
 
+  @Test("Spotlight filename query: single words use a direct predicate")
+  func testSingleWordSpotlightPredicateIsDirect() {
+    let predicate = SpotlightFilenameQuery.predicate(for: "notes")
+
+    #expect(!(predicate is NSCompoundPredicate))
+    #expect(
+      predicate.evaluate(
+        with: [NSMetadataItemDisplayNameKey: "Meeting Notes.md"]
+      )
+    )
+  }
+
   @Test("Spotlight filename query: fuzzy words match across a filename")
   func testSpotlightFuzzyWordsMatchAcrossFilename() {
     let predicate = SpotlightFilenameQuery.predicate(for: "char games")

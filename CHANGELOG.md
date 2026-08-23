@@ -5,6 +5,7 @@
 - Added iCloud Drive to protected folder access requests.
 - Fixed broad fuzzy file searches continuing indefinitely.
 - Fixed multi-word fuzzy file searches failing to match across filename words.
+- Fixed single-word file searches crashing before Spotlight could start.
 
 ## 1.0 alpha (10)
 

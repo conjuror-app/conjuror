@@ -228,6 +228,9 @@ enum SpotlightFilenameQuery {
         pattern
       )
     }
+    if predicates.count == 1 {
+      return predicates[0]
+    }
     return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
   }
 
