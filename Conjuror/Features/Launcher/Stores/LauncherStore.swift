@@ -355,23 +355,18 @@ final class LauncherStore: ObservableObject {
     case .applications:
       if isCalculatorSelected {
         copyCalculatorResult()
-      } else {
-        openSelectedApplication()
+      } else if let selectedApplication {
+        open(selectedApplication)
       }
     case .emoji:
       copySelectedEmoji()
     case .files:
       openSelectedFile()
     case .shortcuts:
-      runSelectedShortcut()
+      if let selectedShortcut {
+        run(selectedShortcut)
+      }
     }
-  }
-
-  func openSelectedApplication() {
-    guard let application = selectedApplication else {
-      return
-    }
-    open(application)
   }
 
   func open(_ application: InstalledApplication) {
@@ -442,13 +437,6 @@ final class LauncherStore: ObservableObject {
     } catch {
       fileSearchErrorMessage = "Couldn’t open \(file.displayName). \(error.localizedDescription)"
     }
-  }
-
-  func runSelectedShortcut() {
-    guard let shortcut = selectedShortcut else {
-      return
-    }
-    run(shortcut)
   }
 
   func run(_ shortcut: AppleShortcut) {

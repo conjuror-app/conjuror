@@ -66,7 +66,7 @@ extension LauncherStoreTests {
     store.prepareForActivation(mode: .shortcuts)
     await waitForShortcutsLoadingToFinish(store)
 
-    store.runSelectedShortcut()
+    store.openSelectedResult()
 
     #expect(didRequestHide)
     while history.load()[shortcut.persistenceKey] == nil {
@@ -89,7 +89,7 @@ extension LauncherStoreTests {
     store.updateQuery(">light")
     await waitForShortcutsLoadingToFinish(store)
 
-    store.runSelectedShortcut()
+    store.openSelectedResult()
     while store.shortcutRunErrorMessage == nil {
       await Task.yield()
     }

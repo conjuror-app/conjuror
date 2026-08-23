@@ -103,7 +103,7 @@ extension LauncherStoreTests {
     await waitForLoadingToFinish(store)
     store.query = "alpha"
 
-    store.openSelectedApplication()
+    store.openSelectedResult()
     while !didLaunch {
       await Task.yield()
     }
@@ -132,7 +132,7 @@ extension LauncherStoreTests {
     await waitForLoadingToFinish(store)
     store.query = "alpha"
 
-    store.openSelectedApplication()
+    store.openSelectedResult()
     #expect(didStartLaunch)
     while store.launchErrorMessage == nil {
       await Task.yield()
@@ -158,7 +158,7 @@ extension LauncherStoreTests {
     store.loadApplications()
     await waitForLoadingToFinish(store)
     store.query = "beta"
-    store.openSelectedApplication()
+    store.openSelectedResult()
     while store.launchErrorMessage == nil {
       await Task.yield()
     }
