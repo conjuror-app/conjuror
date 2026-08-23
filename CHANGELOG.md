@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0 alpha (10)
+
 - Added a dedicated Apps section in settings.
 - Added an accent colour setting shared by the launcher border and mode icons.
 - Added fuzzy file and folder name search.
