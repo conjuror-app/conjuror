@@ -63,7 +63,7 @@ extension LauncherStoreTests {
       shortcutRunHistory: history,
       onEvent: { if $0 == .shortcutRunStarted { didRequestHide = true } }
     )
-    store.enterShortcutsMode()
+    store.prepareForActivation(mode: .shortcuts)
     await waitForShortcutsLoadingToFinish(store)
 
     store.runSelectedShortcut()

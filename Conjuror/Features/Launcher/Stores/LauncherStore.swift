@@ -215,26 +215,14 @@ final class LauncherStore: ObservableObject {
   func cycleMode() {
     switch mode {
     case .applications:
-      enterShortcutsMode()
+      transition(to: .shortcuts)
     case .shortcuts:
       transition(to: .emoji)
     case .emoji:
-      if settingsStore.isFilesModuleEnabled {
-        transition(to: .files)
-      } else {
-        returnToApplicationsMode()
-      }
+      transition(to: settingsStore.isFilesModuleEnabled ? .files : .applications)
     case .files:
-      returnToApplicationsMode()
+      transition(to: .applications)
     }
-  }
-
-  func enterShortcutsMode() {
-    transition(to: .shortcuts)
-  }
-
-  func returnToApplicationsMode() {
-    transition(to: .applications)
   }
 
   func loadApplications() {
