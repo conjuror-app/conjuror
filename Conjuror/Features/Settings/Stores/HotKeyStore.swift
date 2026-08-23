@@ -5,14 +5,14 @@ final class HotKeyStore: ObservableObject {
   typealias RegistrationFactory = (
     HotKeyConfiguration,
     @escaping () -> Void
-  ) throws -> any HotKeyRegistration
+  ) throws -> AnyObject
 
   @Published private(set) var registrationErrorMessage: String?
 
   private let settingsStore: SettingsStore
   private let onHotKeyPressed: (HotKeyAction) -> Void
   private let registrationFactory: RegistrationFactory
-  private var registrations = [HotKeyAction: any HotKeyRegistration]()
+  private var registrations = [HotKeyAction: AnyObject]()
 
   init(
     settingsStore: SettingsStore,
@@ -102,7 +102,7 @@ final class HotKeyStore: ObservableObject {
   private func makeRegistration(
     configuration: HotKeyConfiguration,
     action: HotKeyAction
-  ) throws -> any HotKeyRegistration {
+  ) throws -> AnyObject {
     try registrationFactory(configuration) { [onHotKeyPressed] in onHotKeyPressed(action) }
   }
 }

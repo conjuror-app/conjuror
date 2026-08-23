@@ -116,7 +116,7 @@ struct HotKeyStoreTests {
   }
 }
 
-private final class RegistrationToken: HotKeyRegistration {}
+private final class RegistrationToken {}
 
 private enum RegistrationError: LocalizedError {
   case unavailable

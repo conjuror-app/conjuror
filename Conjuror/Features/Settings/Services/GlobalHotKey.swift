@@ -1,7 +1,7 @@
 import Carbon.HIToolbox
 import Foundation
 
-final class GlobalHotKey: HotKeyRegistration {
+final class GlobalHotKey {
   private static let signature: OSType = 0x434F_4E4A  // CONJ
 
   private var eventHandler: EventHandlerRef?
@@ -86,8 +86,6 @@ final class GlobalHotKey: HotKeyRegistration {
     }
   }
 }
-
-protocol HotKeyRegistration: AnyObject {}
 
 private enum GlobalHotKeyError: LocalizedError {
   case installEventHandler(OSStatus)
