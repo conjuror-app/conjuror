@@ -56,93 +56,27 @@ final class LauncherStore: ObservableObject {
   }
 
   @Published private(set) var mode = LauncherMode.applications
-
-  private(set) var applications: [InstalledApplication] {
-    get { applicationState.items }
-    set { applicationState.items = newValue }
-  }
-  private(set) var filteredApplications: [InstalledApplication] {
-    get { applicationState.filteredItems }
-    set { applicationState.filteredItems = newValue }
-  }
-  private(set) var catalogErrorMessage: String? {
-    get { applicationState.catalogErrorMessage }
-    set { applicationState.catalogErrorMessage = newValue }
-  }
-  private(set) var isLoading: Bool {
-    get { applicationState.isLoading }
-    set { applicationState.isLoading = newValue }
-  }
-  private(set) var launchErrorMessage: String? {
-    get { applicationState.actionErrorMessage }
-    set { applicationState.actionErrorMessage = newValue }
-  }
-  private(set) var selectedApplicationID: InstalledApplication.ID? {
-    get { applicationState.selectedID }
-    set { applicationState.selectedID = newValue }
-  }
-  private(set) var calculatorResult: CalculatorResult? {
-    get { calculatorState.result }
-    set { calculatorState.result = newValue }
-  }
-  private(set) var isCalculatorSelected: Bool {
-    get { calculatorState.isSelected }
-    set { calculatorState.isSelected = newValue }
-  }
-  private(set) var shortcuts: [AppleShortcut] {
-    get { shortcutsState.items }
-    set { shortcutsState.items = newValue }
-  }
-  private(set) var filteredShortcuts: [AppleShortcut] {
-    get { shortcutsState.filteredItems }
-    set { shortcutsState.filteredItems = newValue }
-  }
-  private(set) var shortcutCatalogErrorMessage: String? {
-    get { shortcutsState.catalogErrorMessage }
-    set { shortcutsState.catalogErrorMessage = newValue }
-  }
-  private(set) var isLoadingShortcuts: Bool {
-    get { shortcutsState.isLoading }
-    set { shortcutsState.isLoading = newValue }
-  }
-  private(set) var shortcutRunErrorMessage: String? {
-    get { shortcutsState.actionErrorMessage }
-    set { shortcutsState.actionErrorMessage = newValue }
-  }
-  private(set) var selectedShortcutID: AppleShortcut.ID? {
-    get { shortcutsState.selectedID }
-    set { shortcutsState.selectedID = newValue }
-  }
-  private(set) var filteredEmoji: [Emoji] {
-    get { emojiState.filteredItems }
-    set { emojiState.filteredItems = newValue }
-  }
-  private(set) var recentEmoji: [Emoji] {
-    get { emojiState.recentItems }
-    set { emojiState.recentItems = newValue }
-  }
-  private(set) var selectedEmojiID: Emoji.ID? {
-    get { emojiState.selectedID }
-    set { emojiState.selectedID = newValue }
-  }
-
-  private(set) var fileResults: [FileSearchResult] {
-    get { filesState.items }
-    set { filesState.items = newValue }
-  }
-  private(set) var isSearchingFiles: Bool {
-    get { filesState.isSearching }
-    set { filesState.isSearching = newValue }
-  }
-  private(set) var fileSearchErrorMessage: String? {
-    get { filesState.errorMessage }
-    set { filesState.errorMessage = newValue }
-  }
-  private(set) var selectedFileID: FileSearchResult.ID? {
-    get { filesState.selectedID }
-    set { filesState.selectedID = newValue }
-  }
-
+  @Published private(set) var applications = [InstalledApplication]()
+  @Published private(set) var filteredApplications = [InstalledApplication]()
+  @Published private(set) var catalogErrorMessage: String?
+  @Published private(set) var isLoading = false
+  @Published private(set) var launchErrorMessage: String?
+  @Published private(set) var selectedApplicationID: InstalledApplication.ID?
+  @Published private(set) var calculatorResult: CalculatorResult?
+  @Published private(set) var isCalculatorSelected = false
+  @Published private(set) var shortcuts = [AppleShortcut]()
+  @Published private(set) var filteredShortcuts = [AppleShortcut]()
+  @Published private(set) var shortcutCatalogErrorMessage: String?
+  @Published private(set) var isLoadingShortcuts = false
+  @Published private(set) var shortcutRunErrorMessage: String?
+  @Published private(set) var selectedShortcutID: AppleShortcut.ID?
+  @Published private(set) var filteredEmoji = Emoji.catalog
+  @Published private(set) var recentEmoji = [Emoji]()
+  @Published private(set) var selectedEmojiID: Emoji.ID?
+  @Published private(set) var fileResults = [FileSearchResult]()
+  @Published private(set) var isSearchingFiles = false
+  @Published private(set) var fileSearchErrorMessage: String?
+  @Published private(set) var selectedFileID: FileSearchResult.ID?
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
@@ -165,12 +99,6 @@ final class LauncherStore: ObservableObject {
     let recentIDs = Set(recentEmoji.map(\.id))
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
-
-  @Published private var applicationState = LauncherApplicationState()
-  @Published private var calculatorState = LauncherCalculatorState()
-  @Published private var shortcutsState = LauncherShortcutsState()
-  @Published private var emojiState = LauncherEmojiState()
-  @Published private var filesState = LauncherFilesState()
 
   private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading

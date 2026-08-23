@@ -1,41 +1,5 @@
 import Foundation
 
-struct LauncherApplicationState {
-  var items = [InstalledApplication]()
-  var filteredItems = [InstalledApplication]()
-  var catalogErrorMessage: String?
-  var isLoading = false
-  var actionErrorMessage: String?
-  var selectedID: InstalledApplication.ID?
-}
-
-struct LauncherCalculatorState {
-  var result: CalculatorResult?
-  var isSelected = false
-}
-
-struct LauncherShortcutsState {
-  var items = [AppleShortcut]()
-  var filteredItems = [AppleShortcut]()
-  var catalogErrorMessage: String?
-  var isLoading = false
-  var actionErrorMessage: String?
-  var selectedID: AppleShortcut.ID?
-}
-
-struct LauncherEmojiState {
-  var filteredItems = Emoji.catalog
-  var recentItems = [Emoji]()
-  var selectedID: Emoji.ID?
-}
-
-struct LauncherFilesState {
-  var items = [FileSearchResult]()
-  var isSearching = false
-  var errorMessage: String?
-  var selectedID: FileSearchResult.ID?
-}
-
 @MainActor
 final class CatalogReloadCoordinator<Value> {
   private var task: Task<Void, Never>?
