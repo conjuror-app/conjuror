@@ -1,17 +1,12 @@
 @preconcurrency import Foundation
 
 @MainActor
-protocol FileAccessAuthorizing {
-  func requestAccess()
-}
-
-@MainActor
 protocol FileSearching {
   func search(query: String) async throws -> [FileSearchResult]
 }
 
 @MainActor
-final class FileAccessAuthorizer: FileAccessAuthorizing {
+final class FileAccessAuthorizer {
   static func authorizationDirectories(fileManager: FileManager = .default) -> [URL] {
     let protectedDirectories: [FileManager.SearchPathDirectory] = [
       .desktopDirectory,
@@ -49,12 +44,8 @@ final class SpotlightFileSearchService: FileSearching {
   private static let gatheringDeadline = Duration.milliseconds(500)
   private static let resultLimit = 200
 
-  private let accessAuthorizer: FileAccessAuthorizing
+  private let accessAuthorizer = FileAccessAuthorizer()
   private var didRequestAccess = false
-
-  init(accessAuthorizer: FileAccessAuthorizing = FileAccessAuthorizer()) {
-    self.accessAuthorizer = accessAuthorizer
-  }
 
   func search(query: String) async throws -> [FileSearchResult] {
     let query = query.trimmingCharacters(in: .whitespacesAndNewlines)

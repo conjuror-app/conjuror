@@ -5,9 +5,7 @@ import Combine
 final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsStore = SettingsStore()
   private lazy var fileAccessAuthorizer = FileAccessAuthorizer()
-  private lazy var fileSearchService = SpotlightFileSearchService(
-    accessAuthorizer: fileAccessAuthorizer
-  )
+  private lazy var fileSearchService = SpotlightFileSearchService()
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
