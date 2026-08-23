@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added iCloud Drive to protected folder access requests.
+- Fixed broad fuzzy file searches continuing indefinitely.
+- Fixed multi-word fuzzy file searches failing to match across filename words.
+
 ## 1.0 alpha (10)
 
 - Added a dedicated Apps section in settings.
