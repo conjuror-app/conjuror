@@ -5,6 +5,17 @@ import Testing
 
 @Suite("Application Catalog")
 struct ApplicationCatalogTests {
+  @Test("Application catalog: system CoreServices applications directory is included")
+  func testIncludesSystemCoreServicesApplicationsDirectory() {
+    let directories = ApplicationCatalog.applicationDirectories(mountedVolumeURLs: [])
+
+    #expect(
+      directories.contains(
+        URL(fileURLWithPath: "/System/Library/CoreServices/Applications", isDirectory: true)
+      )
+    )
+  }
+
   @Test("Application catalog: mounted-volume Applications directories are included")
   func testIncludesApplicationsDirectoryFromMountedVolume() throws {
     let fileManager = FileManager.default
@@ -139,6 +150,32 @@ struct ApplicationCatalogTests {
     #expect(result.first?.bundleIdentifier == "com.apple.Safari")
   }
 
+  @Test("Application catalog: Passwords is scanned despite its XPC package type")
+  func testScansPasswordsWithXPCPackageType() throws {
+    let fileManager = FileManager.default
+    let applicationsDirectory = fileManager.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? fileManager.removeItem(at: applicationsDirectory) }
+
+    try createApplication(
+      named: "Passwords",
+      bundleIdentifier: "com.apple.Passwords",
+      packageType: "XPC!",
+      in: applicationsDirectory
+    )
+    try createApplication(
+      named: "Internal Service",
+      bundleIdentifier: "com.apple.InternalService",
+      packageType: "XPC!",
+      in: applicationsDirectory
+    )
+
+    let candidates = try ApplicationCatalog.scan(directories: [applicationsDirectory])
+
+    #expect(candidates.map(\.displayName) == ["Passwords"])
+    #expect(candidates.first?.bundleIdentifier == "com.apple.Passwords")
+  }
+
   @Test("Application catalog: throws when no configured directory is readable")
   func testThrowsWhenNoConfiguredDirectoryCanBeRead() throws {
     let fileManager = FileManager.default
@@ -190,5 +227,29 @@ struct ApplicationCatalogTests {
       isBackgroundOnly: isBackgroundOnly,
       isHelper: isHelper
     )
+  }
+
+  private func createApplication(
+    named name: String,
+    bundleIdentifier: String,
+    packageType: String,
+    in directory: URL
+  ) throws {
+    let contentsURL = directory
+      .appendingPathComponent("\(name).app", isDirectory: true)
+      .appendingPathComponent("Contents", isDirectory: true)
+    try FileManager.default.createDirectory(at: contentsURL, withIntermediateDirectories: true)
+
+    let info: [String: Any] = [
+      "CFBundleIdentifier": bundleIdentifier,
+      "CFBundleName": name,
+      "CFBundlePackageType": packageType,
+    ]
+    let infoData = try PropertyListSerialization.data(
+      fromPropertyList: info,
+      format: .xml,
+      options: 0
+    )
+    try infoData.write(to: contentsURL.appendingPathComponent("Info.plist"))
   }
 }

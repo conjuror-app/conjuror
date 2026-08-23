@@ -9,6 +9,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       URL(fileURLWithPath: "/Applications", isDirectory: true),
       URL(fileURLWithPath: "/System/Applications", isDirectory: true),
       URL(fileURLWithPath: "/System/Applications/Utilities", isDirectory: true),
+      URL(fileURLWithPath: "/System/Library/CoreServices/Applications", isDirectory: true),
       fileManager.homeDirectoryForCurrentUser
         .appendingPathComponent("Applications", isDirectory: true),
     ]
@@ -146,9 +147,16 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
   private static func candidate(at url: URL, sourcePriority: Int) -> ApplicationCatalogCandidate? {
     guard let bundle = Bundle(url: url),
-      let info = bundle.infoDictionary,
-      (info["CFBundlePackageType"] as? String) == "APPL"
+      let info = bundle.infoDictionary
     else {
+      return nil
+    }
+
+    let packageType = info["CFBundlePackageType"] as? String
+    let isPasswordsApp =
+      bundle.bundleIdentifier == "com.apple.Passwords"
+      && packageType == "XPC!"
+    guard packageType == "APPL" || isPasswordsApp else {
       return nil
     }
 
