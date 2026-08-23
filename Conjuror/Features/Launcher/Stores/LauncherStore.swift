@@ -107,7 +107,7 @@ final class LauncherStore: ObservableObject {
   private let launcher: ApplicationLaunching
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
-  private let fileOpener: FileOpening
+  private let fileOpener = FileOpener()
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: LauncherApplicationController
   private let shortcutController: LauncherShortcutController
@@ -167,7 +167,6 @@ final class LauncherStore: ObservableObject {
     shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
     fileSearcher: FileSearching = SpotlightFileSearchService(),
-    fileOpener: FileOpening = FileOpener(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
@@ -178,7 +177,6 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
     self.emojiHistory = emojiHistory
-    self.fileOpener = fileOpener
     applicationController = LauncherApplicationController(history: launchHistory)
     shortcutController = LauncherShortcutController(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)

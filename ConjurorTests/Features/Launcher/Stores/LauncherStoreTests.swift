@@ -265,7 +265,6 @@ struct LauncherStoreTests {
     shortcutRunHistory: ShortcutRunHistoryStore? = nil,
     emojiHistory: EmojiHistoryStore? = nil,
     fileSearcher: FileSearching = FileSearcherStub(results: []),
-    fileOpener: FileOpening = FileOpener(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
@@ -281,7 +280,6 @@ struct LauncherStoreTests {
         ?? ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
       fileSearcher: fileSearcher,
-      fileOpener: fileOpener,
       onEvent: onEvent
     )
   }

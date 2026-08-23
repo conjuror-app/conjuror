@@ -1,11 +1,7 @@
 import AppKit
 
 @MainActor
-protocol FileOpening {
-  func open(_ url: URL) throws
-}
-
-struct FileOpener: FileOpening {
+struct FileOpener {
   func open(_ url: URL) throws {
     guard NSWorkspace.shared.open(url) else {
       throw FileOpenError.failed
