@@ -96,17 +96,29 @@ struct FileSearchServiceTests {
     #expect(metadataQuery.didStop)
   }
 
-  @Test("Spotlight filename query: characters become an ordered fuzzy pattern")
-  func testSpotlightPatternUsesOrderedCharacters() {
-    #expect(SpotlightFilenameQuery.pattern(for: "xcd") == "*x*c*d*")
-    #expect(SpotlightFilenameQuery.pattern(for: "rés umé") == "*r*e*s*u*m*e*")
+  @Test("Spotlight filename query: each word becomes an ordered fuzzy pattern")
+  func testSpotlightPatternsUseOrderedCharactersPerWord() {
+    #expect(SpotlightFilenameQuery.patterns(for: "xcd") == ["*x*c*d*"])
+    #expect(SpotlightFilenameQuery.patterns(for: "rés umé") == ["*r*e*s*", "*u*m*e*"])
+    #expect(SpotlightFilenameQuery.patterns(for: "char games") == ["*c*h*a*r*", "*g*a*m*e*s*"])
   }
 
   @Test("Spotlight filename query: wildcard characters are escaped")
   func testSpotlightPatternEscapesWildcardCharacters() {
-    #expect(SpotlightFilenameQuery.pattern(for: "*") == "*\\**")
-    #expect(SpotlightFilenameQuery.pattern(for: "?") == "*\\?*")
-    #expect(SpotlightFilenameQuery.pattern(for: "\\") == "*\\\\*")
+    #expect(SpotlightFilenameQuery.patterns(for: "*") == ["*\\**"])
+    #expect(SpotlightFilenameQuery.patterns(for: "?") == ["*\\?*"])
+    #expect(SpotlightFilenameQuery.patterns(for: "\\") == ["*\\\\*"])
+  }
+
+  @Test("Spotlight filename query: fuzzy words match across a filename")
+  func testSpotlightFuzzyWordsMatchAcrossFilename() {
+    let predicate = SpotlightFilenameQuery.predicate(for: "char games")
+
+    #expect(
+      predicate.evaluate(
+        with: [NSMetadataItemDisplayNameKey: "Characteristics of Games.pdf"]
+      )
+    )
   }
 
   @Test("File ranking: fuzzy subsequences match filenames")

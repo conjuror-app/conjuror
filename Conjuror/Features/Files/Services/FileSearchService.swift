@@ -121,11 +121,7 @@ final class SpotlightSearchOperation: @unchecked Sendable {
     self.metadataQuery = metadataQuery
 
     metadataQuery.searchScopes = [NSMetadataQueryLocalComputerScope]
-    metadataQuery.predicate = NSPredicate(
-      format: "%K LIKE[cd] %@",
-      NSMetadataItemDisplayNameKey,
-      SpotlightFilenameQuery.pattern(for: query)
-    )
+    metadataQuery.predicate = SpotlightFilenameQuery.predicate(for: query)
     metadataQuery.notificationBatchingInterval = 0.05
   }
 
@@ -224,11 +220,24 @@ final class SpotlightSearchOperation: @unchecked Sendable {
 }
 
 enum SpotlightFilenameQuery {
-  static func pattern(for query: String) -> String {
+  static func predicate(for query: String) -> NSPredicate {
+    let predicates = patterns(for: query).map { pattern in
+      NSPredicate(
+        format: "%K LIKE[cd] %@",
+        NSMetadataItemDisplayNameKey,
+        pattern
+      )
+    }
+    return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+  }
+
+  static func patterns(for query: String) -> [String] {
     let normalizedQuery = SearchText.normalized(query)
-    let compactQuery = SearchText.tokens(in: normalizedQuery).joined()
-    let fuzzyQuery = compactQuery.isEmpty ? normalizedQuery : compactQuery
-    return "*" + fuzzyQuery.map { escapedPattern(String($0)) }.joined(separator: "*") + "*"
+    let tokens = SearchText.tokens(in: normalizedQuery)
+    let fuzzyTerms = tokens.isEmpty ? [normalizedQuery] : tokens
+    return fuzzyTerms.map { term in
+      "*" + term.map { escapedPattern(String($0)) }.joined(separator: "*") + "*"
+    }
   }
 
   private static func escapedPattern(_ value: String) -> String {
