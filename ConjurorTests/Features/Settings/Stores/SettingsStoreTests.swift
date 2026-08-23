@@ -52,6 +52,35 @@ struct SettingsStoreTests {
     )
   }
 
+  @Test("Settings store: existing hotkey persistence keys remain compatible")
+  func testLoadsExistingHotKeyPersistenceKeys() {
+    let userDefaults = makeTestUserDefaults()
+    let actionsAndPrefixes: [(HotKeyAction, String)] = [
+      (.launcher, "settings.hotKey"),
+      (.shortcuts, "settings.shortcutsHotKey"),
+      (.emoji, "settings.emojiHotKey"),
+      (.files, "settings.filesHotKey"),
+    ]
+
+    for (index, (_, prefix)) in actionsAndPrefixes.enumerated() {
+      userDefaults.set(index + 1, forKey: "\(prefix)Code")
+      userDefaults.set(index + 5, forKey: "\(prefix)Modifiers")
+      userDefaults.set("Shortcut \(index)", forKey: "\(prefix)DisplayName")
+    }
+
+    let store = SettingsStore(userDefaults: userDefaults)
+    for (index, (action, _)) in actionsAndPrefixes.enumerated() {
+      #expect(
+        store.hotKeyConfiguration(for: action)
+          == HotKeyConfiguration(
+            keyCode: UInt32(index + 1),
+            modifiers: UInt32(index + 5),
+            displayName: "Shortcut \(index)"
+          )
+      )
+    }
+  }
+
   @Test("Settings store: maximum visible results are clamped and the default resets")
   func testClampsMaximumVisibleResultsAndResetsDefault() {
     let store = SettingsStore(userDefaults: makeTestUserDefaults())

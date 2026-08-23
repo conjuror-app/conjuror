@@ -10,20 +10,6 @@ final class SettingsStore: ObservableObject {
   }
 
   private enum Key {
-    static let hotKeyCode = UserDefaultsKey<Int>("settings.hotKeyCode")
-    static let hotKeyDisplayName = UserDefaultsKey<String>("settings.hotKeyDisplayName")
-    static let hotKeyModifiers = UserDefaultsKey<Int>("settings.hotKeyModifiers")
-    static let shortcutsHotKeyCode = UserDefaultsKey<Int>("settings.shortcutsHotKeyCode")
-    static let shortcutsHotKeyDisplayName = UserDefaultsKey<String>(
-      "settings.shortcutsHotKeyDisplayName"
-    )
-    static let shortcutsHotKeyModifiers = UserDefaultsKey<Int>("settings.shortcutsHotKeyModifiers")
-    static let emojiHotKeyCode = UserDefaultsKey<Int>("settings.emojiHotKeyCode")
-    static let emojiHotKeyDisplayName = UserDefaultsKey<String>("settings.emojiHotKeyDisplayName")
-    static let emojiHotKeyModifiers = UserDefaultsKey<Int>("settings.emojiHotKeyModifiers")
-    static let filesHotKeyCode = UserDefaultsKey<Int>("settings.filesHotKeyCode")
-    static let filesHotKeyDisplayName = UserDefaultsKey<String>("settings.filesHotKeyDisplayName")
-    static let filesHotKeyModifiers = UserDefaultsKey<Int>("settings.filesHotKeyModifiers")
     static let filesHotKeyInitialized = UserDefaultsKey<Bool>("settings.filesHotKeyInitialized")
     static let optionalHotKeysInitialized = UserDefaultsKey<Bool>(
       "settings.optionalHotKeysInitialized"
@@ -38,32 +24,18 @@ final class SettingsStore: ObservableObject {
     static let launcherBorderBlue = UserDefaultsKey<Double>("settings.launcherBorderBlue")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
-      switch action {
-      case .launcher:
-        HotKeyKeys(
-          code: hotKeyCode,
-          displayName: hotKeyDisplayName,
-          modifiers: hotKeyModifiers
-        )
-      case .shortcuts:
-        HotKeyKeys(
-          code: shortcutsHotKeyCode,
-          displayName: shortcutsHotKeyDisplayName,
-          modifiers: shortcutsHotKeyModifiers
-        )
-      case .emoji:
-        HotKeyKeys(
-          code: emojiHotKeyCode,
-          displayName: emojiHotKeyDisplayName,
-          modifiers: emojiHotKeyModifiers
-        )
-      case .files:
-        HotKeyKeys(
-          code: filesHotKeyCode,
-          displayName: filesHotKeyDisplayName,
-          modifiers: filesHotKeyModifiers
-        )
-      }
+      let prefix =
+        switch action {
+        case .launcher: "settings.hotKey"
+        case .shortcuts: "settings.shortcutsHotKey"
+        case .emoji: "settings.emojiHotKey"
+        case .files: "settings.filesHotKey"
+        }
+      return HotKeyKeys(
+        code: UserDefaultsKey("\(prefix)Code"),
+        displayName: UserDefaultsKey("\(prefix)DisplayName"),
+        modifiers: UserDefaultsKey("\(prefix)Modifiers")
+      )
     }
   }
 
@@ -108,13 +80,14 @@ final class SettingsStore: ObservableObject {
   init(userDefaults: UserDefaults = .standard) {
     self.userDefaults = userDefaults
 
-    if userDefaults.value(for: Key.hotKeyCode) != nil,
-      userDefaults.value(for: Key.hotKeyModifiers) != nil,
-      let displayName = userDefaults.value(for: Key.hotKeyDisplayName)
+    let launcherHotKeyKeys = Key.hotKeyKeys(for: .launcher)
+    if userDefaults.value(for: launcherHotKeyKeys.code) != nil,
+      userDefaults.value(for: launcherHotKeyKeys.modifiers) != nil,
+      let displayName = userDefaults.value(for: launcherHotKeyKeys.displayName)
     {
       hotKeyConfiguration = HotKeyConfiguration(
-        keyCode: UInt32((userDefaults.value(for: Key.hotKeyCode) ?? 0)),
-        modifiers: UInt32((userDefaults.value(for: Key.hotKeyModifiers) ?? 0)),
+        keyCode: UInt32((userDefaults.value(for: launcherHotKeyKeys.code) ?? 0)),
+        modifiers: UInt32((userDefaults.value(for: launcherHotKeyKeys.modifiers) ?? 0)),
         displayName: displayName
       )
     } else {
@@ -185,9 +158,10 @@ final class SettingsStore: ObservableObject {
     case .launcher:
       guard let configuration else { return }
       hotKeyConfiguration = configuration
-      userDefaults.set(Int(configuration.keyCode), for: Key.hotKeyCode)
-      userDefaults.set(Int(configuration.modifiers), for: Key.hotKeyModifiers)
-      userDefaults.set(configuration.displayName, for: Key.hotKeyDisplayName)
+      let keys = Key.hotKeyKeys(for: action)
+      userDefaults.set(Int(configuration.keyCode), for: keys.code)
+      userDefaults.set(Int(configuration.modifiers), for: keys.modifiers)
+      userDefaults.set(configuration.displayName, for: keys.displayName)
     case .shortcuts:
       shortcutsHotKeyConfiguration = configuration
       persistOptionalHotKey(configuration, for: action)
