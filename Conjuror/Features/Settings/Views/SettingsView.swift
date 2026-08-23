@@ -284,7 +284,8 @@ private struct FilesSettingsView: View {
 
         SettingsRow(
           title: "Protected folders",
-          description: "Allow Conjuror to find files in Desktop, Documents, and Downloads."
+          description:
+            "Allow Conjuror to find files in Desktop, Documents, Downloads, and iCloud Drive."
         ) {
           Button("Grant Access") {
             accessAuthorizer.requestAccess()

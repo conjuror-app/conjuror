@@ -12,22 +12,33 @@ protocol FileSearching {
 
 @MainActor
 final class FileAccessAuthorizer: FileAccessAuthorizing {
-  func requestAccess() {
-    let fileManager = FileManager.default
-    let directories: [FileManager.SearchPathDirectory] = [
+  static func authorizationDirectories(fileManager: FileManager = .default) -> [URL] {
+    let protectedDirectories: [FileManager.SearchPathDirectory] = [
       .desktopDirectory,
       .documentDirectory,
       .downloadsDirectory,
     ]
-    for directory in directories {
-      guard let url = fileManager.urls(for: directory, in: .userDomainMask).first else {
-        continue
+    let localDirectories = protectedDirectories.compactMap { directory in
+      fileManager.urls(for: directory, in: .userDomainMask).first
+    }
+    let iCloudDrive = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(
+      "Library/Mobile Documents/com~apple~CloudDocs",
+      isDirectory: true
+    )
+    return localDirectories + [iCloudDrive]
+  }
+
+  func requestAccess() {
+    let directories = Self.authorizationDirectories()
+    Task.detached {
+      let fileManager = FileManager.default
+      for directory in directories {
+        _ = try? fileManager.contentsOfDirectory(
+          at: directory,
+          includingPropertiesForKeys: nil,
+          options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        )
       }
-      _ = try? fileManager.contentsOfDirectory(
-        at: url,
-        includingPropertiesForKeys: nil,
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-      )
     }
   }
 }

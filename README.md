@@ -74,7 +74,8 @@ when the search is empty.
 
 Type `/` to search Spotlight-indexed files and folders by name, then press Return to
 open the selected item. Search stays on-device and normal macOS privacy permissions
-still apply.
+still apply. Conjuror requests access to Desktop, Documents, Downloads, and iCloud
+Drive the first time file search runs; access can also be requested from Settings.
 
 ## Development
 

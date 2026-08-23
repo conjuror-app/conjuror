@@ -6,6 +6,20 @@ import Testing
 @Suite("File Search Service")
 struct FileSearchServiceTests {
   @MainActor
+  @Test("File access: iCloud Drive is included")
+  func testFileAccessIncludesICloudDrive() {
+    let fileManager = FileManager.default
+    let expectedURL = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(
+      "Library/Mobile Documents/com~apple~CloudDocs",
+      isDirectory: true
+    )
+
+    #expect(
+      FileAccessAuthorizer.authorizationDirectories(fileManager: fileManager).contains(expectedURL)
+    )
+  }
+
+  @MainActor
   @Test("Spotlight search: unavailable query reports an error")
   func testUnavailableSpotlightQueryReportsError() async {
     let metadataQuery = MetadataQueryStub()
