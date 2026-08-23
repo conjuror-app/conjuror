@@ -62,7 +62,6 @@
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
 		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
-		A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */; };
 		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
@@ -175,7 +174,6 @@
 		8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantity.swift; sourceTree = "<group>"; };
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
-		8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileOpener.swift; sourceTree = "<group>"; };
 		924384E49BADAE0F7B8F00E1 /* CatalogReloadCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CatalogReloadCoordinator.swift; sourceTree = "<group>"; };
 		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
@@ -287,7 +285,6 @@
 		67CE5F87327A25E7F7DBFAD7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				8BCE3D6FC066A3A84F42E208 /* FileOpener.swift */,
 				BEA4E28D5375C102150ABE1F /* FileSearchService.swift */,
 			);
 			name = Services;
@@ -1015,7 +1012,6 @@
 				4517DB1E73BB1B5B84C9E9AD /* LauncherModeControllers.swift in Sources */,
 				C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */,
 				263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */,
-				A7B09B9CBFDE16268E2FFF9F /* FileOpener.swift in Sources */,
 				3374A46E1971672A575C51A9 /* FileResultRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

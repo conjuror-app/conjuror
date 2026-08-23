@@ -107,7 +107,6 @@ final class LauncherStore: ObservableObject {
   private let launcher: ApplicationLaunching
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
-  private let fileOpener = FileOpener()
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: LauncherApplicationController
   private let shortcutController: LauncherShortcutController
@@ -423,13 +422,12 @@ final class LauncherStore: ObservableObject {
     guard let file = selectedFile else { return }
     selectedFileID = file.id
     fileSearchErrorMessage = nil
-    do {
-      try fileOpener.open(file.url)
-      query = ""
-      onEvent(.fileOpened)
-    } catch {
-      fileSearchErrorMessage = "Couldn’t open \(file.displayName). \(error.localizedDescription)"
+    guard NSWorkspace.shared.open(file.url) else {
+      fileSearchErrorMessage = "Couldn’t open \(file.displayName). The item could not be opened."
+      return
     }
+    query = ""
+    onEvent(.fileOpened)
   }
 
   func run(_ shortcut: AppleShortcut) {
