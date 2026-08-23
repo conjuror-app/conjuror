@@ -256,7 +256,7 @@ struct LauncherStoreTests {
     shortcuts: [AppleShortcut] = [],
     settingsStore: SettingsStore? = nil,
     catalog: ApplicationCatalogLoading? = nil,
-    calculator: CalculatorEvaluating = CalculatorEngine(),
+    calculator: CalculatorEngine = CalculatorEngine(),
     calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
     launcher: ApplicationLaunching = LauncherStub(),
     launchHistory: LaunchHistoryStore? = nil,

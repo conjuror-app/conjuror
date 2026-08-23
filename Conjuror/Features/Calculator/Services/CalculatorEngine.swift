@@ -1,6 +1,6 @@
 import Foundation
 
-struct CalculatorEngine: CurrencyCalculatorEvaluating {
+struct CalculatorEngine {
   private let formattingOptions: CalculatorFormattingOptions
   private let currentDate: () -> Date
   private let currentTimeZone: () -> TimeZone
@@ -94,17 +94,6 @@ enum CalculatorInput {
       .replacingOccurrences(of: "->", with: " to ")
     return lowercased ? normalized.lowercased() : normalized
   }
-}
-
-protocol CalculatorEvaluating {
-  func evaluate(_ expression: String) -> CalculatorResult?
-}
-
-protocol CurrencyCalculatorEvaluating: CalculatorEvaluating {
-  func evaluate(
-    _ expression: String,
-    currencySource: CurrencySource
-  ) -> CalculatorResult?
 }
 
 struct CalculatorNumberFormatter {

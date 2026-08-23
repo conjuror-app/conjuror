@@ -174,7 +174,7 @@ final class LauncherStore: ObservableObject {
 
   private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading
-  private let calculator: CalculatorEvaluating
+  private let calculator: CalculatorEngine
   private let calculatorClipboard: CalculatorClipboardWriting
   private let launcher: ApplicationLaunching
   private let shortcutCatalog: ShortcutCatalogLoading
@@ -230,7 +230,7 @@ final class LauncherStore: ObservableObject {
   init(
     settingsStore: SettingsStore = SettingsStore(),
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
-    calculator: CalculatorEvaluating = CalculatorEngine(),
+    calculator: CalculatorEngine = CalculatorEngine(),
     calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
     launcher: ApplicationLaunching = ApplicationLauncher(),
     launchHistory: LaunchHistoryStore = LaunchHistoryStore(),
@@ -736,12 +736,7 @@ final class LauncherStore: ObservableObject {
       : applications
     applicationController.replace(searchableApplications)
 
-    let result: CalculatorResult?
-    if let currencyCalculator = calculator as? CurrencyCalculatorEvaluating {
-      result = currencyCalculator.evaluate(query, currencySource: currencySource)
-    } else {
-      result = calculator.evaluate(query)
-    }
+    let result = calculator.evaluate(query, currencySource: currencySource)
     calculatorResult = mode == .applications ? result : nil
     filteredApplications = applicationController.ranked(
       query: mode == .applications ? query : ""
