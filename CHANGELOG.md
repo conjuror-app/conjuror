@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0 alpha (11)
 
 - Added iCloud Drive to protected folder access requests.
 - Fixed broad fuzzy file searches continuing indefinitely.
