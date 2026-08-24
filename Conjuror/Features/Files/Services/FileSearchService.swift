@@ -6,7 +6,7 @@ protocol FileSearching {
 }
 
 @MainActor
-final class FileAccessAuthorizer {
+enum FileAccessAuthorizer {
   static func authorizationDirectories(fileManager: FileManager = .default) -> [URL] {
     let protectedDirectories: [FileManager.SearchPathDirectory] = [
       .desktopDirectory,
@@ -23,7 +23,7 @@ final class FileAccessAuthorizer {
     return localDirectories + [iCloudDrive]
   }
 
-  func requestAccess() {
+  static func requestAccess() {
     let directories = Self.authorizationDirectories()
     Task.detached {
       let fileManager = FileManager.default
@@ -44,7 +44,6 @@ final class SpotlightFileSearchService: FileSearching {
   private static let gatheringDeadline = Duration.milliseconds(500)
   private static let resultLimit = 200
 
-  private let accessAuthorizer = FileAccessAuthorizer()
   private var didRequestAccess = false
 
   func search(query: String) async throws -> [FileSearchResult] {
@@ -69,7 +68,7 @@ final class SpotlightFileSearchService: FileSearching {
   private func requestAccessIfNeeded() {
     guard !didRequestAccess else { return }
     didRequestAccess = true
-    accessAuthorizer.requestAccess()
+    FileAccessAuthorizer.requestAccess()
   }
 }
 

@@ -9,8 +9,7 @@ final class SettingsWindowController: NSWindowController {
     store: SettingsStore,
     hotKeyStore: HotKeyStore,
     currencyRateStore: CurrencyRateStore,
-    launchAtLoginStore: LaunchAtLoginStore,
-    fileAccessAuthorizer: FileAccessAuthorizer
+    launchAtLoginStore: LaunchAtLoginStore
   ) {
     let window = NSWindow(
       contentRect: NSRect(origin: .zero, size: Self.windowSize),
@@ -27,8 +26,7 @@ final class SettingsWindowController: NSWindowController {
         store: store,
         hotKeyStore: hotKeyStore,
         currencyRateStore: currencyRateStore,
-        launchAtLoginStore: launchAtLoginStore,
-        fileAccessAuthorizer: fileAccessAuthorizer
+        launchAtLoginStore: launchAtLoginStore
       )
     )
     window.setContentSize(Self.windowSize)

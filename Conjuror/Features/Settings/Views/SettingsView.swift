@@ -5,7 +5,6 @@ struct SettingsView: View {
   @ObservedObject var hotKeyStore: HotKeyStore
   @ObservedObject var currencyRateStore: CurrencyRateStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
-  let fileAccessAuthorizer: FileAccessAuthorizer
 
   var body: some View {
     HStack(spacing: 0) {
@@ -78,8 +77,7 @@ struct SettingsView: View {
     case .files:
       FilesSettingsView(
         store: store,
-        hotKeyStore: hotKeyStore,
-        accessAuthorizer: fileAccessAuthorizer
+        hotKeyStore: hotKeyStore
       )
     case .about:
       AboutSettingsView()
@@ -254,7 +252,6 @@ private struct ShortcutsSettingsView: View {
 private struct FilesSettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
-  let accessAuthorizer: FileAccessAuthorizer
 
   var body: some View {
     SettingsPane {
@@ -288,7 +285,7 @@ private struct FilesSettingsView: View {
             "Allow Conjuror to find files in Desktop, Documents, Downloads, and iCloud Drive."
         ) {
           Button("Grant Access") {
-            accessAuthorizer.requestAccess()
+            FileAccessAuthorizer.requestAccess()
           }
         }
 

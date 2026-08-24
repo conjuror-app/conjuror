@@ -4,7 +4,6 @@ import Combine
 @MainActor
 final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsStore = SettingsStore()
-  private lazy var fileAccessAuthorizer = FileAccessAuthorizer()
   private lazy var fileSearchService = SpotlightFileSearchService()
 
   private lazy var store = LauncherStore(
@@ -41,8 +40,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     store: settingsStore,
     hotKeyStore: hotKeyStore,
     currencyRateStore: currencyRateStore,
-    launchAtLoginStore: launchAtLoginStore,
-    fileAccessAuthorizer: fileAccessAuthorizer
+    launchAtLoginStore: launchAtLoginStore
   )
 
   private var statusItem: NSStatusItem?
