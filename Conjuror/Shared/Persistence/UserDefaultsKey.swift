@@ -16,8 +16,4 @@ extension UserDefaults {
   func set<Value>(_ value: Value?, for key: UserDefaultsKey<Value>) {
     set(value, forKey: key.name)
   }
-
-  func removeValue<Value>(for key: UserDefaultsKey<Value>) {
-    removeObject(forKey: key.name)
-  }
 }

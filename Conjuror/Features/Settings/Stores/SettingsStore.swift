@@ -217,9 +217,9 @@ final class SettingsStore: ObservableObject {
   ) {
     let keys = Key.hotKeyKeys(for: action)
     guard let configuration else {
-      userDefaults.removeValue(for: keys.code)
-      userDefaults.removeValue(for: keys.modifiers)
-      userDefaults.removeValue(for: keys.displayName)
+      userDefaults.removeObject(forKey: keys.code.name)
+      userDefaults.removeObject(forKey: keys.modifiers.name)
+      userDefaults.removeObject(forKey: keys.displayName.name)
       return
     }
     userDefaults.set(Int(configuration.keyCode), for: keys.code)
