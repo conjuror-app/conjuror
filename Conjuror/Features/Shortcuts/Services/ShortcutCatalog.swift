@@ -1,17 +1,11 @@
 import Foundation
 
 struct ShortcutCatalog: ShortcutCatalogLoading {
-  static func excludingInputShortcuts(
-    _ shortcuts: [AppleShortcut]
-  ) -> [AppleShortcut] {
-    shortcuts.filter { !$0.acceptsInput }
-  }
-
   func load() async throws -> [AppleShortcut] {
     let loadTask = Task.detached(priority: .userInitiated) {
       let shortcuts = try ShortcutsEventsBridge.loadShortcuts()
       try Task.checkCancellation()
-      return Self.excludingInputShortcuts(shortcuts)
+      return shortcuts.filter { !$0.acceptsInput }
     }
     return try await withTaskCancellationHandler {
       try await loadTask.value
