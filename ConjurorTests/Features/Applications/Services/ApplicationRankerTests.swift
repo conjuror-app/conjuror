@@ -5,30 +5,6 @@ import Testing
 
 @Suite("Application Ranker")
 struct ApplicationRankerTests {
-  @Test("Application ranking: reusable indexes match one-shot ranking across queries")
-  func testReusableIndexMatchesOneShotRankingAcrossQueries() {
-    let applications = [
-      application("Visual Studio Code", id: "com.microsoft.VSCode"),
-      application("Xcode", id: "com.apple.dt.Xcode"),
-      application("Code Runner", id: "dev.example.runner"),
-    ]
-    let recentLaunches = [
-      applications[1].persistenceKey: Date(timeIntervalSince1970: 20)
-    ]
-    let index = ApplicationRanker.Index(applications: applications)
-
-    for query in ["", "code", "vs", "xcd", "missing"] {
-      #expect(
-        index.ranked(query: query, recentLaunches: recentLaunches)
-          == ApplicationRanker.ranked(
-            applications: applications,
-            query: query,
-            recentLaunches: recentLaunches
-          )
-      )
-    }
-  }
-
   @Test("Application ranking: exact-prefix, token, acronym, and substring matches are ordered")
   func testOrdersExactPrefixTokenAcronymAndSubstringMatches() {
     let applications = [
@@ -39,8 +15,7 @@ struct ApplicationRankerTests {
       application("Code", id: "dev.example.exact"),
     ]
 
-    let result = ApplicationRanker.ranked(
-      applications: applications,
+    let result = ApplicationRanker.Index(applications: applications).ranked(
       query: "code",
       recentLaunches: [:]
     )
@@ -59,8 +34,7 @@ struct ApplicationRankerTests {
       application("My VS Code", id: "dev.example.tokens"),
     ]
 
-    let result = ApplicationRanker.ranked(
-      applications: applications,
+    let result = ApplicationRanker.Index(applications: applications).ranked(
       query: "vs",
       recentLaunches: [:]
     )
@@ -75,8 +49,7 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = ApplicationRanker.ranked(
-      applications: applications,
+    let result = ApplicationRanker.Index(applications: applications).ranked(
       query: "xcd",
       recentLaunches: [:]
     )
@@ -91,8 +64,7 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = ApplicationRanker.ranked(
-      applications: applications,
+    let result = ApplicationRanker.Index(applications: applications).ranked(
       query: "xcd",
       recentLaunches: [:]
     )
@@ -105,8 +77,7 @@ struct ApplicationRankerTests {
     let older = application("Alpha Editor", id: "dev.example.alpha")
     let newer = application("Atlas Editor", id: "dev.example.atlas")
 
-    let result = ApplicationRanker.ranked(
-      applications: [older, newer],
+    let result = ApplicationRanker.Index(applications: [older, newer]).ranked(
       query: "a",
       recentLaunches: [
         older.persistenceKey: Date(timeIntervalSince1970: 10),
@@ -125,8 +96,7 @@ struct ApplicationRankerTests {
       application("Zulu", id: nil, path: "/Applications/Zulu-A.app"),
     ]
 
-    let result = ApplicationRanker.ranked(
-      applications: applications,
+    let result = ApplicationRanker.Index(applications: applications).ranked(
       query: "",
       recentLaunches: [:]
     )

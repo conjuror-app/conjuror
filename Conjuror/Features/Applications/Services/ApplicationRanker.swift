@@ -26,17 +26,6 @@ struct ApplicationRanker {
     }
   }
 
-  static func ranked(
-    applications: [InstalledApplication],
-    query: String,
-    recentLaunches: [String: Date]
-  ) -> [InstalledApplication] {
-    Index(applications: applications).ranked(
-      query: query,
-      recentLaunches: recentLaunches
-    )
-  }
-
   static func normalized(_ value: String) -> String {
     SearchText.normalized(value)
   }

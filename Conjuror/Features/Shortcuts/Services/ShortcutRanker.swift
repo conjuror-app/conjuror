@@ -26,11 +26,4 @@ struct ShortcutRanker {
     }
   }
 
-  static func ranked(
-    shortcuts: [AppleShortcut],
-    query: String,
-    recentRuns: [String: Date]
-  ) -> [AppleShortcut] {
-    Index(shortcuts: shortcuts).ranked(query: query, recentRuns: recentRuns)
-  }
 }

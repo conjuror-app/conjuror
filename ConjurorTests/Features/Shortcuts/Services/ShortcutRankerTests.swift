@@ -14,8 +14,7 @@ struct ShortcutRankerTests {
       shortcut("Studio Code", id: "token"),
     ]
 
-    let result = ShortcutRanker.ranked(
-      shortcuts: shortcuts,
+    let result = ShortcutRanker.Index(shortcuts: shortcuts).ranked(
       query: "code",
       recentRuns: [:]
     )
@@ -28,8 +27,7 @@ struct ShortcutRankerTests {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")
     let second = shortcut("Evening", id: "second", subtitle: "Bedroom lights")
 
-    let result = ShortcutRanker.ranked(
-      shortcuts: [first, second],
+    let result = ShortcutRanker.Index(shortcuts: [first, second]).ranked(
       query: "bedroom",
       recentRuns: [second.persistenceKey: Date(timeIntervalSince1970: 20)]
     )
@@ -44,8 +42,7 @@ struct ShortcutRankerTests {
       shortcut("Xcode", id: "match"),
     ]
 
-    let result = ShortcutRanker.ranked(
-      shortcuts: shortcuts,
+    let result = ShortcutRanker.Index(shortcuts: shortcuts).ranked(
       query: "xcd",
       recentRuns: [:]
     )
