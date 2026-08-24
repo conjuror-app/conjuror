@@ -107,13 +107,6 @@ struct HotKeyStoreTests {
     #expect(configurations.count == HotKeyAction.allCases.count * 2 + 1)
     #expect((store.registrationErrorMessage) == nil)
   }
-
-  private func makeTestUserDefaults() -> UserDefaults {
-    let suiteName = "HotKeyStoreTests.\(UUID().uuidString)"
-    let userDefaults = UserDefaults(suiteName: suiteName)!
-    userDefaults.removePersistentDomain(forName: suiteName)
-    return userDefaults
-  }
 }
 
 private final class RegistrationToken {}

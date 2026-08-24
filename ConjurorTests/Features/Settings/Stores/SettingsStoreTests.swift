@@ -91,11 +91,4 @@ struct SettingsStoreTests {
     store.resetMaximumVisibleResults()
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
   }
-
-  private func makeTestUserDefaults() -> UserDefaults {
-    let suiteName = "SettingsStoreTests.\(UUID().uuidString)"
-    let userDefaults = UserDefaults(suiteName: suiteName)!
-    userDefaults.removePersistentDomain(forName: suiteName)
-    return userDefaults
-  }
 }

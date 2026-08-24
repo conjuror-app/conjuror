@@ -34,11 +34,4 @@ struct CurrencyRateStoreTests {
     }
     #expect(weakStore == nil)
   }
-
-  private func makeTestUserDefaults() -> UserDefaults {
-    let suiteName = "CurrencyRateStoreTests.\(UUID().uuidString)"
-    let userDefaults = UserDefaults(suiteName: suiteName)!
-    userDefaults.removePersistentDomain(forName: suiteName)
-    return userDefaults
-  }
 }
