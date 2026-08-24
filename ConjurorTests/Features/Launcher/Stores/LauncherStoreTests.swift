@@ -107,7 +107,7 @@ struct LauncherStoreTests {
   func testCalculatorDoesNotEvaluateInShortcutsMode() {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
       shortcutRunner: ShortcutRunnerStub(),
@@ -128,7 +128,7 @@ struct LauncherStoreTests {
     let catalog = ControlledCatalog()
     let store = makeStore(
       catalog: catalog,
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(
         userDefaults: makeTestUserDefaults()
       )
@@ -159,7 +159,7 @@ struct LauncherStoreTests {
     let application = application("Pine", id: "dev.example.pine")
     let store = makeStore(
       catalog: CatalogStub(applications: [application]),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
@@ -189,7 +189,7 @@ struct LauncherStoreTests {
     ]
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(
         userDefaults: makeTestUserDefaults()
       )
@@ -220,7 +220,7 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
     )
@@ -240,7 +240,7 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.query = "1000 m to km"
@@ -258,7 +258,8 @@ struct LauncherStoreTests {
     catalog: ApplicationCatalogLoading? = nil,
     calculator: CalculatorEngine = CalculatorEngine(),
     writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
-    launcher: ApplicationLaunching = LauncherStub(),
+    launchApplication: @escaping @MainActor (InstalledApplication) async throws -> Void =
+      LauncherStub().open,
     launchHistory: RecencyStore? = nil,
     shortcutCatalog: ShortcutCatalogLoading? = nil,
     shortcutRunner: ShortcutRunning = ShortcutRunnerStub(),
@@ -272,7 +273,7 @@ struct LauncherStoreTests {
       catalog: catalog ?? CatalogStub(applications: applications),
       calculator: calculator,
       writeToClipboard: writeToClipboard,
-      launcher: launcher,
+      launchApplication: launchApplication,
       launchHistory: launchHistory
         ?? RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: shortcutCatalog ?? ShortcutCatalogStub(shortcuts: shortcuts),
@@ -383,7 +384,7 @@ final class RecordingCalculatorClipboard {
   }
 }
 
-struct LauncherStub: ApplicationLaunching {
+struct LauncherStub {
   var error: Error?
 
   init(error: Error? = nil) {

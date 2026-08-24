@@ -53,7 +53,7 @@ extension LauncherStoreTests {
     var didLaunch = false
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
@@ -73,7 +73,7 @@ extension LauncherStoreTests {
   func testCatalogFailurePublishesErrorAndClearsSelection() async {
     let store = makeStore(
       catalog: FailingCatalogStub(),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
 
@@ -95,7 +95,7 @@ extension LauncherStoreTests {
     var didLaunch = false
     let store = makeStore(
       catalog: CatalogStub(applications: [application]),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: launchHistory,
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
@@ -121,7 +121,7 @@ extension LauncherStoreTests {
     var didLaunch = false
     let store = makeStore(
       catalog: CatalogStub(applications: [application]),
-      launcher: LauncherStub(error: TestError.launchFailed),
+      launchApplication: LauncherStub(error: TestError.launchFailed).open,
       launchHistory: launchHistory,
       onEvent: { event in
         if event == .launchStarted { didStartLaunch = true }
@@ -152,7 +152,7 @@ extension LauncherStoreTests {
     ]
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
-      launcher: LauncherStub(error: TestError.launchFailed),
+      launchApplication: LauncherStub(error: TestError.launchFailed).open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()

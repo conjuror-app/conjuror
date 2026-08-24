@@ -44,7 +44,7 @@ extension LauncherStoreTests {
   func testHorizontalArrowsNavigateEmojiGrid() {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
@@ -67,7 +67,7 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: history,
       onEvent: { if $0 == .emojiCopied { didRequestHide = true } }

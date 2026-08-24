@@ -1,6 +1,7 @@
 import AppKit
 
-struct ApplicationLauncher: ApplicationLaunching {
+@MainActor
+struct ApplicationLauncher {
   func open(_ application: InstalledApplication) async throws {
     if case .systemSettings(let url) = application.launchTarget {
       guard NSWorkspace.shared.open(url) else {
@@ -27,11 +28,6 @@ struct ApplicationLauncher: ApplicationLaunching {
       }
     }
   }
-}
-
-protocol ApplicationLaunching {
-  @MainActor
-  func open(_ application: InstalledApplication) async throws
 }
 
 private enum ApplicationLaunchError: LocalizedError {

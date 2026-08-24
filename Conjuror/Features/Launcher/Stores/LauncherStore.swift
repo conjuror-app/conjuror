@@ -104,7 +104,7 @@ final class LauncherStore: ObservableObject {
   private let catalog: ApplicationCatalogLoading
   private let calculator: CalculatorEngine
   private let writeToClipboard: @MainActor (String) -> Void
-  private let launcher: ApplicationLaunching
+  private let launchApplication: @MainActor (InstalledApplication) async throws -> Void
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
   private let emojiHistory: EmojiHistoryStore
@@ -159,7 +159,8 @@ final class LauncherStore: ObservableObject {
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
     calculator: CalculatorEngine = CalculatorEngine(),
     writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
-    launcher: ApplicationLaunching = ApplicationLauncher(),
+    launchApplication: @escaping @MainActor (InstalledApplication) async throws -> Void =
+      ApplicationLauncher().open,
     launchHistory: RecencyStore = .applicationLaunches(),
     shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
@@ -172,7 +173,7 @@ final class LauncherStore: ObservableObject {
     self.catalog = catalog
     self.calculator = calculator
     self.writeToClipboard = writeToClipboard
-    self.launcher = launcher
+    self.launchApplication = launchApplication
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
     self.emojiHistory = emojiHistory
@@ -367,9 +368,9 @@ final class LauncherStore: ObservableObject {
     launchErrorMessage = nil
     onEvent(.launchStarted)
 
-    let launcher = launcher
+    let launchApplication = launchApplication
     perform(
-      operation: { try await launcher.open(application) },
+      operation: { try await launchApplication(application) },
       onSuccess: { [weak self] in
         guard let self else { return }
         applicationController.record(application)

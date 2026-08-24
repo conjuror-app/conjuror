@@ -29,7 +29,7 @@ extension LauncherStoreTests {
     let runner = RecordingShortcutRunner()
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(
         shortcuts: [mainBedroom, guestBedroom]
@@ -56,7 +56,7 @@ extension LauncherStoreTests {
     var didRequestHide = false
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(),
@@ -80,7 +80,7 @@ extension LauncherStoreTests {
     let shortcut = shortcut("Lights", id: "lights")
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      launcher: LauncherStub(),
+      launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(error: TestError.launchFailed),
