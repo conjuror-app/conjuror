@@ -191,8 +191,8 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       return lhs.sourcePriority < rhs.sourcePriority
     }
 
-    let lhsName = ApplicationRanker.normalized(lhs.displayName)
-    let rhsName = ApplicationRanker.normalized(rhs.displayName)
+    let lhsName = SearchText.normalized(lhs.displayName)
+    let rhsName = SearchText.normalized(rhs.displayName)
     if lhsName != rhsName {
       return lhsName < rhsName
     }

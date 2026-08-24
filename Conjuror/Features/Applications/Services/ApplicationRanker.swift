@@ -25,8 +25,4 @@ struct ApplicationRanker {
       index.ranked(query: query, recency: recentLaunches)
     }
   }
-
-  static func normalized(_ value: String) -> String {
-    SearchText.normalized(value)
-  }
 }
