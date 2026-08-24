@@ -110,7 +110,7 @@ struct LauncherStoreTests {
       launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      shortcutRunner: ShortcutRunnerStub(),
+      runShortcut: ShortcutRunnerStub().run,
       shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
 
@@ -262,7 +262,8 @@ struct LauncherStoreTests {
       LauncherStub().open,
     launchHistory: RecencyStore? = nil,
     shortcutCatalog: ShortcutCatalogLoading? = nil,
-    shortcutRunner: ShortcutRunning = ShortcutRunnerStub(),
+    runShortcut: @escaping @MainActor (AppleShortcut) async throws -> Void =
+      ShortcutRunnerStub().run,
     shortcutRunHistory: RecencyStore? = nil,
     emojiHistory: EmojiHistoryStore? = nil,
     fileSearcher: FileSearching = FileSearcherStub(results: []),
@@ -277,7 +278,7 @@ struct LauncherStoreTests {
       launchHistory: launchHistory
         ?? RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: shortcutCatalog ?? ShortcutCatalogStub(shortcuts: shortcuts),
-      shortcutRunner: shortcutRunner,
+      runShortcut: runShortcut,
       shortcutRunHistory: shortcutRunHistory
         ?? RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults()),
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
@@ -352,7 +353,7 @@ struct ShortcutCatalogStub: ShortcutCatalogLoading {
   }
 }
 
-struct ShortcutRunnerStub: ShortcutRunning {
+struct ShortcutRunnerStub {
   var error: Error?
 
   init(error: Error? = nil) {
@@ -367,7 +368,7 @@ struct ShortcutRunnerStub: ShortcutRunning {
 }
 
 @MainActor
-final class RecordingShortcutRunner: ShortcutRunning {
+final class RecordingShortcutRunner {
   private(set) var lastRunShortcut: AppleShortcut?
 
   func run(_ shortcut: AppleShortcut) async throws {

@@ -106,7 +106,7 @@ final class LauncherStore: ObservableObject {
   private let writeToClipboard: @MainActor (String) -> Void
   private let launchApplication: @MainActor (InstalledApplication) async throws -> Void
   private let shortcutCatalog: ShortcutCatalogLoading
-  private let shortcutRunner: ShortcutRunning
+  private let runShortcut: @MainActor (AppleShortcut) async throws -> Void
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: LauncherApplicationController
   private let shortcutController: LauncherShortcutController
@@ -163,7 +163,7 @@ final class LauncherStore: ObservableObject {
       ApplicationLauncher().open,
     launchHistory: RecencyStore = .applicationLaunches(),
     shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
-    shortcutRunner: ShortcutRunning = ShortcutRunner(),
+    runShortcut: @escaping @MainActor (AppleShortcut) async throws -> Void = ShortcutRunner().run,
     shortcutRunHistory: RecencyStore = .shortcutRuns(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
     fileSearcher: FileSearching = SpotlightFileSearchService(),
@@ -175,7 +175,7 @@ final class LauncherStore: ObservableObject {
     self.writeToClipboard = writeToClipboard
     self.launchApplication = launchApplication
     self.shortcutCatalog = shortcutCatalog
-    self.shortcutRunner = shortcutRunner
+    self.runShortcut = runShortcut
     self.emojiHistory = emojiHistory
     applicationController = LauncherApplicationController(history: launchHistory)
     shortcutController = LauncherShortcutController(history: shortcutRunHistory)
@@ -442,9 +442,9 @@ final class LauncherStore: ObservableObject {
     shortcutRunErrorMessage = nil
     onEvent(.shortcutRunStarted)
 
-    let shortcutRunner = shortcutRunner
+    let runShortcut = runShortcut
     perform(
-      operation: { try await shortcutRunner.run(shortcut) },
+      operation: { try await runShortcut(shortcut) },
       onSuccess: { [weak self] in
         guard let self else { return }
         shortcutController.record(shortcut)

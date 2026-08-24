@@ -34,7 +34,7 @@ extension LauncherStoreTests {
       shortcutCatalog: ShortcutCatalogStub(
         shortcuts: [mainBedroom, guestBedroom]
       ),
-      shortcutRunner: runner,
+      runShortcut: runner.run,
       shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">bedroom")
@@ -59,7 +59,7 @@ extension LauncherStoreTests {
       launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
-      shortcutRunner: ShortcutRunnerStub(),
+      runShortcut: ShortcutRunnerStub().run,
       shortcutRunHistory: history,
       onEvent: { if $0 == .shortcutRunStarted { didRequestHide = true } }
     )
@@ -83,7 +83,7 @@ extension LauncherStoreTests {
       launchApplication: LauncherStub().open,
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
-      shortcutRunner: ShortcutRunnerStub(error: TestError.launchFailed),
+      runShortcut: ShortcutRunnerStub(error: TestError.launchFailed).run,
       shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">light")

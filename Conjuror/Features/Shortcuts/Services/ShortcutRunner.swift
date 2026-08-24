@@ -1,6 +1,7 @@
 import Foundation
 
-struct ShortcutRunner: ShortcutRunning {
+@MainActor
+struct ShortcutRunner {
   func run(_ shortcut: AppleShortcut) async throws {
     let identifier = shortcut.id
     let runTask = Task.detached(priority: .userInitiated) {
@@ -13,9 +14,4 @@ struct ShortcutRunner: ShortcutRunning {
       runTask.cancel()
     }
   }
-}
-
-protocol ShortcutRunning {
-  @MainActor
-  func run(_ shortcut: AppleShortcut) async throws
 }
