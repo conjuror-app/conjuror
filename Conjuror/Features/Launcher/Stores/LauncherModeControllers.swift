@@ -1,11 +1,11 @@
 import Foundation
 
 final class LauncherApplicationController {
-  private let history: LaunchHistoryStore
+  private let history: RecencyStore
   private var index = ApplicationRanker.Index(applications: [])
   private var recentUses: [String: Date]
 
-  init(history: LaunchHistoryStore) {
+  init(history: RecencyStore) {
     self.history = history
     recentUses = history.load()
   }
@@ -19,7 +19,7 @@ final class LauncherApplicationController {
   }
 
   func record(_ application: InstalledApplication) {
-    history.recordLaunch(of: application)
+    history.record(key: application.persistenceKey)
     recentUses = history.load()
   }
 }
@@ -77,11 +77,11 @@ final class LauncherFileController {
 }
 
 final class LauncherShortcutController {
-  private let history: ShortcutRunHistoryStore
+  private let history: RecencyStore
   private var index = ShortcutRanker.Index(shortcuts: [])
   private var recentUses: [String: Date]
 
-  init(history: ShortcutRunHistoryStore) {
+  init(history: RecencyStore) {
     self.history = history
     recentUses = history.load()
   }
@@ -95,7 +95,7 @@ final class LauncherShortcutController {
   }
 
   func record(_ shortcut: AppleShortcut) {
-    history.recordRun(of: shortcut)
+    history.record(key: shortcut.persistenceKey)
     recentUses = history.load()
   }
 }

@@ -160,10 +160,10 @@ final class LauncherStore: ObservableObject {
     calculator: CalculatorEngine = CalculatorEngine(),
     calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
     launcher: ApplicationLaunching = ApplicationLauncher(),
-    launchHistory: LaunchHistoryStore = LaunchHistoryStore(),
+    launchHistory: RecencyStore = .applicationLaunches(),
     shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
     shortcutRunner: ShortcutRunning = ShortcutRunner(),
-    shortcutRunHistory: ShortcutRunHistoryStore = ShortcutRunHistoryStore(),
+    shortcutRunHistory: RecencyStore = .shortcutRuns(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
     fileSearcher: FileSearching = SpotlightFileSearchService(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }

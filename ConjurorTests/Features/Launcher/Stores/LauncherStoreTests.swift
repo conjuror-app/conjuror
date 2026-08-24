@@ -108,10 +108,10 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
       shortcutRunner: ShortcutRunnerStub(),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
+      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
 
     store.updateQuery(">2 + 3")
@@ -129,7 +129,7 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: catalog,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(
+      launchHistory: RecencyStore.applicationLaunches(
         userDefaults: makeTestUserDefaults()
       )
     )
@@ -160,7 +160,7 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: [application]),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
@@ -190,7 +190,7 @@ struct LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(
+      launchHistory: RecencyStore.applicationLaunches(
         userDefaults: makeTestUserDefaults()
       )
     )
@@ -221,7 +221,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
     )
     store.query = "2 + 3"
@@ -241,7 +241,7 @@ struct LauncherStoreTests {
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.query = "1000 m to km"
 
@@ -259,10 +259,10 @@ struct LauncherStoreTests {
     calculator: CalculatorEngine = CalculatorEngine(),
     calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
     launcher: ApplicationLaunching = LauncherStub(),
-    launchHistory: LaunchHistoryStore? = nil,
+    launchHistory: RecencyStore? = nil,
     shortcutCatalog: ShortcutCatalogLoading? = nil,
     shortcutRunner: ShortcutRunning = ShortcutRunnerStub(),
-    shortcutRunHistory: ShortcutRunHistoryStore? = nil,
+    shortcutRunHistory: RecencyStore? = nil,
     emojiHistory: EmojiHistoryStore? = nil,
     fileSearcher: FileSearching = FileSearcherStub(results: []),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
@@ -273,11 +273,12 @@ struct LauncherStoreTests {
       calculator: calculator,
       calculatorClipboard: calculatorClipboard,
       launcher: launcher,
-      launchHistory: launchHistory ?? LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: launchHistory
+        ?? RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: shortcutCatalog ?? ShortcutCatalogStub(shortcuts: shortcuts),
       shortcutRunner: shortcutRunner,
       shortcutRunHistory: shortcutRunHistory
-        ?? ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults()),
+        ?? RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults()),
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
       fileSearcher: fileSearcher,
       onEvent: onEvent

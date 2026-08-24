@@ -1,6 +1,22 @@
 import Foundation
 
 struct RecencyStore {
+  static func applicationLaunches(userDefaults: UserDefaults = .standard) -> Self {
+    Self(
+      storageKey: "recentSuccessfulLaunches",
+      limit: 100,
+      userDefaults: userDefaults
+    )
+  }
+
+  static func shortcutRuns(userDefaults: UserDefaults = .standard) -> Self {
+    Self(
+      storageKey: "recentSuccessfulShortcutRuns",
+      limit: 100,
+      userDefaults: userDefaults
+    )
+  }
+
   private let storageKey: UserDefaultsKey<[String: Double]>
   private let limit: Int
   private let userDefaults: UserDefaults

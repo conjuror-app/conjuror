@@ -30,12 +30,12 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(
         shortcuts: [mainBedroom, guestBedroom]
       ),
       shortcutRunner: runner,
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
+      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">bedroom")
     await waitForShortcutsLoadingToFinish(store)
@@ -52,12 +52,12 @@ extension LauncherStoreTests {
   @Test("Launcher store: running shortcuts hide immediately and record successful runs")
   func testRunningShortcutHidesImmediatelyAndRecordsSuccessfulRun() async {
     let shortcut = shortcut("Lights", id: "lights")
-    let history = ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
+    let history = RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     var didRequestHide = false
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(),
       shortcutRunHistory: history,
@@ -81,10 +81,10 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
       shortcutRunner: ShortcutRunnerStub(error: TestError.launchFailed),
-      shortcutRunHistory: ShortcutRunHistoryStore(userDefaults: makeTestUserDefaults())
+      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">light")
     await waitForShortcutsLoadingToFinish(store)

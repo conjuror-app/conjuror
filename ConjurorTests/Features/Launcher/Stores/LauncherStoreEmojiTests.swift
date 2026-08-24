@@ -45,7 +45,7 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: []),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(":")
@@ -68,7 +68,7 @@ extension LauncherStoreTests {
       catalog: CatalogStub(applications: []),
       calculatorClipboard: clipboard,
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: history,
       onEvent: { if $0 == .emojiCopied { didRequestHide = true } }
     )

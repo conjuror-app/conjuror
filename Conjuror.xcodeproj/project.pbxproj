@@ -30,7 +30,6 @@
 		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
 		8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33152C55C00100C0A001 /* InstalledApplication.swift */; };
 		8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */; };
-		8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */; };
 		8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33182C55C00100C0A001 /* LauncherStore.swift */; };
 		8A4E33082C55C00100C0A001 /* AppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33192C55C00100C0A001 /* AppController.swift */; };
 		8A4E33092C55C00100C0A001 /* GlobalHotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */; };
@@ -42,17 +41,14 @@
 		8A4E35002C55C00100C0A001 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */; };
 		8A4E36002C55C00100C0A001 /* HotKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36102C55C00100C0A001 /* HotKeyStore.swift */; };
 		8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */; };
-		8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */; };
 		8A4E36032C55C00100C0A001 /* LauncherWindowControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E36132C55C00100C0A001 /* LauncherWindowControllerTests.swift */; };
 		8A4E37002C55C00100C0A001 /* AppleShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37102C55C00100C0A001 /* AppleShortcut.swift */; };
 		8A4E37012C55C00100C0A001 /* ShortcutCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37112C55C00100C0A001 /* ShortcutCatalog.swift */; };
 		8A4E37022C55C00100C0A001 /* ShortcutRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37122C55C00100C0A001 /* ShortcutRunner.swift */; };
 		8A4E37032C55C00100C0A001 /* ShortcutRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37132C55C00100C0A001 /* ShortcutRanker.swift */; };
-		8A4E37042C55C00100C0A001 /* ShortcutRunHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37142C55C00100C0A001 /* ShortcutRunHistoryStore.swift */; };
 		8A4E37052C55C00100C0A001 /* ShortcutResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37152C55C00100C0A001 /* ShortcutResultRow.swift */; };
 		8A4E37062C55C00100C0A001 /* ShortcutCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37172C55C00100C0A001 /* ShortcutCatalogTests.swift */; };
 		8A4E37072C55C00100C0A001 /* ShortcutRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37182C55C00100C0A001 /* ShortcutRankerTests.swift */; };
-		8A4E37082C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E37192C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift */; };
 		8A4E38032C55C00100C0A001 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */; };
 		8A4E39002C55C00100C0A001 /* CalculatorQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */; };
 		8A4E39012C55C00100C0A001 /* CalculatorQuantityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */; };
@@ -78,6 +74,7 @@
 		C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */; };
 		C80E94548069D50514B9FB8B /* UserDefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */; };
 		CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */; };
+		D10000000000000000000002 /* RecencyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* RecencyStoreTests.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
@@ -146,7 +143,6 @@
 		8A4E33142C55C00100C0A001 /* ConjurorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConjurorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A4E33152C55C00100C0A001 /* InstalledApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledApplication.swift; sourceTree = "<group>"; };
 		8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLauncher.swift; sourceTree = "<group>"; };
-		8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchHistoryStore.swift; sourceTree = "<group>"; };
 		8A4E33182C55C00100C0A001 /* LauncherStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherStore.swift; sourceTree = "<group>"; };
 		8A4E33192C55C00100C0A001 /* AppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
 		8A4E331A2C55C00100C0A001 /* GlobalHotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKey.swift; sourceTree = "<group>"; };
@@ -158,18 +154,15 @@
 		8A4E35102C55C00100C0A001 /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		8A4E36102C55C00100C0A001 /* HotKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyStore.swift; sourceTree = "<group>"; };
 		8A4E36112C55C00100C0A001 /* HotKeyStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyStoreTests.swift; sourceTree = "<group>"; };
-		8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchHistoryStoreTests.swift; sourceTree = "<group>"; };
 		8A4E36132C55C00100C0A001 /* LauncherWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowControllerTests.swift; sourceTree = "<group>"; };
 		8A4E37102C55C00100C0A001 /* AppleShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleShortcut.swift; sourceTree = "<group>"; };
 		8A4E37112C55C00100C0A001 /* ShortcutCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutCatalog.swift; sourceTree = "<group>"; };
 		8A4E37122C55C00100C0A001 /* ShortcutRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRunner.swift; sourceTree = "<group>"; };
 		8A4E37132C55C00100C0A001 /* ShortcutRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRanker.swift; sourceTree = "<group>"; };
-		8A4E37142C55C00100C0A001 /* ShortcutRunHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRunHistoryStore.swift; sourceTree = "<group>"; };
 		8A4E37152C55C00100C0A001 /* ShortcutResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutResultRow.swift; sourceTree = "<group>"; };
 		8A4E37162C55C00100C0A001 /* Conjuror.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Conjuror.entitlements; sourceTree = "<group>"; };
 		8A4E37172C55C00100C0A001 /* ShortcutCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E37182C55C00100C0A001 /* ShortcutRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRankerTests.swift; sourceTree = "<group>"; };
-		8A4E37192C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRunHistoryStoreTests.swift; sourceTree = "<group>"; };
 		8A4E38132C55C00100C0A001 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngineTests.swift; sourceTree = "<group>"; };
 		8A4E39102C55C00100C0A001 /* CalculatorQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantity.swift; sourceTree = "<group>"; };
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
@@ -190,6 +183,7 @@
 		C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginCheckbox.swift; sourceTree = "<group>"; };
 		C20000000000000000000008 /* SettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPane.swift; sourceTree = "<group>"; };
 		C20000000000000000000009 /* SettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRow.swift; sourceTree = "<group>"; };
+		D10000000000000000000001 /* RecencyStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStoreTests.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
@@ -333,9 +327,26 @@
 			isa = PBXGroup;
 			children = (
 				F65FFD00000000000000001B /* Features */,
+				D10000000000000000000003 /* Shared */,
 				29FAB1032CCAF1E264B14362 /* Support */,
 			);
 			path = ConjurorTests;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000003 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000004 /* Persistence */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000004 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000001 /* RecencyStoreTests.swift */,
+			);
+			path = Persistence;
 			sourceTree = "<group>";
 		};
 		E3000000000000000000001 /* Emoji */ = {
@@ -500,7 +511,6 @@
 		F65FFD000000000000000006 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				8A4E33172C55C00100C0A001 /* LaunchHistoryStore.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -697,7 +707,6 @@
 		F65FFD000000000000000019 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				8A4E37142C55C00100C0A001 /* ShortcutRunHistoryStore.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -745,7 +754,6 @@
 		F65FFD00000000000000001E /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				8A4E36122C55C00100C0A001 /* LaunchHistoryStoreTests.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -839,7 +847,6 @@
 		F65FFD000000000000000028 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				8A4E37192C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -953,7 +960,6 @@
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
 				A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */,
 				8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */,
-				8A4E33062C55C00100C0A001 /* LaunchHistoryStore.swift in Sources */,
 				8A4E33072C55C00100C0A001 /* LauncherStore.swift in Sources */,
 				8A4E36002C55C00100C0A001 /* HotKeyStore.swift in Sources */,
 				B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */,
@@ -980,7 +986,6 @@
 				8A4E37012C55C00100C0A001 /* ShortcutCatalog.swift in Sources */,
 				8A4E37022C55C00100C0A001 /* ShortcutRunner.swift in Sources */,
 				8A4E37032C55C00100C0A001 /* ShortcutRanker.swift in Sources */,
-				8A4E37042C55C00100C0A001 /* ShortcutRunHistoryStore.swift in Sources */,
 				F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */,
 				F65FFF00000000000000000A /* CalculatorCurrency.swift in Sources */,
 				F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */,
@@ -1029,13 +1034,12 @@
 				F65FFF10000000000000000B /* CurrencyRateStoreTests.swift in Sources */,
 				8A4E36012C55C00100C0A001 /* HotKeyStoreTests.swift in Sources */,
 				B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */,
-				8A4E36022C55C00100C0A001 /* LaunchHistoryStoreTests.swift in Sources */,
 				8A4E36032C55C00100C0A001 /* LauncherWindowControllerTests.swift in Sources */,
 				8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */,
 				8A4E34032C55C00100C0A001 /* SettingsStoreTests.swift in Sources */,
 				8A4E37062C55C00100C0A001 /* ShortcutCatalogTests.swift in Sources */,
 				8A4E37072C55C00100C0A001 /* ShortcutRankerTests.swift in Sources */,
-				8A4E37082C55C00100C0A001 /* ShortcutRunHistoryStoreTests.swift in Sources */,
+				D10000000000000000000002 /* RecencyStoreTests.swift in Sources */,
 				9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */,
 				AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */,
 				CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */,

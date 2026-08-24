@@ -54,7 +54,7 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults()),
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
@@ -74,7 +74,7 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: FailingCatalogStub(),
       launcher: LauncherStub(),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
 
     store.loadApplications()
@@ -91,7 +91,7 @@ extension LauncherStoreTests {
   func testSuccessfulLaunchRecordsHistoryClearsQueryAndCallsSuccess() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let userDefaults = makeTestUserDefaults()
-    let launchHistory = LaunchHistoryStore(userDefaults: userDefaults)
+    let launchHistory = RecencyStore.applicationLaunches(userDefaults: userDefaults)
     var didLaunch = false
     let store = makeStore(
       catalog: CatalogStub(applications: [application]),
@@ -116,7 +116,7 @@ extension LauncherStoreTests {
   @Test("Launcher store: failed launches preserve the query and skip history")
   func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
     let application = application("Alpha", id: "dev.example.alpha")
-    let launchHistory = LaunchHistoryStore(userDefaults: makeTestUserDefaults())
+    let launchHistory = RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     var didStartLaunch = false
     var didLaunch = false
     let store = makeStore(
@@ -153,7 +153,7 @@ extension LauncherStoreTests {
     let store = makeStore(
       catalog: CatalogStub(applications: applications),
       launcher: LauncherStub(error: TestError.launchFailed),
-      launchHistory: LaunchHistoryStore(userDefaults: makeTestUserDefaults())
+      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
     await waitForLoadingToFinish(store)
