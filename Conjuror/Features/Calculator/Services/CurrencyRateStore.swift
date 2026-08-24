@@ -4,7 +4,6 @@ import OSLog
 
 @MainActor
 final class CurrencyRateStore: ObservableObject {
-  static let providerURL = URL(string: "https://frankfurter.dev")!
   static let refreshInterval: TimeInterval = 24 * 60 * 60
 
   private static let logger = Logger(subsystem: "Conjuror", category: "CurrencyRates")
@@ -15,10 +14,6 @@ final class CurrencyRateStore: ObservableObject {
 
   @Published private(set) var isEnabled: Bool
   @Published private(set) var rates: CurrencyRates?
-
-  var source: CurrencySource {
-    isEnabled ? .on(rates) : .off
-  }
 
   private let cache: CurrencyRateCache
   private let client: CurrencyRateClient
@@ -83,14 +78,6 @@ final class CurrencyRateStore: ObservableObject {
         Self.logger.error("Unable to remove cached currency rates: \(error.localizedDescription)")
       }
     }
-  }
-
-  @discardableResult
-  func refreshNow() async -> Bool {
-    guard isEnabled else {
-      return false
-    }
-    return await fetchAndStore()
   }
 
   private func nextRefreshDelay() async -> TimeInterval? {
