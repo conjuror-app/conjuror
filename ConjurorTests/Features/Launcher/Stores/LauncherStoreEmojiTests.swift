@@ -66,7 +66,7 @@ extension LauncherStoreTests {
     var didRequestHide = false
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      calculatorClipboard: clipboard,
+      writeToClipboard: clipboard.write,
       launcher: LauncherStub(),
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: history,

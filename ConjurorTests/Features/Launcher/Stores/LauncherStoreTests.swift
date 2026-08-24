@@ -219,7 +219,7 @@ struct LauncherStoreTests {
     var didRequestHide = false
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      calculatorClipboard: clipboard,
+      writeToClipboard: clipboard.write,
       launcher: LauncherStub(),
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
@@ -239,7 +239,7 @@ struct LauncherStoreTests {
     let clipboard = RecordingCalculatorClipboard()
     let store = makeStore(
       catalog: CatalogStub(applications: []),
-      calculatorClipboard: clipboard,
+      writeToClipboard: clipboard.write,
       launcher: LauncherStub(),
       launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
@@ -257,7 +257,7 @@ struct LauncherStoreTests {
     settingsStore: SettingsStore? = nil,
     catalog: ApplicationCatalogLoading? = nil,
     calculator: CalculatorEngine = CalculatorEngine(),
-    calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
+    writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
     launcher: ApplicationLaunching = LauncherStub(),
     launchHistory: RecencyStore? = nil,
     shortcutCatalog: ShortcutCatalogLoading? = nil,
@@ -271,7 +271,7 @@ struct LauncherStoreTests {
       settingsStore: settingsStore ?? SettingsStore(userDefaults: makeTestUserDefaults()),
       catalog: catalog ?? CatalogStub(applications: applications),
       calculator: calculator,
-      calculatorClipboard: calculatorClipboard,
+      writeToClipboard: writeToClipboard,
       launcher: launcher,
       launchHistory: launchHistory
         ?? RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
@@ -375,7 +375,7 @@ final class RecordingShortcutRunner: ShortcutRunning {
 }
 
 @MainActor
-final class RecordingCalculatorClipboard: CalculatorClipboardWriting {
+final class RecordingCalculatorClipboard {
   private(set) var text: String?
 
   func write(_ text: String) {

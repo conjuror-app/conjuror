@@ -103,7 +103,7 @@ final class LauncherStore: ObservableObject {
   private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading
   private let calculator: CalculatorEngine
-  private let calculatorClipboard: CalculatorClipboardWriting
+  private let writeToClipboard: @MainActor (String) -> Void
   private let launcher: ApplicationLaunching
   private let shortcutCatalog: ShortcutCatalogLoading
   private let shortcutRunner: ShortcutRunning
@@ -158,7 +158,7 @@ final class LauncherStore: ObservableObject {
     settingsStore: SettingsStore = SettingsStore(),
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
     calculator: CalculatorEngine = CalculatorEngine(),
-    calculatorClipboard: CalculatorClipboardWriting = SystemCalculatorClipboard(),
+    writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
     launcher: ApplicationLaunching = ApplicationLauncher(),
     launchHistory: RecencyStore = .applicationLaunches(),
     shortcutCatalog: ShortcutCatalogLoading = ShortcutCatalog(),
@@ -171,7 +171,7 @@ final class LauncherStore: ObservableObject {
     self.settingsStore = settingsStore
     self.catalog = catalog
     self.calculator = calculator
-    self.calculatorClipboard = calculatorClipboard
+    self.writeToClipboard = writeToClipboard
     self.launcher = launcher
     self.shortcutCatalog = shortcutCatalog
     self.shortcutRunner = shortcutRunner
@@ -387,7 +387,7 @@ final class LauncherStore: ObservableObject {
     guard let calculatorResult else {
       return
     }
-    calculatorClipboard.write(calculatorResult.copyText)
+    writeToClipboard(calculatorResult.copyText)
     query = ""
     onEvent(.calculatorResultCopied)
   }
@@ -401,7 +401,7 @@ final class LauncherStore: ObservableObject {
 
   func copySelectedEmoji() {
     guard let emoji = selectedEmoji else { return }
-    calculatorClipboard.write(emoji.value)
+    writeToClipboard(emoji.value)
     emojiHistory.record(emoji)
     recentEmoji = Self.emoji(for: emojiHistory.load())
     query = ""
