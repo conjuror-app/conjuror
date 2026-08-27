@@ -70,7 +70,7 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var isLoadingShortcuts = false
   @Published private(set) var shortcutRunErrorMessage: String?
   @Published private(set) var selectedShortcutID: AppleShortcut.ID?
-  @Published private(set) var filteredEmoji = Emoji.catalog
+  @Published private(set) var filteredEmoji = [Emoji]()
   @Published private(set) var recentEmoji = [Emoji]()
   @Published private(set) var selectedEmojiID: Emoji.ID?
   @Published private(set) var fileResults = [FileSearchResult]()
@@ -114,9 +114,11 @@ final class LauncherStore: ObservableObject {
   private let onEvent: (LauncherEvent) -> Void
 
   private var currencySource = CurrencySource.off
-  private let emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
   private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
   private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
+  private var emojiIndex: EmojiRanker.Index?
+  private var hasLoadedEmoji = false
+  private var hasLoadedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
 
@@ -181,7 +183,6 @@ final class LauncherStore: ObservableObject {
     shortcutController = LauncherShortcutController(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
-    recentEmoji = Self.emoji(for: emojiHistory.load())
   }
 
   func setCurrencySource(_ source: CurrencySource) {
@@ -248,6 +249,8 @@ final class LauncherStore: ObservableObject {
   }
 
   func loadShortcuts() {
+    guard !hasLoadedShortcuts else { return }
+    hasLoadedShortcuts = true
     shortcutCatalogErrorMessage = nil
     let shortcutCatalog = shortcutCatalog
     shortcutsLoader.load(
@@ -260,6 +263,7 @@ final class LauncherStore: ObservableObject {
           replaceShortcuts(with: shortcuts)
           if mode == .shortcuts { selectFirstResult() }
         case .failure(let error):
+          hasLoadedShortcuts = false
           replaceShortcuts(with: [])
           shortcutCatalogErrorMessage = "Couldn’t load shortcuts. \(error.localizedDescription)"
           selectedShortcutID = nil
@@ -590,10 +594,19 @@ final class LauncherStore: ObservableObject {
     }
     switch mode {
     case .applications: refreshApplications()
-    case .emoji: filteredEmoji = emojiIndex.ranked(query: query)
+    case .emoji:
+      loadEmojiIfNeeded()
+      filteredEmoji = emojiIndex?.ranked(query: query) ?? []
     case .files: searchFiles()
     case .shortcuts: refreshShortcuts()
     }
+  }
+
+  private func loadEmojiIfNeeded() {
+    guard !hasLoadedEmoji else { return }
+    hasLoadedEmoji = true
+    emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
+    recentEmoji = Self.emoji(for: emojiHistory.load())
   }
 
   private func searchFiles() {

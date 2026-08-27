@@ -56,7 +56,6 @@ final class AppController: NSObject, NSApplicationDelegate {
     observeCurrencyRates()
     currencyRateStore.start()
     store.loadApplications()
-    store.loadShortcuts()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
