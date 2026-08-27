@@ -2,14 +2,16 @@ import Foundation
 
 struct EmojiRanker {
   struct Index {
-    private let emoji: [SearchableEmoji]
+    private let emoji: [Emoji]
+    private let searchableEmoji: [SearchableEmoji]
 
     init(emoji: [Emoji]) {
-      self.emoji = emoji.map {
-        let normalizedName = EmojiRanker.normalized($0.name)
-        let normalizedKeywords = $0.keywords.map(EmojiRanker.normalized)
+      self.emoji = emoji
+      searchableEmoji = emoji.enumerated().map { index, emoji in
+        let normalizedName = EmojiRanker.normalized(emoji.name)
+        let normalizedKeywords = emoji.keywords.map(EmojiRanker.normalized)
         return SearchableEmoji(
-          emoji: $0,
+          emojiIndex: index,
           normalizedName: normalizedName,
           searchableText: ([normalizedName] + normalizedKeywords).joined(separator: " "),
           tokens: ([normalizedName] + normalizedKeywords).flatMap(EmojiRanker.tokens)
@@ -19,10 +21,10 @@ struct EmojiRanker {
 
     func ranked(query: String) -> [Emoji] {
       let query = EmojiRanker.normalized(query)
-      guard !query.isEmpty else { return emoji.map(\.emoji) }
+      guard !query.isEmpty else { return emoji }
       let queryTokens = EmojiRanker.tokens(in: query)
 
-      return emoji.compactMap { candidate -> (Emoji, Int)? in
+      return searchableEmoji.compactMap { candidate -> (Int, Int)? in
         let score: Int
         if candidate.normalizedName == query {
           score = 0
@@ -37,12 +39,12 @@ struct EmojiRanker {
         } else {
           return nil
         }
-        return (candidate.emoji, score)
+        return (candidate.emojiIndex, score)
       }
       .sorted {
-        $0.1 == $1.1 ? $0.0.name < $1.0.name : $0.1 < $1.1
+        $0.1 == $1.1 ? emoji[$0.0].name < emoji[$1.0].name : $0.1 < $1.1
       }
-      .map(\.0)
+      .map { emoji[$0.0] }
     }
   }
 
@@ -70,7 +72,7 @@ struct EmojiRanker {
 }
 
 private struct SearchableEmoji {
-  let emoji: Emoji
+  let emojiIndex: Int
   let normalizedName: String
   let searchableText: String
   let tokens: [String]
