@@ -51,6 +51,7 @@ struct SearchIndex<Item> {
         normalizedSecondaryText: SearchText.normalized(candidate.secondaryText),
         nameTokens: nameTokens,
         compactName: nameTokens.joined(),
+        acronym: String(nameTokens.compactMap(\.first)),
         recencyKey: candidate.recencyKey,
         stableKey: candidate.stableKey
       )
@@ -80,6 +81,7 @@ private extension SearchIndex {
     let normalizedSecondaryText: String
     let nameTokens: [String]
     let compactName: String
+    let acronym: String
     let recencyKey: String
     let stableKey: String
 
@@ -94,7 +96,6 @@ private extension SearchIndex {
       {
         return SearchMatchRank(category: 2)
       }
-      let acronym = nameTokens.compactMap(\.first).map(String.init).joined()
       if !query.compact.isEmpty, acronym.hasPrefix(query.compact) {
         return SearchMatchRank(category: 3)
       }
