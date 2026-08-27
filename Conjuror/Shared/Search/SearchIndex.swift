@@ -34,21 +34,25 @@ struct SearchIndex<Item> {
     if lhs.candidate.normalizedName != rhs.candidate.normalizedName {
       return lhs.candidate.normalizedName < rhs.candidate.normalizedName
     }
-    return lhs.candidate.candidate.stableKey < rhs.candidate.candidate.stableKey
+    return lhs.candidate.stableKey < rhs.candidate.stableKey
   }
 
+  private let items: [Item]
   private let candidates: [SearchableCandidate]
 
   init(candidates: [Candidate]) {
-    self.candidates = candidates.map { candidate in
+    items = candidates.map(\.item)
+    self.candidates = candidates.enumerated().map { index, candidate in
       let normalizedName = SearchText.normalized(candidate.name)
       let nameTokens = SearchText.tokens(in: normalizedName)
       return SearchableCandidate(
-        candidate: candidate,
+        itemIndex: index,
         normalizedName: normalizedName,
         normalizedSecondaryText: SearchText.normalized(candidate.secondaryText),
         nameTokens: nameTokens,
-        compactName: nameTokens.joined()
+        compactName: nameTokens.joined(),
+        recencyKey: candidate.recencyKey,
+        stableKey: candidate.stableKey
       )
     }
   }
@@ -60,22 +64,24 @@ struct SearchIndex<Item> {
       return RankedCandidate(
         candidate: candidate,
         rank: rank,
-        lastUse: recency[candidate.candidate.recencyKey]
+        lastUse: recency[candidate.recencyKey]
       )
     }
     .sorted(by: Self.areInIncreasingOrder)
-    .map(\.candidate.candidate.item)
+    .map { items[$0.candidate.itemIndex] }
   }
 
 }
 
 private extension SearchIndex {
   struct SearchableCandidate {
-    let candidate: Candidate
+    let itemIndex: Int
     let normalizedName: String
     let normalizedSecondaryText: String
     let nameTokens: [String]
     let compactName: String
+    let recencyKey: String
+    let stableKey: String
 
     func matchRank(for query: SearchQuery) -> SearchMatchRank? {
       guard !query.normalized.isEmpty else { return SearchMatchRank(category: 6) }
