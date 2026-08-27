@@ -158,22 +158,31 @@ enum SearchText {
 
   static func subsequenceScore(of query: String, in target: String) -> Int? {
     guard !query.isEmpty else { return nil }
-    let queryCharacters = Array(query)
-    let targetCharacters = Array(target)
     var firstPosition: Int?
     var lastPosition: Int?
-    var searchStart = 0
+    var targetIndex = target.startIndex
+    var targetPosition = 0
+    var matchedCount = 0
 
-    for character in queryCharacters {
-      guard searchStart < targetCharacters.count,
-        let position = targetCharacters[searchStart...].firstIndex(of: character)
-      else { return nil }
-      firstPosition = firstPosition ?? position
-      lastPosition = position
-      searchStart = position + 1
+    for queryCharacter in query {
+      var matchedPosition: Int?
+      while targetIndex < target.endIndex {
+        let targetCharacter = target[targetIndex]
+        target.formIndex(after: &targetIndex)
+        defer { targetPosition += 1 }
+        if targetCharacter == queryCharacter {
+          matchedPosition = targetPosition
+          break
+        }
+      }
+
+      guard let matchedPosition else { return nil }
+      firstPosition = firstPosition ?? matchedPosition
+      lastPosition = matchedPosition
+      matchedCount += 1
     }
 
     guard let firstPosition, let lastPosition else { return nil }
-    return (lastPosition - firstPosition + 1 - queryCharacters.count) * 1_000 + firstPosition
+    return (lastPosition - firstPosition + 1 - matchedCount) * 1_000 + firstPosition
   }
 }
