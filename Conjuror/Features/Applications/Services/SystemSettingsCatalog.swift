@@ -1,17 +1,14 @@
-import AppKit
 import Foundation
 
 struct SystemSettingsCatalog {
   static let items: [InstalledApplication] = {
     let settingsURL = URL(fileURLWithPath: "/System/Applications/System Settings.app")
-    let icon = NSWorkspace.shared.icon(forFile: settingsURL.path)
     return sections.compactMap { name, identifier in
       guard let url = URL(string: "x-apple.systempreferences:\(identifier)") else { return nil }
       return InstalledApplication(
         displayName: name,
         bundleIdentifier: nil,
         url: settingsURL,
-        icon: icon,
         launchTarget: .systemSettings(url)
       )
     }

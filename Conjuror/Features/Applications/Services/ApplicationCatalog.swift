@@ -1,4 +1,3 @@
-import AppKit
 import Foundation
 
 struct ApplicationCatalog: ApplicationCatalogLoading {
@@ -221,13 +220,10 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     }
 
     return candidates.map { candidate in
-      let icon = NSWorkspace.shared.icon(forFile: candidate.url.path)
-      icon.size = NSSize(width: 32, height: 32)
-      return InstalledApplication(
+      InstalledApplication(
         displayName: candidate.displayName,
         bundleIdentifier: candidate.bundleIdentifier,
-        url: candidate.url,
-        icon: icon
+        url: candidate.url
       )
     }
   }

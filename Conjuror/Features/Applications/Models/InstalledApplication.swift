@@ -10,8 +10,14 @@ struct InstalledApplication: Identifiable {
   let displayName: String
   let bundleIdentifier: String?
   let url: URL
-  let icon: NSImage
   let launchTarget: LaunchTarget
+
+  @MainActor
+  var icon: NSImage {
+    iconOverride ?? ApplicationIconCache.shared.icon(for: url)
+  }
+
+  private let iconOverride: NSImage?
 
   var id: String {
     persistenceKey
@@ -34,14 +40,14 @@ struct InstalledApplication: Identifiable {
     displayName: String,
     bundleIdentifier: String?,
     url: URL,
-    icon: NSImage,
+    icon: NSImage? = nil,
     launchTarget: LaunchTarget = .application
   ) {
     self.displayName = displayName
     self.bundleIdentifier = bundleIdentifier
     self.url = url
-    self.icon = icon
     self.launchTarget = launchTarget
+    iconOverride = icon
   }
 }
 
