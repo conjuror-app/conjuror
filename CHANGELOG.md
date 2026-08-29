@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Reduced idle memory usage by loading emoji, Shortcuts, and application icons on demand.
+- Reduced search memory usage by compacting application, Shortcut, and emoji indexes.
+- Reduced search allocations by precomputing candidate acronyms.
+
 ## 1.0 alpha (11)
 
 - Added iCloud Drive to protected folder access requests.
