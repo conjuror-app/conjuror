@@ -5,6 +5,32 @@ import Testing
 
 @Suite("Shortcut Catalog")
 struct ShortcutCatalogTests {
+  @Test("Shortcut catalog: normal launches do not enter helper mode")
+  func testNormalLaunchDoesNotEnterHelperMode() {
+    #expect(ShortcutCatalogProcess.runHelperIfRequested(arguments: ["Conjuror"]) == nil)
+  }
+
+  @Test("Shortcut catalog: helper responses exclude shortcuts that require input")
+  func testHelperResponseExcludesShortcutsThatRequireInput() throws {
+    let supported = AppleShortcut(
+      id: "supported-id",
+      name: "Lights",
+      subtitle: "2 actions",
+      acceptsInput: false
+    )
+    let requiresInput = AppleShortcut(
+      id: "input-id",
+      name: "Share",
+      subtitle: "1 action",
+      acceptsInput: true
+    )
+
+    let data = try ShortcutCatalogProcess.responseData(for: [supported, requiresInput])
+    let shortcuts = try ShortcutCatalogProcess.shortcuts(from: data)
+
+    #expect(shortcuts == [supported])
+  }
+
   @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
   func testRunScriptUsesTheShortcutIdentifierDirectly() {
     let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")

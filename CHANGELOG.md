@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Reduced idle memory usage by loading emoji, Shortcuts, and application icons on demand.
+- Reduced loaded Shortcuts memory by moving catalog extraction into a short-lived helper process.
 - Reduced search memory usage by compacting application, Shortcut, and emoji indexes.
 - Reduced search allocations by precomputing candidate acronyms.
 

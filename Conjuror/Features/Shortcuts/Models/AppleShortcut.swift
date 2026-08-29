@@ -1,7 +1,7 @@
 import Foundation
 
-struct AppleShortcut: Identifiable, Hashable, Sendable {
-  struct Color: Hashable, Sendable {
+struct AppleShortcut: Codable, Identifiable, Hashable, Sendable {
+  struct Color: Codable, Hashable, Sendable {
     let red: UInt16
     let green: UInt16
     let blue: UInt16
