@@ -3,9 +3,11 @@
 ## Unreleased
 
 - Reduced idle memory usage by loading emoji, Shortcuts, and application icons on demand.
+- Reduced memory after hiding the launcher by releasing its window and SwiftUI view hierarchy.
 - Reduced loaded Shortcuts memory by moving catalog extraction into a short-lived helper process.
 - Reduced search memory usage by compacting application, Shortcut, and emoji indexes.
 - Reduced search allocations by precomputing candidate acronyms.
+- Removed action counts from Shortcut results.
 
 ## 1.0 alpha (11)
 
