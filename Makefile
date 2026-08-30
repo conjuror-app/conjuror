@@ -15,13 +15,21 @@ DIRECT_EXPORT_OPTIONS := export.plist
 EXPORTED_APP := $(EXPORT_PATH)/Conjuror.app
 ARCHIVED_DSYM := $(ARCHIVE_PATH)/dSYMs/Conjuror.app.dSYM
 NOTARIZATION_ARCHIVE := $(NOTARIZATION_PATH)/Conjuror.zip
+DEBUG_APP := $(abspath $(DERIVED_DATA_PATH)/Build/Products/Debug/Conjuror.app)
+DEBUG_EXECUTABLE := $(DEBUG_APP)/Contents/MacOS/Conjuror
 
-.PHONY: all build test archive notarize export zip generate-emoji format lint clean
+.PHONY: all build run test archive notarize export zip generate-emoji format lint clean
 
 all: build
 
 build:
 	$(XCODEBUILD) $(XCODEBUILD_ARGS) build
+
+run:
+	$(XCODEBUILD) $(XCODEBUILD_ARGS) -configuration Debug build
+	@/usr/bin/pkill -f -x "$(DEBUG_EXECUTABLE)" 2>/dev/null || true
+	@while /usr/bin/pgrep -f -x "$(DEBUG_EXECUTABLE)" >/dev/null; do sleep 0.1; done
+	/usr/bin/open -n "$(DEBUG_APP)"
 
 test:
 	$(XCODEBUILD) $(XCODEBUILD_ARGS) test
