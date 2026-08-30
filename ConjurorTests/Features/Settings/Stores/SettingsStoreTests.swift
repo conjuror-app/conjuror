@@ -12,6 +12,8 @@ struct SettingsStoreTests {
     let store = SettingsStore(userDefaults: userDefaults)
 
     #expect(store.hotKeyConfiguration == .defaultValue)
+    #expect(store.clipboardHotKeyConfiguration == nil)
+    #expect(!store.isClipboardHistoryEnabled)
     #expect(store.filesHotKeyConfiguration == HotKeyAction.files.defaultConfiguration)
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
     #expect(store.preferredEmojiSkinTone == .default)
@@ -36,6 +38,8 @@ struct SettingsStoreTests {
     store.setMaximumVisibleResults(9)
     store.setPreferredEmojiSkinTone(.mediumDark)
     store.setFilesModuleEnabled(false)
+    store.setClipboardHistoryEnabled(true)
+    store.setHotKeyConfiguration(HotKeyAction.clipboard.defaultConfiguration, for: .clipboard)
     store.setShowsSystemSettingsItems(false)
     store.setLauncherBorderStyle(.custom)
     store.setLauncherAppearance(.minimal)
@@ -46,6 +50,10 @@ struct SettingsStoreTests {
     #expect(reloadedStore.maximumVisibleResults == 9)
     #expect(reloadedStore.preferredEmojiSkinTone == .mediumDark)
     #expect(!reloadedStore.isFilesModuleEnabled)
+    #expect(reloadedStore.isClipboardHistoryEnabled)
+    #expect(
+      reloadedStore.clipboardHotKeyConfiguration == HotKeyAction.clipboard.defaultConfiguration
+    )
     #expect(!reloadedStore.showsSystemSettingsItems)
     #expect(reloadedStore.launcherBorderStyle == .custom)
     #expect(reloadedStore.launcherAppearance == .minimal)
@@ -60,6 +68,7 @@ struct SettingsStoreTests {
     let userDefaults = makeTestUserDefaults()
     let actionsAndPrefixes: [(HotKeyAction, String)] = [
       (.launcher, "settings.hotKey"),
+      (.clipboard, "settings.clipboardHotKey"),
       (.shortcuts, "settings.shortcutsHotKey"),
       (.emoji, "settings.emojiHotKey"),
       (.files, "settings.filesHotKey"),

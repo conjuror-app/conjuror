@@ -61,6 +61,7 @@ struct LauncherSearchField: View {
   private var modeIcon: String {
     switch mode {
     case .applications: "magnifyingglass"
+    case .clipboard: "doc.on.clipboard"
     case .emoji: "face.smiling"
     case .files: "doc.text.magnifyingglass"
     case .shortcuts: "square.stack.3d.up.fill"
@@ -70,6 +71,7 @@ struct LauncherSearchField: View {
   private var modeHelp: String {
     switch mode {
     case .applications: "Application search mode"
+    case .clipboard: "Clipboard history mode"
     case .emoji: "Emoji search mode"
     case .files: "File and folder search mode"
     case .shortcuts: "Apple Shortcuts search mode"
@@ -79,6 +81,7 @@ struct LauncherSearchField: View {
   private var placeholder: String {
     switch mode {
     case .applications: "Search apps…"
+    case .clipboard: "Search clipboard history…"
     case .emoji: "Search emoji…"
     case .files: "Search files and folders…"
     case .shortcuts: "Search shortcuts…"

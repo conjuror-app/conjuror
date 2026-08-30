@@ -21,6 +21,13 @@ struct LauncherStoreTests {
     store.updateQuery("/notes")
     #expect(store.mode == .files)
 
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setClipboardHistoryEnabled(true)
+    let clipboardStore = makeStore(settingsStore: settingsStore)
+    clipboardStore.updateQuery("'copied")
+    #expect(clipboardStore.mode == .clipboard)
+    #expect(clipboardStore.query == "copied")
+
     store.updateQuery(";conjuror")
     #expect(store.mode == .applications)
     #expect(store.query == "conjuror")
@@ -45,6 +52,27 @@ struct LauncherStoreTests {
     #expect(store.query == "notes")
     #expect(store.fileResults == [result])
     #expect(store.selectedFileID == result.id)
+  }
+
+  @Test("Launcher store: clipboard mode searches and restores selected text")
+  func testClipboardModeSearchAndRestore() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setClipboardHistoryEnabled(true)
+    let clipboardHistory = ClipboardHistory(persistence: ClipboardHistoryPersistenceStub())
+    clipboardHistory.record("First copied value")
+    clipboardHistory.record("Second note")
+    let clipboard = RecordingCalculatorClipboard()
+    let store = makeStore(
+      settingsStore: settingsStore,
+      clipboardHistory: clipboardHistory,
+      writeToClipboard: clipboard.write
+    )
+
+    store.updateQuery("'first")
+    store.openSelectedResult()
+
+    #expect(store.mode == .clipboard)
+    #expect(clipboard.text == "First copied value")
   }
 
   @Test("Launcher store: file search waits for two characters")
@@ -255,6 +283,7 @@ struct LauncherStoreTests {
     applications: [InstalledApplication] = [],
     shortcuts: [AppleShortcut] = [],
     settingsStore: SettingsStore? = nil,
+    clipboardHistory: ClipboardHistory? = nil,
     catalog: ApplicationCatalogLoading? = nil,
     calculator: CalculatorEngine = CalculatorEngine(),
     writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
@@ -271,6 +300,8 @@ struct LauncherStoreTests {
   ) -> LauncherStore {
     LauncherStore(
       settingsStore: settingsStore ?? SettingsStore(userDefaults: makeTestUserDefaults()),
+      clipboardHistory: clipboardHistory
+        ?? ClipboardHistory(persistence: ClipboardHistoryPersistenceStub()),
       catalog: catalog ?? CatalogStub(applications: applications),
       calculator: calculator,
       writeToClipboard: writeToClipboard,

@@ -93,7 +93,11 @@ final class HotKeyStore: ObservableObject {
     settingsStore.setLauncherCustomBorderColor(.default)
     registrations.removeAll()
     for action in HotKeyAction.allCases {
-      settingsStore.setHotKeyConfiguration(action.defaultConfiguration, for: action)
+      let configuration =
+        action == .clipboard && !settingsStore.isClipboardHistoryEnabled
+        ? nil
+        : action.defaultConfiguration
+      settingsStore.setHotKeyConfiguration(configuration, for: action)
     }
     register()
     return registrationErrorMessage

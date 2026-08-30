@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added an opt-in, encrypted seven-day clipboard history for copied text.
+
 ## 1.0 alpha (13)
 
 - Added a Minimal launcher appearance with tighter spacing and smaller result rows.

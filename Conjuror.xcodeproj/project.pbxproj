@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D20000000000000000000001 /* ClipboardEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000001 /* ClipboardEntry.swift */; };
+		D20000000000000000000002 /* ClipboardHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000002 /* ClipboardHistoryStore.swift */; };
+		D20000000000000000000003 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000003 /* ClipboardMonitor.swift */; };
+		D20000000000000000000004 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000004 /* ClipboardHistory.swift */; };
+		D20000000000000000000005 /* ClipboardResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000005 /* ClipboardResultRow.swift */; };
+		D20000000000000000000006 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21000000000000000000006 /* ClipboardHistoryTests.swift */; };
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */; };
 		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
@@ -120,6 +126,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D21000000000000000000001 /* ClipboardEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardEntry.swift; sourceTree = "<group>"; };
+		D21000000000000000000002 /* ClipboardHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryStore.swift; sourceTree = "<group>"; };
+		D21000000000000000000003 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
+		D21000000000000000000004 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
+		D21000000000000000000005 /* ClipboardResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardResultRow.swift; sourceTree = "<group>"; };
+		D21000000000000000000006 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryTests.swift; sourceTree = "<group>"; };
 		050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorArithmeticParser.swift; sourceTree = "<group>"; };
 		097C35F08DF3A76049793562 /* LauncherModeControllers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeControllers.swift; sourceTree = "<group>"; };
 		0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRadixTests.swift; sourceTree = "<group>"; };
@@ -464,6 +476,7 @@
 			children = (
 				F65FFD000000000000000003 /* Applications */,
 				F65FFBE33028A9F100FB3923 /* Calculator */,
+				D22000000000000000000001 /* Clipboard */,
 				E3000000000000000000001 /* Emoji */,
 				ECCD4201FE00EDFC74E93397 /* Files */,
 				F65FFD00000000000000000B /* Launcher */,
@@ -471,6 +484,44 @@
 				F65FFD000000000000000016 /* Shortcuts */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		D22000000000000000000001 /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (
+				D22000000000000000000002 /* Models */,
+				D22000000000000000000003 /* Services */,
+				D22000000000000000000004 /* Stores */,
+				D22000000000000000000005 /* Views */,
+			);
+			path = Clipboard;
+			sourceTree = "<group>";
+		};
+		D22000000000000000000002 /* Models */ = {
+			isa = PBXGroup;
+			children = (D21000000000000000000001 /* ClipboardEntry.swift */,);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D22000000000000000000003 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D21000000000000000000002 /* ClipboardHistoryStore.swift */,
+				D21000000000000000000003 /* ClipboardMonitor.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D22000000000000000000004 /* Stores */ = {
+			isa = PBXGroup;
+			children = (D21000000000000000000004 /* ClipboardHistory.swift */,);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		D22000000000000000000005 /* Views */ = {
+			isa = PBXGroup;
+			children = (D21000000000000000000005 /* ClipboardResultRow.swift */,);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		F65FFD000000000000000001 /* App */ = {
@@ -728,6 +779,7 @@
 			children = (
 				F65FFD00000000000000001C /* Applications */,
 				F65FFD00000000000000001F /* Calculator */,
+				D23000000000000000000001 /* Clipboard */,
 				E4000000000000000000003 /* Emoji */,
 				F30000000000000000000001 /* Files */,
 				F65FFD000000000000000021 /* Launcher */,
@@ -735,6 +787,18 @@
 				F65FFD000000000000000026 /* Shortcuts */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		D23000000000000000000001 /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (D23000000000000000000002 /* Stores */,);
+			path = Clipboard;
+			sourceTree = "<group>";
+		};
+		D23000000000000000000002 /* Stores */ = {
+			isa = PBXGroup;
+			children = (D21000000000000000000006 /* ClipboardHistoryTests.swift */,);
+			path = Stores;
 			sourceTree = "<group>";
 		};
 		F65FFD00000000000000001C /* Applications */ = {
@@ -939,6 +1003,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D20000000000000000000001 /* ClipboardEntry.swift in Sources */,
+				D20000000000000000000002 /* ClipboardHistoryStore.swift in Sources */,
+				D20000000000000000000003 /* ClipboardMonitor.swift in Sources */,
+				D20000000000000000000004 /* ClipboardHistory.swift in Sources */,
+				D20000000000000000000005 /* ClipboardResultRow.swift in Sources */,
 				8A4E33082C55C00100C0A001 /* AppController.swift in Sources */,
 				E1000000000000000000005 /* EmojiResultCell.swift in Sources */,
 				E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */,
@@ -1020,6 +1089,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D20000000000000000000006 /* ClipboardHistoryTests.swift in Sources */,
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
 				F10000000000000000000001 /* FileSearchServiceTests.swift in Sources */,

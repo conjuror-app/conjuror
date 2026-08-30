@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
+  @ObservedObject var clipboardHistory: ClipboardHistory
   @ObservedObject var currencyRateStore: CurrencyRateStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
@@ -68,6 +69,12 @@ struct SettingsView: View {
       )
     case .apps:
       AppsSettingsView(store: store, hotKeyStore: hotKeyStore)
+    case .clipboard:
+      ClipboardSettingsView(
+        store: store,
+        hotKeyStore: hotKeyStore,
+        clipboardHistory: clipboardHistory
+      )
     case .emoji:
       EmojiSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .shortcuts:
@@ -88,6 +95,7 @@ struct SettingsView: View {
 private enum SettingsSection: String, CaseIterable, Identifiable {
   case general
   case apps
+  case clipboard
   case emoji
   case shortcuts
   case calculator
@@ -100,6 +108,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     switch self {
     case .general: "General"
     case .apps: "Apps"
+    case .clipboard: "Clipboard"
     case .emoji: "Emoji"
     case .shortcuts: "Shortcuts"
     case .calculator: "Calculator"
@@ -112,12 +121,84 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     switch self {
     case .general: "gearshape"
     case .apps: "square.grid.2x2"
+    case .clipboard: "doc.on.clipboard"
     case .emoji: "face.smiling"
     case .shortcuts: "square.stack.3d.up"
     case .calculator: "function"
     case .files: "folder"
     case .about: "info.circle"
     }
+  }
+}
+
+private struct ClipboardSettingsView: View {
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
+  @ObservedObject var clipboardHistory: ClipboardHistory
+
+  var body: some View {
+    SettingsPane {
+      SettingsRow(
+        title: "Clipboard history",
+        description: "Keep an encrypted, searchable seven-day history of copied text."
+      ) {
+        Toggle(
+          "Clipboard history",
+          isOn: Binding(
+            get: { store.isClipboardHistoryEnabled },
+            set: { setEnabled($0) }
+          )
+        )
+        .labelsHidden()
+      }
+
+      if store.isClipboardHistoryEnabled {
+        ModeShortcutSettingsRow(
+          description: "Open the launcher directly in clipboard history mode.",
+          action: .clipboard,
+          store: store,
+          hotKeyStore: hotKeyStore
+        )
+      }
+
+      SettingsRow(
+        title: "Stored history",
+        description: "Delete all saved clipboard entries from this Mac."
+      ) {
+        Button("Clear History", role: .destructive) {
+          isConfirmingClear = true
+        }
+        .disabled(clipboardHistory.entries.isEmpty)
+      }
+
+      if let errorMessage = clipboardHistory.persistenceErrorMessage {
+        Label(errorMessage, systemImage: "exclamationmark.triangle")
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
+      Text(
+        "Conjuror records plain text only. Password-manager and transient clipboard items are ignored when applications mark them as sensitive."
+      )
+      .font(.caption)
+      .foregroundStyle(.secondary)
+
+      Spacer()
+    }
+    .confirmationDialog(
+      "Clear all clipboard history?",
+      isPresented: $isConfirmingClear
+    ) {
+      Button("Clear History", role: .destructive, action: clipboardHistory.clear)
+    }
+  }
+
+  @State private var isConfirmingClear = false
+
+  private func setEnabled(_ isEnabled: Bool) {
+    let configuration = isEnabled ? HotKeyAction.clipboard.defaultConfiguration : nil
+    guard hotKeyStore.updateConfiguration(configuration, for: .clipboard) == nil else { return }
+    store.setClipboardHistoryEnabled(isEnabled)
   }
 }
 

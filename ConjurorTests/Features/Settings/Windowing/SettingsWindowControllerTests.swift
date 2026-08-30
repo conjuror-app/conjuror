@@ -10,6 +10,7 @@ struct SettingsWindowControllerTests {
   func testCloseAndReopen() throws {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     let hotKeys = HotKeyStore(settingsStore: settings, onHotKeyPressed: { _ in })
+    let clipboardHistory = ClipboardHistory()
     let currencyRates = CurrencyRateStore(userDefaults: makeTestUserDefaults())
     let launchAtLogin = LaunchAtLoginStore()
     var controller: SettingsWindowController?
@@ -21,6 +22,7 @@ struct SettingsWindowControllerTests {
         controller = SettingsWindowController(
           store: settings,
           hotKeyStore: hotKeys,
+          clipboardHistory: clipboardHistory,
           currencyRateStore: currencyRates,
           launchAtLoginStore: launchAtLogin,
           onClose: { controller = nil }

@@ -14,6 +14,7 @@ struct HotKeyConfiguration: Equatable {
 
 enum HotKeyAction: CaseIterable, Hashable {
   case launcher
+  case clipboard
   case shortcuts
   case emoji
   case files
@@ -21,6 +22,12 @@ enum HotKeyAction: CaseIterable, Hashable {
   var defaultConfiguration: HotKeyConfiguration {
     switch self {
     case .launcher: .defaultValue
+    case .clipboard:
+      HotKeyConfiguration(
+        keyCode: UInt32(kVK_ANSI_V),
+        modifiers: UInt32(optionKey | shiftKey),
+        displayName: "⌥⇧ V"
+      )
     case .shortcuts:
       HotKeyConfiguration(
         keyCode: UInt32(kVK_Space),

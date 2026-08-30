@@ -9,12 +9,37 @@ struct LauncherResultsView: View {
     switch store.mode {
     case .applications:
       applicationResults
+    case .clipboard:
+      clipboardResults
     case .emoji:
       emojiResults
     case .files:
       fileResults
     case .shortcuts:
       shortcutResults
+    }
+  }
+
+  @ViewBuilder
+  private var clipboardResults: some View {
+    if store.filteredClipboardEntries.isEmpty {
+      emptyState(
+        systemImage: store.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass",
+        message: store.query.isEmpty ? "No clipboard history" : "No matches"
+      )
+    } else {
+      resultsScrollView(selectedID: store.selectedResultScrollID) {
+        ForEach(store.filteredClipboardEntries) { entry in
+          ClipboardResultRow(
+            entry: entry,
+            layout: layout,
+            isSelected: entry.id == store.selectedClipboardEntryID,
+            onHover: { store.selectOnHover(entry) },
+            onCopy: { store.copy(entry) }
+          )
+          .id(LauncherResultID.clipboard(entry.id))
+        }
+      }
     }
   }
 

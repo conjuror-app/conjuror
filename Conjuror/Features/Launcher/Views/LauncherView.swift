@@ -81,6 +81,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.filteredApplications.count + (store.calculatorResult == nil ? 0 : 1)
+    case .clipboard:
+      store.filteredClipboardEntries.count
     case .emoji:
       store.displayedEmoji.count
     case .files:
@@ -94,6 +96,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.catalogErrorMessage
+    case .clipboard:
+      nil
     case .emoji:
       nil
     case .files:
@@ -107,6 +111,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.launchErrorMessage
+    case .clipboard:
+      nil
     case .emoji:
       nil
     case .files:
@@ -147,6 +153,8 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.isCalculatorSelected ? "Copy result" : "Launch application"
+    case .clipboard:
+      "Copy to clipboard"
     case .emoji:
       "Copy emoji"
     case .files:

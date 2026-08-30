@@ -10,6 +10,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
   init(
     store: SettingsStore,
     hotKeyStore: HotKeyStore,
+    clipboardHistory: ClipboardHistory,
     currencyRateStore: CurrencyRateStore,
     launchAtLoginStore: LaunchAtLoginStore,
     onClose: @escaping () -> Void
@@ -29,6 +30,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
       rootView: SettingsView(
         store: store,
         hotKeyStore: hotKeyStore,
+        clipboardHistory: clipboardHistory,
         currencyRateStore: currencyRateStore,
         launchAtLoginStore: launchAtLoginStore
       )
