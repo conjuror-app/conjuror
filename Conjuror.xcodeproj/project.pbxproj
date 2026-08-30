@@ -25,7 +25,6 @@
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
-		A30000000000000000000001 /* ApplicationIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* ApplicationIconCache.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
 		8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */; };
@@ -59,6 +58,7 @@
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
 		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
+		A30000000000000000000001 /* ApplicationIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* ApplicationIconCache.swift */; };
 		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
@@ -125,7 +125,7 @@
 		44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
 		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreShortcutTests.swift; sourceTree = "<group>"; };
-		5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FileResultRow.swift; path = FileResultRow.swift; sourceTree = "<group>"; };
+		5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileResultRow.swift; sourceTree = "<group>"; };
 		681C26746B923BDF976045F9 /* CalculatorQuantityParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityParser.swift; sourceTree = "<group>"; };
 		6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreEmojiTests.swift; sourceTree = "<group>"; };
 		7527F78B58E2DEE7BF4D030A /* CalculatorCurrencyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorCurrencyTests.swift; sourceTree = "<group>"; };
@@ -138,7 +138,6 @@
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
-		A40000000000000000000001 /* ApplicationIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationIconCache.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
 		8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRankerTests.swift; sourceTree = "<group>"; };
@@ -171,6 +170,7 @@
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		924384E49BADAE0F7B8F00E1 /* CatalogReloadCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CatalogReloadCoordinator.swift; sourceTree = "<group>"; };
 		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
+		A40000000000000000000001 /* ApplicationIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationIconCache.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStore.swift; sourceTree = "<group>"; };
@@ -237,7 +237,6 @@
 				BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */,
 				2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */,
 			);
-			name = Persistence;
 			path = Persistence;
 			sourceTree = "<group>";
 		};
@@ -247,7 +246,6 @@
 				04B362507B98EA622A4B1C70 /* Persistence */,
 				510967F29769FCE8EF00ABC1 /* Search */,
 			);
-			name = Shared;
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -256,7 +254,6 @@
 			children = (
 				48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */,
 			);
-			name = Support;
 			path = Support;
 			sourceTree = "<group>";
 		};
@@ -265,7 +262,6 @@
 			children = (
 				44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */,
 			);
-			name = Search;
 			path = Search;
 			sourceTree = "<group>";
 		};
@@ -274,7 +270,6 @@
 			children = (
 				5F9526674A18BEA4CB113EF6 /* FileResultRow.swift */,
 			);
-			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -283,7 +278,6 @@
 			children = (
 				BEA4E28D5375C102150ABE1F /* FileSearchService.swift */,
 			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
@@ -292,7 +286,6 @@
 			children = (
 				BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */,
 			);
-			name = Models;
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -417,7 +410,6 @@
 				67CE5F87327A25E7F7DBFAD7 /* Services */,
 				64475840AD1E2D0F98630476 /* Views */,
 			);
-			name = Files;
 			path = Files;
 			sourceTree = "<group>";
 		};
@@ -485,7 +477,6 @@
 			children = (
 				F65FFD000000000000000004 /* Models */,
 				F65FFD000000000000000005 /* Services */,
-				F65FFD000000000000000006 /* Stores */,
 				F65FFD000000000000000007 /* Views */,
 			);
 			path = Applications;
@@ -509,13 +500,6 @@
 				A20000000000000000000001 /* SystemSettingsCatalog.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		F65FFD000000000000000006 /* Stores */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Stores;
 			sourceTree = "<group>";
 		};
 		F65FFD000000000000000007 /* Views */ = {
@@ -682,7 +666,6 @@
 			children = (
 				F65FFD000000000000000017 /* Models */,
 				F65FFD000000000000000018 /* Services */,
-				F65FFD000000000000000019 /* Stores */,
 				F65FFD00000000000000001A /* Views */,
 			);
 			path = Shortcuts;
@@ -705,13 +688,6 @@
 				F65FFE000000000000000005 /* ShortcutsEventsBridge.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		F65FFD000000000000000019 /* Stores */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Stores;
 			sourceTree = "<group>";
 		};
 		F65FFD00000000000000001A /* Views */ = {
@@ -740,7 +716,6 @@
 			isa = PBXGroup;
 			children = (
 				F65FFD00000000000000001D /* Services */,
-				F65FFD00000000000000001E /* Stores */,
 			);
 			path = Applications;
 			sourceTree = "<group>";
@@ -752,13 +727,6 @@
 				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		F65FFD00000000000000001E /* Stores */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Stores;
 			sourceTree = "<group>";
 		};
 		F65FFD00000000000000001F /* Calculator */ = {
@@ -833,7 +801,6 @@
 			isa = PBXGroup;
 			children = (
 				F65FFD000000000000000027 /* Services */,
-				F65FFD000000000000000028 /* Stores */,
 			);
 			path = Shortcuts;
 			sourceTree = "<group>";
@@ -845,13 +812,6 @@
 				8A4E37182C55C00100C0A001 /* ShortcutRankerTests.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		F65FFD000000000000000028 /* Stores */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Stores;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
