@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0 alpha (12)
 
 - Reduced idle memory usage by loading emoji, Shortcuts, and application icons on demand.
 - Reduced memory after hiding the launcher by releasing its window and SwiftUI view hierarchy.
