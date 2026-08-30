@@ -29,14 +29,17 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   }
 
   private let store: LauncherStore
+  private let onHide: () -> Void
 
   init(
     store: LauncherStore,
     settingsStore: SettingsStore,
     hotKeyStore: HotKeyStore,
+    onHide: @escaping () -> Void,
     onOpenSettings: @escaping () -> Void
   ) {
     self.store = store
+    self.onHide = onHide
 
     let panel = LauncherPanel(
       contentRect: NSRect(origin: .zero, size: Self.collapsedWindowSize),
@@ -69,9 +72,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store: store,
       settingsStore: settingsStore,
       hotKeyStore: hotKeyStore,
-      onHide: { [weak panel] in
-        panel?.orderOut(nil)
-      },
+      onHide: onHide,
       onHeightChange: { [weak panel] height in
         guard let panel else {
           return
@@ -93,7 +94,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   func toggle(mode: LauncherMode) {
     if isVisible, store.mode == mode {
-      hide()
+      onHide()
     } else {
       show(mode: mode)
     }
@@ -122,10 +123,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   func hide() {
     window?.orderOut(nil)
+    window?.contentViewController = nil
   }
 
   func windowDidResignKey(_ notification: Notification) {
-    hide()
+    onHide()
   }
 
   private func placeOnPreferredScreen(_ window: NSWindow) {

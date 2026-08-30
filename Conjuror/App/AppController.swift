@@ -27,15 +27,6 @@ final class AppController: NSObject, NSApplicationDelegate {
     }
   )
 
-  private lazy var launcherWindowController = LauncherWindowController(
-    store: store,
-    settingsStore: settingsStore,
-    hotKeyStore: hotKeyStore,
-    onOpenSettings: { [weak self] in
-      self?.showSettingsFromLauncher()
-    }
-  )
-
   private lazy var settingsWindowController = SettingsWindowController(
     store: settingsStore,
     hotKeyStore: hotKeyStore,
@@ -44,6 +35,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   )
 
   private var statusItem: NSStatusItem?
+  private var launcherWindowController: LauncherWindowController?
   private var cancellables = Set<AnyCancellable>()
   private var workspaceObservers = [NSObjectProtocol]()
   private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
@@ -75,7 +67,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   func toggleLauncher() {
-    if launcherWindowController.isVisible {
+    if launcherWindowController?.isVisible == true {
       hideLauncher()
     } else {
       showLauncher()
@@ -83,11 +75,16 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   func hideLauncher() {
+    guard let launcherWindowController else {
+      return
+    }
+
+    self.launcherWindowController = nil
     launcherWindowController.hide()
   }
 
   func showLauncher() {
-    launcherWindowController.show()
+    launcherController().show()
   }
 
   private func handleHotKey(_ action: HotKeyAction) {
@@ -95,12 +92,32 @@ final class AppController: NSObject, NSApplicationDelegate {
     case .launcher:
       toggleLauncher()
     case .shortcuts:
-      launcherWindowController.toggle(mode: .shortcuts)
+      launcherController().toggle(mode: .shortcuts)
     case .emoji:
-      launcherWindowController.toggle(mode: .emoji)
+      launcherController().toggle(mode: .emoji)
     case .files:
-      launcherWindowController.toggle(mode: .files)
+      launcherController().toggle(mode: .files)
     }
+  }
+
+  private func launcherController() -> LauncherWindowController {
+    if let launcherWindowController {
+      return launcherWindowController
+    }
+
+    let launcherWindowController = LauncherWindowController(
+      store: store,
+      settingsStore: settingsStore,
+      hotKeyStore: hotKeyStore,
+      onHide: { [weak self] in
+        self?.hideLauncher()
+      },
+      onOpenSettings: { [weak self] in
+        self?.showSettingsFromLauncher()
+      }
+    )
+    self.launcherWindowController = launcherWindowController
+    return launcherWindowController
   }
 
   private func showSettingsFromLauncher() {
