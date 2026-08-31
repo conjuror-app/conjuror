@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
-  @ObservedObject var currencyRateStore: CurrencyRateStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
   var body: some View {
@@ -73,7 +72,7 @@ struct SettingsView: View {
     case .shortcuts:
       ShortcutsSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .calculator:
-      CalculatorSettingsView(currencyRateStore: currencyRateStore)
+      CalculatorSettingsView()
     case .files:
       FilesSettingsView(
         store: store,

@@ -1,0 +1,15 @@
+{
+  "originHash" : "0e820eb7639355ec32250e009b5bee9c92e803247834c6535472d39bf01e4a8f",
+  "pins" : [
+    {
+      "identity" : "soulvercore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soulverteam/SoulverCore",
+      "state" : {
+        "revision" : "27952744e06b3e1b2c3f695138054548b8ac5796",
+        "version" : "3.5.1"
+      }
+    }
+  ],
+  "version" : 3
+}

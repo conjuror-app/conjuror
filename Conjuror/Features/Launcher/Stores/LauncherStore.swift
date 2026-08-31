@@ -113,7 +113,6 @@ final class LauncherStore: ObservableObject {
   private let fileController: LauncherFileController
   private let onEvent: (LauncherEvent) -> Void
 
-  private var currencySource = CurrencySource.off
   private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
   private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
   private var emojiIndex: EmojiRanker.Index?
@@ -183,15 +182,6 @@ final class LauncherStore: ObservableObject {
     shortcutController = LauncherShortcutController(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
-  }
-
-  func setCurrencySource(_ source: CurrencySource) {
-    guard source != currencySource else {
-      return
-    }
-    currencySource = source
-    refreshCurrentResults()
-    selectFirstResult()
   }
 
   func updateQuery(_ value: String) {
@@ -640,7 +630,7 @@ final class LauncherStore: ObservableObject {
       : applications
     applicationController.replace(searchableApplications)
 
-    let result = calculator.evaluate(query, currencySource: currencySource)
+    let result = calculator.evaluate(query)
     calculatorResult = mode == .applications ? result : nil
     filteredApplications = applicationController.ranked(
       query: mode == .applications ? query : ""

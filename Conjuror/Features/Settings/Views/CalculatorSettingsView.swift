@@ -1,24 +1,23 @@
 import SwiftUI
 
 struct CalculatorSettingsView: View {
-  @ObservedObject var currencyRateStore: CurrencyRateStore
-
   var body: some View {
     SettingsPane {
       SettingsRow(
-        title: "Currency conversion",
-        description: "Download daily exchange rates from Frankfurter. No search text is sent."
+        title: "Calculation engine",
+        description: "Natural-language calculations are evaluated locally by SoulverCore."
       ) {
-        Toggle(
-          "Currency conversion",
-          isOn: Binding(
-            get: { currencyRateStore.isEnabled },
-            set: { isEnabled in
-              currencyRateStore.setEnabled(isEnabled)
-            }
-          )
-        )
-        .labelsHidden()
+        Text("SoulverCore")
+          .foregroundStyle(.secondary)
+      }
+
+      SettingsRow(
+        title: "Currency rates",
+        description:
+          "SoulverCore downloads current fiat currency rates from the European Central Bank."
+      ) {
+        Text("ECB")
+          .foregroundStyle(.secondary)
       }
 
       Spacer()

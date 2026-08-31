@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 
 @MainActor
 final class AppController: NSObject, NSApplicationDelegate {
@@ -15,7 +14,6 @@ final class AppController: NSObject, NSApplicationDelegate {
     }
   )
 
-  private lazy var currencyRateStore = CurrencyRateStore()
   private lazy var launchAtLoginStore = LaunchAtLoginStore()
 
   private lazy var hotKeyStore = HotKeyStore(
@@ -30,13 +28,11 @@ final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsWindowController = SettingsWindowController(
     store: settingsStore,
     hotKeyStore: hotKeyStore,
-    currencyRateStore: currencyRateStore,
     launchAtLoginStore: launchAtLoginStore
   )
 
   private var statusItem: NSStatusItem?
   private var launcherWindowController: LauncherWindowController?
-  private var cancellables = Set<AnyCancellable>()
   private var workspaceObservers = [NSObjectProtocol]()
   private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
 
@@ -45,8 +41,6 @@ final class AppController: NSObject, NSApplicationDelegate {
     configureStatusItem()
     hotKeyStore.register()
     observeWorkspaceChanges()
-    observeCurrencyRates()
-    currencyRateStore.start()
     store.loadApplications()
   }
 
@@ -188,15 +182,6 @@ final class AppController: NSObject, NSApplicationDelegate {
         }
       }
     }
-  }
-
-  private func observeCurrencyRates() {
-    currencyRateStore.$isEnabled
-      .combineLatest(currencyRateStore.$rates)
-      .sink { [weak self] isEnabled, rates in
-        self?.store.setCurrencySource(isEnabled ? .on(rates) : .off)
-      }
-      .store(in: &cancellables)
   }
 
   private func scheduleCatalogRefresh() {

@@ -5,115 +5,49 @@ import Testing
 
 @Suite("Calculator Engine")
 struct CalculatorEngineTests {
-  let engine = CalculatorEngine(
-    formattingOptions: CalculatorFormattingOptions(
-      localeIdentifier: "en_US_POSIX",
-      maximumSignificantDigits: 10
-    )
+  private let engine = CalculatorEngine(
+    locale: Locale(identifier: "en_US"),
+    updatesCurrencyRates: false
   )
 
-  @Test("Calculator input: conversion connectors share one canonical representation")
-  func testConversionConnectorNormalization() {
-    #expect(CalculatorInput.normalizingConversionConnectors(" 1 km → miles ") == "1 km  to  miles")
-    #expect(CalculatorInput.normalizingConversionConnectors("1 km -> miles") == "1 km  to  miles")
-    #expect(
-      CalculatorInput.normalizingConversionConnectors("1 KM IN MILES", lowercased: true)
-        == "1 km in miles"
-    )
-  }
-
-  @Test("Calculator engine: arithmetic precedence and parentheses are evaluated")
-  func testArithmeticPrecedenceAndParentheses() {
+  @Test("SoulverCore evaluates arithmetic and natural-language operators")
+  func evaluatesArithmeticAndNaturalLanguageOperators() {
     #expect(evaluate("2 + 3 * 4") == "14")
-    #expect(evaluate("(2 + 3) * 4") == "20")
-    #expect(evaluate("-2^2") == "-4")
-    #expect(evaluate("2^3^2") == "512")
-  }
-
-  @Test("Calculator engine: natural-language operators are recognized")
-  func testNaturalLanguageOperators() {
-    #expect(evaluate("2 plus 3 times 4") == "14")
     #expect(evaluate("20 divided by 4") == "5")
-    #expect(evaluate("20 over 4") == "5")
-    #expect(evaluate("10 mod 3") == "1")
-    #expect(evaluate("2 to the power of 3") == "8")
   }
 
-  @Test("Calculator engine: percentages use relative addition semantics")
-  func testPercentagesHaveRelativeAdditionSemantics() {
-    #expect(evaluate("100 + 15%") == "115")
-    #expect(evaluate("100 - 15%") == "85")
-    #expect(evaluate("123 + 25% + 10%") == "169.125")
-    #expect(evaluate("123 - 25% - 10%") == "83.025")
-    #expect(evaluate("123 + (25% + 10%)") == "166.05")
-    #expect(evaluate("20% of 50") == "10")
-    #expect(evaluate("10% + 5%") == "0.15")
+  @Test("SoulverCore evaluates natural-language calculations")
+  func evaluatesNaturalLanguageCalculations() {
+    #expect(evaluate("65 kg in pounds") == "143.3004704202 lb")
+    #expect(evaluate("40 is what % of 90") == "44.4444444444%")
+    #expect(evaluate("$150 is 25% on what") == "$120.00")
+    #expect(evaluate("3:45pm + 4 hr 10 min") == "7:55 PM")
   }
 
-  @Test("Calculator engine: constants, functions, and implicit multiplication are evaluated")
-  func testConstantsFunctionsAndImplicitMultiplication() {
-    #expect(evaluate("sqrt 9 + abs(-5)") == "8")
-    #expect(evaluate("2pi") == "6.283185307")
-    #expect(evaluate("4(2 + 3)") == "20")
+  @Test("SoulverCore ignores comment words")
+  func ignoresCommentWords() {
+    #expect(evaluate("$10 for lunch + 15% tip") == "$11.50")
   }
 
-  @Test("Calculator engine: scientific notation signals calculator intent")
-  func testScientificNotationSignalsCalculatorIntent() {
-    let result = engine.evaluate("1e5")
-
-    #expect(result?.display == "100,000")
-    #expect(result?.copyText == "100000")
+  @Test("SoulverCore behavior is used for plain numbers and failures")
+  func usesSoulverCoreBehaviorForPlainNumbersAndFailures() {
+    #expect(evaluate("123") == "123")
+    #expect(engine.evaluate("notes") == nil)
+    #expect(evaluate("1 / 0") == "Error: divide by zero")
+    #expect(engine.evaluate(" ") == nil)
   }
 
-  @Test("Calculator engine: ambiguous, invalid, and incomplete input stays silent")
-  func testAmbiguousInvalidAndIncompleteInputStaysSilent() {
-    #expect((engine.evaluate("123")) == nil)
-    #expect((engine.evaluate("(123)")) == nil)
-    #expect((engine.evaluate("2 3")) == nil)
-    #expect((engine.evaluate("2 +")) == nil)
-    #expect((engine.evaluate("1 / 0")) == nil)
-    #expect((engine.evaluate("sqrt(-1)")) == nil)
-    #expect((engine.evaluate("1e400")) == nil)
-    #expect((engine.evaluate("notes")) == nil)
-  }
-
-  @Test("Calculator engine: compact formatting uses ten significant digits")
-  func testCompactFormattingUsesTenSignificantDigits() {
-    let compactEngine = CalculatorEngine(
-      formattingOptions: CalculatorFormattingOptions(localeIdentifier: "en_US_POSIX")
+  @Test("SoulverCore uses the requested locale")
+  func usesRequestedLocale() {
+    let localizedEngine = CalculatorEngine(
+      locale: Locale(identifier: "de_DE"),
+      updatesCurrencyRates: false
     )
 
-    let result = compactEngine.evaluate("2 / 3")
-    #expect(result?.display == "0.6666666667")
-    #expect(result?.copyText == "0.6666666667")
+    #expect(localizedEngine.evaluate("1,2 + 3,4")?.copyText == "4,6")
   }
 
-  func evaluate(_ expression: String) -> String? {
+  private func evaluate(_ expression: String) -> String? {
     engine.evaluate(expression)?.copyText
-  }
-
-  func relativeDateEngine(
-    currentDate: String,
-    timeZone: TimeZone
-  ) -> CalculatorEngine {
-    CalculatorEngine(
-      formattingOptions: CalculatorFormattingOptions(
-        localeIdentifier: "en_US_POSIX",
-        maximumSignificantDigits: 10
-      ),
-      currentDate: { ISO8601DateFormatter().date(from: currentDate)! },
-      currentTimeZone: { timeZone }
-    )
-  }
-
-  func timeZoneEngine(currentTimeZone: TimeZone) -> CalculatorEngine {
-    CalculatorEngine(
-      formattingOptions: CalculatorFormattingOptions(
-        localeIdentifier: "en_US_POSIX",
-        maximumSignificantDigits: 10
-      ),
-      currentDate: { ISO8601DateFormatter().date(from: "2026-08-12T12:00:00Z")! },
-      currentTimeZone: { currentTimeZone }
-    )
   }
 }

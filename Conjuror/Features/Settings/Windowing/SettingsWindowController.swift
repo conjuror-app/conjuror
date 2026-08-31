@@ -8,7 +8,6 @@ final class SettingsWindowController: NSWindowController {
   init(
     store: SettingsStore,
     hotKeyStore: HotKeyStore,
-    currencyRateStore: CurrencyRateStore,
     launchAtLoginStore: LaunchAtLoginStore
   ) {
     let window = NSWindow(
@@ -25,7 +24,6 @@ final class SettingsWindowController: NSWindowController {
       rootView: SettingsView(
         store: store,
         hotKeyStore: hotKeyStore,
-        currencyRateStore: currencyRateStore,
         launchAtLoginStore: launchAtLoginStore
       )
     )
