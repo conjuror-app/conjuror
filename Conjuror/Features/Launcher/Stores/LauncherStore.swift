@@ -2,23 +2,6 @@ import AppKit
 import Foundation
 import SwiftUI
 
-enum LauncherEvent: Equatable {
-  case calculatorResultCopied
-  case emojiCopied
-  case fileOpened
-  case launchStarted
-  case launchSucceeded
-  case shortcutRunStarted
-}
-
-enum LauncherResultID: Hashable {
-  case application(InstalledApplication.ID)
-  case calculator
-  case emoji(Emoji.ID)
-  case file(FileSearchResult.ID)
-  case shortcut(AppleShortcut.ID)
-}
-
 @MainActor
 final class LauncherStore: ObservableObject {
 
@@ -116,6 +99,7 @@ final class LauncherStore: ObservableObject {
   private var currencySource = CurrencySource.off
   private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
   private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
+  private var applicationIndexIncludesSystemSettings: Bool?
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
   private var hasLoadedShortcuts = false
@@ -576,7 +560,7 @@ final class LauncherStore: ObservableObject {
 
   private func replaceApplications(with applications: [InstalledApplication]) {
     self.applications = applications
-    applicationController.replace(applications)
+    applicationIndexIncludesSystemSettings = nil
     refreshApplications()
   }
 
@@ -634,11 +618,14 @@ final class LauncherStore: ObservableObject {
   }
 
   private func refreshApplications() {
-    let searchableApplications =
+    let includesSystemSettings =
       settingsStore.showsSystemSettingsItems && !query.trimmingCharacters(in: .whitespaces).isEmpty
-      ? applications + SystemSettingsCatalog.items
-      : applications
-    applicationController.replace(searchableApplications)
+    if applicationIndexIncludesSystemSettings != includesSystemSettings {
+      applicationController.replace(
+        includesSystemSettings ? applications + SystemSettingsCatalog.items : applications
+      )
+      applicationIndexIncludesSystemSettings = includesSystemSettings
+    }
 
     let result = calculator.evaluate(query, currencySource: currencySource)
     calculatorResult = mode == .applications ? result : nil
@@ -653,4 +640,21 @@ final class LauncherStore: ObservableObject {
     )
   }
 
+}
+
+enum LauncherEvent: Equatable {
+  case calculatorResultCopied
+  case emojiCopied
+  case fileOpened
+  case launchStarted
+  case launchSucceeded
+  case shortcutRunStarted
+}
+
+enum LauncherResultID: Hashable {
+  case application(InstalledApplication.ID)
+  case calculator
+  case emoji(Emoji.ID)
+  case file(FileSearchResult.ID)
+  case shortcut(AppleShortcut.ID)
 }
