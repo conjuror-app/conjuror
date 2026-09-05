@@ -44,6 +44,52 @@ extension LauncherStoreTests {
     #expect(store.filteredApplications.isEmpty)
   }
 
+  @Test("Launcher store: cached search follows System Settings inclusion changes")
+  func testSearchIndexTracksSettingsInclusion() {
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    let store = makeStore(settingsStore: settings)
+
+    store.query = "bluetooth"
+    #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
+    store.query = "displays"
+    #expect(store.filteredApplications.map(\.displayName) == ["Displays"])
+    store.query = ""
+    #expect(store.filteredApplications.isEmpty)
+    store.query = "bluetooth"
+    #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
+
+    settings.setShowsSystemSettingsItems(false)
+    store.query = "bluetooth"
+    #expect(store.filteredApplications.isEmpty)
+    settings.setShowsSystemSettingsItems(true)
+    store.query = "bluetooth"
+    #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
+  }
+
+  @Test("Launcher store: catalog reloads replace cached search data")
+  func testCatalogReloadReplacesSearchIndex() async {
+    let catalog = ReloadableApplicationCatalog(
+      applications: [application("Alpha", id: "dev.example.app")]
+    )
+    let store = makeStore(catalog: catalog)
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+    store.query = "alpha"
+    #expect(store.filteredApplications.map(\.displayName) == ["Alpha"])
+
+    catalog.applications = [application("Beta", id: "dev.example.app")]
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+    #expect(store.filteredApplications.isEmpty)
+    store.query = "beta"
+    #expect(store.filteredApplications == catalog.applications)
+
+    catalog.applications = []
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+    #expect(store.filteredApplications.isEmpty)
+  }
+
   @Test("Launcher store: successful launches refresh recent application order")
   func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
     let applications = [
@@ -170,5 +216,18 @@ extension LauncherStoreTests {
     #expect(store.launchErrorMessage == "Couldn’t open Beta. Launch failed")
     #expect(store.selectedApplicationID == applications[1].id)
     #expect(store.focusRequest != focusRequest)
+  }
+}
+
+@MainActor
+private final class ReloadableApplicationCatalog: ApplicationCatalogLoading {
+  var applications: [InstalledApplication]
+
+  init(applications: [InstalledApplication]) {
+    self.applications = applications
+  }
+
+  func load() async throws -> [InstalledApplication] {
+    applications
   }
 }
