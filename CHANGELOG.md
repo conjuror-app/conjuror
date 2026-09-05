@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Reduced Shortcuts icon memory by generating thumbnails in the catalog helper.
+
 ## 1.0 alpha (12)
 
 - Reduced idle memory usage by loading emoji, Shortcuts, and application icons on demand.

@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import ImageIO
 
 enum ShortcutsEventsBridge {
   static func loadShortcuts() throws -> [AppleShortcut] {
@@ -87,11 +88,24 @@ enum ShortcutsEventsBridge {
     from descriptor: NSAppleEventDescriptor?
   ) -> Data? {
     guard let descriptor,
-      let representation = NSBitmapImageRep(data: descriptor.data)
+      let source = CGImageSourceCreateWithData(
+        descriptor.data as CFData,
+        [kCGImageSourceShouldCache: false] as CFDictionary
+      ),
+      let thumbnail = CGImageSourceCreateThumbnailAtIndex(
+        source,
+        0,
+        [
+          kCGImageSourceCreateThumbnailFromImageAlways: true,
+          kCGImageSourceCreateThumbnailWithTransform: true,
+          // The launcher displays icons at 26 points, including on Retina screens.
+          kCGImageSourceThumbnailMaxPixelSize: 64,
+        ] as CFDictionary
+      )
     else {
       return nil
     }
-    return representation.representation(using: .png, properties: [:])
+    return NSBitmapImageRep(cgImage: thumbnail).representation(using: .png, properties: [:])
   }
 
   private static func execute(_ source: String) throws -> NSAppleEventDescriptor {
