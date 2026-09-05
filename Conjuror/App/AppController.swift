@@ -27,15 +27,9 @@ final class AppController: NSObject, NSApplicationDelegate {
     }
   )
 
-  private lazy var settingsWindowController = SettingsWindowController(
-    store: settingsStore,
-    hotKeyStore: hotKeyStore,
-    currencyRateStore: currencyRateStore,
-    launchAtLoginStore: launchAtLoginStore
-  )
-
   private var statusItem: NSStatusItem?
   private var launcherWindowController: LauncherWindowController?
+  private var settingsWindowController: SettingsWindowController?
   private var cancellables = Set<AnyCancellable>()
   private var workspaceObservers = [NSObjectProtocol]()
   private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
@@ -121,8 +115,23 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   private func showSettingsFromLauncher() {
-    settingsWindowController.show()
+    showSettings()
     hideLauncher()
+  }
+
+  private func showSettings() {
+    if settingsWindowController == nil {
+      settingsWindowController = SettingsWindowController(
+        store: settingsStore,
+        hotKeyStore: hotKeyStore,
+        currencyRateStore: currencyRateStore,
+        launchAtLoginStore: launchAtLoginStore,
+        onClose: { [weak self] in
+          self?.settingsWindowController = nil
+        }
+      )
+    }
+    settingsWindowController?.show()
   }
 
   private func configureStatusItem() {
@@ -161,7 +170,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   @objc private func showSettingsFromMenu() {
-    settingsWindowController.show()
+    showSettings()
   }
 
   @objc private func quitFromMenu() {

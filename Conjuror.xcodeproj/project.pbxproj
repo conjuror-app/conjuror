@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA0500000000000000000001 /* SettingsWindowControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0500000000000000000002 /* SettingsWindowControllerTests.swift */; };
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */; };
 		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
@@ -114,6 +115,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CA0500000000000000000002 /* SettingsWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowControllerTests.swift; sourceTree = "<group>"; };
 		050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorArithmeticParser.swift; sourceTree = "<group>"; };
 		097C35F08DF3A76049793562 /* LauncherModeControllers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeControllers.swift; sourceTree = "<group>"; };
 		0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRadixTests.swift; sourceTree = "<group>"; };
@@ -231,6 +233,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CA0500000000000000000003 /* Windowing */ = {
+			isa = PBXGroup;
+			children = (
+				CA0500000000000000000002 /* SettingsWindowControllerTests.swift */,
+			);
+			path = Windowing;
+			sourceTree = "<group>";
+		};
 		04B362507B98EA622A4B1C70 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
@@ -782,6 +792,7 @@
 		F65FFD000000000000000024 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				CA0500000000000000000003 /* Windowing */,
 				F65FFD000000000000000025 /* Stores */,
 			);
 			path = Settings;
@@ -1001,6 +1012,7 @@
 				8A4E36032C55C00100C0A001 /* LauncherWindowControllerTests.swift in Sources */,
 				8A4E330A2C55C00100C0A001 /* LauncherStoreTests.swift in Sources */,
 				8A4E34032C55C00100C0A001 /* SettingsStoreTests.swift in Sources */,
+				CA0500000000000000000001 /* SettingsWindowControllerTests.swift in Sources */,
 				8A4E37062C55C00100C0A001 /* ShortcutCatalogTests.swift in Sources */,
 				8A4E37072C55C00100C0A001 /* ShortcutRankerTests.swift in Sources */,
 				D10000000000000000000002 /* RecencyStoreTests.swift in Sources */,
