@@ -5,6 +5,7 @@
 - Reduced Shortcuts icon memory by generating thumbnails in the catalog helper.
 - Released the Settings window and SwiftUI view hierarchy when closed.
 - Reduced typing allocations by reusing the application search index until its catalog changes.
+- Released the decompressed emoji source text after parsing the catalog.
 
 ## 1.0 alpha (12)
 
