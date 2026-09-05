@@ -11,30 +11,8 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
     return
       applicationSupportURL
       .appendingPathComponent("Conjuror", isDirectory: true)
-      .appendingPathComponent("Shortcuts.json", isDirectory: false)
+      .appendingPathComponent("Shortcuts-v2.json", isDirectory: false)
   }()
-
-  func load() async throws -> [AppleShortcut] {
-    if let cachedShortcuts = Self.loadCache() {
-      Task.detached(priority: .utility) {
-        guard let shortcuts = try? Self.loadFresh() else { return }
-        try? Self.saveCache(shortcuts)
-      }
-      return cachedShortcuts
-    }
-
-    let loadTask = Task.detached(priority: .userInitiated) {
-      let shortcuts = try Self.loadFresh()
-      try Task.checkCancellation()
-      try? Self.saveCache(shortcuts)
-      return shortcuts
-    }
-    return try await withTaskCancellationHandler {
-      try await loadTask.value
-    } onCancel: {
-      loadTask.cancel()
-    }
-  }
 
   private static func loadCache() -> [AppleShortcut]? {
     guard let cacheURL,
@@ -56,6 +34,28 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
     )
     let data = try JSONEncoder().encode(shortcuts)
     try data.write(to: cacheURL, options: .atomic)
+  }
+
+  func load() async throws -> [AppleShortcut] {
+    if let cachedShortcuts = Self.loadCache() {
+      Task.detached(priority: .utility) {
+        guard let shortcuts = try? Self.loadFresh() else { return }
+        try? Self.saveCache(shortcuts)
+      }
+      return cachedShortcuts
+    }
+
+    let loadTask = Task.detached(priority: .userInitiated) {
+      let shortcuts = try Self.loadFresh()
+      try Task.checkCancellation()
+      try? Self.saveCache(shortcuts)
+      return shortcuts
+    }
+    return try await withTaskCancellationHandler {
+      try await loadTask.value
+    } onCancel: {
+      loadTask.cancel()
+    }
   }
 }
 

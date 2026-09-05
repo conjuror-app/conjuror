@@ -71,6 +71,56 @@ struct ShortcutCatalogTests {
     )
   }
 
+  @Test(
+    "Shortcut catalog: icons are downsampled with their aspect ratio and alpha",
+    arguments: [256, 512]
+  )
+  func testDownsamplesIcons(height: Int) throws {
+    let bitmap = try #require(
+      NSBitmapImageRep(
+        bitmapDataPlanes: nil,
+        pixelsWide: 512,
+        pixelsHigh: height,
+        bitsPerSample: 8,
+        samplesPerPixel: 4,
+        hasAlpha: true,
+        isPlanar: false,
+        colorSpaceName: .deviceRGB,
+        bytesPerRow: 0,
+        bitsPerPixel: 0
+      )
+    )
+    let data = try #require(bitmap.representation(using: .png, properties: [:]))
+    let response = NSAppleEventDescriptor.list()
+    let record = record(id: "icon-id", name: "Lights", subtitle: "", acceptsInput: false)
+    record.insert(NSAppleEventDescriptor.list(), at: 5)
+    let descriptor = try #require(NSAppleEventDescriptor(descriptorType: 0x504E_4766, data: data))
+    record.insert(descriptor, at: 6)
+    response.insert(record, at: 1)
+
+    let shortcuts = try ShortcutsEventsBridge.parseShortcutList(response)
+    let iconData = try #require(shortcuts.first?.iconData)
+    let icon = try #require(NSBitmapImageRep(data: iconData))
+
+    #expect(icon.pixelsWide == 64)
+    #expect(icon.pixelsHigh == height / 8)
+    #expect(icon.hasAlpha)
+  }
+
+  @Test("Shortcut catalog: invalid icons preserve shortcut metadata")
+  func testInvalidIconPreservesShortcut() throws {
+    let response = NSAppleEventDescriptor.list()
+    let record = record(id: "icon-id", name: "Lights", subtitle: "", acceptsInput: false)
+    record.insert(NSAppleEventDescriptor.list(), at: 5)
+    record.insert(NSAppleEventDescriptor(string: "invalid image"), at: 6)
+    response.insert(record, at: 1)
+
+    let shortcut = try #require(ShortcutsEventsBridge.parseShortcutList(response).first)
+
+    #expect(shortcut.name == "Lights")
+    #expect(shortcut.iconData == nil)
+  }
+
   private func record(
     id: String,
     name: String,
