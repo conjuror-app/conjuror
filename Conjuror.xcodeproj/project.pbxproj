@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CA0500000000000000000001 /* SettingsWindowControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0500000000000000000002 /* SettingsWindowControllerTests.swift */; };
 		0E95EE09163A5660EA730ADE /* CalculatorArithmeticParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */; };
 		25567D88CDF2F787255FF179 /* RecencyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */; };
 		263363B5BCA27888F9676DBB /* FileSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA4E28D5375C102150ABE1F /* FileSearchService.swift */; };
@@ -75,6 +74,7 @@
 		C10000000000000000000009 /* SettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000009 /* SettingsRow.swift */; };
 		C2698A6D6B1EFE2F6FC5C3A8 /* FileSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEAB43279B51F87DE610F76 /* FileSearchResult.swift */; };
 		C80E94548069D50514B9FB8B /* UserDefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */; };
+		CA0500000000000000000001 /* SettingsWindowControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0500000000000000000002 /* SettingsWindowControllerTests.swift */; };
 		CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */; };
 		D10000000000000000000002 /* RecencyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* RecencyStoreTests.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
@@ -115,7 +115,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CA0500000000000000000002 /* SettingsWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowControllerTests.swift; sourceTree = "<group>"; };
 		050E84C0F4A86367DE3EB4DC /* CalculatorArithmeticParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorArithmeticParser.swift; sourceTree = "<group>"; };
 		097C35F08DF3A76049793562 /* LauncherModeControllers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherModeControllers.swift; sourceTree = "<group>"; };
 		0DEC76DDE9372FBBED5F7B43 /* CalculatorRadixTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorRadixTests.swift; sourceTree = "<group>"; };
@@ -187,6 +186,7 @@
 		C20000000000000000000007 /* LaunchAtLoginCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginCheckbox.swift; sourceTree = "<group>"; };
 		C20000000000000000000008 /* SettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPane.swift; sourceTree = "<group>"; };
 		C20000000000000000000009 /* SettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRow.swift; sourceTree = "<group>"; };
+		CA0500000000000000000002 /* SettingsWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowControllerTests.swift; sourceTree = "<group>"; };
 		D10000000000000000000001 /* RecencyStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStoreTests.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
@@ -233,14 +233,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CA0500000000000000000003 /* Windowing */ = {
-			isa = PBXGroup;
-			children = (
-				CA0500000000000000000002 /* SettingsWindowControllerTests.swift */,
-			);
-			path = Windowing;
-			sourceTree = "<group>";
-		};
 		04B362507B98EA622A4B1C70 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
@@ -336,6 +328,14 @@
 				29FAB1032CCAF1E264B14362 /* Support */,
 			);
 			path = ConjurorTests;
+			sourceTree = "<group>";
+		};
+		CA0500000000000000000003 /* Windowing */ = {
+			isa = PBXGroup;
+			children = (
+				CA0500000000000000000002 /* SettingsWindowControllerTests.swift */,
+			);
+			path = Windowing;
 			sourceTree = "<group>";
 		};
 		D10000000000000000000003 /* Shared */ = {
@@ -792,8 +792,8 @@
 		F65FFD000000000000000024 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				CA0500000000000000000003 /* Windowing */,
 				F65FFD000000000000000025 /* Stores */,
+				CA0500000000000000000003 /* Windowing */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
