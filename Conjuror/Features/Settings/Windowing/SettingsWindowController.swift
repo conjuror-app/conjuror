@@ -2,15 +2,19 @@ import AppKit
 import SwiftUI
 
 @MainActor
-final class SettingsWindowController: NSWindowController {
+final class SettingsWindowController: NSWindowController, NSWindowDelegate {
   private static let windowSize = NSSize(width: 640, height: 420)
+
+  private let onClose: () -> Void
 
   init(
     store: SettingsStore,
     hotKeyStore: HotKeyStore,
     currencyRateStore: CurrencyRateStore,
-    launchAtLoginStore: LaunchAtLoginStore
+    launchAtLoginStore: LaunchAtLoginStore,
+    onClose: @escaping () -> Void
   ) {
+    self.onClose = onClose
     let window = NSWindow(
       contentRect: NSRect(origin: .zero, size: Self.windowSize),
       styleMask: [.titled, .closable],
@@ -32,6 +36,7 @@ final class SettingsWindowController: NSWindowController {
     window.setContentSize(Self.windowSize)
 
     super.init(window: window)
+    window.delegate = self
   }
 
   @available(*, unavailable)
@@ -50,5 +55,10 @@ final class SettingsWindowController: NSWindowController {
     NSApp.activate(ignoringOtherApps: true)
     window.makeKeyAndOrderFront(nil)
     window.makeFirstResponder(nil)
+  }
+
+  func windowWillClose(_ notification: Notification) {
+    window?.contentViewController = nil
+    onClose()
   }
 }
