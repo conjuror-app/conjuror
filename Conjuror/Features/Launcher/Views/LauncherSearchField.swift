@@ -43,7 +43,7 @@ struct LauncherSearchField: View {
       }
     }
     .padding(.horizontal, 2)
-    .frame(height: 38)
+    .frame(height: LauncherLayout.searchFieldHeight)
     .task {
       text = query
       isFocused = true

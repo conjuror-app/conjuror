@@ -22,6 +22,7 @@ final class SettingsStore: ObservableObject {
     static let launcherBorderRed = UserDefaultsKey<Double>("settings.launcherBorderRed")
     static let launcherBorderGreen = UserDefaultsKey<Double>("settings.launcherBorderGreen")
     static let launcherBorderBlue = UserDefaultsKey<Double>("settings.launcherBorderBlue")
+    static let launcherAppearance = UserDefaultsKey<String>("settings.launcherAppearance")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       let prefix =
@@ -74,6 +75,7 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var showsSystemSettingsItems: Bool
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
+  @Published private(set) var launcherAppearance: LauncherAppearance
 
   private let userDefaults: UserDefaults
 
@@ -121,6 +123,9 @@ final class SettingsStore: ObservableObject {
       green: userDefaults.value(for: Key.launcherBorderGreen) ?? LauncherBorderColor.default.green,
       blue: userDefaults.value(for: Key.launcherBorderBlue) ?? LauncherBorderColor.default.blue
     )
+    launcherAppearance =
+      userDefaults.value(for: Key.launcherAppearance)
+      .flatMap(LauncherAppearance.init(rawValue:)) ?? .standard
 
     if !optionalHotKeysInitialized {
       userDefaults.set(true, for: Key.optionalHotKeysInitialized)
@@ -186,6 +191,11 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(style.rawValue, for: Key.launcherBorderStyle)
   }
 
+  func setLauncherAppearance(_ appearance: LauncherAppearance) {
+    launcherAppearance = appearance
+    userDefaults.set(appearance.rawValue, for: Key.launcherAppearance)
+  }
+
   func setLauncherCustomBorderColor(_ color: LauncherBorderColor) {
     launcherCustomBorderColor = color
     userDefaults.set(color.red, for: Key.launcherBorderRed)
@@ -211,6 +221,20 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(Int(configuration.keyCode), for: keys.code)
     userDefaults.set(Int(configuration.modifiers), for: keys.modifiers)
     userDefaults.set(configuration.displayName, for: keys.displayName)
+  }
+}
+
+enum LauncherAppearance: String, CaseIterable, Identifiable {
+  case standard
+  case minimal
+
+  var id: Self { self }
+
+  var displayName: String {
+    switch self {
+    case .standard: "Standard"
+    case .minimal: "Minimal"
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EmojiResultCell: View {
   let emoji: Emoji
+  let layout: LauncherLayout
   let isSelected: Bool
   let onHover: () -> Void
   let onCopy: () -> Void
@@ -9,9 +10,9 @@ struct EmojiResultCell: View {
   var body: some View {
     Button(action: onCopy) {
       Text(emoji.value)
-        .font(.system(size: 27))
+        .font(.system(size: layout.emojiFontSize))
         .frame(maxWidth: .infinity)
-        .frame(height: LauncherLayout.emojiRowHeight)
+        .frame(height: layout.emojiRowHeight)
         .background(
           isSelected ? Color.accentColor.opacity(0.14) : Color.clear,
           in: RoundedRectangle(cornerRadius: 7)

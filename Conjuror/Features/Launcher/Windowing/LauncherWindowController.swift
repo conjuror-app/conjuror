@@ -3,10 +3,6 @@ import SwiftUI
 
 @MainActor
 final class LauncherWindowController: NSWindowController, NSWindowDelegate {
-  private static var collapsedWindowSize: NSSize {
-    LauncherLayout.windowSize(contentHeight: LauncherLayout.collapsedHeight)
-  }
-
   private static func resize(
     _ window: NSWindow,
     height: CGFloat
@@ -29,6 +25,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   }
 
   private let store: LauncherStore
+  private let settingsStore: SettingsStore
   private let onHide: () -> Void
 
   init(
@@ -39,10 +36,14 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     onOpenSettings: @escaping () -> Void
   ) {
     self.store = store
+    self.settingsStore = settingsStore
     self.onHide = onHide
 
+    let initialSize = LauncherLayout.windowSize(
+      contentHeight: LauncherLayout(appearance: settingsStore.launcherAppearance).collapsedHeight
+    )
     let panel = LauncherPanel(
-      contentRect: NSRect(origin: .zero, size: Self.collapsedWindowSize),
+      contentRect: NSRect(origin: .zero, size: initialSize),
       styleMask: [.borderless, .nonactivatingPanel],
       backing: .buffered,
       defer: false
@@ -81,7 +82,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       }
     )
     panel.contentViewController = NSHostingController(rootView: contentView)
-    panel.setContentSize(Self.collapsedWindowSize)
+    panel.setContentSize(initialSize)
 
     super.init(window: panel)
     panel.delegate = self
@@ -106,7 +107,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     }
 
     store.prepareForActivation(mode: mode)
-    Self.resize(window, height: LauncherLayout.collapsedHeight)
+    Self.resize(
+      window,
+      height: LauncherLayout(appearance: settingsStore.launcherAppearance).collapsedHeight
+    )
     placeOnPreferredScreen(window)
     NSApp.unhide(nil)
     window.makeKeyAndOrderFront(nil)

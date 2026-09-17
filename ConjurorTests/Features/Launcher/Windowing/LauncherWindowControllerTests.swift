@@ -7,6 +7,72 @@ import Testing
 
 @Suite("Launcher Window Controller")
 struct LauncherWindowControllerTests {
+  @Test("Launcher layout: collapsed and expanded heights", arguments: LauncherAppearance.allCases)
+  func testAppearanceHeights(appearance: LauncherAppearance) {
+    let layout = LauncherLayout(appearance: appearance)
+    let expanded = layout.expandedHeight(
+      resultCount: 5,
+      hasCatalogError: false,
+      hasHotKeyError: false,
+      hasLaunchError: false,
+      maximumVisibleResults: 7
+    )
+
+    #expect(layout.collapsedHeight == (appearance == .standard ? 54 : 46))
+    #expect(expanded == (appearance == .standard ? 294 : 217))
+  }
+
+  @Test(
+    "Launcher layout: results beyond the visible limit do not grow the panel",
+    arguments: LauncherAppearance.allCases
+  )
+  func testHeightCapsVisibleResults(appearance: LauncherAppearance) {
+    let layout = LauncherLayout(appearance: appearance)
+    for resultCount in [3, 4, 100] {
+      let height = layout.expandedHeight(
+        resultCount: resultCount,
+        hasCatalogError: false,
+        hasHotKeyError: false,
+        hasLaunchError: false,
+        maximumVisibleResults: 3
+      )
+      #expect(height == (appearance == .standard ? 212 : 151))
+    }
+  }
+
+  @Test(
+    "Launcher layout: empty states and errors reserve space in both appearances",
+    arguments: LauncherAppearance.allCases
+  )
+  func testEmptyAndErrorHeights(appearance: LauncherAppearance) {
+    let layout = LauncherLayout(appearance: appearance)
+    let empty = layout.expandedHeight(
+      resultCount: 0,
+      hasCatalogError: false,
+      hasHotKeyError: false,
+      hasLaunchError: false,
+      maximumVisibleResults: 7
+    )
+    let catalogError = layout.expandedHeight(
+      resultCount: 5,
+      hasCatalogError: true,
+      hasHotKeyError: false,
+      hasLaunchError: false,
+      maximumVisibleResults: 7
+    )
+    let actionAndHotKeyErrors = layout.expandedHeight(
+      resultCount: 5,
+      hasCatalogError: false,
+      hasHotKeyError: true,
+      hasLaunchError: true,
+      maximumVisibleResults: 7
+    )
+
+    #expect(empty == (appearance == .standard ? 125 : 117))
+    #expect(catalogError == (appearance == .standard ? 157 : 149))
+    #expect(actionAndHotKeyErrors == (appearance == .standard ? 346 : 269))
+  }
+
   @Test("Launcher window controller: centered frames use visible-frame coordinates")
   func testCenteredFrameUsesVisibleFrameCoordinates() {
     let visibleFrame = NSRect(x: 1_000, y: 50, width: 800, height: 600)
@@ -47,22 +113,38 @@ struct LauncherWindowControllerTests {
     #expect(frame == visibleFrame)
   }
 
-  @MainActor
-  @Test("Launcher window controller: emoji height counts grid rows and the recent header")
-  func testEmojiHeightCountsGridRowsAndRecentHeader() {
-    let oneItemHeight = emojiHeight(itemCount: 1)
-    let nineItemHeight = emojiHeight(itemCount: 9)
-    let tenItemHeight = emojiHeight(itemCount: 10)
+  @Test(
+    "Launcher layout: emoji rows, recent header, and scrolling limit",
+    arguments: LauncherAppearance.allCases
+  )
+  func testEmojiHeights(appearance: LauncherAppearance) {
+    let layout = LauncherLayout(appearance: appearance)
+    for itemCount in [1, 9] {
+      let height = layout.emojiExpandedHeight(
+        itemCount: itemCount,
+        hasRecentHeader: false,
+        hasHotKeyError: false,
+        maximumVisibleResults: 3
+      )
+      #expect(height == (appearance == .standard ? 132 : 89))
+    }
+    let twoRows = layout.emojiExpandedHeight(
+      itemCount: 10,
+      hasRecentHeader: false,
+      hasHotKeyError: false,
+      maximumVisibleResults: 3
+    )
+    #expect(twoRows == (appearance == .standard ? 176 : 127))
 
-    #expect(oneItemHeight == nineItemHeight)
-    #expect(
-      tenItemHeight - nineItemHeight == LauncherLayout.emojiRowHeight
-        + LauncherLayout.emojiRowSpacing
-    )
-    #expect(
-      emojiHeight(itemCount: 9, hasRecentHeader: true) - nineItemHeight == LauncherLayout
-        .emojiRecentHeaderHeight + 1
-    )
+    for itemCount in [27, 28, 100] {
+      let height = layout.emojiExpandedHeight(
+        itemCount: itemCount,
+        hasRecentHeader: true,
+        hasHotKeyError: false,
+        maximumVisibleResults: 3
+      )
+      #expect(height == (appearance == .standard ? 237 : 182))
+    }
   }
 
   @Test("Launcher window controller: command shortcuts ignore Caps Lock and reject other modifiers")
@@ -258,15 +340,6 @@ struct LauncherWindowControllerTests {
     )!
   }
 
-  @MainActor
-  private func emojiHeight(itemCount: Int, hasRecentHeader: Bool = false) -> CGFloat {
-    LauncherLayout.emojiExpandedHeight(
-      itemCount: itemCount,
-      hasRecentHeader: hasRecentHeader,
-      hasHotKeyError: false,
-      maximumVisibleResults: SettingsStore.defaultMaximumVisibleResults
-    )
-  }
 }
 
 private final class RecordingTextView: NSTextView {

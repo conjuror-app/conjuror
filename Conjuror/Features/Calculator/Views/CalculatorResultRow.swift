@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CalculatorResultRow: View {
   let result: CalculatorResult
+  let layout: LauncherLayout
   let isSelected: Bool
   let onHover: () -> Void
   let onCopy: () -> Void
@@ -9,6 +10,7 @@ struct CalculatorResultRow: View {
   var body: some View {
     SelectableResultRow(
       isSelected: isSelected,
+      layout: layout,
       accessibilityLabel: accessibilityLabel,
       accessibilityHint: "Copies the result",
       help: "Copy " + result.copyText,
@@ -16,9 +18,9 @@ struct CalculatorResultRow: View {
       onHover: onHover
     ) {
       Image(systemName: "equal.circle.fill")
-        .font(.system(size: 22))
+        .font(.system(size: layout.calculatorSymbolSize))
         .foregroundStyle(.blue)
-        .frame(width: 26, height: 26)
+        .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
       Text(result.sourceDisplay ?? result.expression)
         .font(.system(size: 13))
