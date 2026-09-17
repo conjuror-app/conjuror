@@ -17,7 +17,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       return
     }
 
-    window.setFrame(targetFrame, display: true)
+    window.setFrame(targetFrame, display: false)
   }
 
   var isVisible: Bool {
@@ -27,6 +27,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   private let store: LauncherStore
   private let settingsStore: SettingsStore
   private let onHide: () -> Void
+  private var resizeWorkItem: DispatchWorkItem?
 
   init(
     store: LauncherStore,
@@ -56,7 +57,8 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     panel.isFloatingPanel = true
     panel.isMovableByWindowBackground = false
     panel.level = .floating
-    panel.animationBehavior = .utilityWindow
+    // Hiding immediately releases the content, so no window animation may outlive it.
+    panel.animationBehavior = .none
     panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
     panel.onMoveSelection = { [weak store] direction in
       store?.moveSelection(direction)
@@ -69,22 +71,20 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.mode == .emoji
     }
 
+    super.init(window: panel)
+
     let contentView = LauncherView(
       store: store,
       settingsStore: settingsStore,
       hotKeyStore: hotKeyStore,
       onHide: onHide,
-      onHeightChange: { [weak panel] height in
-        guard let panel else {
-          return
-        }
-        Self.resize(panel, height: height)
+      onHeightChange: { [weak self] height in
+        self?.scheduleResize(height: height)
       }
     )
     panel.contentViewController = NSHostingController(rootView: contentView)
     panel.setContentSize(initialSize)
 
-    super.init(window: panel)
     panel.delegate = self
   }
 
@@ -126,12 +126,29 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   }
 
   func hide() {
+    resizeWorkItem?.cancel()
+    resizeWorkItem = nil
     window?.orderOut(nil)
     window?.contentViewController = nil
   }
 
   func windowDidResignKey(_ notification: Notification) {
     onHide()
+  }
+
+  private func scheduleResize(height: CGFloat) {
+    resizeWorkItem?.cancel()
+    let workItem = DispatchWorkItem { [weak self] in
+      guard let self, let window = self.window, window.contentViewController != nil else {
+        return
+      }
+
+      self.resizeWorkItem = nil
+      Self.resize(window, height: height)
+    }
+    resizeWorkItem = workItem
+    // SwiftUI may report the height during layout. Resize after that update finishes.
+    DispatchQueue.main.async(execute: workItem)
   }
 
   private func placeOnPreferredScreen(_ window: NSWindow) {
