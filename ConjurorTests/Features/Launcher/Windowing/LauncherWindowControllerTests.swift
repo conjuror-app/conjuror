@@ -73,6 +73,54 @@ struct LauncherWindowControllerTests {
     #expect(actionAndHotKeyErrors == (appearance == .standard ? 346 : 269))
   }
 
+  @MainActor
+  @Test("Launcher window controller: height changes resize after the current update")
+  func testHeightChangesResizeAfterCurrentUpdate() async throws {
+    let controller = makeController()
+    defer { controller.hide() }
+    let window = try #require(controller.window)
+    let hostingController = try #require(
+      window.contentViewController as? NSHostingController<LauncherView>
+    )
+    // Let this test report arbitrary heights without the collapsed view constraining the window.
+    hostingController.sizingOptions = []
+    let initialFrame = window.frame
+
+    hostingController.rootView.onHeightChange(140)
+    hostingController.rootView.onHeightChange(180)
+
+    #expect(window.frame == initialFrame)
+    await finishPendingWindowUpdates()
+    #expect(window.frame.size == LauncherLayout.windowSize(contentHeight: 180))
+  }
+
+  @MainActor
+  @Test("Launcher window controller: hiding releases content without animation or queued resizing")
+  func testHideDiscardsPendingResizes() async throws {
+    let controller = makeController()
+    defer { controller.hide() }
+    let window = try #require(controller.window)
+    let hostingController = try #require(
+      window.contentViewController as? NSHostingController<LauncherView>
+    )
+    // Avoid taking focus from the launcher keyboard tests.
+    window.orderBack(nil)
+    #expect(window.isVisible)
+    let initialFrame = window.frame
+
+    hostingController.rootView.onHeightChange(180)
+    controller.hide()
+    // A callback from the old view must also be harmless after teardown.
+    hostingController.rootView.onHeightChange(240)
+
+    #expect(window.animationBehavior == .none)
+    #expect(!window.isVisible)
+    #expect(window.contentViewController == nil)
+    await finishPendingWindowUpdates()
+    #expect(window.frame == initialFrame)
+    #expect(!window.isVisible)
+  }
+
   @Test("Launcher window controller: centered frames use visible-frame coordinates")
   func testCenteredFrameUsesVisibleFrameCoordinates() {
     let visibleFrame = NSRect(x: 1_000, y: 50, width: 800, height: 600)
@@ -305,6 +353,28 @@ struct LauncherWindowControllerTests {
       charactersIgnoringModifiers: characters,
       modifiers: modifiers
     )
+  }
+
+  @MainActor
+  private func makeController() -> LauncherWindowController {
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    let hotKeys = HotKeyStore(settingsStore: settings, onHotKeyPressed: { _ in })
+    return LauncherWindowController(
+      store: LauncherStore(settingsStore: settings),
+      settingsStore: settings,
+      hotKeyStore: hotKeys,
+      onHide: {},
+      onOpenSettings: {}
+    )
+  }
+
+  @MainActor
+  private func finishPendingWindowUpdates() async {
+    await withCheckedContinuation { continuation in
+      DispatchQueue.main.async {
+        continuation.resume()
+      }
+    }
   }
 
   @MainActor
