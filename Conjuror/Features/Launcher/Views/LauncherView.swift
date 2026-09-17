@@ -23,8 +23,8 @@ struct LauncherView: View {
         focusRequest: store.focusRequest
       )
       .padding(.horizontal, 12)
-      .padding(.top, 8)
-      .padding(.bottom, 6)
+      .padding(.top, layout.searchTopPadding)
+      .padding(.bottom, layout.searchBottomPadding)
 
       if isExpanded {
         Divider()
@@ -38,9 +38,9 @@ struct LauncherView: View {
           )
         }
 
-        LauncherResultsView(store: store)
+        LauncherResultsView(store: store, layout: layout)
 
-        if resultCount > 0, catalogErrorMessage == nil {
+        if layout.showsFooter, resultCount > 0, catalogErrorMessage == nil {
           actionFooter
         }
 
@@ -118,11 +118,11 @@ struct LauncherView: View {
 
   private var contentHeight: CGFloat {
     guard isExpanded else {
-      return LauncherLayout.collapsedHeight
+      return layout.collapsedHeight
     }
 
     if store.mode == .emoji {
-      return LauncherLayout.emojiExpandedHeight(
+      return layout.emojiExpandedHeight(
         itemCount: resultCount,
         hasRecentHeader: store.query.isEmpty && !store.recentEmoji.isEmpty,
         hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
@@ -130,13 +130,17 @@ struct LauncherView: View {
       )
     }
 
-    return LauncherLayout.expandedHeight(
+    return layout.expandedHeight(
       resultCount: resultCount,
       hasCatalogError: catalogErrorMessage != nil,
       hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
       hasLaunchError: actionErrorMessage != nil,
       maximumVisibleResults: settingsStore.maximumVisibleResults
     )
+  }
+
+  private var layout: LauncherLayout {
+    LauncherLayout(appearance: settingsStore.launcherAppearance)
   }
 
   private var actionFooterTitle: String {
@@ -182,7 +186,7 @@ struct LauncherView: View {
       .font(.caption)
       .foregroundStyle(.secondary)
       .padding(.horizontal, 10)
-      .frame(height: 28)
+      .frame(height: LauncherLayout.footerContentHeight)
     }
     .accessibilityElement(children: .combine)
     .accessibilityLabel("Press Return to " + actionFooterTitle.lowercased())
@@ -218,7 +222,7 @@ struct LauncherView: View {
     }
     .font(.caption)
     .padding(.horizontal, 10)
-    .frame(height: 26)
+    .frame(height: LauncherLayout.statusHeight)
     .background(.red.opacity(0.06))
   }
 
@@ -238,7 +242,7 @@ struct LauncherView: View {
     }
     .font(.caption)
     .padding(.horizontal, 10)
-    .frame(height: 26)
+    .frame(height: LauncherLayout.statusHeight)
     .background(color.opacity(0.06))
   }
 }

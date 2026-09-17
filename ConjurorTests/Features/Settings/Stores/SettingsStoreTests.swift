@@ -18,6 +18,7 @@ struct SettingsStoreTests {
     #expect(store.isFilesModuleEnabled)
     #expect(store.showsSystemSettingsItems)
     #expect(store.launcherBorderStyle == .cyan)
+    #expect(store.launcherAppearance == .standard)
     #expect(store.launcherCustomBorderColor == .default)
   }
 
@@ -37,6 +38,7 @@ struct SettingsStoreTests {
     store.setFilesModuleEnabled(false)
     store.setShowsSystemSettingsItems(false)
     store.setLauncherBorderStyle(.custom)
+    store.setLauncherAppearance(.minimal)
     store.setLauncherCustomBorderColor(LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3))
 
     let reloadedStore = SettingsStore(userDefaults: userDefaults)
@@ -46,6 +48,7 @@ struct SettingsStoreTests {
     #expect(!reloadedStore.isFilesModuleEnabled)
     #expect(!reloadedStore.showsSystemSettingsItems)
     #expect(reloadedStore.launcherBorderStyle == .custom)
+    #expect(reloadedStore.launcherAppearance == .minimal)
     #expect(
       reloadedStore.launcherCustomBorderColor
         == LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3)

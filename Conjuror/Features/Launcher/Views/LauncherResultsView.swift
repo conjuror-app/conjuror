@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LauncherResultsView: View {
   @ObservedObject var store: LauncherStore
+  let layout: LauncherLayout
 
   @ViewBuilder
   var body: some View {
@@ -23,6 +24,7 @@ struct LauncherResultsView: View {
       resultsScrollView(selectedID: store.selectedResultScrollID) {
         CalculatorResultRow(
           result: calculatorResult,
+          layout: layout,
           isSelected: store.isCalculatorSelected,
           onHover: store.selectCalculatorResultOnHover,
           onCopy: store.copyCalculatorResult
@@ -75,6 +77,7 @@ struct LauncherResultsView: View {
           ForEach(store.displayedEmoji) { emoji in
             EmojiResultCell(
               emoji: emoji,
+              layout: layout,
               isSelected: emoji.id == store.selectedEmojiID,
               onHover: { store.selectOnHover(emoji) },
               onCopy: {
@@ -104,6 +107,7 @@ struct LauncherResultsView: View {
         ForEach(store.fileResults) { file in
           FileResultRow(
             result: file,
+            layout: layout,
             isSelected: file.id == store.selectedFileID,
             onHover: { store.selectOnHover(file) },
             onOpen: {
@@ -144,6 +148,7 @@ struct LauncherResultsView: View {
         ForEach(store.filteredShortcuts) { shortcut in
           ShortcutResultRow(
             shortcut: shortcut,
+            layout: layout,
             isSelected: shortcut.id == store.selectedShortcutID,
             onHover: { store.selectOnHover(shortcut) },
             onRun: { store.run(shortcut) }
@@ -157,6 +162,7 @@ struct LauncherResultsView: View {
   private func applicationResultRow(_ application: InstalledApplication) -> some View {
     ApplicationResultRow(
       application: application,
+      layout: layout,
       isSelected: !store.isCalculatorSelected
         && application.id == store.selectedApplicationID,
       onHover: { store.selectOnHover(application) },
@@ -171,11 +177,11 @@ struct LauncherResultsView: View {
   ) -> some View {
     ScrollViewReader { proxy in
       ScrollView {
-        LazyVStack(spacing: 1) {
+        LazyVStack(spacing: LauncherLayout.resultSpacing) {
           content()
         }
         .padding(.horizontal, 5)
-        .padding(.vertical, 4)
+        .padding(.vertical, LauncherLayout.resultsVerticalPadding)
       }
       .scrollIndicators(.hidden)
       .onChange(of: store.selectionScrollRequest) {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SelectableResultRow<Content: View>: View {
   let isSelected: Bool
+  let layout: LauncherLayout
   let accessibilityLabel: String
   let accessibilityHint: String
   let help: String
@@ -15,7 +16,7 @@ struct SelectableResultRow<Content: View>: View {
         content()
       }
       .padding(.horizontal, 7)
-      .frame(height: 40)
+      .frame(height: layout.resultRowHeight)
       .contentShape(Rectangle())
       .background {
         RoundedRectangle(cornerRadius: 8, style: .continuous)

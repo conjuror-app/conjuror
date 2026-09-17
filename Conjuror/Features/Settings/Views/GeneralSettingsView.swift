@@ -42,6 +42,25 @@ struct GeneralSettingsView: View {
       }
 
       SettingsRow(
+        title: "Launcher appearance",
+        description: "Choose the spacing and detail shown in the launcher."
+      ) {
+        Picker(
+          "Launcher appearance",
+          selection: Binding(
+            get: { store.launcherAppearance },
+            set: { store.setLauncherAppearance($0) }
+          )
+        ) {
+          ForEach(LauncherAppearance.allCases) { appearance in
+            Text(appearance.displayName).tag(appearance)
+          }
+        }
+        .labelsHidden()
+        .frame(width: 110)
+      }
+
+      SettingsRow(
         title: "Accent colour",
         description: "Set the colour of the launcher border and mode icons."
       ) {
