@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0 alpha (13)
+
+- Added a Minimal launcher appearance with tighter spacing and smaller result rows.
+- Fixed launcher resizing and hide/show transitions flickering as results change.
 - Reduced Shortcuts icon memory by generating thumbnails in the catalog helper.
 - Released the Settings window and SwiftUI view hierarchy when closed.
 - Reduced typing allocations by reusing the application search index until its catalog changes.
