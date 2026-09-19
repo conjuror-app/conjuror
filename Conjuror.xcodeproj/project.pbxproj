@@ -24,6 +24,8 @@
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
+		F5AC1DB1BDD8D64233F83586 /* LauncherTextEditingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */; };
+		A0359F8AF365FEC9DD9D3041 /* LauncherPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
@@ -89,6 +91,9 @@
 		F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */; };
 		F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */; };
 		F65FFF000000000000000001 /* LauncherMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000001 /* LauncherMode.swift */; };
+		BB416CC0A87423FD4BC6C3CC /* LauncherBorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E163990913B5048131E00 /* LauncherBorderColor.swift */; };
+		E36A4B2303303AA18B145EBC /* LauncherBorderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */; };
+		D2F15D29646CD4775B32B276 /* LauncherAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */; };
 		F65FFF000000000000000002 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000002 /* LauncherLayout.swift */; };
 		F65FFF000000000000000003 /* LauncherWindowGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000003 /* LauncherWindowGeometry.swift */; };
 		F65FFF000000000000000004 /* LauncherKeyboardNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */; };
@@ -138,6 +143,8 @@
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
+		4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherTextEditingCommand.swift; sourceTree = "<group>"; };
+		D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherPanel.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
@@ -200,6 +207,9 @@
 		F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngine.swift; sourceTree = "<group>"; };
 		F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResultRow.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000001 /* LauncherMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherMode.swift; sourceTree = "<group>"; };
+		2C6E163990913B5048131E00 /* LauncherBorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderColor.swift; sourceTree = "<group>"; };
+		9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderStyle.swift; sourceTree = "<group>"; };
+		44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAppearance.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000002 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherLayout.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000003 /* LauncherWindowGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowGeometry.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherKeyboardNavigation.swift; sourceTree = "<group>"; };
@@ -572,6 +582,9 @@
 			isa = PBXGroup;
 			children = (
 				F65FFE000000000000000001 /* LauncherMode.swift */,
+				2C6E163990913B5048131E00 /* LauncherBorderColor.swift */,
+				9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */,
+				44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -604,6 +617,8 @@
 			children = (
 				F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */,
 				8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */,
+				4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */,
+				D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */,
 				F65FFE000000000000000003 /* LauncherWindowGeometry.swift */,
 			);
 			path = Windowing;
@@ -946,6 +961,8 @@
 				C10000000000000000000002 /* LauncherSurfaceModifier.swift in Sources */,
 				8A4E32012C55C00100C0A001 /* LauncherView.swift in Sources */,
 				8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */,
+				F5AC1DB1BDD8D64233F83586 /* LauncherTextEditingCommand.swift in Sources */,
+				A0359F8AF365FEC9DD9D3041 /* LauncherPanel.swift in Sources */,
 				C10000000000000000000003 /* AboutSettingsView.swift in Sources */,
 				C10000000000000000000004 /* CalculatorSettingsView.swift in Sources */,
 				C10000000000000000000005 /* EmojiSettingsView.swift in Sources */,
@@ -973,6 +990,9 @@
 				F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */,
 				8A4E37052C55C00100C0A001 /* ShortcutResultRow.swift in Sources */,
 				F65FFF000000000000000001 /* LauncherMode.swift in Sources */,
+				BB416CC0A87423FD4BC6C3CC /* LauncherBorderColor.swift in Sources */,
+				E36A4B2303303AA18B145EBC /* LauncherBorderStyle.swift in Sources */,
+				D2F15D29646CD4775B32B276 /* LauncherAppearance.swift in Sources */,
 				F65FFF000000000000000002 /* LauncherLayout.swift in Sources */,
 				F65FFF000000000000000003 /* LauncherWindowGeometry.swift in Sources */,
 				F65FFF000000000000000004 /* LauncherKeyboardNavigation.swift in Sources */,
