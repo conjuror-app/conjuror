@@ -82,8 +82,8 @@ struct ApplicationCatalogTests {
     #expect(result == [conjuror])
   }
 
-  @Test("Application catalog: applications are deduplicated by bundle identifier and canonical URL")
-  func testDeduplicatesByBundleIdentifierAndCanonicalURL() {
+  @Test("Application catalog: distinct installations survive while canonical URLs are deduplicated")
+  func testDeduplicatesOnlyByCanonicalURL() {
     let candidates = [
       candidate(
         "Beta Copy",
@@ -101,7 +101,57 @@ struct ApplicationCatalogTests {
       excludingBundleIdentifier: nil
     )
 
-    #expect(result.map(\.displayName) == ["Beta", "Path"])
+    #expect(result.map(\.displayName) == ["Beta", "Path", "Beta Copy"])
+  }
+
+  @Test("Application catalog: Xcode releases with the same metadata are separate search results")
+  func testSearchesSeparateXcodeInstallations() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    for filename in ["Xcode", "Xcode-27.1.0-Beta"] {
+      try createApplication(
+        named: filename,
+        bundleIdentifier: "com.apple.dt.Xcode",
+        packageType: "APPL",
+        in: directory,
+        displayName: "Xcode"
+      )
+    }
+    let alias = directory.appendingPathComponent("Xcode Alias.app")
+    try FileManager.default.createSymbolicLink(
+      at: alias,
+      withDestinationURL: directory.appendingPathComponent("Xcode.app")
+    )
+
+    let candidates = try ApplicationCatalog.scan(directories: [directory])
+    let applications = ApplicationCatalog.installedApplications(
+      from: ApplicationCatalog.filteredAndDeduplicated(candidates, excludingBundleIdentifier: nil)
+    )
+    let index = ApplicationRanker.Index(applications: applications)
+    let results = index.ranked(query: "xcode", recentLaunches: [:])
+
+    #expect(results.map(\.displayName) == ["Xcode", "Xcode-27.1.0-Beta"])
+    #expect(results.map { $0.url.lastPathComponent } == ["Xcode.app", "Xcode-27.1.0-Beta.app"])
+    #expect(Set(results.map(\.id)).count == 2)
+    #expect(Set(results).count == 2)
+    #expect(
+      index.ranked(query: "beta", recentLaunches: [:]).map(\.displayName) == ["Xcode-27.1.0-Beta"]
+    )
+  }
+
+  @Test("Application catalog: identical filenames are distinguished by their directories")
+  func testDistinguishesIdenticalFilenames() {
+    let applications = ApplicationCatalog.installedApplications(from: [
+      candidate("Editor", id: "dev.example.editor", path: "/Applications/Editor.app"),
+      candidate("Editor", id: "dev.example.editor", path: "/Volumes/Tools/Applications/Editor.app"),
+      candidate("Localized Name", id: "dev.example.other", path: "/Applications/Other.app"),
+    ])
+
+    #expect(
+      applications.map(\.displayName) == [
+        "Editor (/Applications)", "Editor (/Volumes/Tools/Applications)", "Localized Name",
+      ]
+    )
   }
 
   @Test("Application catalog: top-level symlinked agent applications are scanned")
@@ -187,6 +237,38 @@ struct ApplicationCatalogTests {
     #expect(throws: (any Error).self) { try ApplicationCatalog.scan(directories: [fileURL]) }
   }
 
+  @Test("Application catalog: apps without a package type need an executable")
+  func testScansUntypedApplicationsWithExecutables() throws {
+    let fileManager = FileManager.default
+    let directory = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? fileManager.removeItem(at: directory) }
+
+    try createApplication(
+      named: "Icon Composer",
+      bundleIdentifier: "com.apple.IconComposer",
+      packageType: nil,
+      in: directory,
+      executable: true
+    )
+    try createApplication(
+      named: "Incomplete",
+      bundleIdentifier: "dev.example.incomplete",
+      packageType: nil,
+      in: directory
+    )
+    try createApplication(
+      named: "Service",
+      bundleIdentifier: "dev.example.service",
+      packageType: "XPC!",
+      in: directory,
+      executable: true
+    )
+
+    let candidates = try ApplicationCatalog.scan(directories: [directory])
+
+    #expect(candidates.map(\.displayName) == ["Icon Composer"])
+  }
+
   @Test("Application catalog: returns empty when at least one configured directory is readable")
   func testReturnsEmptyWhenAtLeastOneConfiguredDirectoryIsReadable() throws {
     let fileManager = FileManager.default
@@ -232,8 +314,10 @@ struct ApplicationCatalogTests {
   private func createApplication(
     named name: String,
     bundleIdentifier: String,
-    packageType: String,
-    in directory: URL
+    packageType: String?,
+    in directory: URL,
+    executable: Bool = false,
+    displayName: String? = nil
   ) throws {
     let contentsURL =
       directory
@@ -241,11 +325,26 @@ struct ApplicationCatalogTests {
       .appendingPathComponent("Contents", isDirectory: true)
     try FileManager.default.createDirectory(at: contentsURL, withIntermediateDirectories: true)
 
-    let info: [String: Any] = [
+    var info: [String: Any] = [
       "CFBundleIdentifier": bundleIdentifier,
       "CFBundleName": name,
-      "CFBundlePackageType": packageType,
     ]
+    info["CFBundlePackageType"] = packageType
+    info["CFBundleDisplayName"] = displayName
+    if executable {
+      info["CFBundleExecutable"] = name
+      let executableDirectory = contentsURL.appendingPathComponent("MacOS", isDirectory: true)
+      try FileManager.default.createDirectory(
+        at: executableDirectory,
+        withIntermediateDirectories: true
+      )
+      let executableURL = executableDirectory.appendingPathComponent(name)
+      try Data("#!/bin/sh\n".utf8).write(to: executableURL)
+      try FileManager.default.setAttributes(
+        [.posixPermissions: 0o755],
+        ofItemAtPath: executableURL.path
+      )
+    }
     let infoData = try PropertyListSerialization.data(
       fromPropertyList: info,
       format: .xml,

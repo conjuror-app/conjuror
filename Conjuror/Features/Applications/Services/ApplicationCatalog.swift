@@ -36,7 +36,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     excludingBundleIdentifier: String?
   ) -> [ApplicationCatalogCandidate] {
     let excludedIdentifier = excludingBundleIdentifier?.lowercased()
-    var seenBundleIdentifiers = Set<String>()
     var seenURLs = Set<String>()
 
     return
@@ -56,15 +55,40 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
           guard bundleIdentifier != excludedIdentifier else {
             return false
           }
-          guard seenBundleIdentifiers.insert(bundleIdentifier).inserted else {
-            return false
-          }
         } else if candidate.displayName.caseInsensitiveCompare("Conjuror") == .orderedSame {
           return false
         }
 
         return true
       }
+  }
+
+  static func installedApplications(
+    from candidates: [ApplicationCatalogCandidate]
+  ) -> [InstalledApplication] {
+    let nameGroups = Dictionary(grouping: candidates) { SearchText.normalized($0.displayName) }
+
+    return candidates.map { candidate in
+      let matches = nameGroups[SearchText.normalized(candidate.displayName)] ?? []
+      var displayName = candidate.displayName
+      if matches.count > 1 {
+        let filename = candidate.url.deletingPathExtension().lastPathComponent
+        let matchingFilenames = matches.filter {
+          SearchText.normalized($0.url.deletingPathExtension().lastPathComponent)
+            == SearchText.normalized(filename)
+        }
+        displayName =
+          matchingFilenames.count > 1
+          ? "\(filename) (\(candidate.url.deletingLastPathComponent().path))"
+          : filename
+      }
+
+      return InstalledApplication(
+        displayName: displayName,
+        bundleIdentifier: candidate.bundleIdentifier,
+        url: candidate.url
+      )
+    }
   }
 
   static func scan(directories: [URL]) throws -> [ApplicationCatalogCandidate] {
@@ -156,7 +180,11 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     let isPasswordsApp =
       bundle.bundleIdentifier == "com.apple.Passwords"
       && packageType == "XPC!"
-    guard packageType == "APPL" || isPasswordsApp else {
+    // Some apps, including Icon Composer, omit CFBundlePackageType.
+    let hasUntypedExecutable =
+      packageType == nil
+      && bundle.executableURL.map { FileManager.default.isExecutableFile(atPath: $0.path) } == true
+    guard packageType == "APPL" || isPasswordsApp || hasUntypedExecutable else {
       return nil
     }
 
@@ -219,13 +247,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       scanTask.cancel()
     }
 
-    return candidates.map { candidate in
-      InstalledApplication(
-        displayName: candidate.displayName,
-        bundleIdentifier: candidate.bundleIdentifier,
-        url: candidate.url
-      )
-    }
+    return Self.installedApplications(from: candidates)
   }
 }
 

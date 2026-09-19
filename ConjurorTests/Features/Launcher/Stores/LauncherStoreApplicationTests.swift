@@ -23,6 +23,36 @@ extension LauncherStoreTests {
     #expect(store.selectedApplicationID == applications[1].id)
   }
 
+  @Test("Launcher store: selecting a second installation launches its own path")
+  func testLaunchesSelectedInstallation() async {
+    let stable = application("Xcode", id: "com.apple.dt.Xcode")
+    let beta = application("Xcode-27.1.0-Beta", id: "com.apple.dt.Xcode")
+    var launchedURL: URL?
+    var didLaunch = false
+    let history = RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
+    let store = makeStore(
+      applications: [stable, beta],
+      launchApplication: { launchedURL = $0.url },
+      launchHistory: history,
+      onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
+    )
+    store.loadApplications()
+    await waitForLoadingToFinish(store)
+    store.query = "xcode"
+    #expect(store.selectedApplicationID == stable.id)
+
+    store.moveSelection(.down)
+    #expect(store.selectedApplicationID == beta.id)
+    store.openSelectedResult()
+    while !didLaunch {
+      await Task.yield()
+    }
+
+    #expect(launchedURL == beta.url)
+    #expect(history.load()[beta.persistenceKey] != nil)
+    #expect(history.load()[stable.persistenceKey] == nil)
+  }
+
   @Test("Launcher store: System Settings sections appear in application search")
   func testSystemSettingsSectionsAppearInApplicationSearch() {
     let store = makeStore()

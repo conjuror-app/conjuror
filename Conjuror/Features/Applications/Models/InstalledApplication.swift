@@ -17,8 +17,6 @@ struct InstalledApplication: Identifiable {
     iconOverride ?? ApplicationIconCache.shared.icon(for: url)
   }
 
-  private let iconOverride: NSImage?
-
   var id: String {
     persistenceKey
   }
@@ -26,7 +24,7 @@ struct InstalledApplication: Identifiable {
   var persistenceKey: String {
     switch launchTarget {
     case .application:
-      bundleIdentifier?.lowercased() ?? url.standardizedFileURL.resolvingSymlinksInPath().path
+      url.standardizedFileURL.resolvingSymlinksInPath().path
     case .systemSettings(let url):
       url.absoluteString.lowercased()
     }
@@ -35,6 +33,8 @@ struct InstalledApplication: Identifiable {
   var isSystemSettingsItem: Bool {
     if case .systemSettings = launchTarget { true } else { false }
   }
+
+  private let iconOverride: NSImage?
 
   init(
     displayName: String,
