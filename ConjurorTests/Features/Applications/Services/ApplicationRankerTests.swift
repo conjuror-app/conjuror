@@ -110,6 +110,57 @@ struct ApplicationRankerTests {
     )
   }
 
+  @Test("Application ranking: launches rank separate installations independently")
+  func testIndependentInstallationRecency() {
+    let stable = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode.app")
+    let beta = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode-Beta.app")
+    let index = ApplicationRanker.Index(applications: [stable, beta])
+
+    #expect(stable != beta)
+    #expect(
+      index.ranked(query: "xcode", recentLaunches: [stable.persistenceKey: Date()]) == [
+        stable, beta,
+      ]
+    )
+    #expect(
+      index.ranked(query: "xcode", recentLaunches: [beta.persistenceKey: Date()]) == [beta, stable]
+    )
+  }
+
+  @Test(
+    "Application ranking: existing bundle launch history is a fallback for installation history"
+  )
+  func testLegacyLaunchHistoryFallback() {
+    let alpha = application("Alpha", id: "dev.example.Alpha")
+    let beta = application("Beta", id: "dev.example.beta")
+    let index = ApplicationRanker.Index(applications: [alpha, beta])
+    let legacy: [String: Date] = [
+      "dev.example.alpha": Date(timeIntervalSince1970: 20),
+      beta.persistenceKey: Date(timeIntervalSince1970: 10),
+    ]
+
+    #expect(index.ranked(query: "", recentLaunches: legacy) == [alpha, beta])
+    var updated = legacy
+    updated[alpha.persistenceKey] = Date(timeIntervalSince1970: 5)
+    #expect(index.ranked(query: "", recentLaunches: updated) == [beta, alpha])
+  }
+
+  @Test("Application identity: symlinks share the identity of their destination")
+  func testCanonicalInstallationIdentity() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let target = directory.appendingPathComponent("Editor.app")
+    let alias = directory.appendingPathComponent("Alias.app")
+    try FileManager.default.createDirectory(at: target, withIntermediateDirectories: true)
+    try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: target)
+    let original = application("Editor", id: "dev.example.editor", path: target.path)
+    let linked = application("Editor", id: "dev.example.editor", path: alias.path)
+
+    #expect(original.id == linked.id)
+    #expect(original == linked)
+    #expect(Set([original, linked]).count == 1)
+  }
+
   private func application(
     _ name: String,
     id: String?,

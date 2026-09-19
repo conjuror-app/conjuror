@@ -24,8 +24,6 @@
 		8A4E32052C55C00100C0A001 /* LauncherSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */; };
 		8A4E32062C55C00100C0A001 /* ApplicationResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */; };
 		8A4E32082C55C00100C0A001 /* LauncherWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */; };
-		F5AC1DB1BDD8D64233F83586 /* LauncherTextEditingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */; };
-		A0359F8AF365FEC9DD9D3041 /* LauncherPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */; };
 		8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */; };
 		8A4E33012C55C00100C0A001 /* ApplicationRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */; };
 		8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */; };
@@ -59,12 +57,16 @@
 		993B3F6DF57B43C6483679CD /* SelectableResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281D2596359BC31892C24545 /* SelectableResultRow.swift */; };
 		9C2D441075A3637A08E48C41 /* TestUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */; };
 		9CA6D2217D4630EE026DFC8D /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */; };
+		A0359F8AF365FEC9DD9D3041 /* LauncherPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */; };
 		A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* SystemSettingsCatalog.swift */; };
 		A30000000000000000000001 /* ApplicationIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* ApplicationIconCache.swift */; };
+		AD1000000000000000000001 /* ApplicationDirectoryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1000000000000000000002 /* ApplicationDirectoryMonitor.swift */; };
+		AD1000000000000000000003 /* ApplicationDirectoryMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1000000000000000000004 /* ApplicationDirectoryMonitorTests.swift */; };
 		AE12DF97204AA376213C9902 /* LauncherStoreEmojiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0C25F5540291FDA0BE5989 /* LauncherStoreEmojiTests.swift */; };
 		B10000000000000000000001 /* LaunchAtLoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LaunchAtLoginStore.swift */; };
 		B10000000000000000000002 /* LaunchAtLoginStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */; };
 		BB1F88822512295121208ACE /* LauncherStoreApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022CEA2BADD865FA4667B16 /* LauncherStoreApplicationTests.swift */; };
+		BB416CC0A87423FD4BC6C3CC /* LauncherBorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E163990913B5048131E00 /* LauncherBorderColor.swift */; };
 		C10000000000000000000001 /* LauncherResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* LauncherResultsView.swift */; };
 		C10000000000000000000002 /* LauncherSurfaceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* LauncherSurfaceModifier.swift */; };
 		C10000000000000000000003 /* AboutSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* AboutSettingsView.swift */; };
@@ -79,21 +81,21 @@
 		CA0500000000000000000001 /* SettingsWindowControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0500000000000000000002 /* SettingsWindowControllerTests.swift */; };
 		CFDC62B0395B2FDFF5438232 /* LauncherStoreShortcutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */; };
 		D10000000000000000000002 /* RecencyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* RecencyStoreTests.swift */; };
+		D2F15D29646CD4775B32B276 /* LauncherAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */; };
 		E1000000000000000000001 /* Emoji.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000001 /* Emoji.swift */; };
 		E1000000000000000000002 /* EmojiCatalog.data in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000002 /* EmojiCatalog.data */; };
 		E1000000000000000000003 /* EmojiRanker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000003 /* EmojiRanker.swift */; };
 		E1000000000000000000004 /* EmojiHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000004 /* EmojiHistoryStore.swift */; };
 		E1000000000000000000005 /* EmojiResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000005 /* EmojiResultCell.swift */; };
+		E36A4B2303303AA18B145EBC /* LauncherBorderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */; };
 		E4000000000000000000001 /* EmojiRankerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4000000000000000000002 /* EmojiRankerTests.swift */; };
 		F10000000000000000000001 /* FileSearchServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* FileSearchServiceTests.swift */; };
+		F5AC1DB1BDD8D64233F83586 /* LauncherTextEditingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */; };
 		F6380F8F3E99941C669E467E /* CalculatorRelativeDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E49395B6BC31DF0DB798230 /* CalculatorRelativeDateTests.swift */; };
 		F65FFBE53028A9F100FB3923 /* CalculatorClipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE03028A9F100FB3923 /* CalculatorClipboard.swift */; };
 		F65FFBE63028A9F100FB3923 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */; };
 		F65FFBE73028A9F100FB3923 /* CalculatorResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */; };
 		F65FFF000000000000000001 /* LauncherMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000001 /* LauncherMode.swift */; };
-		BB416CC0A87423FD4BC6C3CC /* LauncherBorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6E163990913B5048131E00 /* LauncherBorderColor.swift */; };
-		E36A4B2303303AA18B145EBC /* LauncherBorderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */; };
-		D2F15D29646CD4775B32B276 /* LauncherAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */; };
 		F65FFF000000000000000002 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000002 /* LauncherLayout.swift */; };
 		F65FFF000000000000000003 /* LauncherWindowGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000003 /* LauncherWindowGeometry.swift */; };
 		F65FFF000000000000000004 /* LauncherKeyboardNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */; };
@@ -127,7 +129,10 @@
 		2022CEA2BADD865FA4667B16 /* LauncherStoreApplicationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreApplicationTests.swift; sourceTree = "<group>"; };
 		281D2596359BC31892C24545 /* SelectableResultRow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectableResultRow.swift; sourceTree = "<group>"; };
 		2B6B148E134FE7E7AA0CF67F /* UserDefaultsKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserDefaultsKey.swift; sourceTree = "<group>"; };
+		2C6E163990913B5048131E00 /* LauncherBorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderColor.swift; sourceTree = "<group>"; };
 		3494F13108506109E0C2D601 /* CalculatorUnitRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalculatorUnitRegistry.swift; sourceTree = "<group>"; };
+		4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherTextEditingCommand.swift; sourceTree = "<group>"; };
+		44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAppearance.swift; sourceTree = "<group>"; };
 		44FB78ADEFED02BCE020B8C8 /* SearchIndex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
 		48F80F9FA7C4A9293F929FB5 /* TestUserDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUserDefaults.swift; sourceTree = "<group>"; };
 		4C42D86E622C6047F70C0BAD /* LauncherStoreShortcutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LauncherStoreShortcutTests.swift; sourceTree = "<group>"; };
@@ -143,8 +148,6 @@
 		8A4E32162C55C00100C0A001 /* LauncherSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherSearchField.swift; sourceTree = "<group>"; };
 		8A4E32172C55C00100C0A001 /* ApplicationResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResultRow.swift; sourceTree = "<group>"; };
 		8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowController.swift; sourceTree = "<group>"; };
-		4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherTextEditingCommand.swift; sourceTree = "<group>"; };
-		D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherPanel.swift; sourceTree = "<group>"; };
 		8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
 		8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRanker.swift; sourceTree = "<group>"; };
 		8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalogTests.swift; sourceTree = "<group>"; };
@@ -177,8 +180,11 @@
 		8A4E39112C55C00100C0A001 /* CalculatorQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorQuantityTests.swift; sourceTree = "<group>"; };
 		8A4E3A102C55C00100C0A001 /* CalculatorRadix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorRadix.swift; sourceTree = "<group>"; };
 		924384E49BADAE0F7B8F00E1 /* CatalogReloadCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CatalogReloadCoordinator.swift; sourceTree = "<group>"; };
+		9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderStyle.swift; sourceTree = "<group>"; };
 		A20000000000000000000001 /* SystemSettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSettingsCatalog.swift; sourceTree = "<group>"; };
 		A40000000000000000000001 /* ApplicationIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationIconCache.swift; sourceTree = "<group>"; };
+		AD1000000000000000000002 /* ApplicationDirectoryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDirectoryMonitor.swift; sourceTree = "<group>"; };
+		AD1000000000000000000004 /* ApplicationDirectoryMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDirectoryMonitorTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LaunchAtLoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStore.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* LaunchAtLoginStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginStoreTests.swift; sourceTree = "<group>"; };
 		BB1AE684DB7EDBCCDB83E883 /* RecencyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStore.swift; sourceTree = "<group>"; };
@@ -195,6 +201,7 @@
 		C20000000000000000000009 /* SettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRow.swift; sourceTree = "<group>"; };
 		CA0500000000000000000002 /* SettingsWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowControllerTests.swift; sourceTree = "<group>"; };
 		D10000000000000000000001 /* RecencyStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecencyStoreTests.swift; sourceTree = "<group>"; };
+		D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherPanel.swift; sourceTree = "<group>"; };
 		E2000000000000000000001 /* Emoji.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emoji.swift; sourceTree = "<group>"; };
 		E2000000000000000000002 /* EmojiCatalog.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = EmojiCatalog.data; sourceTree = "<group>"; };
 		E2000000000000000000003 /* EmojiRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiRanker.swift; sourceTree = "<group>"; };
@@ -207,9 +214,6 @@
 		F65FFBE13028A9F100FB3923 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorEngine.swift; sourceTree = "<group>"; };
 		F65FFBE23028A9F100FB3923 /* CalculatorResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorResultRow.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000001 /* LauncherMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherMode.swift; sourceTree = "<group>"; };
-		2C6E163990913B5048131E00 /* LauncherBorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderColor.swift; sourceTree = "<group>"; };
-		9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherBorderStyle.swift; sourceTree = "<group>"; };
-		44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAppearance.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000002 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherLayout.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000003 /* LauncherWindowGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherWindowGeometry.swift; sourceTree = "<group>"; };
 		F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherKeyboardNavigation.swift; sourceTree = "<group>"; };
@@ -514,6 +518,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E33102C55C00100C0A001 /* ApplicationCatalog.swift */,
+				AD1000000000000000000002 /* ApplicationDirectoryMonitor.swift */,
 				A40000000000000000000001 /* ApplicationIconCache.swift */,
 				8A4E33162C55C00100C0A001 /* ApplicationLauncher.swift */,
 				8A4E33112C55C00100C0A001 /* ApplicationRanker.swift */,
@@ -581,10 +586,10 @@
 		F65FFD00000000000000000C /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				F65FFE000000000000000001 /* LauncherMode.swift */,
+				44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */,
 				2C6E163990913B5048131E00 /* LauncherBorderColor.swift */,
 				9F3D9AE1A756C0CCABDC619E /* LauncherBorderStyle.swift */,
-				44870AD014C261CE0BA49EB9 /* LauncherAppearance.swift */,
+				F65FFE000000000000000001 /* LauncherMode.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -616,9 +621,9 @@
 			isa = PBXGroup;
 			children = (
 				F65FFE000000000000000004 /* LauncherKeyboardNavigation.swift */,
-				8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */,
-				4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */,
 				D724E68DA4C3D6429BB93DA4 /* LauncherPanel.swift */,
+				4337EC2DC34A99A50F19A38B /* LauncherTextEditingCommand.swift */,
+				8A4E32192C55C00100C0A001 /* LauncherWindowController.swift */,
 				F65FFE000000000000000003 /* LauncherWindowGeometry.swift */,
 			);
 			path = Windowing;
@@ -749,6 +754,7 @@
 			isa = PBXGroup;
 			children = (
 				8A4E33122C55C00100C0A001 /* ApplicationCatalogTests.swift */,
+				AD1000000000000000000004 /* ApplicationDirectoryMonitorTests.swift */,
 				8A4E33132C55C00100C0A001 /* ApplicationRankerTests.swift */,
 			);
 			path = Services;
@@ -946,6 +952,7 @@
 				E1000000000000000000001 /* Emoji.swift in Sources */,
 				8A4E33042C55C00100C0A001 /* InstalledApplication.swift in Sources */,
 				8A4E33002C55C00100C0A001 /* ApplicationCatalog.swift in Sources */,
+				AD1000000000000000000001 /* ApplicationDirectoryMonitor.swift in Sources */,
 				A30000000000000000000001 /* ApplicationIconCache.swift in Sources */,
 				8A4E33052C55C00100C0A001 /* ApplicationLauncher.swift in Sources */,
 				A10000000000000000000001 /* SystemSettingsCatalog.swift in Sources */,
@@ -1021,6 +1028,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A4E33022C55C00100C0A001 /* ApplicationCatalogTests.swift in Sources */,
+				AD1000000000000000000003 /* ApplicationDirectoryMonitorTests.swift in Sources */,
 				8A4E33032C55C00100C0A001 /* ApplicationRankerTests.swift in Sources */,
 				F10000000000000000000001 /* FileSearchServiceTests.swift in Sources */,
 				E4000000000000000000001 /* EmojiRankerTests.swift in Sources */,

@@ -31,25 +31,30 @@ final class AppController: NSObject, NSApplicationDelegate {
   private var launcherWindowController: LauncherWindowController?
   private var settingsWindowController: SettingsWindowController?
   private var cancellables = Set<AnyCancellable>()
-  private var workspaceObservers = [NSObjectProtocol]()
+  private var volumeObservers = [NSObjectProtocol]()
   private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
+  private lazy var applicationDirectoryMonitor = ApplicationDirectoryMonitor { [weak self] in
+    self?.scheduleCatalogRefresh()
+  }
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
     configureStatusItem()
     hotKeyStore.register()
-    observeWorkspaceChanges()
+    observeVolumeChanges()
+    applicationDirectoryMonitor.start(directories: ApplicationCatalog.applicationDirectories())
     observeCurrencyRates()
     currencyRateStore.start()
     store.loadApplications()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
+    applicationDirectoryMonitor.stop()
     catalogRefreshDebouncer.cancel()
 
     let notificationCenter = NSWorkspace.shared.notificationCenter
-    workspaceObservers.forEach(notificationCenter.removeObserver)
-    workspaceObservers.removeAll()
+    volumeObservers.forEach(notificationCenter.removeObserver)
+    volumeObservers.removeAll()
   }
 
   func applicationShouldHandleReopen(
@@ -177,16 +182,14 @@ final class AppController: NSObject, NSApplicationDelegate {
     NSApp.terminate(nil)
   }
 
-  private func observeWorkspaceChanges() {
+  private func observeVolumeChanges() {
     let notificationCenter = NSWorkspace.shared.notificationCenter
     let notificationNames: [Notification.Name] = [
-      NSWorkspace.didLaunchApplicationNotification,
-      NSWorkspace.didTerminateApplicationNotification,
       NSWorkspace.didMountNotification,
       NSWorkspace.didUnmountNotification,
     ]
 
-    workspaceObservers = notificationNames.map { name in
+    volumeObservers = notificationNames.map { name in
       notificationCenter.addObserver(
         forName: name,
         object: nil,
@@ -210,6 +213,9 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   private func scheduleCatalogRefresh() {
     catalogRefreshDebouncer.schedule { [weak self] in
+      self?.applicationDirectoryMonitor.start(
+        directories: ApplicationCatalog.applicationDirectories()
+      )
       self?.store.loadApplications()
     }
   }

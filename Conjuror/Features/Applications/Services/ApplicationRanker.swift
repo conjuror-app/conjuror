@@ -3,8 +3,15 @@ import Foundation
 struct ApplicationRanker {
   struct Index {
     private let index: SearchIndex<InstalledApplication>
+    private let legacyRecencyKeys: [String: String]
 
     init(applications: [InstalledApplication]) {
+      legacyRecencyKeys = applications.reduce(into: [:]) { keys, application in
+        guard !application.isSystemSettingsItem,
+          let bundleIdentifier = application.bundleIdentifier
+        else { return }
+        keys[application.persistenceKey] = bundleIdentifier.lowercased()
+      }
       index = SearchIndex(
         candidates: applications.map { application in
           SearchIndex.Candidate(
@@ -22,7 +29,12 @@ struct ApplicationRanker {
       query: String,
       recentLaunches: [String: Date]
     ) -> [InstalledApplication] {
-      index.ranked(query: query, recency: recentLaunches)
+      // Keep existing launch history until each installation has its own recorded launch.
+      var recency = recentLaunches
+      for (key, legacyKey) in legacyRecencyKeys where recency[key] == nil {
+        recency[key] = recentLaunches[legacyKey]
+      }
+      return index.ranked(query: query, recency: recency)
     }
   }
 }
