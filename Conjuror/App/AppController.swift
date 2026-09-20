@@ -5,9 +5,17 @@ import Combine
 final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsStore = SettingsStore()
   private lazy var fileSearchService = SpotlightFileSearchService()
+  private lazy var clipboardHistory = ClipboardHistory()
+  private lazy var clipboardMonitor = ClipboardMonitor { [weak self] text in
+    self?.clipboardHistory.record(text)
+  }
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
+    clipboardHistory: clipboardHistory,
+    writeToClipboard: { [weak self] text in
+      self?.clipboardMonitor.write(text)
+    },
     fileSearcher: fileSearchService,
     onEvent: { [weak self] event in
       guard event != .launchSucceeded else { return }
@@ -40,12 +48,14 @@ final class AppController: NSObject, NSApplicationDelegate {
     hotKeyStore.register()
     observeWorkspaceChanges()
     observeCurrencyRates()
+    observeClipboardHistorySetting()
     currencyRateStore.start()
     store.loadApplications()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
     catalogRefreshDebouncer.cancel()
+    clipboardMonitor.stop()
 
     let notificationCenter = NSWorkspace.shared.notificationCenter
     workspaceObservers.forEach(notificationCenter.removeObserver)
@@ -85,6 +95,8 @@ final class AppController: NSObject, NSApplicationDelegate {
     switch action {
     case .launcher:
       toggleLauncher()
+    case .clipboard:
+      launcherController().toggle(mode: .clipboard)
     case .shortcuts:
       launcherController().toggle(mode: .shortcuts)
     case .emoji:
@@ -124,6 +136,7 @@ final class AppController: NSObject, NSApplicationDelegate {
       settingsWindowController = SettingsWindowController(
         store: settingsStore,
         hotKeyStore: hotKeyStore,
+        clipboardHistory: clipboardHistory,
         currencyRateStore: currencyRateStore,
         launchAtLoginStore: launchAtLoginStore,
         onClose: { [weak self] in
@@ -204,6 +217,19 @@ final class AppController: NSObject, NSApplicationDelegate {
       .combineLatest(currencyRateStore.$rates)
       .sink { [weak self] isEnabled, rates in
         self?.store.setCurrencySource(isEnabled ? .on(rates) : .off)
+      }
+      .store(in: &cancellables)
+  }
+
+  private func observeClipboardHistorySetting() {
+    settingsStore.$isClipboardHistoryEnabled
+      .removeDuplicates()
+      .sink { [weak self] isEnabled in
+        if isEnabled {
+          self?.clipboardMonitor.start()
+        } else {
+          self?.clipboardMonitor.stop()
+        }
       }
       .store(in: &cancellables)
   }

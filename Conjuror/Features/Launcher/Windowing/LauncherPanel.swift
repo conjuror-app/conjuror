@@ -6,6 +6,9 @@ final class LauncherPanel: NSPanel {
   var onCycleMode: (() -> Void)?
   var allowsHorizontalNavigation: (() -> Bool)?
   var onOpenSettings: (() -> Void)?
+  var onCopyClipboardEntry: (() -> Void)?
+  var onDeleteClipboardEntry: (() -> Void)?
+  var isClipboardMode: (() -> Bool)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
 
   override var canBecomeKey: Bool { true }
@@ -35,6 +38,25 @@ final class LauncherPanel: NSPanel {
   }
 
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
+    let modifiers = event.modifierFlags.intersection([
+      .command,
+      .control,
+      .option,
+      .shift,
+    ])
+    if isClipboardMode?() == true {
+      switch (modifiers, event.charactersIgnoringModifiers?.lowercased()) {
+      case (.command, "c"):
+        onCopyClipboardEntry?()
+        return true
+      case (.control, "x"):
+        onDeleteClipboardEntry?()
+        return true
+      default:
+        break
+      }
+    }
+
     if LauncherKeyboardNavigation.hasOnlyCommandModifier(event.modifierFlags) {
       switch event.charactersIgnoringModifiers?.lowercased() {
       case ",":
@@ -48,12 +70,6 @@ final class LauncherPanel: NSPanel {
       }
     }
 
-    let modifiers = event.modifierFlags.intersection([
-      .command,
-      .control,
-      .option,
-      .shift,
-    ])
     if let command = LauncherTextEditingCommand.command(
       charactersIgnoringModifiers: event.charactersIgnoringModifiers,
       modifiers: modifiers

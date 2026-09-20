@@ -47,6 +47,9 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var selectedApplicationID: InstalledApplication.ID?
   @Published private(set) var calculatorResult: CalculatorResult?
   @Published private(set) var isCalculatorSelected = false
+  @Published private(set) var clipboardEntries = [ClipboardEntry]()
+  @Published private(set) var filteredClipboardEntries = [ClipboardEntry]()
+  @Published private(set) var selectedClipboardEntryID: ClipboardEntry.ID?
   @Published private(set) var shortcuts = [AppleShortcut]()
   @Published private(set) var filteredShortcuts = [AppleShortcut]()
   @Published private(set) var shortcutCatalogErrorMessage: String?
@@ -67,6 +70,8 @@ final class LauncherStore: ObservableObject {
     switch mode {
     case .applications:
       isCalculatorSelected ? .calculator : selectedApplicationID.map(LauncherResultID.application)
+    case .clipboard:
+      selectedClipboardEntryID.map(LauncherResultID.clipboard)
     case .emoji:
       selectedEmojiID.map(LauncherResultID.emoji)
     case .files:
@@ -84,6 +89,7 @@ final class LauncherStore: ObservableObject {
   }
 
   private let settingsStore: SettingsStore
+  private let clipboardHistory: ClipboardHistory
   private let catalog: ApplicationCatalogLoading
   private let calculator: CalculatorEngine
   private let writeToClipboard: @MainActor (String) -> Void
@@ -105,6 +111,11 @@ final class LauncherStore: ObservableObject {
   private var hasLoadedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
+
+  private var selectedClipboardEntry: ClipboardEntry? {
+    filteredClipboardEntries.first { $0.id == selectedClipboardEntryID }
+      ?? filteredClipboardEntries.first
+  }
 
   private var skinToneAdjustedEmoji: [Emoji] {
     guard !isExplicitSkinToneQuery else { return filteredEmoji }
@@ -142,6 +153,7 @@ final class LauncherStore: ObservableObject {
 
   init(
     settingsStore: SettingsStore = SettingsStore(),
+    clipboardHistory: ClipboardHistory = ClipboardHistory(),
     catalog: ApplicationCatalogLoading = ApplicationCatalog(),
     calculator: CalculatorEngine = CalculatorEngine(),
     writeToClipboard: @escaping @MainActor (String) -> Void = CalculatorClipboard.write,
@@ -156,6 +168,7 @@ final class LauncherStore: ObservableObject {
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
+    self.clipboardHistory = clipboardHistory
     self.catalog = catalog
     self.calculator = calculator
     self.writeToClipboard = writeToClipboard
@@ -179,7 +192,7 @@ final class LauncherStore: ObservableObject {
   }
 
   func updateQuery(_ value: String) {
-    guard let prefix = value.first, [";", ">", ":", "/"].contains(prefix) else {
+    guard let prefix = value.first, [";", "'", ">", ":", "/"].contains(prefix) else {
       query = value
       return
     }
@@ -190,6 +203,7 @@ final class LauncherStore: ObservableObject {
     let requestedMode: LauncherMode =
       switch prefix {
       case ";": .applications
+      case "'": .clipboard
       case ">": .shortcuts
       case ":": .emoji
       default: .files
@@ -204,8 +218,16 @@ final class LauncherStore: ObservableObject {
     case .shortcuts:
       transition(to: .emoji)
     case .emoji:
-      transition(to: settingsStore.isFilesModuleEnabled ? .files : .applications)
+      if settingsStore.isFilesModuleEnabled {
+        transition(to: .files)
+      } else if settingsStore.isClipboardHistoryEnabled {
+        transition(to: .clipboard)
+      } else {
+        transition(to: .applications)
+      }
     case .files:
+      transition(to: settingsStore.isClipboardHistoryEnabled ? .clipboard : .applications)
+    case .clipboard:
       transition(to: .applications)
     }
   }
@@ -279,6 +301,15 @@ final class LauncherStore: ObservableObject {
     selectedShortcutID = shortcut.id
   }
 
+  func select(_ entry: ClipboardEntry) {
+    selectedClipboardEntryID = entry.id
+  }
+
+  func selectOnHover(_ entry: ClipboardEntry) {
+    guard pointerDidMove() else { return }
+    select(entry)
+  }
+
   func selectOnHover(_ shortcut: AppleShortcut) {
     guard pointerDidMove() else {
       return
@@ -309,6 +340,12 @@ final class LauncherStore: ObservableObject {
       if case .application(let applicationID) = movedID {
         selectedApplicationID = applicationID
       }
+    case .clipboard:
+      selectedClipboardEntryID = movedSelection(
+        direction,
+        results: filteredClipboardEntries.map(\.id),
+        selectedID: selectedClipboardEntryID
+      )
     case .emoji:
       selectedEmojiID = movedSelection(
         direction,
@@ -339,6 +376,8 @@ final class LauncherStore: ObservableObject {
       } else if let selectedApplication {
         open(selectedApplication)
       }
+    case .clipboard:
+      copySelectedClipboardEntry()
     case .emoji:
       copySelectedEmoji()
     case .files:
@@ -379,6 +418,36 @@ final class LauncherStore: ObservableObject {
     writeToClipboard(calculatorResult.copyText)
     query = ""
     onEvent(.calculatorResultCopied)
+  }
+
+  func copy(_ entry: ClipboardEntry) {
+    selectedClipboardEntryID = entry.id
+    writeToClipboard(entry.text)
+    query = ""
+    onEvent(.clipboardEntryCopied)
+  }
+
+  func copySelectedClipboardEntry() {
+    guard let selectedClipboardEntry else { return }
+    copy(selectedClipboardEntry)
+  }
+
+  func copySelectedClipboardEntryKeepingLauncherOpen() {
+    guard let selectedClipboardEntry else { return }
+    writeToClipboard(selectedClipboardEntry.text)
+  }
+
+  func deleteSelectedClipboardEntry() {
+    guard let selectedClipboardEntry else { return }
+    clipboardHistory.delete(selectedClipboardEntry)
+    refreshClipboardEntries()
+    selectFirstResult()
+  }
+
+  func clearClipboardHistory() {
+    clipboardHistory.clear()
+    refreshClipboardEntries()
+    selectFirstResult()
   }
 
   func select(_ emoji: Emoji) { selectedEmojiID = emoji.id }
@@ -450,6 +519,7 @@ final class LauncherStore: ObservableObject {
   func clearActionError() {
     switch mode {
     case .applications: launchErrorMessage = nil
+    case .clipboard: break
     case .emoji: break
     case .files: fileSearchErrorMessage = nil
     case .shortcuts: shortcutRunErrorMessage = nil
@@ -491,7 +561,9 @@ final class LauncherStore: ObservableObject {
   }
 
   private func transition(to mode: LauncherMode, query: String? = "") {
-    let mode = mode == .files && !settingsStore.isFilesModuleEnabled ? .applications : mode
+    var mode = mode
+    if mode == .files && !settingsStore.isFilesModuleEnabled { mode = .applications }
+    if mode == .clipboard && !settingsStore.isClipboardHistoryEnabled { mode = .applications }
     self.mode = mode
     if let query {
       self.query = query
@@ -545,6 +617,9 @@ final class LauncherStore: ObservableObject {
     case .applications:
       isCalculatorSelected = calculatorResult != nil
       selectedApplicationID = filteredApplications.first?.id
+    case .clipboard:
+      isCalculatorSelected = false
+      selectedClipboardEntryID = filteredClipboardEntries.first?.id
     case .emoji:
       isCalculatorSelected = false
       selectedEmojiID = displayedEmoji.first?.id
@@ -578,6 +653,7 @@ final class LauncherStore: ObservableObject {
     }
     switch mode {
     case .applications: refreshApplications()
+    case .clipboard: refreshClipboardEntries()
     case .emoji:
       loadEmojiIfNeeded()
       filteredEmoji = emojiIndex?.ranked(query: query) ?? []
@@ -640,10 +716,20 @@ final class LauncherStore: ObservableObject {
     )
   }
 
+  private func refreshClipboardEntries() {
+    clipboardEntries = clipboardHistory.entries
+    let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+    filteredClipboardEntries =
+      normalizedQuery.isEmpty
+      ? clipboardEntries
+      : clipboardEntries.filter { $0.text.localizedCaseInsensitiveContains(normalizedQuery) }
+  }
+
 }
 
 enum LauncherEvent: Equatable {
   case calculatorResultCopied
+  case clipboardEntryCopied
   case emojiCopied
   case fileOpened
   case launchStarted
@@ -654,6 +740,7 @@ enum LauncherEvent: Equatable {
 enum LauncherResultID: Hashable {
   case application(InstalledApplication.ID)
   case calculator
+  case clipboard(ClipboardEntry.ID)
   case emoji(Emoji.ID)
   case file(FileSearchResult.ID)
   case shortcut(AppleShortcut.ID)

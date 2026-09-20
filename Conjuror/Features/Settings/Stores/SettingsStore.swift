@@ -10,6 +10,9 @@ final class SettingsStore: ObservableObject {
   }
 
   private enum Key {
+    static let clipboardHistoryEnabled = UserDefaultsKey<Bool>(
+      "settings.clipboardHistoryEnabled"
+    )
     static let filesHotKeyInitialized = UserDefaultsKey<Bool>("settings.filesHotKeyInitialized")
     static let optionalHotKeysInitialized = UserDefaultsKey<Bool>(
       "settings.optionalHotKeysInitialized"
@@ -28,6 +31,7 @@ final class SettingsStore: ObservableObject {
       let prefix =
         switch action {
         case .launcher: "settings.hotKey"
+        case .clipboard: "settings.clipboardHotKey"
         case .shortcuts: "settings.shortcutsHotKey"
         case .emoji: "settings.emojiHotKey"
         case .files: "settings.filesHotKey"
@@ -66,12 +70,14 @@ final class SettingsStore: ObservableObject {
   }
 
   @Published private(set) var hotKeyConfiguration: HotKeyConfiguration
+  @Published private(set) var clipboardHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var shortcutsHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var emojiHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var filesHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  @Published private(set) var isClipboardHistoryEnabled: Bool
   @Published private(set) var showsSystemSettingsItems: Bool
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
@@ -87,6 +93,13 @@ final class SettingsStore: ObservableObject {
         from: userDefaults,
         keys: Key.hotKeyKeys(for: .launcher)
       ) ?? .defaultValue
+    let clipboardHistoryEnabled = userDefaults.value(for: Key.clipboardHistoryEnabled) ?? false
+    isClipboardHistoryEnabled = clipboardHistoryEnabled
+    clipboardHotKeyConfiguration =
+      Self.loadHotKey(
+        from: userDefaults,
+        keys: Key.hotKeyKeys(for: .clipboard)
+      ) ?? (clipboardHistoryEnabled ? HotKeyAction.clipboard.defaultConfiguration : nil)
 
     let optionalHotKeysInitialized =
       (userDefaults.value(for: Key.optionalHotKeysInitialized) ?? false)
@@ -141,6 +154,7 @@ final class SettingsStore: ObservableObject {
   func hotKeyConfiguration(for action: HotKeyAction) -> HotKeyConfiguration? {
     switch action {
     case .launcher: hotKeyConfiguration
+    case .clipboard: clipboardHotKeyConfiguration
     case .shortcuts: shortcutsHotKeyConfiguration
     case .emoji: emojiHotKeyConfiguration
     case .files: filesHotKeyConfiguration
@@ -157,6 +171,8 @@ final class SettingsStore: ObservableObject {
       hotKeyConfiguration = configuration
     case .shortcuts:
       shortcutsHotKeyConfiguration = configuration
+    case .clipboard:
+      clipboardHotKeyConfiguration = configuration
     case .emoji:
       emojiHotKeyConfiguration = configuration
     case .files:
@@ -179,6 +195,11 @@ final class SettingsStore: ObservableObject {
   func setFilesModuleEnabled(_ isEnabled: Bool) {
     isFilesModuleEnabled = isEnabled
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
+  }
+
+  func setClipboardHistoryEnabled(_ isEnabled: Bool) {
+    isClipboardHistoryEnabled = isEnabled
+    userDefaults.set(isEnabled, for: Key.clipboardHistoryEnabled)
   }
 
   func setShowsSystemSettingsItems(_ showsItems: Bool) {

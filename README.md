@@ -1,7 +1,7 @@
 # Conjuror
 
 Conjuror is a macOS launcher for opening apps and files, running Apple Shortcuts,
-copying emoji, and doing calculations and conversions.
+copying emoji, searching clipboard history, and doing calculations and conversions.
 
 ## Installation
 
@@ -55,3 +55,11 @@ selected emoji. Recent emoji appear first when the search is empty.
 Type `/` to search files and folders by name using Spotlight. Press Return to open
 the selected item. On first use, Conjuror requests access to Desktop, Documents,
 Downloads, and iCloud Drive. You can also grant access in Settings.
+
+### Clipboard history
+
+Enable Clipboard History in Settings to keep an encrypted, on-device seven-day history
+of copied text. Press `⌥⇧V` or type `'` in the launcher to search it. Press Return to
+restore the selected entry and close Conjuror, or `⌘C` to restore it while keeping the
+launcher open. Conjuror ignores clipboard items that applications mark as transient or
+concealed, limits history to 500 entries, and never records non-text content.

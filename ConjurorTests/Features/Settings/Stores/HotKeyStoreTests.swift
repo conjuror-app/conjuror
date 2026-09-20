@@ -76,7 +76,10 @@ struct HotKeyStoreTests {
     store.setShortcutRecording(true)
     store.setShortcutRecording(false)
 
-    #expect(registrationCount == HotKeyAction.allCases.count * 2)
+    let activeShortcutCount = HotKeyAction.allCases.filter {
+      settingsStore.hotKeyConfiguration(for: $0) != nil
+    }.count
+    #expect(registrationCount == activeShortcutCount * 2)
     #expect((store.registrationErrorMessage) == nil)
   }
 
@@ -103,8 +106,11 @@ struct HotKeyStoreTests {
     #expect((store.updateConfiguration(replacement)) == nil)
     store.setShortcutRecording(false)
 
-    #expect(configurations.suffix(HotKeyAction.allCases.count).contains(replacement))
-    #expect(configurations.count == HotKeyAction.allCases.count * 2 + 1)
+    let activeShortcutCount = HotKeyAction.allCases.filter {
+      settingsStore.hotKeyConfiguration(for: $0) != nil
+    }.count
+    #expect(configurations.suffix(activeShortcutCount).contains(replacement))
+    #expect(configurations.count == activeShortcutCount * 2 + 1)
     #expect((store.registrationErrorMessage) == nil)
   }
 }

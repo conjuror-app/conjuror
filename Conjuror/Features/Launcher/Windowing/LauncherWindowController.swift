@@ -67,6 +67,15 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.cycleMode()
     }
     panel.onOpenSettings = onOpenSettings
+    panel.onCopyClipboardEntry = { [weak store] in
+      store?.copySelectedClipboardEntryKeepingLauncherOpen()
+    }
+    panel.onDeleteClipboardEntry = { [weak store] in
+      store?.deleteSelectedClipboardEntry()
+    }
+    panel.isClipboardMode = { [weak store] in
+      store?.mode == .clipboard
+    }
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode == .emoji
     }
