@@ -26,7 +26,10 @@ enum CalculatorQuantityLexer {
       }
 
       if character.isNumber || character == "." {
-        guard let number = number(in: characters, index: &index) else {
+        guard case .number(let number, _) = CalculatorLexer.numberToken(
+          in: characters,
+          index: &index
+        ) else {
           return nil
         }
         tokens.append(.number(number))
@@ -54,50 +57,6 @@ enum CalculatorQuantityLexer {
 
     tokens.append(.end)
     return tokens
-  }
-
-  private static func number(
-    in characters: [Character],
-    index: inout Int
-  ) -> Double? {
-    let start = index
-    var hasDecimalPoint = false
-    var hasDigit = false
-
-    while index < characters.count {
-      let character = characters[index]
-      if character.isNumber {
-        hasDigit = true
-        index += 1
-      } else if character == ".", !hasDecimalPoint {
-        hasDecimalPoint = true
-        index += 1
-      } else {
-        break
-      }
-    }
-
-    guard hasDigit else {
-      return nil
-    }
-
-    if index < characters.count, characters[index] == "e" {
-      var exponentEnd = index + 1
-      if exponentEnd < characters.count,
-        characters[exponentEnd] == "+" || characters[exponentEnd] == "-"
-      {
-        exponentEnd += 1
-      }
-      let exponentStart = exponentEnd
-      while exponentEnd < characters.count, characters[exponentEnd].isNumber {
-        exponentEnd += 1
-      }
-      if exponentEnd > exponentStart {
-        index = exponentEnd
-      }
-    }
-
-    return Double(String(characters[start..<index]))
   }
 }
 
