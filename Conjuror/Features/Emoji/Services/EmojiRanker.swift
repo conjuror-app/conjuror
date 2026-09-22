@@ -10,6 +10,7 @@ struct EmojiRanker {
       searchableEmoji = emoji.enumerated().map { index, emoji in
         let normalizedName = EmojiRanker.normalized(emoji.name)
         let normalizedKeywords = emoji.keywords.map(EmojiRanker.normalized)
+
         return SearchableEmoji(
           emojiIndex: index,
           normalizedName: normalizedName,
@@ -21,11 +22,14 @@ struct EmojiRanker {
 
     func ranked(query: String) -> [Emoji] {
       let query = EmojiRanker.normalized(query)
+
       guard !query.isEmpty else { return emoji }
+
       let queryTokens = EmojiRanker.tokens(in: query)
 
       return searchableEmoji.compactMap { candidate -> (Int, Int)? in
         let score: Int
+
         if candidate.normalizedName == query {
           score = 0
         } else if candidate.normalizedName.hasPrefix(query) {
@@ -39,6 +43,7 @@ struct EmojiRanker {
         } else {
           return nil
         }
+
         return (candidate.emojiIndex, score)
       }
       .sorted {
@@ -50,6 +55,7 @@ struct EmojiRanker {
 
   static func requestsSkinTone(_ query: String) -> Bool {
     let query = normalized(query)
+
     return query.contains("skin tone") || query.contains("light")
       || query.contains("medium") || query.contains("dark")
   }

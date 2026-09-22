@@ -31,6 +31,7 @@ struct RecencyStore {
     guard let values = userDefaults.value(for: storageKey) else {
       return [:]
     }
+
     return limited(values).mapValues(Date.init(timeIntervalSince1970:))
   }
 

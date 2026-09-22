@@ -133,6 +133,7 @@ struct GeneralSettingsView: View {
       },
       set: { color in
         guard let color = NSColor(color).usingColorSpace(.sRGB) else { return }
+
         store.setLauncherCustomBorderColor(
           LauncherBorderColor(
             red: color.redComponent,

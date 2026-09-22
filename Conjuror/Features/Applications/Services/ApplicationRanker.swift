@@ -12,6 +12,7 @@ struct ApplicationRanker {
         else { return }
         keys[application.persistenceKey] = bundleIdentifier.lowercased()
       }
+
       index = SearchIndex(
         candidates: applications.map { application in
           SearchIndex.Candidate(
@@ -31,9 +32,11 @@ struct ApplicationRanker {
     ) -> [InstalledApplication] {
       // Keep existing launch history until each installation has its own recorded launch.
       var recency = recentLaunches
+
       for (key, legacyKey) in legacyRecencyKeys where recency[key] == nil {
         recency[key] = recentLaunches[legacyKey]
       }
+
       return index.ranked(query: query, recency: recency)
     }
   }

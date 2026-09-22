@@ -81,7 +81,8 @@ struct LauncherResultsView: View {
               isSelected: emoji.id == store.selectedEmojiID,
               onHover: { store.selectOnHover(emoji) },
               onCopy: {
-                store.select(emoji); store.copySelectedEmoji()
+                store.select(emoji)
+                store.copySelectedEmoji()
               }
             )
             .id(LauncherResultID.emoji(emoji.id))

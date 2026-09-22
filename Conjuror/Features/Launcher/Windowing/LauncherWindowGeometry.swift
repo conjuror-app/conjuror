@@ -11,6 +11,7 @@ enum LauncherWindowGeometry {
       width: size.width,
       height: size.height
     )
+
     return constrainedFrame(frame, to: visibleFrame)
   }
 
@@ -25,9 +26,11 @@ enum LauncherWindowGeometry {
       width: targetSize.width,
       height: targetSize.height
     )
+
     guard let visibleFrame else {
       return frame
     }
+
     return constrainedFrame(frame, to: visibleFrame)
   }
 

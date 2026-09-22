@@ -85,6 +85,60 @@ struct SettingsView: View {
   }
 }
 
+struct ModeShortcutSettingsRow: View {
+  let description: String
+  let action: HotKeyAction
+  @ObservedObject var store: SettingsStore
+  @ObservedObject var hotKeyStore: HotKeyStore
+
+  var body: some View {
+    Group {
+      SettingsRow(title: "Keyboard shortcut", description: description) {
+        HStack {
+          Toggle(
+            "Keyboard shortcut",
+            isOn: Binding(
+              get: { configuration != nil },
+              set: { isEnabled in
+                errorMessage = hotKeyStore.updateConfiguration(
+                  isEnabled ? action.defaultConfiguration : nil,
+                  for: action
+                )
+              }
+            )
+          )
+          .labelsHidden()
+
+          if let configuration {
+            ShortcutRecorder(
+              configuration: configuration,
+              onChange: { newConfiguration in
+                errorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
+                return errorMessage == nil
+              },
+              onRecordingChange: hotKeyStore.setShortcutRecording
+            )
+            .frame(width: 120, height: 28)
+          }
+        }
+      }
+
+      if let errorMessage {
+        Label(errorMessage, systemImage: "exclamationmark.triangle")
+          .font(.caption)
+          .foregroundStyle(.red)
+          .lineLimit(2)
+      }
+    }
+  }
+
+  private var configuration: HotKeyConfiguration? {
+    store.hotKeyConfiguration(for: action)
+  }
+
+  @State private var errorMessage: String?
+}
+
 private enum SettingsSection: String, CaseIterable, Identifiable {
   case general
   case apps
@@ -175,60 +229,6 @@ private struct AppsSettingsView: View {
   }
 
   @State private var hotKeyErrorMessage: String?
-}
-
-struct ModeShortcutSettingsRow: View {
-  let description: String
-  let action: HotKeyAction
-  @ObservedObject var store: SettingsStore
-  @ObservedObject var hotKeyStore: HotKeyStore
-
-  var body: some View {
-    Group {
-      SettingsRow(title: "Keyboard shortcut", description: description) {
-        HStack {
-          Toggle(
-            "Keyboard shortcut",
-            isOn: Binding(
-              get: { configuration != nil },
-              set: { isEnabled in
-                errorMessage = hotKeyStore.updateConfiguration(
-                  isEnabled ? action.defaultConfiguration : nil,
-                  for: action
-                )
-              }
-            )
-          )
-          .labelsHidden()
-
-          if let configuration {
-            ShortcutRecorder(
-              configuration: configuration,
-              onChange: { newConfiguration in
-                errorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
-                return errorMessage == nil
-              },
-              onRecordingChange: hotKeyStore.setShortcutRecording
-            )
-            .frame(width: 120, height: 28)
-          }
-        }
-      }
-
-      if let errorMessage {
-        Label(errorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
-      }
-    }
-  }
-
-  private var configuration: HotKeyConfiguration? {
-    store.hotKeyConfiguration(for: action)
-  }
-
-  @State private var errorMessage: String?
 }
 
 private struct ShortcutsSettingsView: View {

@@ -16,6 +16,7 @@ final class LauncherPanel: NSPanel {
       event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty
     {
       onCycleMode?()
+
       return
     }
 
@@ -28,6 +29,7 @@ final class LauncherPanel: NSPanel {
       )
     {
       onMoveSelection?(direction)
+
       return
     }
 
@@ -39,9 +41,11 @@ final class LauncherPanel: NSPanel {
       switch event.charactersIgnoringModifiers?.lowercased() {
       case ",":
         onOpenSettings?()
+
         return true
       case "q":
         onTerminate()
+
         return true
       default:
         break
@@ -54,6 +58,7 @@ final class LauncherPanel: NSPanel {
       .option,
       .shift,
     ])
+
     if let command = LauncherTextEditingCommand.command(
       charactersIgnoringModifiers: event.charactersIgnoringModifiers,
       modifiers: modifiers

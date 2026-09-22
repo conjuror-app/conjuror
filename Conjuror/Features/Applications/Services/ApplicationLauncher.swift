@@ -7,6 +7,7 @@ struct ApplicationLauncher {
       guard NSWorkspace.shared.open(url) else {
         throw ApplicationLaunchError.settingsURLNotOpened
       }
+
       return
     }
 

@@ -32,12 +32,14 @@ final class LaunchAtLoginStore: ObservableObject {
 
   func setEnabled(_ isEnabled: Bool) {
     errorMessage = nil
+
     do {
       if isEnabled {
         try service.register()
       } else {
         try service.unregister()
       }
+
       status = service.status
     } catch {
       status = service.status

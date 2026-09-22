@@ -10,10 +10,12 @@ enum ShortcutsEventsBridge {
           repeat with candidate in shortcuts
               set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, icon of candidate}
           end repeat
+
           return shortcutRecords
       end tell
       """
     let descriptor = try execute(source)
+
     return try parseShortcutList(descriptor)
   }
 
@@ -80,6 +82,7 @@ enum ShortcutsEventsBridge {
     else {
       return nil
     }
+
     return NSBitmapImageRep(cgImage: thumbnail).representation(using: .png, properties: [:])
   }
 
@@ -90,6 +93,7 @@ enum ShortcutsEventsBridge {
 
     var errorInfo: NSDictionary?
     let result = script.executeAndReturnError(&errorInfo)
+
     if let errorInfo {
       let number = errorInfo["NSAppleScriptErrorNumber"] as? Int
       let message =
@@ -98,8 +102,10 @@ enum ShortcutsEventsBridge {
       if number == -1743 || number == -10004 {
         throw ShortcutAutomationError.permissionDenied
       }
+
       throw ShortcutAutomationError.executionFailed(message)
     }
+
     return result
   }
 }

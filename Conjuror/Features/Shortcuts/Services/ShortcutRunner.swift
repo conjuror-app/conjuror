@@ -8,6 +8,7 @@ struct ShortcutRunner {
       try ShortcutsEventsBridge.runShortcut(identifier: identifier)
       try Task.checkCancellation()
     }
+
     try await withTaskCancellationHandler {
       try await runTask.value
     } onCancel: {

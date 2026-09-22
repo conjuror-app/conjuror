@@ -28,11 +28,14 @@ final class HotKeyStore: ObservableObject {
 
   func register() {
     registrations.removeAll()
+
     do {
       for action in HotKeyAction.allCases {
         guard let configuration = settingsStore.hotKeyConfiguration(for: action) else { continue }
+
         registrations[action] = try makeRegistration(configuration: configuration, action: action)
       }
+
       registrationErrorMessage = nil
     } catch {
       registrations.removeAll()
@@ -45,9 +48,11 @@ final class HotKeyStore: ObservableObject {
     for action: HotKeyAction = .launcher
   ) -> String? {
     let existingConfiguration = settingsStore.hotKeyConfiguration(for: action)
+
     if configuration == existingConfiguration, registrations[action] != nil || configuration == nil
     {
       registrationErrorMessage = nil
+
       return nil
     }
 
@@ -60,12 +65,15 @@ final class HotKeyStore: ObservableObject {
     }
 
     registrations[action] = nil
+
     do {
       if let configuration {
         registrations[action] = try makeRegistration(configuration: configuration, action: action)
       }
+
       registrationErrorMessage = nil
       settingsStore.setHotKeyConfiguration(configuration, for: action)
+
       return nil
     } catch {
       if let existingConfiguration {
@@ -74,6 +82,7 @@ final class HotKeyStore: ObservableObject {
           action: action
         )
       }
+
       return error.localizedDescription
     }
   }
@@ -92,10 +101,13 @@ final class HotKeyStore: ObservableObject {
     settingsStore.setLauncherBorderStyle(.cyan)
     settingsStore.setLauncherCustomBorderColor(.default)
     registrations.removeAll()
+
     for action in HotKeyAction.allCases {
       settingsStore.setHotKeyConfiguration(action.defaultConfiguration, for: action)
     }
+
     register()
+
     return registrationErrorMessage
   }
 

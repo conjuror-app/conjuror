@@ -1,6 +1,43 @@
 @preconcurrency import Foundation
 
 @MainActor
+final class SpotlightFileSearchService: FileSearching {
+  private static let candidateLimit = 1_000
+  private static let gatheringDeadline = Duration.milliseconds(500)
+  private static let resultLimit = 200
+
+  private var didRequestAccess = false
+
+  func search(query: String) async throws -> [FileSearchResult] {
+    let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard !query.isEmpty else { return [] }
+
+    requestAccessIfNeeded()
+
+    let operation = SpotlightSearchOperation(
+      query: query,
+      limit: Self.resultLimit,
+      candidateLimit: Self.candidateLimit,
+      gatheringDeadline: Self.gatheringDeadline
+    )
+
+    return try await withTaskCancellationHandler {
+      try await operation.results()
+    } onCancel: {
+      Task { @MainActor in operation.cancel() }
+    }
+  }
+
+  private func requestAccessIfNeeded() {
+    guard !didRequestAccess else { return }
+
+    didRequestAccess = true
+    FileAccessAuthorizer.requestAccess()
+  }
+}
+
+@MainActor
 protocol FileSearching {
   func search(query: String) async throws -> [FileSearchResult]
 }
@@ -16,10 +53,12 @@ enum FileAccessAuthorizer {
     let localDirectories = protectedDirectories.compactMap { directory in
       fileManager.urls(for: directory, in: .userDomainMask).first
     }
+
     let iCloudDrive = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(
       "Library/Mobile Documents/com~apple~CloudDocs",
       isDirectory: true
     )
+
     return localDirectories + [iCloudDrive]
   }
 
@@ -27,6 +66,7 @@ enum FileAccessAuthorizer {
     let directories = Self.authorizationDirectories()
     Task.detached {
       let fileManager = FileManager.default
+
       for directory in directories {
         _ = try? fileManager.contentsOfDirectory(
           at: directory,
@@ -35,40 +75,6 @@ enum FileAccessAuthorizer {
         )
       }
     }
-  }
-}
-
-@MainActor
-final class SpotlightFileSearchService: FileSearching {
-  private static let candidateLimit = 1_000
-  private static let gatheringDeadline = Duration.milliseconds(500)
-  private static let resultLimit = 200
-
-  private var didRequestAccess = false
-
-  func search(query: String) async throws -> [FileSearchResult] {
-    let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !query.isEmpty else { return [] }
-
-    requestAccessIfNeeded()
-
-    let operation = SpotlightSearchOperation(
-      query: query,
-      limit: Self.resultLimit,
-      candidateLimit: Self.candidateLimit,
-      gatheringDeadline: Self.gatheringDeadline
-    )
-    return try await withTaskCancellationHandler {
-      try await operation.results()
-    } onCancel: {
-      Task { @MainActor in operation.cancel() }
-    }
-  }
-
-  private func requestAccessIfNeeded() {
-    guard !didRequestAccess else { return }
-    didRequestAccess = true
-    FileAccessAuthorizer.requestAccess()
   }
 }
 
@@ -88,6 +94,26 @@ enum SpotlightFileSearchError: LocalizedError, Equatable {
 
 @MainActor
 final class SpotlightSearchOperation: @unchecked Sendable {
+  nonisolated private static func result(from value: Any) -> FileSearchResult? {
+    guard let item = value as? NSMetadataItem,
+      let path = item.value(forAttribute: NSMetadataItemPathKey) as? String
+    else { return nil }
+
+    let url = URL(fileURLWithPath: path)
+
+    guard item.value(forAttribute: "kMDItemFSInvisible") as? Bool != true else { return nil }
+
+    let contentTypeTree = item.value(forAttribute: "kMDItemContentTypeTree") as? [String]
+
+    return FileSearchResult(
+      url: url,
+      displayName: item.value(forAttribute: NSMetadataItemDisplayNameKey) as? String
+        ?? url.lastPathComponent,
+      isDirectory: contentTypeTree?.contains("public.folder") ?? false,
+      modificationDate: item.value(forAttribute: "kMDItemContentModificationDate") as? Date
+    )
+  }
+
   private let metadataQuery: NSMetadataQuery
   private let query: String
   private let limit: Int
@@ -117,6 +143,7 @@ final class SpotlightSearchOperation: @unchecked Sendable {
 
   func results() async throws -> [FileSearchResult] {
     guard !Task.isCancelled else { throw CancellationError() }
+
     return try await withCheckedThrowingContinuation { continuation in
       self.continuation = continuation
       let notificationCenter = NotificationCenter.default
@@ -143,17 +170,22 @@ final class SpotlightSearchOperation: @unchecked Sendable {
 
       guard metadataQuery.start() else {
         complete(with: .failure(SpotlightFileSearchError.unavailable))
+
         return
       }
 
       let gatheringDeadline = gatheringDeadline
       deadlineTask = Task { @MainActor [weak self] in
         try? await Task.sleep(for: gatheringDeadline)
+
         guard !Task.isCancelled, let self else { return }
+
         guard metadataQuery.resultCount > 0 else {
           complete(with: .failure(SpotlightFileSearchError.timedOut))
+
           return
         }
+
         finish()
       }
     }
@@ -165,22 +197,26 @@ final class SpotlightSearchOperation: @unchecked Sendable {
 
   private func finishIfFull() {
     guard metadataQuery.resultCount >= candidateLimit else { return }
+
     finish()
   }
 
   private func finish() {
     guard continuation != nil else { return }
+
     metadataQuery.disableUpdates()
     let candidateCount = min(metadataQuery.resultCount, candidateLimit)
     let results = (0..<candidateCount).compactMap { index in
       Self.result(from: metadataQuery.result(at: index))
     }
+
     let rankedResults = FileResultRanker.ranked(results: results, query: query)
     complete(with: .success(Array(rankedResults.prefix(limit))))
   }
 
   private func complete(with result: Result<[FileSearchResult], Error>) {
     guard let continuation else { return }
+
     self.continuation = nil
     deadlineTask?.cancel()
     deadlineTask = nil
@@ -188,24 +224,6 @@ final class SpotlightSearchOperation: @unchecked Sendable {
     observers.forEach(NotificationCenter.default.removeObserver)
     observers.removeAll()
     continuation.resume(with: result)
-  }
-
-  nonisolated private static func result(from value: Any) -> FileSearchResult? {
-    guard let item = value as? NSMetadataItem,
-      let path = item.value(forAttribute: NSMetadataItemPathKey) as? String
-    else { return nil }
-
-    let url = URL(fileURLWithPath: path)
-    guard item.value(forAttribute: "kMDItemFSInvisible") as? Bool != true else { return nil }
-    let contentTypeTree = item.value(forAttribute: "kMDItemContentTypeTree") as? [String]
-
-    return FileSearchResult(
-      url: url,
-      displayName: item.value(forAttribute: NSMetadataItemDisplayNameKey) as? String
-        ?? url.lastPathComponent,
-      isDirectory: contentTypeTree?.contains("public.folder") ?? false,
-      modificationDate: item.value(forAttribute: "kMDItemContentModificationDate") as? Date
-    )
   }
 }
 
@@ -218,9 +236,11 @@ enum SpotlightFilenameQuery {
         pattern
       )
     }
+
     if predicates.count == 1 {
       return predicates[0]
     }
+
     return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
   }
 
@@ -228,6 +248,7 @@ enum SpotlightFilenameQuery {
     let normalizedQuery = SearchText.normalized(query)
     let tokens = SearchText.tokens(in: normalizedQuery)
     let fuzzyTerms = tokens.isEmpty ? [normalizedQuery] : tokens
+
     return fuzzyTerms.map { term in
       "*" + term.map { escapedPattern(String($0)) }.joined(separator: "*") + "*"
     }
@@ -244,33 +265,44 @@ enum SpotlightFilenameQuery {
 enum FileResultRanker {
   static func ranked(results: [FileSearchResult], query: String) -> [FileSearchResult] {
     let query = SearchText.normalized(query)
+
     return results.sorted { lhs, rhs in
       let lhsRank = rank(lhs, query: query)
       let rhsRank = rank(rhs, query: query)
+
       if lhsRank != rhsRank { return lhsRank < rhsRank }
+
       if lhs.isDirectory != rhs.isDirectory { return lhs.isDirectory }
+
       if lhs.modificationDate != rhs.modificationDate {
         return (lhs.modificationDate ?? .distantPast)
           > (rhs.modificationDate ?? .distantPast)
       }
+
       return lhs.url.path.localizedStandardCompare(rhs.url.path) == .orderedAscending
     }
   }
 
   private static func rank(_ result: FileSearchResult, query: String) -> FileResultRank {
     let name = SearchText.normalized(result.displayName)
+
     if name == query { return FileResultRank(category: 0) }
+
     if name.hasPrefix(query) { return FileResultRank(category: 1) }
+
     if SearchText.tokens(in: name).contains(where: { $0.hasPrefix(query) }) {
       return FileResultRank(category: 2)
     }
+
     if name.contains(query) { return FileResultRank(category: 3) }
 
     let compactQuery = SearchText.tokens(in: query).joined()
     let compactName = SearchText.tokens(in: name).joined()
+
     if let score = SearchText.subsequenceScore(of: compactQuery, in: compactName) {
       return FileResultRank(category: 4, score: score)
     }
+
     return FileResultRank(category: 5)
   }
 }

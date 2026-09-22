@@ -25,5 +25,4 @@ struct ShortcutRanker {
       index.ranked(query: query, recency: recentRuns)
     }
   }
-
 }

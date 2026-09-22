@@ -39,10 +39,13 @@ final class GlobalHotKey {
           nil,
           &hotKeyID
         )
+
         guard status == noErr, hotKeyID.id == globalHotKey.identifier else {
           return OSStatus(eventNotHandledErr)
         }
+
         globalHotKey.handler()
+
         return noErr
       },
       1,
@@ -69,6 +72,7 @@ final class GlobalHotKey {
       if let eventHandler {
         RemoveEventHandler(eventHandler)
       }
+
       eventHandler = nil
       throw GlobalHotKeyError.registerHotKey(
         configuration.displayName,
@@ -81,6 +85,7 @@ final class GlobalHotKey {
     if let hotKey {
       UnregisterEventHotKey(hotKey)
     }
+
     if let eventHandler {
       RemoveEventHandler(eventHandler)
     }

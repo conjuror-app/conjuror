@@ -23,6 +23,7 @@ struct CalculatorCurrencyEvaluator {
     }
 
     let formatter = CalculatorNumberFormatter(options: formattingOptions)
+
     guard
       let sourceDisplay = formatter.string(
         from: conversion.amount,
@@ -67,6 +68,7 @@ struct CalculatorCurrencyEvaluator {
       else {
         return nil
       }
+
       return Conversion(
         amount: source.amount,
         sourceCode: source.code,
@@ -81,6 +83,7 @@ struct CalculatorCurrencyEvaluator {
     else {
       return nil
     }
+
     return Conversion(
       amount: source.amount,
       sourceCode: source.code,
@@ -90,12 +93,14 @@ struct CalculatorCurrencyEvaluator {
 
   private func parseAmount(_ text: String) -> (amount: Double, code: String)? {
     let trimmed = text.trimmingCharacters(in: .whitespaces)
+
     if let first = trimmed.first,
       let code = Self.symbolCodes[first],
       let amount = Double(trimmed.dropFirst().trimmingCharacters(in: .whitespaces))
     {
       return (amount, code)
     }
+
     if let last = trimmed.last,
       let code = Self.symbolCodes[last],
       let amount = Double(trimmed.dropLast().trimmingCharacters(in: .whitespaces))
@@ -104,29 +109,37 @@ struct CalculatorCurrencyEvaluator {
     }
 
     let parts = trimmed.split(whereSeparator: \.isWhitespace)
+
     guard parts.count == 2 else {
       return nil
     }
+
     if let amount = Double(parts[0]), let code = currencyCode(String(parts[1])) {
       return (amount, code)
     }
+
     if let code = currencyCode(String(parts[0])), let amount = Double(parts[1]) {
       return (amount, code)
     }
+
     return nil
   }
 
   private func currencyCode(_ text: String) -> String? {
     let trimmed = text.trimmingCharacters(in: .whitespaces)
+
     if trimmed.count == 1, let symbol = trimmed.first,
       let code = Self.symbolCodes[symbol]
     {
       return code
     }
+
     let code = trimmed.uppercased()
+
     guard code.count == 3, code.allSatisfy(\.isLetter) else {
       return nil
     }
+
     return code
   }
 }
