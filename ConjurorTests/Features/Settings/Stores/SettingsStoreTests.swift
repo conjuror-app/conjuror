@@ -84,6 +84,21 @@ struct SettingsStoreTests {
     }
   }
 
+  @Test("Invalid hotkey integers fall back to the default", arguments: [-1, Int(UInt32.max) + 1])
+  func testInvalidHotKeyIntegers(value: Int) {
+    for key in ["settings.hotKeyCode", "settings.hotKeyModifiers"] {
+      let defaults = makeTestUserDefaults()
+      defaults.set(1, forKey: "settings.hotKeyCode")
+      defaults.set(2, forKey: "settings.hotKeyModifiers")
+      defaults.set("Invalid shortcut", forKey: "settings.hotKeyDisplayName")
+      defaults.set(value, forKey: key)
+
+      let store = SettingsStore(userDefaults: defaults)
+
+      #expect(store.hotKeyConfiguration == .defaultValue)
+    }
+  }
+
   @Test("Settings store: maximum visible results are clamped and the default resets")
   func testClampsMaximumVisibleResultsAndResetsDefault() {
     let store = SettingsStore(userDefaults: makeTestUserDefaults())
