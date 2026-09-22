@@ -3,6 +3,7 @@ import Foundation
 struct CalculatorRadixEvaluator {
   func evaluate(_ expression: String) -> CalculatorResult? {
     let trimmedExpression = CalculatorInput.trimmed(expression)
+
     guard !trimmedExpression.isEmpty else {
       return nil
     }
@@ -20,20 +21,24 @@ struct CalculatorRadixEvaluator {
     switch parts.count {
     case 1:
       sourceText = parts[0]
+
       guard let inferredRadix = CalculatorRadix.inferred(from: sourceText),
         inferredRadix != .decimal
       else {
         return nil
       }
+
       sourceRadix = inferredRadix
       targetRadix = .decimal
     case 3:
       sourceText = parts[0]
+
       guard parts[1] == "to" || parts[1] == "in",
         let parsedTargetRadix = CalculatorRadix(alias: parts[2])
       else {
         return nil
       }
+
       sourceRadix = CalculatorRadix.inferred(from: sourceText) ?? .decimal
       targetRadix = parsedTargetRadix
     default:
@@ -67,9 +72,13 @@ private enum CalculatorRadix: Int {
 
   static func inferred(from text: String) -> CalculatorRadix? {
     let unsigned = text.hasPrefix("-") || text.hasPrefix("+") ? String(text.dropFirst()) : text
+
     if unsigned.hasPrefix("0b") { return .binary }
+
     if unsigned.hasPrefix("0o") { return .octal }
+
     if unsigned.hasPrefix("0x") { return .hexadecimal }
+
     return nil
   }
 
@@ -104,6 +113,7 @@ private enum CalculatorRadix: Int {
   func parse(_ text: String) -> Int64? {
     var digits = text
     var isNegative = false
+
     if digits.hasPrefix("-") || digits.hasPrefix("+") {
       isNegative = digits.hasPrefix("-")
       digits.removeFirst()
@@ -113,6 +123,7 @@ private enum CalculatorRadix: Int {
       guard digits.hasPrefix(prefix) else {
         return nil
       }
+
       digits.removeFirst(prefix.count)
     }
 
@@ -121,13 +132,17 @@ private enum CalculatorRadix: Int {
     }
 
     let magnitudeLimit = isNegative ? UInt64(Int64.max) + 1 : UInt64(Int64.max)
+
     guard let magnitude = UInt64(digits, radix: rawValue), magnitude <= magnitudeLimit else {
       return nil
     }
+
     if isNegative, magnitude == UInt64(Int64.max) + 1 {
       return Int64.min
     }
+
     let value = Int64(magnitude)
+
     return isNegative ? -value : value
   }
 
@@ -138,6 +153,7 @@ private enum CalculatorRadix: Int {
 
     let magnitude = value.magnitude
     let digits = String(magnitude, radix: rawValue, uppercase: self == .hexadecimal)
+
     return (value < 0 ? "-" : "") + prefix + digits
   }
 }

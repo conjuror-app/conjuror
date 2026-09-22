@@ -49,12 +49,14 @@ final class CurrencyRateStore: ObservableObject {
     guard isEnabled else {
       return
     }
+
     refreshTask?.cancel()
     refreshTask = Task { [weak self] in
       while !Task.isCancelled {
         guard let delay = await self?.nextRefreshDelay() else {
           return
         }
+
         try? await Task.sleep(for: .seconds(delay))
       }
     }
@@ -64,14 +66,17 @@ final class CurrencyRateStore: ObservableObject {
     guard enabled != isEnabled else {
       return
     }
+
     isEnabled = enabled
     userDefaults.set(enabled, for: Self.enabledKey)
+
     if enabled {
       start()
     } else {
       refreshTask?.cancel()
       refreshTask = nil
       rates = nil
+
       do {
         try cache.remove()
       } catch {
@@ -86,9 +91,11 @@ final class CurrencyRateStore: ObservableObject {
     }
 
     let age = max(0, rates.map { Date().timeIntervalSince($0.fetchedAt) } ?? .infinity)
+
     if age < Self.refreshInterval {
       return Self.refreshInterval - age
     }
+
     return await fetchAndStore() ? Self.refreshInterval : Self.retryInterval
   }
 
@@ -99,13 +106,16 @@ final class CurrencyRateStore: ObservableObject {
 
     do {
       guard let snapshot = try await client.fetch(), isEnabled else { return false }
+
       rates = snapshot
       try cache.save(snapshot)
+
       return true
     } catch is CancellationError {
       return false
     } catch {
       Self.logger.error("Unable to refresh currency rates: \(error.localizedDescription)")
+
       return false
     }
   }

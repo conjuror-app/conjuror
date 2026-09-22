@@ -3,8 +3,10 @@ import Foundation
 struct SystemSettingsCatalog {
   static let items: [InstalledApplication] = {
     let settingsURL = URL(fileURLWithPath: "/System/Applications/System Settings.app")
+
     return sections.compactMap { name, identifier in
       guard let url = URL(string: "x-apple.systempreferences:\(identifier)") else { return nil }
+
       return InstalledApplication(
         displayName: name,
         bundleIdentifier: nil,

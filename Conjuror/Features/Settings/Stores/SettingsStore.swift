@@ -32,6 +32,7 @@ final class SettingsStore: ObservableObject {
         case .emoji: "settings.emojiHotKey"
         case .files: "settings.filesHotKey"
         }
+
       return HotKeyKeys(
         code: UserDefaultsKey("\(prefix)Code"),
         displayName: UserDefaultsKey("\(prefix)DisplayName"),
@@ -135,6 +136,7 @@ final class SettingsStore: ObservableObject {
       persistHotKey(shortcutsHotKeyConfiguration, for: .shortcuts)
       persistHotKey(emojiHotKeyConfiguration, for: .emoji)
     }
+
     if !filesHotKeyInitialized {
       userDefaults.set(true, for: Key.filesHotKeyInitialized)
       persistHotKey(filesHotKeyConfiguration, for: .files)
@@ -157,6 +159,7 @@ final class SettingsStore: ObservableObject {
     switch action {
     case .launcher:
       guard let configuration else { return }
+
       hotKeyConfiguration = configuration
     case .shortcuts:
       shortcutsHotKeyConfiguration = configuration
@@ -165,6 +168,7 @@ final class SettingsStore: ObservableObject {
     case .files:
       filesHotKeyConfiguration = configuration
     }
+
     persistHotKey(configuration, for: action)
   }
 
@@ -215,12 +219,15 @@ final class SettingsStore: ObservableObject {
     for action: HotKeyAction
   ) {
     let keys = Key.hotKeyKeys(for: action)
+
     guard let configuration else {
       userDefaults.removeObject(forKey: keys.code.name)
       userDefaults.removeObject(forKey: keys.modifiers.name)
       userDefaults.removeObject(forKey: keys.displayName.name)
+
       return
     }
+
     userDefaults.set(Int(configuration.keyCode), for: keys.code)
     userDefaults.set(Int(configuration.modifiers), for: keys.modifiers)
     userDefaults.set(configuration.displayName, for: keys.displayName)

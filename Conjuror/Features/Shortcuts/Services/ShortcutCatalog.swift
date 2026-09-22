@@ -8,6 +8,7 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
         in: .userDomainMask
       ).first
     else { return nil }
+
     return
       applicationSupportURL
       .appendingPathComponent("Conjuror", isDirectory: true)
@@ -19,11 +20,13 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
       let data = try? Data(contentsOf: cacheURL),
       let shortcuts = try? JSONDecoder().decode([AppleShortcut].self, from: data)
     else { return nil }
+
     return shortcuts
   }
 
   private static func saveCache(_ shortcuts: [AppleShortcut]) throws {
     guard let cacheURL else { return }
+
     try FileManager.default.createDirectory(
       at: cacheURL.deletingLastPathComponent(),
       withIntermediateDirectories: true
@@ -36,8 +39,10 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
     if let cachedShortcuts = Self.loadCache() {
       Task.detached(priority: .utility) {
         guard let shortcuts = try? ShortcutCatalogProcess.loadShortcuts() else { return }
+
         try? Self.saveCache(shortcuts)
       }
+
       return cachedShortcuts
     }
 
@@ -45,8 +50,10 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
       let shortcuts = try ShortcutCatalogProcess.loadShortcuts()
       try Task.checkCancellation()
       try? Self.saveCache(shortcuts)
+
       return shortcuts
     }
+
     return try await withTaskCancellationHandler {
       try await loadTask.value
     } onCancel: {
@@ -66,9 +73,11 @@ enum ShortcutCatalogProcess {
     do {
       let shortcuts = try ShortcutsEventsBridge.loadShortcuts()
       FileHandle.standardOutput.write(try responseData(for: shortcuts))
+
       return 0
     } catch {
       FileHandle.standardError.write(Data(error.localizedDescription.utf8))
+
       return 1
     }
   }

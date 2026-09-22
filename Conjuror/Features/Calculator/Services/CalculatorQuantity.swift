@@ -9,11 +9,13 @@ struct CalculatorQuantityEvaluator {
     }
 
     var parser = CalculatorQuantityParser(tokens: tokens)
+
     guard let evaluation = parser.parse(), evaluation.value.isFinite else {
       return nil
     }
 
     let formatter = CalculatorNumberFormatter(options: formattingOptions)
+
     guard
       let sourceDisplay = formatter.string(
         from: evaluation.sourceValue,

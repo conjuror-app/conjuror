@@ -13,6 +13,7 @@ enum LauncherTextEditingCommand: Equatable {
     modifiers: NSEvent.ModifierFlags
   ) -> Self? {
     let key = charactersIgnoringModifiers?.lowercased()
+
     switch (modifiers, key) {
     case (.command, "a"): return .selectAll
     case (.command, "c"): return .copy

@@ -26,14 +26,14 @@ final class LauncherApplicationController {
 
 @MainActor
 final class LauncherFileController {
-  static let minimumQueryLength = 2
-
   enum Update {
     case cleared
     case searching
     case results([FileSearchResult])
     case failed(Error)
   }
+
+  static let minimumQueryLength = 2
 
   private let searcher: FileSearching
   private var task: Task<Void, Never>?
@@ -49,8 +49,10 @@ final class LauncherFileController {
   func search(query: String, onUpdate: @escaping (Update) -> Void) {
     task?.cancel()
     let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
     guard query.count >= Self.minimumQueryLength else {
       onUpdate(.cleared)
+
       return
     }
 
@@ -60,11 +62,14 @@ final class LauncherFileController {
       do {
         try await Task.sleep(for: .milliseconds(200))
         let results = try await searcher.search(query: query)
+
         guard !Task.isCancelled else { return }
+
         onUpdate(.results(results))
       } catch is CancellationError {
       } catch {
         guard !Task.isCancelled else { return }
+
         onUpdate(.failed(error))
       }
     }

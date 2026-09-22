@@ -1,55 +1,15 @@
 import Foundation
 
-enum CalculatorQuantityDimension: Equatable {
-  case data
-  case duration
-  case length
-  case mass
-  case temperature
-  case volume
-}
-
-struct CalculatorUnit: Equatable {
-  let id: String
-  let dimension: CalculatorQuantityDimension
-  let symbol: String
-  let aliases: [String]
-  let scaleToBase: Double
-  let offsetToBase: Double
-
-  init(
-    id: String,
-    dimension: CalculatorQuantityDimension,
-    symbol: String,
-    aliases: [String],
-    scaleToBase: Double,
-    offsetToBase: Double = 0
-  ) {
-    self.id = id
-    self.dimension = dimension
-    self.symbol = symbol
-    self.aliases = aliases
-    self.scaleToBase = scaleToBase
-    self.offsetToBase = offsetToBase
-  }
-
-  func convertFromBase(_ value: Double) -> Double {
-    (value - offsetToBase) / scaleToBase
-  }
-
-  func convertToBase(_ value: Double) -> Double {
-    value * scaleToBase + offsetToBase
-  }
-}
-
 enum CalculatorUnitRegistry {
   private static let unitsByAlias: [String: CalculatorUnit] = {
     var result = [String: CalculatorUnit]()
+
     for unit in units {
       for alias in unit.aliases {
         result[alias.lowercased()] = unit
       }
     }
+
     return result
   }()
 
@@ -385,10 +345,53 @@ enum CalculatorUnitRegistry {
     guard let targetID = defaultTargetIDs[unit.id] else {
       return nil
     }
+
     return units.first { $0.id == targetID }
   }
 
   static func unit(named name: String) -> CalculatorUnit? {
     unitsByAlias[name.lowercased()]
+  }
+}
+
+enum CalculatorQuantityDimension: Equatable {
+  case data
+  case duration
+  case length
+  case mass
+  case temperature
+  case volume
+}
+
+struct CalculatorUnit: Equatable {
+  let id: String
+  let dimension: CalculatorQuantityDimension
+  let symbol: String
+  let aliases: [String]
+  let scaleToBase: Double
+  let offsetToBase: Double
+
+  init(
+    id: String,
+    dimension: CalculatorQuantityDimension,
+    symbol: String,
+    aliases: [String],
+    scaleToBase: Double,
+    offsetToBase: Double = 0
+  ) {
+    self.id = id
+    self.dimension = dimension
+    self.symbol = symbol
+    self.aliases = aliases
+    self.scaleToBase = scaleToBase
+    self.offsetToBase = offsetToBase
+  }
+
+  func convertFromBase(_ value: Double) -> Double {
+    (value - offsetToBase) / scaleToBase
+  }
+
+  func convertToBase(_ value: Double) -> Double {
+    value * scaleToBase + offsetToBase
   }
 }

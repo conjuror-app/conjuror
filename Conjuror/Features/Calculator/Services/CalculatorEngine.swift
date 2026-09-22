@@ -23,6 +23,7 @@ struct CalculatorEngine {
     currencySource: CurrencySource = .off
   ) -> CalculatorResult? {
     let trimmedExpression = CalculatorInput.trimmed(expression)
+
     guard !trimmedExpression.isEmpty else {
       return nil
     }
@@ -45,6 +46,7 @@ struct CalculatorEngine {
       CalculatorRadixEvaluator().evaluate,
       CalculatorQuantityEvaluator(formattingOptions: formattingOptions).evaluate,
     ]
+
     if let specializedResult = evaluators.lazy.compactMap({ $0(trimmedExpression) }).first {
       return specializedResult
     }
@@ -54,6 +56,7 @@ struct CalculatorEngine {
     }
 
     var parser = CalculatorParser(tokens: tokens)
+
     guard let value = parser.parse(),
       parser.hasCalculatorIntent,
       value.isFinite
@@ -62,6 +65,7 @@ struct CalculatorEngine {
     }
 
     let formatter = CalculatorNumberFormatter(options: formattingOptions)
+
     guard let display = formatter.string(from: value, usesGroupingSeparator: true),
       let copyText = formatter.string(from: value, usesGroupingSeparator: false)
     else {
@@ -118,6 +122,7 @@ struct CalculatorNumberFormatter {
       }
 
     let ungroupedText = ungrouped(text, locale: locale)
+
     return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
   }
 
@@ -136,6 +141,7 @@ struct CalculatorNumberFormatter {
     let fractionDigits = currencyFractionDigits(for: currencyCode, locale: locale)
     let minorUnit = pow(10, -Double(fractionDigits))
     let text: String
+
     if magnitude < 1e-9 {
       text = String(format: "%.*f", locale: locale, fractionDigits, 0.0)
     } else if magnitude >= minorUnit {
@@ -148,13 +154,16 @@ struct CalculatorNumberFormatter {
         decimalPlaces,
         normalizedValue
       )
+
       while formatted.hasSuffix("0") {
         formatted.removeLast()
       }
+
       text = formatted
     }
 
     let ungroupedText = ungrouped(text, locale: locale)
+
     return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
   }
 
@@ -163,12 +172,14 @@ struct CalculatorNumberFormatter {
     formatter.locale = locale
     formatter.numberStyle = .currency
     formatter.currencyCode = code
+
     return formatter.maximumFractionDigits
   }
 
   private func ungrouped(_ text: String, locale: Locale) -> String {
     let formatter = NumberFormatter()
     formatter.locale = locale
+
     guard let groupingSeparator = formatter.groupingSeparator else {
       return text
     }
@@ -189,19 +200,23 @@ struct CalculatorNumberFormatter {
     let unsigned = sign.isEmpty ? text : String(text.dropFirst())
     let parts = unsigned.components(separatedBy: decimalSeparator)
     let integer = parts[0]
+
     guard integer.count > 3 else {
       return text
     }
 
     var groupedInteger = ""
+
     for (index, digit) in integer.enumerated() {
       if index > 0, (integer.count - index).isMultiple(of: 3) {
         groupedInteger += groupingSeparator
       }
+
       groupedInteger.append(digit)
     }
 
     let fraction = parts.count > 1 ? decimalSeparator + parts[1] : ""
+
     return sign + groupedInteger + fraction
   }
 }

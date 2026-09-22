@@ -12,6 +12,7 @@ final class ApplicationIconCache {
 
   func icon(for url: URL) -> NSImage {
     let key = url.standardizedFileURL.path as NSString
+
     if let icon = cache.object(forKey: key) {
       return icon
     }
@@ -19,6 +20,7 @@ final class ApplicationIconCache {
     let icon = NSWorkspace.shared.icon(forFile: url.path)
     icon.size = NSSize(width: 32, height: 32)
     cache.setObject(icon, forKey: key)
+
     return icon
   }
 }

@@ -6,9 +6,12 @@ struct Emoji: Identifiable, Hashable, Sendable {
     let compressed = try! Data(contentsOf: url) as NSData
     let data = try! compressed.decompressed(using: .zlib) as Data
     let raw = String(decoding: data, as: UTF8.self)
+
     return raw.split(separator: "\n").compactMap { line -> Emoji? in
       let fields = line.split(separator: "|", maxSplits: 3, omittingEmptySubsequences: false)
+
       guard fields.count == 4 else { return nil }
+
       return Emoji(
         value: String(fields[0]),
         name: String(fields[1]),
@@ -27,11 +30,14 @@ struct Emoji: Identifiable, Hashable, Sendable {
 
   var baseName: String {
     guard let separator = name.range(of: ": ") else { return name }
+
     let descriptors = descriptors(after: separator)
     let baseDescriptors = descriptors.filter { !EmojiSkinTone.modifierNames.contains($0) }
+
     guard baseDescriptors.count != descriptors.count else { return name }
 
     let prefix = name[..<separator.lowerBound]
+
     return baseDescriptors.isEmpty
       ? String(prefix)
       : "\(prefix): \(baseDescriptors.joined(separator: ", "))"
@@ -41,6 +47,7 @@ struct Emoji: Identifiable, Hashable, Sendable {
 
   var skinTones: [String] {
     guard let separator = name.range(of: ": ") else { return [] }
+
     return descriptors(after: separator).filter(EmojiSkinTone.modifierNames.contains)
   }
 

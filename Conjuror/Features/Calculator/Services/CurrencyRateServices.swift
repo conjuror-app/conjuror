@@ -11,6 +11,7 @@ struct CurrencyRateCache {
 
   func load() throws -> CurrencyRates {
     let data = try Data(contentsOf: url)
+
     return try JSONDecoder().decode(CurrencyRates.self, from: data)
   }
 
@@ -24,6 +25,7 @@ struct CurrencyRateCache {
 
   func remove() throws {
     guard FileManager.default.fileExists(atPath: url.path) else { return }
+
     try FileManager.default.removeItem(at: url)
   }
 }
@@ -48,16 +50,23 @@ struct CurrencyRateClient: Sendable {
   func fetch() async throws -> CurrencyRates? {
     let request = URLRequest(url: Self.endpoint, timeoutInterval: 20)
     let (data, response) = try await session.data(for: request)
+
     guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
       return nil
     }
+
     let rows = try JSONDecoder().decode([CurrencyRateRow].self, from: data)
+
     guard let first = rows.first else { return nil }
+
     var table = [String: Double]()
+
     for row in rows where row.base == first.base && row.rate.isFinite && row.rate > 0 {
       table[row.quote] = row.rate
     }
+
     guard !table.isEmpty else { return nil }
+
     return CurrencyRates(
       base: first.base,
       rates: table,

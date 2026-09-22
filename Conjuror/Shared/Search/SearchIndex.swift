@@ -28,12 +28,15 @@ struct SearchIndex<Item> {
     _ rhs: RankedCandidate
   ) -> Bool {
     if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
+
     if lhs.lastUse != rhs.lastUse {
       return (lhs.lastUse ?? .distantPast) > (rhs.lastUse ?? .distantPast)
     }
+
     if lhs.candidate.normalizedName != rhs.candidate.normalizedName {
       return lhs.candidate.normalizedName < rhs.candidate.normalizedName
     }
+
     return lhs.candidate.stableKey < rhs.candidate.stableKey
   }
 
@@ -45,6 +48,7 @@ struct SearchIndex<Item> {
     self.candidates = candidates.enumerated().map { index, candidate in
       let normalizedName = SearchText.normalized(candidate.name)
       let nameTokens = SearchText.tokens(in: normalizedName)
+
       return SearchableCandidate(
         itemIndex: index,
         normalizedName: normalizedName,
@@ -60,8 +64,10 @@ struct SearchIndex<Item> {
 
   func ranked(query: String, recency: [String: Date]) -> [Item] {
     let query = SearchQuery(query)
+
     return candidates.compactMap { candidate -> RankedCandidate? in
       guard let rank = candidate.matchRank(for: query) else { return nil }
+
       return RankedCandidate(
         candidate: candidate,
         rank: rank,
@@ -71,7 +77,6 @@ struct SearchIndex<Item> {
     .sorted(by: Self.rankOrder)
     .map { items[$0.candidate.itemIndex] }
   }
-
 }
 
 private extension SearchIndex {
@@ -87,8 +92,11 @@ private extension SearchIndex {
 
     func matchRank(for query: SearchQuery) -> SearchMatchRank? {
       guard !query.normalized.isEmpty else { return SearchMatchRank(category: 6) }
+
       if normalizedName == query.normalized { return SearchMatchRank(category: 0) }
+
       if normalizedName.hasPrefix(query.normalized) { return SearchMatchRank(category: 1) }
+
       if !query.tokens.isEmpty,
         query.tokens.allSatisfy({ token in
           nameTokens.contains(where: { $0.hasPrefix(token) })
@@ -96,18 +104,22 @@ private extension SearchIndex {
       {
         return SearchMatchRank(category: 2)
       }
+
       if !query.compact.isEmpty, acronym.hasPrefix(query.compact) {
         return SearchMatchRank(category: 3)
       }
+
       if normalizedName.contains(query.normalized)
         || compactName.contains(query.compact)
         || normalizedSecondaryText.contains(query.normalized)
       {
         return SearchMatchRank(category: 4)
       }
+
       if let score = SearchText.subsequenceScore(of: query.compact, in: compactName) {
         return SearchMatchRank(category: 5, score: score)
       }
+
       return nil
     }
   }
@@ -116,6 +128,58 @@ private extension SearchIndex {
     let candidate: SearchableCandidate
     let rank: SearchMatchRank
     let lastUse: Date?
+  }
+}
+
+enum SearchText {
+  static func normalized(_ value: String) -> String {
+    value
+      .folding(
+        options: [.caseInsensitive, .diacriticInsensitive],
+        locale: Locale(identifier: "en_US_POSIX")
+      )
+      .lowercased()
+      .split(whereSeparator: { $0.isWhitespace })
+      .joined(separator: " ")
+  }
+
+  static func tokens(in value: String) -> [String] {
+    value.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+  }
+
+  static func subsequenceScore(of query: String, in target: String) -> Int? {
+    guard !query.isEmpty else { return nil }
+
+    var firstPosition: Int?
+    var lastPosition: Int?
+    var targetIndex = target.startIndex
+    var targetPosition = 0
+    var matchedCount = 0
+
+    for queryCharacter in query {
+      var matchedPosition: Int?
+
+      while targetIndex < target.endIndex {
+        let targetCharacter = target[targetIndex]
+        target.formIndex(after: &targetIndex)
+        defer { targetPosition += 1 }
+
+        if targetCharacter == queryCharacter {
+          matchedPosition = targetPosition
+          break
+        }
+      }
+
+      guard let matchedPosition else { return nil }
+
+      firstPosition = firstPosition ?? matchedPosition
+      lastPosition = matchedPosition
+      matchedCount += 1
+    }
+
+    guard let firstPosition, let lastPosition else { return nil }
+
+    return (lastPosition - firstPosition + 1 - matchedCount) * 1_000 + firstPosition
   }
 }
 
@@ -138,51 +202,4 @@ private struct SearchMatchRank: Equatable, Comparable {
 
   let category: Int
   var score = 0
-}
-
-enum SearchText {
-  static func normalized(_ value: String) -> String {
-    value
-      .folding(
-        options: [.caseInsensitive, .diacriticInsensitive],
-        locale: Locale(identifier: "en_US_POSIX")
-      )
-      .lowercased()
-      .split(whereSeparator: { $0.isWhitespace })
-      .joined(separator: " ")
-  }
-
-  static func tokens(in value: String) -> [String] {
-    value.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
-  }
-
-  static func subsequenceScore(of query: String, in target: String) -> Int? {
-    guard !query.isEmpty else { return nil }
-    var firstPosition: Int?
-    var lastPosition: Int?
-    var targetIndex = target.startIndex
-    var targetPosition = 0
-    var matchedCount = 0
-
-    for queryCharacter in query {
-      var matchedPosition: Int?
-      while targetIndex < target.endIndex {
-        let targetCharacter = target[targetIndex]
-        target.formIndex(after: &targetIndex)
-        defer { targetPosition += 1 }
-        if targetCharacter == queryCharacter {
-          matchedPosition = targetPosition
-          break
-        }
-      }
-
-      guard let matchedPosition else { return nil }
-      firstPosition = firstPosition ?? matchedPosition
-      lastPosition = matchedPosition
-      matchedCount += 1
-    }
-
-    guard let firstPosition, let lastPosition else { return nil }
-    return (lastPosition - firstPosition + 1 - matchedCount) * 1_000 + firstPosition
-  }
 }

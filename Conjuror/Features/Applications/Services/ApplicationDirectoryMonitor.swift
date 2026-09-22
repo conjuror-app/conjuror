@@ -18,8 +18,10 @@ final class ApplicationDirectoryMonitor {
   @discardableResult
   func start(directories: [URL]) -> Bool {
     let paths = directories.map { $0.standardizedFileURL.resolvingSymlinksInPath().path }.sorted()
+
     if stream != nil, paths == watchedPaths { return true }
     stop()
+
     guard !paths.isEmpty else { return false }
 
     var context = FSEventStreamContext(
@@ -29,11 +31,13 @@ final class ApplicationDirectoryMonitor {
       release: nil,
       copyDescription: nil
     )
+
     guard
       let stream = FSEventStreamCreate(
         nil,
         { _, info, _, _, _, _ in
           guard let info else { return }
+
           // The stream delivers callbacks on the main queue and stops before deallocation.
           MainActor.assumeIsolated {
             Unmanaged<ApplicationDirectoryMonitor>.fromOpaque(info).takeUnretainedValue().onChange()
@@ -48,19 +52,23 @@ final class ApplicationDirectoryMonitor {
     else { return false }
 
     FSEventStreamSetDispatchQueue(stream, .main)
+
     guard FSEventStreamStart(stream) else {
       FSEventStreamInvalidate(stream)
       FSEventStreamRelease(stream)
+
       return false
     }
 
     self.stream = stream
     watchedPaths = paths
+
     return true
   }
 
   func stop() {
     guard let stream else { return }
+
     FSEventStreamStop(stream)
     FSEventStreamInvalidate(stream)
     FSEventStreamRelease(stream)

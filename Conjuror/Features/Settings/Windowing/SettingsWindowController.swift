@@ -52,6 +52,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     if !window.isVisible {
       window.center()
     }
+
     NSApp.activate(ignoringOtherApps: true)
     window.makeKeyAndOrderFront(nil)
     window.makeFirstResponder(nil)

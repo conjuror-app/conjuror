@@ -13,6 +13,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       targetSize: targetSize,
       visibleFrame: window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
     )
+
     guard window.frame != targetFrame else {
       return
     }
@@ -51,8 +52,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     )
     panel.backgroundColor = .clear
     panel.isOpaque = false
-    // Liquid Glass provides its own shaped edge and shadow. The window's
-    // legacy shadow follows the rectangular panel bounds.
+    // Glass draws the rounded shadow. The panel shadow would add a rectangular edge.
     panel.hasShadow = false
     panel.isFloatingPanel = true
     panel.isMovableByWindowBackground = false
@@ -63,9 +63,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     panel.onMoveSelection = { [weak store] direction in
       store?.moveSelection(direction)
     }
+
     panel.onCycleMode = { [weak store] in
       store?.cycleMode()
     }
+
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode == .emoji
@@ -146,6 +148,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       self.resizeWorkItem = nil
       Self.resize(window, height: height)
     }
+
     resizeWorkItem = workItem
     // SwiftUI may report the height during layout. Resize after that update finishes.
     DispatchQueue.main.async(execute: workItem)
@@ -154,6 +157,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   private func placeOnPreferredScreen(_ window: NSWindow) {
     guard let screen = preferredScreen() else {
       window.center()
+
       return
     }
 
@@ -168,6 +172,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   private func preferredScreen() -> NSScreen? {
     let pointerLocation = NSEvent.mouseLocation
+
     return NSScreen.screens.first { screen in
       screen.frame.contains(pointerLocation)
     } ?? NSScreen.main ?? NSScreen.screens.first

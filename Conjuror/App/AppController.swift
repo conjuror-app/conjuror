@@ -11,6 +11,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     fileSearcher: fileSearchService,
     onEvent: { [weak self] event in
       guard event != .launchSucceeded else { return }
+
       self?.hideLauncher()
     }
   )
@@ -62,6 +63,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     hasVisibleWindows flag: Bool
   ) -> Bool {
     showLauncher()
+
     return true
   }
 
@@ -116,6 +118,7 @@ final class AppController: NSObject, NSApplicationDelegate {
       }
     )
     self.launcherWindowController = launcherWindowController
+
     return launcherWindowController
   }
 
@@ -136,11 +139,13 @@ final class AppController: NSObject, NSApplicationDelegate {
         }
       )
     }
+
     settingsWindowController?.show()
   }
 
   private func configureStatusItem() {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+
     if let button = statusItem.button {
       let image = NSImage(
         systemSymbolName: "wand.and.stars",

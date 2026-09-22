@@ -92,6 +92,7 @@ struct CalculatorTimeZoneEvaluator {
     let left: String
     let targetTimeZone: TimeZone
     let targetAbbreviation: String?
+
     if let connector {
       left = String(normalized[..<connector.lowerBound])
         .trimmingCharacters(in: .whitespaces)
@@ -100,6 +101,7 @@ struct CalculatorTimeZoneEvaluator {
       guard let explicitTargetTimeZone = timeZone(abbreviated: targetName) else {
         return nil
       }
+
       targetTimeZone = explicitTargetTimeZone
       targetAbbreviation = targetName.uppercased()
     } else {
@@ -109,6 +111,7 @@ struct CalculatorTimeZoneEvaluator {
     }
 
     let words = left.split(whereSeparator: \.isWhitespace)
+
     guard !words.isEmpty else {
       return nil
     }
@@ -116,6 +119,7 @@ struct CalculatorTimeZoneEvaluator {
     var sourceTimeZone = currentTimeZone
     var sourceAbbreviation: String?
     var timeText = left
+
     if let sourceName = words.last.map(String.init),
       let explicitSourceTimeZone = timeZone(abbreviated: sourceName)
     {
@@ -129,6 +133,7 @@ struct CalculatorTimeZoneEvaluator {
     guard let time = parseTime(timeText) else {
       return nil
     }
+
     return Conversion(
       time: time,
       sourceTimeZone: sourceTimeZone,
@@ -140,12 +145,14 @@ struct CalculatorTimeZoneEvaluator {
 
   private func parseTime(_ text: String) -> ParsedTime? {
     let pattern = #"^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$"#
+
     guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
     else {
       return nil
     }
 
     let range = NSRange(text.startIndex..., in: text)
+
     guard let match = regex.firstMatch(in: text, range: range),
       match.range == range,
       let hourRange = Range(match.range(at: 1), in: text),
@@ -155,14 +162,17 @@ struct CalculatorTimeZoneEvaluator {
     }
 
     let minute: Int
+
     if let minuteRange = Range(match.range(at: 2), in: text) {
       guard let parsedMinute = Int(text[minuteRange]) else {
         return nil
       }
+
       minute = parsedMinute
     } else {
       minute = 0
     }
+
     guard minute < 60 else {
       return nil
     }
@@ -171,19 +181,23 @@ struct CalculatorTimeZoneEvaluator {
       guard (1...12).contains(hour) else {
         return nil
       }
+
       let meridiem = text[meridiemRange].lowercased()
       let normalizedHour = (hour % 12) + (meridiem == "pm" ? 12 : 0)
+
       return ParsedTime(hour: normalizedHour, minute: minute, usesTwelveHourClock: true)
     }
 
     guard (0...23).contains(hour) else {
       return nil
     }
+
     return ParsedTime(hour: hour, minute: minute, usesTwelveHourClock: false)
   }
 
   private func timeZone(abbreviated text: String) -> TimeZone? {
     let abbreviation = text.uppercased()
+
     if let offset = Self.fixedOffsets[abbreviation] {
       return TimeZone(secondsFromGMT: offset)
     }
@@ -193,6 +207,7 @@ struct CalculatorTimeZoneEvaluator {
     else {
       return nil
     }
+
     return TimeZone(secondsFromGMT: timeZone.secondsFromGMT(for: currentDate))
   }
 
@@ -208,6 +223,7 @@ struct CalculatorTimeZoneEvaluator {
     components.day = day.day
     components.hour = time.hour
     components.minute = time.minute
+
     return calendar.date(from: components)
   }
 
@@ -221,6 +237,7 @@ struct CalculatorTimeZoneEvaluator {
     formatter.timeZone = timeZone
     formatter.dateFormat = usesTwelveHourClock ? "h:mm a" : "HH:mm"
     let value = formatter.string(from: date)
+
     return usesTwelveHourClock ? value.lowercased() : value
   }
 }

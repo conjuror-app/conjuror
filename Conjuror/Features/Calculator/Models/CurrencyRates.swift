@@ -8,12 +8,15 @@ struct CurrencyRates: Codable, Equatable, Sendable {
 
   func rate(for code: String) -> Double? {
     let code = code.uppercased()
+
     if code == base {
       return 1
     }
+
     guard let rate = rates[code], rate.isFinite, rate > 0 else {
       return nil
     }
+
     return rate
   }
 
@@ -23,7 +26,9 @@ struct CurrencyRates: Codable, Equatable, Sendable {
     else {
       return nil
     }
+
     let value = amount / sourceRate * targetRate
+
     return value.isFinite ? value : nil
   }
 }

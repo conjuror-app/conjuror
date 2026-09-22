@@ -4,7 +4,6 @@ import SwiftUI
 
 @MainActor
 final class LauncherStore: ObservableObject {
-
   private static let emojiByValue = Dictionary(
     uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) }
   )
@@ -14,6 +13,7 @@ final class LauncherStore: ObservableObject {
       guard emoji.skinTones.count == 1,
         let modifierName = emoji.skinTones.first
       else { return nil }
+
       return (skinToneKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
     }
   )
@@ -30,6 +30,7 @@ final class LauncherStore: ObservableObject {
     didSet {
       refreshCurrentResults()
       selectFirstResult()
+
       if mode == .applications {
         launchErrorMessage = nil
       } else {
@@ -78,8 +79,11 @@ final class LauncherStore: ObservableObject {
 
   var displayedEmoji: [Emoji] {
     let emoji = preferredEmoji
+
     guard query.isEmpty else { return emoji }
+
     let recentIDs = Set(recentEmoji.map(\.id))
+
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
 
@@ -111,10 +115,13 @@ final class LauncherStore: ObservableObject {
 
     return filteredEmoji.compactMap { emoji in
       guard !emoji.hasSkinTone else { return nil }
+
       guard let modifierName = settingsStore.preferredEmojiSkinTone.modifierName else {
         return emoji
       }
+
       let variantKey = Self.skinToneKey(baseName: emoji.name, modifierName: modifierName)
+
       return Self.skinToneVariants[variantKey] ?? emoji
     }
   }
@@ -173,6 +180,7 @@ final class LauncherStore: ObservableObject {
     guard source != currencySource else {
       return
     }
+
     currencySource = source
     refreshCurrentResults()
     selectFirstResult()
@@ -181,12 +189,16 @@ final class LauncherStore: ObservableObject {
   func updateQuery(_ value: String) {
     guard let prefix = value.first, [";", ">", ":", "/"].contains(prefix) else {
       query = value
+
       return
     }
+
     if prefix == "/", !settingsStore.isFilesModuleEnabled {
       query = value
+
       return
     }
+
     let requestedMode: LauncherMode =
       switch prefix {
       case ";": .applications
@@ -194,6 +206,7 @@ final class LauncherStore: ObservableObject {
       case ":": .emoji
       default: .files
       }
+
     transition(to: requestedMode, query: String(value.dropFirst()))
   }
 
@@ -218,9 +231,11 @@ final class LauncherStore: ObservableObject {
       onLoadingChange: { [weak self] in self?.isLoading = $0 },
       completion: { [weak self] result in
         guard let self else { return }
+
         switch result {
         case .success(let applications):
           replaceApplications(with: applications)
+
           if mode == .applications { selectFirstResult() }
         case .failure(let error):
           replaceApplications(with: [])
@@ -234,6 +249,7 @@ final class LauncherStore: ObservableObject {
 
   func loadShortcuts() {
     guard !hasLoadedShortcuts else { return }
+
     hasLoadedShortcuts = true
     shortcutCatalogErrorMessage = nil
     let shortcutCatalog = shortcutCatalog
@@ -242,9 +258,11 @@ final class LauncherStore: ObservableObject {
       onLoadingChange: { [weak self] in self?.isLoadingShortcuts = $0 },
       completion: { [weak self] result in
         guard let self else { return }
+
         switch result {
         case .success(let shortcuts):
           replaceShortcuts(with: shortcuts)
+
           if mode == .shortcuts { selectFirstResult() }
         case .failure(let error):
           hasLoadedShortcuts = false
@@ -265,6 +283,7 @@ final class LauncherStore: ObservableObject {
     guard pointerDidMove() else {
       return
     }
+
     select(application)
   }
 
@@ -272,6 +291,7 @@ final class LauncherStore: ObservableObject {
     guard pointerDidMove(), calculatorResult != nil else {
       return
     }
+
     isCalculatorSelected = true
   }
 
@@ -283,6 +303,7 @@ final class LauncherStore: ObservableObject {
     guard pointerDidMove() else {
       return
     }
+
     select(shortcut)
   }
 
@@ -306,9 +327,11 @@ final class LauncherStore: ObservableObject {
         selectedID: selectedID
       )
       isCalculatorSelected = movedID == .calculator
+
       if case .application(let applicationID) = movedID {
         selectedApplicationID = applicationID
       }
+
     case .emoji:
       selectedEmojiID = movedSelection(
         direction,
@@ -339,6 +362,7 @@ final class LauncherStore: ObservableObject {
       } else if let selectedApplication {
         open(selectedApplication)
       }
+
     case .emoji:
       copySelectedEmoji()
     case .files:
@@ -361,6 +385,7 @@ final class LauncherStore: ObservableObject {
       operation: { try await launchApplication(application) },
       onSuccess: { [weak self] in
         guard let self else { return }
+
         applicationController.record(application)
         query = ""
         onEvent(.launchSucceeded)
@@ -376,6 +401,7 @@ final class LauncherStore: ObservableObject {
     guard let calculatorResult else {
       return
     }
+
     writeToClipboard(calculatorResult.copyText)
     query = ""
     onEvent(.calculatorResultCopied)
@@ -385,11 +411,13 @@ final class LauncherStore: ObservableObject {
 
   func selectOnHover(_ emoji: Emoji) {
     guard pointerDidMove() else { return }
+
     select(emoji)
   }
 
   func copySelectedEmoji() {
     guard let emoji = selectedEmoji else { return }
+
     writeToClipboard(emoji.value)
     emojiHistory.record(emoji)
     recentEmoji = Self.emoji(for: emojiHistory.load())
@@ -404,17 +432,22 @@ final class LauncherStore: ObservableObject {
 
   func selectOnHover(_ file: FileSearchResult) {
     guard pointerDidMove() else { return }
+
     select(file)
   }
 
   func openSelectedFile() {
     guard let file = selectedFile else { return }
+
     selectedFileID = file.id
     fileSearchErrorMessage = nil
+
     guard NSWorkspace.shared.open(file.url) else {
       fileSearchErrorMessage = "Couldn’t open \(file.displayName). The item could not be opened."
+
       return
     }
+
     query = ""
     onEvent(.fileOpened)
   }
@@ -435,6 +468,7 @@ final class LauncherStore: ObservableObject {
       operation: { try await runShortcut(shortcut) },
       onSuccess: { [weak self] in
         guard let self else { return }
+
         shortcutController.record(shortcut)
         runningShortcutIDs.remove(shortcut.id)
         query = ""
@@ -469,6 +503,7 @@ final class LauncherStore: ObservableObject {
       launchErrorMessage = nil
       transition(to: .applications)
     }
+
     focusRequest &+= 1
   }
 
@@ -480,7 +515,9 @@ final class LauncherStore: ObservableObject {
     Task {
       do {
         try await operation()
+
         guard !Task.isCancelled else { return }
+
         onSuccess()
       } catch is CancellationError {
         return
@@ -493,21 +530,26 @@ final class LauncherStore: ObservableObject {
   private func transition(to mode: LauncherMode, query: String? = "") {
     let mode = mode == .files && !settingsStore.isFilesModuleEnabled ? .applications : mode
     self.mode = mode
+
     if let query {
       self.query = query
     } else {
       refreshCurrentResults()
       selectFirstResult()
     }
+
     if mode == .shortcuts { loadShortcuts() }
   }
 
   private func pointerDidMove() -> Bool {
     let pointerLocation = NSEvent.mouseLocation
+
     guard pointerLocation != lastPointerLocation else {
       return false
     }
+
     lastPointerLocation = pointerLocation
+
     return true
   }
 
@@ -523,6 +565,7 @@ final class LauncherStore: ObservableObject {
 
     let currentIndex = selectedID.flatMap(results.firstIndex(of:)) ?? 0
     let nextIndex: Int
+
     switch direction {
     case .down:
       nextIndex = min(currentIndex + step, results.count - 1)
@@ -537,6 +580,7 @@ final class LauncherStore: ObservableObject {
     }
 
     selectionScrollRequest &+= 1
+
     return results[nextIndex]
   }
 
@@ -555,6 +599,7 @@ final class LauncherStore: ObservableObject {
       isCalculatorSelected = false
       selectedShortcutID = filteredShortcuts.first?.id
     }
+
     selectionScrollRequest &+= 1
   }
 
@@ -572,10 +617,12 @@ final class LauncherStore: ObservableObject {
 
   private func refreshCurrentResults() {
     calculatorResult = nil
+
     if mode != .files {
       fileController.cancel()
       isSearchingFiles = false
     }
+
     switch mode {
     case .applications: refreshApplications()
     case .emoji:
@@ -588,6 +635,7 @@ final class LauncherStore: ObservableObject {
 
   private func loadEmojiIfNeeded() {
     guard !hasLoadedEmoji else { return }
+
     hasLoadedEmoji = true
     emojiIndex = EmojiRanker.Index(emoji: Emoji.catalog)
     recentEmoji = Self.emoji(for: emojiHistory.load())
@@ -597,6 +645,7 @@ final class LauncherStore: ObservableObject {
     fileSearchErrorMessage = nil
     fileController.search(query: query) { [weak self] update in
       guard let self, mode == .files else { return }
+
       switch update {
       case .cleared:
         fileResults = []
@@ -639,7 +688,6 @@ final class LauncherStore: ObservableObject {
       query: mode == .shortcuts ? query : ""
     )
   }
-
 }
 
 enum LauncherEvent: Equatable {

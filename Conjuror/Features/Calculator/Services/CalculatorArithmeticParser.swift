@@ -1,141 +1,5 @@
 import Foundation
 
-enum CalculatorToken: Equatable {
-  case divide
-  case end
-  case identifier(String)
-  case leftParenthesis
-  case minus
-  case modulo
-  case multiply
-  case number(Double, isScientific: Bool)
-  case of
-  case percent
-  case plus
-  case power
-  case rightParenthesis
-}
-
-enum CalculatorLexer {
-  static func tokenize(_ expression: String) -> [CalculatorToken]? {
-    let canonicalExpression =
-      expression
-      .lowercased()
-      .replacingOccurrences(of: "multiplied by", with: "*")
-      .replacingOccurrences(of: "divided by", with: "/")
-      .replacingOccurrences(of: "to the power of", with: "^")
-      .replacingOccurrences(of: "raised to", with: "^")
-    let characters = Array(canonicalExpression)
-    var index = 0
-    var tokens = [CalculatorToken]()
-
-    while index < characters.count {
-      let character = characters[index]
-      if character.isWhitespace {
-        index += 1
-        continue
-      }
-
-      if character.isNumber || character == "." {
-        guard let token = numberToken(in: characters, index: &index) else {
-          return nil
-        }
-        tokens.append(token)
-        continue
-      }
-
-      if character.isLetter || character == "π" {
-        let start = index
-        while index < characters.count,
-          characters[index].isLetter || characters[index] == "π"
-        {
-          index += 1
-        }
-        let word = String(characters[start..<index])
-        tokens.append(token(for: word))
-        continue
-      }
-
-      switch character {
-      case "+": tokens.append(.plus)
-      case "-", "−": tokens.append(.minus)
-      case "*", "×": tokens.append(.multiply)
-      case "/", "÷": tokens.append(.divide)
-      case "^": tokens.append(.power)
-      case "%": tokens.append(.percent)
-      case "(": tokens.append(.leftParenthesis)
-      case ")": tokens.append(.rightParenthesis)
-      default: return nil
-      }
-      index += 1
-    }
-
-    tokens.append(.end)
-    return tokens
-  }
-
-  static func numberToken(
-    in characters: [Character],
-    index: inout Int
-  ) -> CalculatorToken? {
-    let start = index
-    var hasDecimalPoint = false
-    var hasDigit = false
-
-    while index < characters.count {
-      let character = characters[index]
-      if character.isNumber {
-        hasDigit = true
-        index += 1
-      } else if character == ".", !hasDecimalPoint {
-        hasDecimalPoint = true
-        index += 1
-      } else {
-        break
-      }
-    }
-
-    guard hasDigit else {
-      return nil
-    }
-
-    var isScientific = false
-    if index < characters.count, characters[index] == "e" {
-      var exponentEnd = index + 1
-      if exponentEnd < characters.count,
-        characters[exponentEnd] == "+" || characters[exponentEnd] == "-"
-      {
-        exponentEnd += 1
-      }
-      let digitStart = exponentEnd
-      while exponentEnd < characters.count, characters[exponentEnd].isNumber {
-        exponentEnd += 1
-      }
-      if exponentEnd > digitStart {
-        isScientific = true
-        index = exponentEnd
-      }
-    }
-
-    guard let value = Double(String(characters[start..<index])) else {
-      return nil
-    }
-    return .number(value, isScientific: isScientific)
-  }
-
-  private static func token(for word: String) -> CalculatorToken {
-    switch word {
-    case "plus": .plus
-    case "minus": .minus
-    case "times": .multiply
-    case "over": .divide
-    case "mod": .modulo
-    case "of": .of
-    default: .identifier(word)
-    }
-  }
-}
-
 struct CalculatorParser {
   private struct ParsedValue {
     let number: Double
@@ -167,6 +31,7 @@ struct CalculatorParser {
     guard let value = parseAddition(), currentToken == .end else {
       return nil
     }
+
     return value.number
   }
 
@@ -179,6 +44,7 @@ struct CalculatorParser {
       let operation = currentToken
       hasCalculatorIntent = true
       advance()
+
       guard let right = parseMultiplication() else {
         return nil
       }
@@ -212,11 +78,13 @@ struct CalculatorParser {
 
     while true {
       let operation = currentToken
+
       if operation == .multiply || operation == .divide
         || operation == .modulo || operation == .of
       {
         hasCalculatorIntent = true
         advance()
+
         guard let right = parseUnary() else {
           return nil
         }
@@ -231,6 +99,7 @@ struct CalculatorParser {
           guard right.number != 0 else {
             return nil
           }
+
           left = ParsedValue(
             number: left.number / right.number,
             isPercent: false
@@ -239,6 +108,7 @@ struct CalculatorParser {
           guard right.number != 0 else {
             return nil
           }
+
           left = ParsedValue(
             number: left.number.truncatingRemainder(dividingBy: right.number),
             isPercent: false
@@ -248,9 +118,11 @@ struct CalculatorParser {
         }
       } else if startsImplicitMultiplication(currentToken) {
         hasCalculatorIntent = true
+
         guard let right = parseUnary() else {
           return nil
         }
+
         left = ParsedValue(
           number: left.number * right.number,
           isPercent: false
@@ -264,15 +136,20 @@ struct CalculatorParser {
   private mutating func parseUnary() -> ParsedValue? {
     if currentToken == .plus {
       advance()
+
       return parseUnary()
     }
+
     if currentToken == .minus {
       advance()
+
       guard let value = parseUnary() else {
         return nil
       }
+
       return ParsedValue(number: -value.number, isPercent: value.isPercent)
     }
+
     return parsePower()
   }
 
@@ -280,15 +157,18 @@ struct CalculatorParser {
     guard let left = parsePostfix() else {
       return nil
     }
+
     guard currentToken == .power else {
       return left
     }
 
     hasCalculatorIntent = true
     advance()
+
     guard let right = parseUnary() else {
       return nil
     }
+
     return ParsedValue(
       number: Foundation.pow(left.number, right.number),
       isPercent: false
@@ -299,11 +179,13 @@ struct CalculatorParser {
     guard var value = parsePrimary() else {
       return nil
     }
+
     while currentToken == .percent {
       hasCalculatorIntent = true
       advance()
       value = ParsedValue(number: value.number / 100, isPercent: true)
     }
+
     return value
   }
 
@@ -313,14 +195,19 @@ struct CalculatorParser {
       if isScientific {
         hasCalculatorIntent = true
       }
+
       advance()
+
       return ParsedValue(number: number, isPercent: false)
     case .leftParenthesis:
       advance()
+
       guard let value = parseAddition(), currentToken == .rightParenthesis else {
         return nil
       }
+
       advance()
+
       return value
     case .identifier(let name):
       return parseIdentifier(name)
@@ -333,40 +220,49 @@ struct CalculatorParser {
     if let constant = Self.constants[name] {
       hasCalculatorIntent = true
       advance()
+
       return ParsedValue(number: constant, isPercent: false)
     }
 
     guard Self.functions.contains(name) else {
       return nil
     }
+
     hasCalculatorIntent = true
     advance()
 
     let argument: ParsedValue
+
     if currentToken == .leftParenthesis {
       advance()
+
       guard let parsedArgument = parseAddition(), currentToken == .rightParenthesis else {
         return nil
       }
+
       advance()
       argument = parsedArgument
     } else {
       guard let parsedArgument = parseUnary() else {
         return nil
       }
+
       argument = parsedArgument
     }
 
     let number: Double
+
     switch name {
     case "abs": number = Swift.abs(argument.number)
     case "sqrt":
       guard argument.number >= 0 else {
         return nil
       }
+
       number = Foundation.sqrt(argument.number)
     default: return nil
     }
+
     return ParsedValue(number: number, isPercent: false)
   }
 
@@ -383,5 +279,154 @@ struct CalculatorParser {
 
   private mutating func advance() {
     index += 1
+  }
+}
+
+enum CalculatorToken: Equatable {
+  case divide
+  case end
+  case identifier(String)
+  case leftParenthesis
+  case minus
+  case modulo
+  case multiply
+  case number(Double, isScientific: Bool)
+  case of
+  case percent
+  case plus
+  case power
+  case rightParenthesis
+}
+
+enum CalculatorLexer {
+  static func tokenize(_ expression: String) -> [CalculatorToken]? {
+    let canonicalExpression =
+      expression
+      .lowercased()
+      .replacingOccurrences(of: "multiplied by", with: "*")
+      .replacingOccurrences(of: "divided by", with: "/")
+      .replacingOccurrences(of: "to the power of", with: "^")
+      .replacingOccurrences(of: "raised to", with: "^")
+    let characters = Array(canonicalExpression)
+    var index = 0
+    var tokens = [CalculatorToken]()
+
+    while index < characters.count {
+      let character = characters[index]
+
+      if character.isWhitespace {
+        index += 1
+        continue
+      }
+
+      if character.isNumber || character == "." {
+        guard let token = numberToken(in: characters, index: &index) else {
+          return nil
+        }
+
+        tokens.append(token)
+        continue
+      }
+
+      if character.isLetter || character == "π" {
+        let start = index
+
+        while index < characters.count,
+          characters[index].isLetter || characters[index] == "π"
+        {
+          index += 1
+        }
+
+        let word = String(characters[start..<index])
+        tokens.append(token(for: word))
+        continue
+      }
+
+      switch character {
+      case "+": tokens.append(.plus)
+      case "-", "−": tokens.append(.minus)
+      case "*", "×": tokens.append(.multiply)
+      case "/", "÷": tokens.append(.divide)
+      case "^": tokens.append(.power)
+      case "%": tokens.append(.percent)
+      case "(": tokens.append(.leftParenthesis)
+      case ")": tokens.append(.rightParenthesis)
+      default: return nil
+      }
+
+      index += 1
+    }
+
+    tokens.append(.end)
+
+    return tokens
+  }
+
+  static func numberToken(
+    in characters: [Character],
+    index: inout Int
+  ) -> CalculatorToken? {
+    let start = index
+    var hasDecimalPoint = false
+    var hasDigit = false
+
+    while index < characters.count {
+      let character = characters[index]
+
+      if character.isNumber {
+        hasDigit = true
+        index += 1
+      } else if character == ".", !hasDecimalPoint {
+        hasDecimalPoint = true
+        index += 1
+      } else {
+        break
+      }
+    }
+
+    guard hasDigit else {
+      return nil
+    }
+
+    var isScientific = false
+
+    if index < characters.count, characters[index] == "e" {
+      var exponentEnd = index + 1
+
+      if exponentEnd < characters.count,
+        characters[exponentEnd] == "+" || characters[exponentEnd] == "-"
+      {
+        exponentEnd += 1
+      }
+
+      let digitStart = exponentEnd
+
+      while exponentEnd < characters.count, characters[exponentEnd].isNumber {
+        exponentEnd += 1
+      }
+
+      if exponentEnd > digitStart {
+        isScientific = true
+        index = exponentEnd
+      }
+    }
+
+    guard let value = Double(String(characters[start..<index])) else {
+      return nil
+    }
+
+    return .number(value, isScientific: isScientific)
+  }
+
+  private static func token(for word: String) -> CalculatorToken {
+    switch word {
+    case "plus": .plus
+    case "minus": .minus
+    case "times": .multiply
+    case "over": .divide
+    case "mod": .modulo
+    case "of": .of
+    default: .identifier(word)
+    }
   }
 }

@@ -26,6 +26,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       .filter { fileManager.fileExists(atPath: $0.path) }
 
     var seenPaths = Set<String>()
+
     return (standardDirectories + mountedApplicationDirectories).filter { directory in
       seenPaths.insert(canonicalURL(directory).path).inserted
     }
@@ -47,6 +48,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
         }
 
         let canonicalPath = canonicalURL(candidate.url).path
+
         guard seenURLs.insert(canonicalPath).inserted else {
           return false
         }
@@ -71,12 +73,14 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     return candidates.map { candidate in
       let matches = nameGroups[SearchText.normalized(candidate.displayName)] ?? []
       var displayName = candidate.displayName
+
       if matches.count > 1 {
         let filename = candidate.url.deletingPathExtension().lastPathComponent
         let matchingFilenames = matches.filter {
           SearchText.normalized($0.url.deletingPathExtension().lastPathComponent)
             == SearchText.normalized(filename)
         }
+
         displayName =
           matchingFilenames.count > 1
           ? "\(filename) (\(candidate.url.deletingLastPathComponent().path))"
@@ -100,14 +104,15 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
     for (sourcePriority, directory) in directories.enumerated() {
       try Task.checkCancellation()
+
       guard fileManager.fileExists(atPath: directory.path) else {
         continue
       }
 
       let keys: [URLResourceKey] = [.isDirectoryKey, .isPackageKey]
 
-      // Some system-provided applications, including Safari, are top-level symlinks marked
-      // hidden by Finder. A recursive enumerator that skips hidden files omits them entirely.
+      // Finder hides some top-level app symlinks, including Safari.
+      // Scan them separately because the recursive scan skips hidden files.
       let topLevelApplications =
         (try? fileManager.contentsOfDirectory(
           at: directory,
@@ -117,14 +122,17 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       for url in topLevelApplications
       where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
         try Task.checkCancellation()
+
         guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
           continue
         }
+
         candidates.append(candidate)
         candidatePaths.insert(canonicalURL(url).path)
       }
 
       var enumerationError: Error?
+
       guard
         let enumerator = fileManager.enumerator(
           at: directory,
@@ -132,6 +140,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
           options: [.skipsHiddenFiles, .skipsPackageDescendants],
           errorHandler: { _, error in
             enumerationError = error
+
             return false
           }
         )
@@ -143,11 +152,13 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       for case let url as URL in enumerator
       where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
         try Task.checkCancellation()
+
         guard !candidatePaths.contains(canonicalURL(url).path),
           let candidate = candidate(at: url, sourcePriority: sourcePriority)
         else {
           continue
         }
+
         candidates.append(candidate)
         candidatePaths.insert(canonicalURL(url).path)
       }
@@ -203,8 +214,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       bundleIdentifier: bundle.bundleIdentifier,
       url: canonicalURL(url),
       sourcePriority: sourcePriority,
-      // Agent applications (LSUIElement) can still be user-facing launch targets, such as
-      // Raycast. Only exclude applications that explicitly run in the background.
+      // LSUIElement apps such as Raycast can be launched. Exclude only background-only apps.
       isBackgroundOnly: info["LSBackgroundOnly"] as? Bool == true,
       isHelper: isHelper
     )
@@ -220,6 +230,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
     let lhsName = SearchText.normalized(lhs.displayName)
     let rhsName = SearchText.normalized(rhs.displayName)
+
     if lhsName != rhsName {
       return lhsName < rhsName
     }
@@ -236,11 +247,13 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
     let scanTask = Task.detached(priority: .userInitiated) {
       let candidates = try Self.scan(directories: directories)
+
       return Self.filteredAndDeduplicated(
         candidates,
         excludingBundleIdentifier: nil
       )
     }
+
     let candidates = try await withTaskCancellationHandler {
       try await scanTask.value
     } onCancel: {
@@ -272,6 +285,7 @@ private enum ApplicationCatalogError: LocalizedError {
     switch self {
     case let .unreadableDirectories(directories):
       let names = directories.map(\.path).joined(separator: ", ")
+
       return "Couldn’t read application directories: \(names)"
     }
   }

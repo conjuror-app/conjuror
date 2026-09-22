@@ -72,6 +72,7 @@ struct CalculatorRelativeDateEvaluator {
     }
 
     let direction: Direction = String(match.3).lowercased() == "ago" ? .ago : .fromNow
+
     guard let date = date(byAdding: amount * direction.multiplier, unit: unit) else {
       return nil
     }
@@ -93,12 +94,14 @@ struct CalculatorRelativeDateEvaluator {
   private func date(byAdding amount: Double, unit: Unit) -> Date? {
     let wholeAmount = Int(amount.rounded(.towardZero))
     let fraction = amount - Double(wholeAmount)
+
     guard unit.secondsPerUnit != nil || fraction == 0 else {
       return nil
     }
 
     var calendar = Calendar.autoupdatingCurrent
     calendar.timeZone = timeZone
+
     guard
       let wholeDate = calendar.date(
         byAdding: unit.calendarComponent,
@@ -112,6 +115,7 @@ struct CalculatorRelativeDateEvaluator {
     guard let secondsPerUnit = unit.secondsPerUnit else {
       return wholeDate
     }
+
     return wholeDate.addingTimeInterval(fraction * secondsPerUnit)
   }
 }
