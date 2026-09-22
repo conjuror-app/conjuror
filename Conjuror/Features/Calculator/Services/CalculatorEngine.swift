@@ -18,13 +18,9 @@ struct CalculatorEngine {
     self.localeCurrencyCode = localeCurrencyCode
   }
 
-  func evaluate(_ expression: String) -> CalculatorResult? {
-    evaluate(expression, currencySource: .off)
-  }
-
   func evaluate(
     _ expression: String,
-    currencySource: CurrencySource
+    currencySource: CurrencySource = .off
   ) -> CalculatorResult? {
     let trimmedExpression = CalculatorInput.trimmed(expression)
     guard !trimmedExpression.isEmpty else {

@@ -20,6 +20,9 @@ struct CalculatorQuantityTests {
     #expect(evaluate("-40 c to f") == "-40 °F")
     #expect(evaluate("1 L to mL") == "1000 mL")
     #expect(evaluate("1 GiB to MiB") == "1024 MiB")
+    #expect(evaluate("1e3 m to km") == "1 km")
+    #expect(evaluate("1e-3 kg to g") == "1 g")
+    #expect(evaluate("1e+3 g to kg") == "1 kg")
   }
 
   @Test("Calculator quantity: in and arrow separators are accepted")
@@ -140,6 +143,8 @@ struct CalculatorQuantityTests {
     #expect((engine.evaluate("1 kg + 1 m")) == nil)
     #expect((engine.evaluate("5 ft 3 kg")) == nil)
     #expect((engine.evaluate("10 km to kg")) == nil)
+    #expect(engine.evaluate("1e kg to g") == nil)
+    #expect(engine.evaluate("1e400 kg to g") == nil)
   }
 
   @Test("Calculator quantity: results carry summarized source and unit badges")

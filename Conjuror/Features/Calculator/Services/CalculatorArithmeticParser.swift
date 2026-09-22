@@ -74,7 +74,7 @@ enum CalculatorLexer {
     return tokens
   }
 
-  private static func numberToken(
+  static func numberToken(
     in characters: [Character],
     index: inout Int
   ) -> CalculatorToken? {
