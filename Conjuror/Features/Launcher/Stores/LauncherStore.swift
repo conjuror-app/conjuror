@@ -97,8 +97,8 @@ final class LauncherStore: ObservableObject {
   private let onEvent: (LauncherEvent) -> Void
 
   private var currencySource = CurrencySource.off
-  private let applicationLoader = CatalogReloadCoordinator<InstalledApplication>()
-  private let shortcutsLoader = CatalogReloadCoordinator<AppleShortcut>()
+  private let applicationLoader = CatalogLoader<InstalledApplication>()
+  private let shortcutsLoader = CatalogLoader<AppleShortcut>()
   private var applicationIndexIncludesSystemSettings: Bool?
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
