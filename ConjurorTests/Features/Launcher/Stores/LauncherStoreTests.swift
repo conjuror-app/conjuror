@@ -121,8 +121,8 @@ struct LauncherStoreTests {
     #expect(!(store.isCalculatorSelected))
   }
 
-  @Test("Launcher store: active loads run one follow-up refresh for a load request")
-  func testLoadRequestDuringActiveLoadRunsOneFollowUpRefresh() async {
+  @Test("Load requests share one follow-up refresh", arguments: [false, true])
+  func testQueuedReload(cancelFirst: Bool) async {
     let firstApplications = [application("Alpha", id: "dev.example.alpha")]
     let refreshedApplications = [application("Beta", id: "dev.example.beta")]
     let catalog = ControlledCatalog()
@@ -139,7 +139,11 @@ struct LauncherStoreTests {
 
     store.loadApplications()
     store.loadApplications()
-    catalog.resumeNext(returning: firstApplications)
+    if cancelFirst {
+      catalog.cancelNext()
+    } else {
+      catalog.resumeNext(returning: firstApplications)
+    }
     await catalog.waitForLoadCount(2)
 
     #expect(store.isLoading)
@@ -413,6 +417,10 @@ private final class ControlledCatalog: ApplicationCatalogLoading {
 
   func resumeNext(returning applications: [InstalledApplication]) {
     continuations.removeFirst().resume(returning: applications)
+  }
+
+  func cancelNext() {
+    continuations.removeFirst().resume(throwing: CancellationError())
   }
 
   func waitForLoadCount(_ expectedCount: Int) async {
