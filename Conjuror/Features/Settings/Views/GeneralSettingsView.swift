@@ -154,12 +154,11 @@ struct GeneralSettingsView: View {
       circle.lineWidth = 1
       circle.stroke()
     } else {
-      let color = borderColorComponents(for: style)
       NSColor(
-        srgbRed: color.red,
-        green: color.green,
-        blue: color.blue,
-        alpha: 1
+        LauncherAccentColor.color(
+          for: style,
+          customBorderColor: store.launcherCustomBorderColor
+        )
       ).setFill()
       circle.fill()
     }
@@ -167,14 +166,5 @@ struct GeneralSettingsView: View {
     image.unlockFocus()
     image.isTemplate = false
     return image
-  }
-
-  private func borderColorComponents(for style: LauncherBorderStyle) -> LauncherBorderColor {
-    switch style {
-    case .disabled, .cyan: .default
-    case .purple: LauncherBorderColor(red: 89 / 255, green: 70 / 255, blue: 216 / 255)
-    case .yellow: LauncherBorderColor(red: 243 / 255, green: 200 / 255, blue: 78 / 255)
-    case .custom: store.launcherCustomBorderColor
-    }
   }
 }
