@@ -10,7 +10,7 @@ enum CalculatorQuantityToken: Equatable {
 
 enum CalculatorQuantityLexer {
   static func tokenize(_ expression: String) -> [CalculatorQuantityToken]? {
-    let canonicalExpression = CalculatorInput.normalizingConversionConnectors(
+    let canonicalExpression = CalculatorInput.normalizeConversion(
       expression,
       lowercased: true
     )

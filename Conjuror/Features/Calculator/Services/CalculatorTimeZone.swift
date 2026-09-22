@@ -1,7 +1,7 @@
 import Foundation
 
 struct CalculatorTimeZoneEvaluator {
-  private static let fixedOffsetsByAbbreviation = [
+  private static let fixedOffsets = [
     "UTC": 0,
     "GMT": 0,
     "WET": 0,
@@ -85,7 +85,7 @@ struct CalculatorTimeZoneEvaluator {
   }
 
   private func parse(_ expression: String) -> Conversion? {
-    let normalized = CalculatorInput.normalizingConversionConnectors(expression)
+    let normalized = CalculatorInput.normalizeConversion(expression)
     let lowercased = normalized.lowercased()
     let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
 
@@ -184,7 +184,7 @@ struct CalculatorTimeZoneEvaluator {
 
   private func timeZone(abbreviated text: String) -> TimeZone? {
     let abbreviation = text.uppercased()
-    if let offset = Self.fixedOffsetsByAbbreviation[abbreviation] {
+    if let offset = Self.fixedOffsets[abbreviation] {
       return TimeZone(secondsFromGMT: offset)
     }
 

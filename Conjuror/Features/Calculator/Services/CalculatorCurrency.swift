@@ -53,7 +53,7 @@ struct CalculatorCurrencyEvaluator {
   }
 
   private func parse(_ expression: String) -> Conversion? {
-    let normalized = CalculatorInput.normalizingConversionConnectors(expression)
+    let normalized = CalculatorInput.normalizeConversion(expression)
     let lowercased = normalized.lowercased()
     let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
 

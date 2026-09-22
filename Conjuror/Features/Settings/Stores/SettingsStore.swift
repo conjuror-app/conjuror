@@ -43,7 +43,7 @@ final class SettingsStore: ObservableObject {
   nonisolated static let defaultMaximumVisibleResults = 7
   nonisolated static let maximumVisibleResultsRange = 3...10
 
-  private static func clampedMaximumVisibleResults(_ value: Int) -> Int {
+  private static func clampResultCount(_ value: Int) -> Int {
     min(
       max(value, maximumVisibleResultsRange.lowerBound),
       maximumVisibleResultsRange.upperBound
@@ -112,7 +112,7 @@ final class SettingsStore: ObservableObject {
     let storedMaximum =
       userDefaults.value(for: Key.maximumVisibleResults)
       ?? Self.defaultMaximumVisibleResults
-    maximumVisibleResults = Self.clampedMaximumVisibleResults(storedMaximum)
+    maximumVisibleResults = Self.clampResultCount(storedMaximum)
     preferredEmojiSkinTone =
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
@@ -169,7 +169,7 @@ final class SettingsStore: ObservableObject {
   }
 
   func setMaximumVisibleResults(_ value: Int) {
-    let clampedValue = Self.clampedMaximumVisibleResults(value)
+    let clampedValue = Self.clampResultCount(value)
     maximumVisibleResults = clampedValue
     userDefaults.set(clampedValue, for: Key.maximumVisibleResults)
   }
