@@ -147,10 +147,14 @@ final class AppController: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
     if let button = statusItem.button {
+      let configuration = NSImage.SymbolConfiguration(
+        pointSize: 14,
+        weight: .semibold
+      ).applying(.preferringMonochrome())
       let image = NSImage(
         systemSymbolName: "wand.and.stars",
         accessibilityDescription: "Conjuror"
-      )
+      )?.withSymbolConfiguration(configuration)
       image?.isTemplate = true
       button.image = image
       button.toolTip = "Conjuror"
