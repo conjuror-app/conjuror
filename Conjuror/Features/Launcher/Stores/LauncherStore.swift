@@ -11,14 +11,14 @@ final class LauncherStore: ObservableObject {
 
   private static let skinToneVariants = Dictionary(
     uniqueKeysWithValues: Emoji.catalog.compactMap { emoji -> (String, Emoji)? in
-      guard emoji.skinToneModifierNames.count == 1,
-        let modifierName = emoji.skinToneModifierNames.first
+      guard emoji.skinTones.count == 1,
+        let modifierName = emoji.skinTones.first
       else { return nil }
-      return (skinToneVariantKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
+      return (skinToneKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
     }
   )
 
-  private static func skinToneVariantKey(baseName: String, modifierName: String) -> String {
+  private static func skinToneKey(baseName: String, modifierName: String) -> String {
     "\(baseName)\0\(modifierName)"
   }
 
@@ -77,7 +77,7 @@ final class LauncherStore: ObservableObject {
   }
 
   var displayedEmoji: [Emoji] {
-    let emoji = skinToneAdjustedEmoji
+    let emoji = preferredEmoji
     guard query.isEmpty else { return emoji }
     let recentIDs = Set(recentEmoji.map(\.id))
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
@@ -99,14 +99,14 @@ final class LauncherStore: ObservableObject {
   private var currencySource = CurrencySource.off
   private let applicationLoader = CatalogLoader<InstalledApplication>()
   private let shortcutsLoader = CatalogLoader<AppleShortcut>()
-  private var applicationIndexIncludesSystemSettings: Bool?
+  private var includesSystemSettings: Bool?
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
   private var hasLoadedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
 
-  private var skinToneAdjustedEmoji: [Emoji] {
+  private var preferredEmoji: [Emoji] {
     guard !isExplicitSkinToneQuery else { return filteredEmoji }
 
     return filteredEmoji.compactMap { emoji in
@@ -114,13 +114,13 @@ final class LauncherStore: ObservableObject {
       guard let modifierName = settingsStore.preferredEmojiSkinTone.modifierName else {
         return emoji
       }
-      let variantKey = Self.skinToneVariantKey(baseName: emoji.name, modifierName: modifierName)
+      let variantKey = Self.skinToneKey(baseName: emoji.name, modifierName: modifierName)
       return Self.skinToneVariants[variantKey] ?? emoji
     }
   }
 
   private var isExplicitSkinToneQuery: Bool {
-    EmojiRanker.explicitlyRequestsSkinTone(query)
+    EmojiRanker.requestsSkinTone(query)
   }
 
   private var selectedApplication: InstalledApplication? {
@@ -560,7 +560,7 @@ final class LauncherStore: ObservableObject {
 
   private func replaceApplications(with applications: [InstalledApplication]) {
     self.applications = applications
-    applicationIndexIncludesSystemSettings = nil
+    includesSystemSettings = nil
     refreshApplications()
   }
 
@@ -620,11 +620,11 @@ final class LauncherStore: ObservableObject {
   private func refreshApplications() {
     let includesSystemSettings =
       settingsStore.showsSystemSettingsItems && !query.trimmingCharacters(in: .whitespaces).isEmpty
-    if applicationIndexIncludesSystemSettings != includesSystemSettings {
+    if self.includesSystemSettings != includesSystemSettings {
       applicationController.replace(
         includesSystemSettings ? applications + SystemSettingsCatalog.items : applications
       )
-      applicationIndexIncludesSystemSettings = includesSystemSettings
+      self.includesSystemSettings = includesSystemSettings
     }
 
     let result = calculator.evaluate(query, currencySource: currencySource)

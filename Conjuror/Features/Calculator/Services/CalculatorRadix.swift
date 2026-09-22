@@ -7,7 +7,7 @@ struct CalculatorRadixEvaluator {
       return nil
     }
 
-    let canonicalExpression = CalculatorInput.normalizingConversionConnectors(
+    let canonicalExpression = CalculatorInput.normalizeConversion(
       trimmedExpression,
       lowercased: true
     )

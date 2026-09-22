@@ -23,7 +23,7 @@ struct SearchIndex<Item> {
     }
   }
 
-  private static func areInIncreasingOrder(
+  private static func rankOrder(
     _ lhs: RankedCandidate,
     _ rhs: RankedCandidate
   ) -> Bool {
@@ -68,7 +68,7 @@ struct SearchIndex<Item> {
         lastUse: recency[candidate.recencyKey]
       )
     }
-    .sorted(by: Self.areInIncreasingOrder)
+    .sorted(by: Self.rankOrder)
     .map { items[$0.candidate.itemIndex] }
   }
 

@@ -48,7 +48,7 @@ struct EmojiRanker {
     }
   }
 
-  static func explicitlyRequestsSkinTone(_ query: String) -> Bool {
+  static func requestsSkinTone(_ query: String) -> Bool {
     let query = normalized(query)
     return query.contains("skin tone") || query.contains("light")
       || query.contains("medium") || query.contains("dark")

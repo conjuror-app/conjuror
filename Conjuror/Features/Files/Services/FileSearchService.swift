@@ -136,7 +136,7 @@ final class SpotlightSearchOperation: @unchecked Sendable {
           queue: .main
         ) { [weak self] _ in
           MainActor.assumeIsolated {
-            self?.finishIfCandidateLimitReached()
+            self?.finishIfFull()
           }
         },
       ]
@@ -163,7 +163,7 @@ final class SpotlightSearchOperation: @unchecked Sendable {
     complete(with: .failure(CancellationError()))
   }
 
-  private func finishIfCandidateLimitReached() {
+  private func finishIfFull() {
     guard metadataQuery.resultCount >= candidateLimit else { return }
     finish()
   }

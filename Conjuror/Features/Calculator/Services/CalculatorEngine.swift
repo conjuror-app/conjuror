@@ -81,7 +81,7 @@ enum CalculatorInput {
     expression.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
-  static func normalizingConversionConnectors(
+  static func normalizeConversion(
     _ expression: String,
     lowercased: Bool = false
   ) -> String {

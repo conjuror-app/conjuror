@@ -32,7 +32,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   private var settingsWindowController: SettingsWindowController?
   private var cancellables = Set<AnyCancellable>()
   private var volumeObservers = [NSObjectProtocol]()
-  private let catalogRefreshDebouncer = MainQueueDebouncer(delay: 1)
+  private let catalogRefresh = Debouncer(delay: 1)
   private lazy var applicationDirectoryMonitor = ApplicationDirectoryMonitor { [weak self] in
     self?.scheduleCatalogRefresh()
   }
@@ -50,7 +50,7 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   func applicationWillTerminate(_ notification: Notification) {
     applicationDirectoryMonitor.stop()
-    catalogRefreshDebouncer.cancel()
+    catalogRefresh.cancel()
 
     let notificationCenter = NSWorkspace.shared.notificationCenter
     volumeObservers.forEach(notificationCenter.removeObserver)
@@ -212,7 +212,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   private func scheduleCatalogRefresh() {
-    catalogRefreshDebouncer.schedule { [weak self] in
+    catalogRefresh.schedule { [weak self] in
       self?.applicationDirectoryMonitor.start(
         directories: ApplicationCatalog.applicationDirectories()
       )
@@ -222,7 +222,7 @@ final class AppController: NSObject, NSApplicationDelegate {
 }
 
 @MainActor
-private final class MainQueueDebouncer {
+private final class Debouncer {
   private let delay: TimeInterval
   private var workItem: DispatchWorkItem?
 

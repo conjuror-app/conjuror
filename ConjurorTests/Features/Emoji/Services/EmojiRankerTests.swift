@@ -6,8 +6,8 @@ import Testing
 struct EmojiRankerTests {
   @Test("Recognizes explicit skin-tone searches")
   func testRecognizesExplicitSkinToneQueries() {
-    #expect(EmojiRanker.explicitlyRequestsSkinTone("medium-dark skin tone"))
-    #expect(!EmojiRanker.explicitlyRequestsSkinTone("waving hand"))
+    #expect(EmojiRanker.requestsSkinTone("medium-dark skin tone"))
+    #expect(!EmojiRanker.requestsSkinTone("waving hand"))
   }
 
   @Test("Emoji ranking: CLDR keywords match emoji")

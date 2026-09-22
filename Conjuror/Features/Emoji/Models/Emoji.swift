@@ -27,7 +27,7 @@ struct Emoji: Identifiable, Hashable, Sendable {
 
   var baseName: String {
     guard let separator = name.range(of: ": ") else { return name }
-    let descriptors = descriptorComponents(after: separator)
+    let descriptors = descriptors(after: separator)
     let baseDescriptors = descriptors.filter { !EmojiSkinTone.modifierNames.contains($0) }
     guard baseDescriptors.count != descriptors.count else { return name }
 
@@ -37,14 +37,14 @@ struct Emoji: Identifiable, Hashable, Sendable {
       : "\(prefix): \(baseDescriptors.joined(separator: ", "))"
   }
 
-  var hasSkinTone: Bool { !skinToneModifierNames.isEmpty }
+  var hasSkinTone: Bool { !skinTones.isEmpty }
 
-  var skinToneModifierNames: [String] {
+  var skinTones: [String] {
     guard let separator = name.range(of: ": ") else { return [] }
-    return descriptorComponents(after: separator).filter(EmojiSkinTone.modifierNames.contains)
+    return descriptors(after: separator).filter(EmojiSkinTone.modifierNames.contains)
   }
 
-  private func descriptorComponents(after separator: Range<String.Index>) -> [String] {
+  private func descriptors(after separator: Range<String.Index>) -> [String] {
     name[separator.upperBound...]
       .split(separator: ",")
       .map { $0.trimmingCharacters(in: .whitespaces) }
