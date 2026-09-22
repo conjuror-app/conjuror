@@ -24,7 +24,6 @@ struct Emoji: Identifiable, Hashable, Sendable {
   let keywords: [String]
 
   var id: String { value }
-  var persistenceKey: String { value }
 
   var baseName: String {
     guard let separator = name.range(of: ": ") else { return name }
