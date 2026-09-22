@@ -64,7 +64,7 @@ struct CalculatorRelativeDateEvaluator {
       ),
       let amount = Double(match.1),
       amount > 0,
-      amount <= Double(Int.max),
+      amount < Double(Int.max),
       amount.isFinite,
       let unit = Unit(rawValue: String(match.2).lowercased())
     else {
