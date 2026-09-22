@@ -115,7 +115,7 @@ struct LauncherResultsView: View {
               store.openSelectedFile()
             }
           )
-          .id(file.id)
+          .id(LauncherResultID.file(file.id))
         }
       }
     }
