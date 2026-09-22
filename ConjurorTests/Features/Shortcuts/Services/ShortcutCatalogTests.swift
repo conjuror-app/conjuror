@@ -31,6 +31,17 @@ struct ShortcutCatalogTests {
     #expect(shortcuts == [supported])
   }
 
+  @Test("Existing caches can contain unused colour and action-count fields")
+  func testExistingCache() throws {
+    let data = Data(
+      #"[{"id":"lights","name":"Lights","subtitle":"","acceptsInput":false,"color":{"red":1,"green":2,"blue":3},"actionCount":2}]"#.utf8
+    )
+
+    let shortcuts = try ShortcutCatalogProcess.shortcuts(from: data)
+
+    #expect(shortcuts == [AppleShortcut(id: "lights", name: "Lights", subtitle: "", acceptsInput: false)])
+  }
+
   @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
   func testRunScriptUsesTheShortcutIdentifierDirectly() {
     let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
@@ -93,9 +104,8 @@ struct ShortcutCatalogTests {
     let data = try #require(bitmap.representation(using: .png, properties: [:]))
     let response = NSAppleEventDescriptor.list()
     let record = record(id: "icon-id", name: "Lights", subtitle: "", acceptsInput: false)
-    record.insert(NSAppleEventDescriptor.list(), at: 5)
     let descriptor = try #require(NSAppleEventDescriptor(descriptorType: 0x504E_4766, data: data))
-    record.insert(descriptor, at: 6)
+    record.insert(descriptor, at: 5)
     response.insert(record, at: 1)
 
     let shortcuts = try ShortcutsEventsBridge.parseShortcutList(response)
@@ -111,8 +121,7 @@ struct ShortcutCatalogTests {
   func testInvalidIconPreservesShortcut() throws {
     let response = NSAppleEventDescriptor.list()
     let record = record(id: "icon-id", name: "Lights", subtitle: "", acceptsInput: false)
-    record.insert(NSAppleEventDescriptor.list(), at: 5)
-    record.insert(NSAppleEventDescriptor(string: "invalid image"), at: 6)
+    record.insert(NSAppleEventDescriptor(string: "invalid image"), at: 5)
     response.insert(record, at: 1)
 
     let shortcut = try #require(ShortcutsEventsBridge.parseShortcutList(response).first)

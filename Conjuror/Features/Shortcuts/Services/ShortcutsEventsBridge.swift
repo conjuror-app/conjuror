@@ -8,9 +8,7 @@ enum ShortcutsEventsBridge {
       tell application id "com.apple.shortcuts.events"
           set shortcutRecords to {}
           repeat with candidate in shortcuts
-              set shortcutColor to color of candidate
-              set {redValue, greenValue, blueValue} to shortcutColor
-              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, {redValue, greenValue, blueValue}, icon of candidate, action count of candidate}
+              set end of shortcutRecords to {id of candidate as text, name of candidate as text, subtitle of candidate as text, accepts input of candidate, icon of candidate}
           end repeat
           return shortcutRecords
       end tell
@@ -56,35 +54,12 @@ enum ShortcutsEventsBridge {
         name: name,
         subtitle: record.atIndex(3)?.stringValue ?? "",
         acceptsInput: record.atIndex(4)?.booleanValue ?? false,
-        actionCount: record.numberOfItems >= 7
-          ? Int(record.atIndex(7)?.int32Value ?? 0)
-          : nil,
-        color: shortcutColor(from: record.atIndex(5)),
-        iconData: compressedIconData(from: record.atIndex(6))
+        iconData: iconData(from: record.atIndex(5))
       )
     }
   }
 
-  private static func shortcutColor(
-    from descriptor: NSAppleEventDescriptor?
-  ) -> AppleShortcut.Color? {
-    guard let descriptor,
-      descriptor.numberOfItems == 3,
-      let red = descriptor.atIndex(1),
-      let green = descriptor.atIndex(2),
-      let blue = descriptor.atIndex(3)
-    else {
-      return nil
-    }
-
-    return AppleShortcut.Color(
-      red: UInt16(clamping: red.int32Value),
-      green: UInt16(clamping: green.int32Value),
-      blue: UInt16(clamping: blue.int32Value)
-    )
-  }
-
-  private static func compressedIconData(
+  private static func iconData(
     from descriptor: NSAppleEventDescriptor?
   ) -> Data? {
     guard let descriptor,
