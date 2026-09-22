@@ -7,7 +7,7 @@ import Testing
 
 @Suite("Launcher Window Controller")
 struct LauncherWindowControllerTests {
-  @Test("Launcher layout: collapsed and expanded heights", arguments: LauncherAppearance.allCases)
+  @Test("Collapsed and expanded heights", arguments: LauncherAppearance.allCases)
   func testAppearanceHeights(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
     let expanded = layout.expandedHeight(
@@ -23,11 +23,12 @@ struct LauncherWindowControllerTests {
   }
 
   @Test(
-    "Launcher layout: results beyond the visible limit do not grow the panel",
+    "Results beyond the visible limit do not grow the panel",
     arguments: LauncherAppearance.allCases
   )
   func testHeightCapsVisibleResults(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
+
     for resultCount in [3, 4, 100] {
       let height = layout.expandedHeight(
         resultCount: resultCount,
@@ -41,7 +42,7 @@ struct LauncherWindowControllerTests {
   }
 
   @Test(
-    "Launcher layout: empty states and errors reserve space in both appearances",
+    "Empty states and errors reserve space in both appearances",
     arguments: LauncherAppearance.allCases
   )
   func testEmptyAndErrorHeights(appearance: LauncherAppearance) {
@@ -74,15 +75,15 @@ struct LauncherWindowControllerTests {
   }
 
   @MainActor
-  @Test("Launcher window controller: height changes resize after the current update")
-  func testHeightChangesResizeAfterCurrentUpdate() async throws {
+  @Test("Height changes resize after the current update")
+  func testDeferredResize() async throws {
     let controller = makeController()
     defer { controller.hide() }
     let window = try #require(controller.window)
     let hostingController = try #require(
       window.contentViewController as? NSHostingController<LauncherView>
     )
-    // Let this test report arbitrary heights without the collapsed view constraining the window.
+    // Allow test heights without SwiftUI constraining the window.
     hostingController.sizingOptions = []
     let initialFrame = window.frame
 
@@ -95,7 +96,7 @@ struct LauncherWindowControllerTests {
   }
 
   @MainActor
-  @Test("Launcher window controller: hiding releases content without animation or queued resizing")
+  @Test("Hiding releases content without animation or queued resizing")
   func testHideDiscardsPendingResizes() async throws {
     let controller = makeController()
     defer { controller.hide() }
@@ -121,8 +122,8 @@ struct LauncherWindowControllerTests {
     #expect(!window.isVisible)
   }
 
-  @Test("Launcher window controller: centered frames use visible-frame coordinates")
-  func testCenteredFrameUsesVisibleFrameCoordinates() {
+  @Test("Centered frames use visible-frame coordinates")
+  func testCenteredFrame() {
     let visibleFrame = NSRect(x: 1_000, y: 50, width: 800, height: 600)
 
     let frame = LauncherWindowGeometry.centeredFrame(
@@ -134,8 +135,8 @@ struct LauncherWindowControllerTests {
     #expect(frame.origin.y == 473)
   }
 
-  @Test("Launcher window controller: resized frames keep the top edge and stay visible")
-  func testResizedFrameKeepsTopEdgeAndStaysVisible() {
+  @Test("Resized frames keep the top edge and stay visible")
+  func testResizeKeepsTopEdge() {
     let visibleFrame = NSRect(x: 0, y: 40, width: 1_000, height: 600)
     let currentFrame = NSRect(x: 230, y: 400, width: 540, height: 54)
 
@@ -149,8 +150,8 @@ struct LauncherWindowControllerTests {
     #expect(frame.minY >= visibleFrame.minY)
   }
 
-  @Test("Launcher window controller: window frames are constrained to small visible frames")
-  func testWindowFrameIsConstrainedToSmallVisibleFrame() {
+  @Test("Window frames are constrained to small visible frames")
+  func testSmallScreen() {
     let visibleFrame = NSRect(x: 100, y: 200, width: 400, height: 300)
 
     let frame = LauncherWindowGeometry.centeredFrame(
@@ -162,11 +163,12 @@ struct LauncherWindowControllerTests {
   }
 
   @Test(
-    "Launcher layout: emoji rows, recent header, and scrolling limit",
+    "Emoji rows, recent header, and scrolling limit",
     arguments: LauncherAppearance.allCases
   )
   func testEmojiHeights(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
+
     for itemCount in [1, 9] {
       let height = layout.emojiExpandedHeight(
         itemCount: itemCount,
@@ -176,6 +178,7 @@ struct LauncherWindowControllerTests {
       )
       #expect(height == (appearance == .standard ? 132 : 89))
     }
+
     let twoRows = layout.emojiExpandedHeight(
       itemCount: 10,
       hasRecentHeader: false,
@@ -195,13 +198,13 @@ struct LauncherWindowControllerTests {
     }
   }
 
-  @Test("Launcher window controller: command shortcuts ignore Caps Lock and reject other modifiers")
-  func testCommandShortcutsIgnoreCapsLockAndRejectOtherModifiers() {
+  @Test("Command shortcuts ignore Caps Lock and reject other modifiers")
+  func testCommandModifiers() {
     #expect(LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock]))
-    #expect(!(LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option])))
+    #expect(!LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option]))
   }
 
-  @Test("Launcher window controller: horizontal navigation requires opt-in")
+  @Test("Horizontal navigation requires opt-in")
   func testHorizontalNavigationRequiresOptIn() {
     #expect(
       (LauncherKeyboardNavigation.direction(
@@ -220,8 +223,8 @@ struct LauncherWindowControllerTests {
     )
   }
 
-  @Test("Launcher window controller: keyboard navigation ignores modified arrows and marked text")
-  func testKeyboardNavigationIgnoresModifiedArrowsAndMarkedText() {
+  @Test("Keyboard navigation ignores modified arrows and marked text")
+  func testArrowModifiersAndMarkedText() {
     #expect(
       (LauncherKeyboardNavigation.direction(
         forKeyCode: UInt16(kVK_UpArrow),
@@ -245,8 +248,8 @@ struct LauncherWindowControllerTests {
     )
   }
 
-  @Test("Launcher window controller: text-editing commands recognize standard shortcuts")
-  func testTextEditingCommandRecognizesStandardShortcuts() {
+  @Test("Text-editing commands recognize standard shortcuts")
+  func testEditingShortcuts() {
     #expect(command("a") == .selectAll)
     #expect(command("c") == .copy)
     #expect(command("v") == .paste)
@@ -255,16 +258,16 @@ struct LauncherWindowControllerTests {
     #expect(command("Z", modifiers: [.command, .shift]) == .redo)
   }
 
-  @Test("Launcher window controller: text-editing commands ignore unsupported modifiers and keys")
-  func testTextEditingCommandIgnoresUnsupportedModifiersAndKeys() {
-    #expect((command("a", modifiers: .option)) == nil)
-    #expect((command("b")) == nil)
-    #expect((command(nil)) == nil)
+  @Test("Text-editing commands ignore unsupported modifiers and keys")
+  func testUnsupportedEditingShortcuts() {
+    #expect(command("a", modifiers: .option) == nil)
+    #expect(command("b") == nil)
+    #expect(command(nil) == nil)
   }
 
   @MainActor
-  @Test("Launcher window controller: the panel routes unmodified Tab to mode cycling")
-  func testPanelRoutesUnmodifiedTabToModeCycling() {
+  @Test("The panel routes unmodified Tab to mode cycling")
+  func testTabCyclesMode() {
     let panel = makePanel()
     defer { panel.close() }
     var cycleCount = 0
@@ -277,7 +280,7 @@ struct LauncherWindowControllerTests {
   }
 
   @MainActor
-  @Test("Launcher window controller: the panel preserves arrow-key navigation")
+  @Test("The panel preserves arrow-key navigation")
   func testPanelPreservesArrowKeyNavigation() {
     let panel = makePanel()
     defer { panel.close() }
@@ -291,9 +294,9 @@ struct LauncherWindowControllerTests {
 
   @MainActor
   @Test(
-    "Launcher window controller: the panel gives Command-Q precedence over the text-editing responder"
+    "The panel gives Command-Q precedence over the text-editing responder"
   )
-  func testPanelGivesCommandQPrecedenceOverTextEditingResponder() {
+  func testCommandQPrecedence() {
     let panel = makePanel()
     defer { panel.close() }
     let textView = RecordingTextView()
@@ -309,9 +312,9 @@ struct LauncherWindowControllerTests {
 
   @MainActor
   @Test(
-    "Launcher window controller: the panel routes text-editing shortcuts to the active text view"
+    "The panel routes text-editing shortcuts to the active text view"
   )
-  func testPanelRoutesTextEditingShortcutsToActiveTextView() {
+  func testEditingResponder() {
     let panel = makePanel()
     defer { panel.close() }
     let textView = RecordingTextView()
@@ -335,14 +338,14 @@ struct LauncherWindowControllerTests {
 
   @MainActor
   @Test(
-    "Launcher window controller: the panel does not consume text-editing shortcuts outside a text editor"
+    "The panel does not consume text-editing shortcuts outside a text editor"
   )
-  func testPanelDoesNotConsumeTextEditingShortcutOutsideTextEditor() {
+  func testNoEditingResponder() {
     let panel = makePanel()
     defer { panel.close() }
     panel.contentView?.addSubview(NSButton())
 
-    #expect(!(panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command))))
+    #expect(!panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command)))
   }
 
   private func command(
@@ -359,6 +362,7 @@ struct LauncherWindowControllerTests {
   private func makeController() -> LauncherWindowController {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     let hotKeys = HotKeyStore(settingsStore: settings, onHotKeyPressed: { _ in })
+
     return LauncherWindowController(
       store: LauncherStore(settingsStore: settings),
       settingsStore: settings,
@@ -387,6 +391,7 @@ struct LauncherWindowControllerTests {
     )
     panel.contentView = NSView(frame: panel.contentView?.bounds ?? .zero)
     panel.makeKeyAndOrderFront(nil)
+
     return panel
   }
 
@@ -409,7 +414,6 @@ struct LauncherWindowControllerTests {
       keyCode: keyCode
     )!
   }
-
 }
 
 private final class RecordingTextView: NSTextView {

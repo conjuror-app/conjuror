@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Emoji Ranker")
 struct EmojiRankerTests {
-  @Test("Emoji ranker: recognizes explicit skin-tone searches")
+  @Test("Recognizes explicit skin-tone searches")
   func testRecognizesExplicitSkinToneQueries() {
     #expect(EmojiRanker.explicitlyRequestsSkinTone("medium-dark skin tone"))
     #expect(!EmojiRanker.explicitlyRequestsSkinTone("waving hand"))

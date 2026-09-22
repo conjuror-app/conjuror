@@ -6,8 +6,8 @@ import Testing
 @Suite("Currency Rate Store")
 @MainActor
 struct CurrencyRateStoreTests {
-  @Test("Currency rate store: refresh task does not retain the store while sleeping")
-  func testRefreshTaskDoesNotRetainStoreWhileSleeping() async throws {
+  @Test("Refresh task does not retain the store while sleeping")
+  func testRefreshReleasesStore() async throws {
     let userDefaults = makeTestUserDefaults()
     userDefaults.set(true, forKey: "settings.currencyConversionEnabled")
     let cacheURL = FileManager.default.temporaryDirectory
@@ -22,6 +22,7 @@ struct CurrencyRateStoreTests {
     defer { try? FileManager.default.removeItem(at: cacheURL) }
 
     weak var weakStore: CurrencyRateStore?
+
     do {
       let store = CurrencyRateStore(userDefaults: userDefaults, cacheURL: cacheURL)
       weakStore = store
@@ -32,6 +33,7 @@ struct CurrencyRateStoreTests {
     for _ in 0..<10 where weakStore != nil {
       await Task.yield()
     }
+
     #expect(weakStore == nil)
   }
 }

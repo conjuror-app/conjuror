@@ -7,5 +7,6 @@ func makeTestUserDefaults(
   let suiteName = "ConjurorTests.\(fileID).\(function).\(UUID().uuidString)"
   let userDefaults = UserDefaults(suiteName: suiteName)!
   userDefaults.removePersistentDomain(forName: suiteName)
+
   return userDefaults
 }

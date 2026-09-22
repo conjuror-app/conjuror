@@ -5,8 +5,8 @@ import Testing
 
 @Suite("Application Catalog")
 struct ApplicationCatalogTests {
-  @Test("Application catalog: system CoreServices applications directory is included")
-  func testIncludesSystemCoreServicesApplicationsDirectory() {
+  @Test("System CoreServices applications directory is included")
+  func testCoreServicesDirectory() {
     let directories = ApplicationCatalog.applicationDirectories(mountedVolumeURLs: [])
 
     #expect(
@@ -16,8 +16,8 @@ struct ApplicationCatalogTests {
     )
   }
 
-  @Test("Application catalog: mounted-volume Applications directories are included")
-  func testIncludesApplicationsDirectoryFromMountedVolume() throws {
+  @Test("Mounted-volume Applications directories are included")
+  func testMountedVolumeDirectory() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
       .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -39,8 +39,8 @@ struct ApplicationCatalogTests {
     #expect(directories.contains(mountedApplications))
   }
 
-  @Test("Application catalog: helper, background, and Conjuror apps are filtered")
-  func testFiltersHelpersBackgroundAppsAndConjuror() {
+  @Test("Helper, background, and Conjuror apps are filtered")
+  func testCatalogFiltering() {
     let candidates = [
       candidate("Visible", id: "dev.example.visible", path: "/Applications/Visible.app"),
       candidate(
@@ -82,7 +82,7 @@ struct ApplicationCatalogTests {
     #expect(result == [conjuror])
   }
 
-  @Test("Application catalog: distinct installations survive while canonical URLs are deduplicated")
+  @Test("Distinct installations survive while canonical URLs are deduplicated")
   func testDeduplicatesOnlyByCanonicalURL() {
     let candidates = [
       candidate(
@@ -108,6 +108,7 @@ struct ApplicationCatalogTests {
   func testSearchesSeparateXcodeInstallations() throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: directory) }
+
     for filename in ["Xcode", "Xcode-27.1.0-Beta"] {
       try createApplication(
         named: filename,
@@ -117,6 +118,7 @@ struct ApplicationCatalogTests {
         displayName: "Xcode"
       )
     }
+
     let alias = directory.appendingPathComponent("Xcode Alias.app")
     try FileManager.default.createSymbolicLink(
       at: alias,
@@ -139,7 +141,7 @@ struct ApplicationCatalogTests {
     )
   }
 
-  @Test("Application catalog: identical filenames are distinguished by their directories")
+  @Test("Identical filenames are distinguished by their directories")
   func testDistinguishesIdenticalFilenames() {
     let applications = ApplicationCatalog.installedApplications(from: [
       candidate("Editor", id: "dev.example.editor", path: "/Applications/Editor.app"),
@@ -154,8 +156,8 @@ struct ApplicationCatalogTests {
     )
   }
 
-  @Test("Application catalog: top-level symlinked agent applications are scanned")
-  func testScansTopLevelSymlinkedAgentApplications() throws {
+  @Test("Top-level symlinked agent applications are scanned")
+  func testSymlinkedApps() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
       .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -226,8 +228,8 @@ struct ApplicationCatalogTests {
     #expect(candidates.first?.bundleIdentifier == "com.apple.Passwords")
   }
 
-  @Test("Application catalog: throws when no configured directory is readable")
-  func testThrowsWhenNoConfiguredDirectoryCanBeRead() throws {
+  @Test("Throws when no configured directory is readable")
+  func testUnreadableDirectories() throws {
     let fileManager = FileManager.default
     let fileURL = fileManager.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
@@ -237,8 +239,8 @@ struct ApplicationCatalogTests {
     #expect(throws: (any Error).self) { try ApplicationCatalog.scan(directories: [fileURL]) }
   }
 
-  @Test("Application catalog: apps without a package type need an executable")
-  func testScansUntypedApplicationsWithExecutables() throws {
+  @Test("Apps without a package type need an executable")
+  func testUntypedApps() throws {
     let fileManager = FileManager.default
     let directory = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? fileManager.removeItem(at: directory) }
@@ -269,8 +271,8 @@ struct ApplicationCatalogTests {
     #expect(candidates.map(\.displayName) == ["Icon Composer"])
   }
 
-  @Test("Application catalog: returns empty when at least one configured directory is readable")
-  func testReturnsEmptyWhenAtLeastOneConfiguredDirectoryIsReadable() throws {
+  @Test("Returns empty when at least one configured directory is readable")
+  func testEmptyReadableDirectory() throws {
     let fileManager = FileManager.default
     let temporaryDirectory = fileManager.temporaryDirectory
       .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -331,6 +333,7 @@ struct ApplicationCatalogTests {
     ]
     info["CFBundlePackageType"] = packageType
     info["CFBundleDisplayName"] = displayName
+
     if executable {
       info["CFBundleExecutable"] = name
       let executableDirectory = contentsURL.appendingPathComponent("MacOS", isDirectory: true)
@@ -345,6 +348,7 @@ struct ApplicationCatalogTests {
         ofItemAtPath: executableURL.path
       )
     }
+
     let infoData = try PropertyListSerialization.data(
       fromPropertyList: info,
       format: .xml,

@@ -6,7 +6,7 @@ import Testing
 @Suite("File Search Service")
 struct FileSearchServiceTests {
   @MainActor
-  @Test("File access: iCloud Drive is included")
+  @Test("ICloud Drive is included")
   func testFileAccessIncludesICloudDrive() {
     let fileManager = FileManager.default
     let expectedURL = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(
@@ -20,8 +20,8 @@ struct FileSearchServiceTests {
   }
 
   @MainActor
-  @Test("Spotlight search: unavailable query reports an error")
-  func testUnavailableSpotlightQueryReportsError() async {
+  @Test("Unavailable query reports an error")
+  func testUnavailableSpotlight() async {
     let metadataQuery = MetadataQueryStub()
     metadataQuery.startResult = false
     let operation = SpotlightSearchOperation(
@@ -45,8 +45,8 @@ struct FileSearchServiceTests {
   }
 
   @MainActor
-  @Test("Spotlight search: gathering stops at the candidate limit")
-  func testSpotlightGatheringStopsAtCandidateLimit() async throws {
+  @Test("Gathering stops at the candidate limit")
+  func testCandidateLimit() async throws {
     let metadataQuery = MetadataQueryStub()
     let operation = SpotlightSearchOperation(
       query: "notes",
@@ -56,6 +56,7 @@ struct FileSearchServiceTests {
       metadataQuery: metadataQuery
     )
     let resultsTask = Task { try await operation.results() }
+
     while !metadataQuery.didStart {
       await Task.yield()
     }
@@ -73,7 +74,7 @@ struct FileSearchServiceTests {
   }
 
   @MainActor
-  @Test("Spotlight search: stalled query reports a timeout")
+  @Test("Stalled query reports a timeout")
   func testStalledSpotlightQueryReportsTimeout() async {
     let metadataQuery = MetadataQueryStub()
     let operation = SpotlightSearchOperation(
@@ -96,21 +97,21 @@ struct FileSearchServiceTests {
     #expect(metadataQuery.didStop)
   }
 
-  @Test("Spotlight filename query: each word becomes an ordered fuzzy pattern")
-  func testSpotlightPatternsUseOrderedCharactersPerWord() {
+  @Test("Each word becomes an ordered fuzzy pattern")
+  func testFuzzyPatterns() {
     #expect(SpotlightFilenameQuery.patterns(for: "xcd") == ["*x*c*d*"])
     #expect(SpotlightFilenameQuery.patterns(for: "rés umé") == ["*r*e*s*", "*u*m*e*"])
     #expect(SpotlightFilenameQuery.patterns(for: "char games") == ["*c*h*a*r*", "*g*a*m*e*s*"])
   }
 
-  @Test("Spotlight filename query: wildcard characters are escaped")
-  func testSpotlightPatternEscapesWildcardCharacters() {
+  @Test("Wildcard characters are escaped")
+  func testEscapedWildcards() {
     #expect(SpotlightFilenameQuery.patterns(for: "*") == ["*\\**"])
     #expect(SpotlightFilenameQuery.patterns(for: "?") == ["*\\?*"])
     #expect(SpotlightFilenameQuery.patterns(for: "\\") == ["*\\\\*"])
   }
 
-  @Test("Spotlight filename query: single words use a direct predicate")
+  @Test("Single words use a direct predicate")
   func testSingleWordSpotlightPredicateIsDirect() {
     let predicate = SpotlightFilenameQuery.predicate(for: "notes")
 
@@ -122,8 +123,8 @@ struct FileSearchServiceTests {
     )
   }
 
-  @Test("Spotlight filename query: fuzzy words match across a filename")
-  func testSpotlightFuzzyWordsMatchAcrossFilename() {
+  @Test("Fuzzy words match across a filename")
+  func testFuzzyWords() {
     let predicate = SpotlightFilenameQuery.predicate(for: "char games")
 
     #expect(
@@ -133,7 +134,7 @@ struct FileSearchServiceTests {
     )
   }
 
-  @Test("File ranking: fuzzy subsequences match filenames")
+  @Test("Fuzzy subsequences match filenames")
   func testFuzzySubsequenceMatchesFilename() {
     let results = [result("Xylophone"), result("Xcode")]
 
@@ -142,7 +143,7 @@ struct FileSearchServiceTests {
     #expect(ranked.map(\.displayName) == ["Xcode", "Xylophone"])
   }
 
-  @Test("File ranking: compact fuzzy matches rank first")
+  @Test("Compact fuzzy matches rank first")
   func testCompactFuzzyMatchesRankFirst() {
     let results = [result("Xylocardial"), result("Xcode")]
 
@@ -151,7 +152,7 @@ struct FileSearchServiceTests {
     #expect(ranked.map(\.displayName) == ["Xcode", "Xylocardial"])
   }
 
-  @Test("File ranking: existing directory tie-break is preserved")
+  @Test("Existing directory tie-break is preserved")
   func testDirectoryTieBreakIsPreserved() {
     let results = [
       result("Alpha file", isDirectory: false), result("Alpha folder", isDirectory: true),
@@ -185,6 +186,7 @@ private final class MetadataQueryStub: NSMetadataQuery {
 
   override func start() -> Bool {
     didStart = true
+
     return startResult
   }
 
