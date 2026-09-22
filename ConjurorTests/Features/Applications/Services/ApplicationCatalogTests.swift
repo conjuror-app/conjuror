@@ -5,6 +5,15 @@ import Testing
 
 @Suite("Application Catalog")
 struct ApplicationCatalogTests {
+  @Test("The user's Applications directory is included in the scan and monitor paths")
+  func testUserApplicationsDirectory() {
+    let directories = ApplicationCatalog.applicationDirectories(mountedVolumeURLs: [])
+    let userApplications = FileManager.default.homeDirectoryForCurrentUser
+      .appendingPathComponent("Applications", isDirectory: true)
+
+    #expect(directories.contains(userApplications))
+  }
+
   @Test("System CoreServices applications directory is included")
   func testCoreServicesDirectory() {
     let directories = ApplicationCatalog.applicationDirectories(mountedVolumeURLs: [])
