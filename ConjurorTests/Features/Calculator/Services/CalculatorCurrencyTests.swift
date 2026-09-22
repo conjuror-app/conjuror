@@ -4,8 +4,8 @@ import Testing
 @testable import Conjuror
 
 extension CalculatorEngineTests {
-  @Test("Calculator engine: currency codes and symbols work when enabled")
-  func testCurrencyConversionSupportsCodesAndSymbolsWhenEnabled() {
+  @Test("Currency codes and symbols work when enabled")
+  func testCurrencyCodesAndSymbols() {
     let rates = CurrencyRates(
       base: "USD",
       rates: ["EUR": 0.8, "GBP": 0.5, "JPY": 100],
@@ -18,7 +18,7 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText == "2500 JPY")
   }
 
-  @Test("Calculator engine: bare currency converts to the locale currency")
+  @Test("Bare currency converts to the locale currency")
   func testBareCurrencyConvertsToLocaleCurrency() {
     let localeEngine = CalculatorEngine(
       formattingOptions: CalculatorFormattingOptions(
@@ -38,19 +38,19 @@ extension CalculatorEngineTests {
     #expect(result?.copyText == "0.40 GBP")
     #expect(result?.sourceBadge == "CAD")
     #expect(result?.targetBadge == "GBP")
-    #expect((localeEngine.evaluate("1 GBP", currencySource: .on(rates))) == nil)
+    #expect(localeEngine.evaluate("1 GBP", currencySource: .on(rates)) == nil)
   }
 
-  @Test("Calculator engine: disabled or unavailable currency conversion stays silent")
-  func testCurrencyConversionIsSilentWhenDisabledOrRatesUnavailable() {
-    #expect((engine.evaluate("100 USD to EUR", currencySource: .off)) == nil)
-    #expect((engine.evaluate("100 USD to EUR", currencySource: .on(nil))) == nil)
+  @Test("Disabled or unavailable currency conversion stays silent")
+  func testUnavailableCurrency() {
+    #expect(engine.evaluate("100 USD to EUR", currencySource: .off) == nil)
+    #expect(engine.evaluate("100 USD to EUR", currencySource: .on(nil)) == nil)
   }
 
   @Test(
-    "Calculator engine: target fraction digits are respected and values below the minor unit widen"
+    "Target fraction digits are respected and values below the minor unit widen"
   )
-  func testCurrencyFormattingUsesTargetFractionDigitsAndWidensBelowMinorUnit() {
+  func testCurrencyPrecision() {
     let rates = CurrencyRates(
       base: "USD",
       rates: ["BHD": 0.376, "EUR": 1, "IDR": 18_053, "JPY": 123.456],

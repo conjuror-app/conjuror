@@ -5,8 +5,8 @@ import Testing
 
 @MainActor
 extension LauncherStoreTests {
-  @Test("Launcher store: preferred skin tone replaces tone-capable base emoji")
-  func testPreferredSkinToneReplacesToneCapableBaseEmoji() {
+  @Test("Preferred skin tone replaces tone-capable base emoji")
+  func testPreferredSkinTone() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
     let store = makeStore(settingsStore: settings)
@@ -14,11 +14,11 @@ extension LauncherStoreTests {
     store.updateQuery(":waving hand")
 
     #expect(store.displayedEmoji.first?.value == "👋🏾")
-    #expect(!(store.displayedEmoji.contains { $0.value == "👋" }))
+    #expect(!store.displayedEmoji.contains { $0.value == "👋" })
   }
 
-  @Test("Launcher store: preferred skin tone replaces gendered couple emoji")
-  func testPreferredSkinToneReplacesGenderedCoupleEmoji() {
+  @Test("Preferred skin tone replaces gendered couple emoji")
+  func testCoupleSkinTone() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     settings.setPreferredEmojiSkinTone(.mediumDark)
     let store = makeStore(settingsStore: settings)
@@ -26,11 +26,11 @@ extension LauncherStoreTests {
     store.updateQuery(":kiss woman man")
 
     #expect(store.displayedEmoji.first?.value == "👩🏾‍❤️‍💋‍👨🏾")
-    #expect(!(store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" }))
+    #expect(!store.displayedEmoji.contains { $0.value == "👩‍❤️‍💋‍👨" })
   }
 
-  @Test("Launcher store: colon switches to emoji and filters following text")
-  func testColonSwitchesToEmojiAndFiltersFollowingText() {
+  @Test("Colon switches to emoji and filters following text")
+  func testEmojiPrefix() {
     let store = makeStore()
 
     store.updateQuery(":waving hand medium dark")
@@ -40,14 +40,9 @@ extension LauncherStoreTests {
     #expect(store.filteredEmoji.first?.value == "👋🏾")
   }
 
-  @Test("Launcher store: horizontal arrows navigate the emoji grid")
+  @Test("Horizontal arrows navigate the emoji grid")
   func testHorizontalArrowsNavigateEmojiGrid() {
-    let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
-      emojiHistory: EmojiHistoryStore(userDefaults: makeTestUserDefaults())
-    )
+    let store = makeStore()
     store.updateQuery(":")
     let firstID = store.selectedEmojiID
 
@@ -59,16 +54,13 @@ extension LauncherStoreTests {
   }
 
   @Test("Launcher store: Return copies emoji and records it as recent")
-  func testReturnCopiesEmojiAndRecordsItAsRecent() {
-    let clipboard = RecordingCalculatorClipboard()
+  func testCopyEmoji() {
+    let clipboard = RecordingClipboard()
     let userDefaults = makeTestUserDefaults()
     let history = EmojiHistoryStore(userDefaults: userDefaults)
     var didRequestHide = false
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       emojiHistory: history,
       onEvent: { if $0 == .emojiCopied { didRequestHide = true } }
     )

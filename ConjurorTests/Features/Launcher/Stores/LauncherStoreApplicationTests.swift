@@ -5,15 +5,15 @@ import Testing
 
 @MainActor
 extension LauncherStoreTests {
-  @Test("Launcher store: filtered applications update when the query changes")
-  func testFilteredApplicationsUpdateWhenQueryChanges() async {
+  @Test("Filtered applications update when the query changes")
+  func testQueryFiltersApplications() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
     ]
     let store = makeStore(applications: applications)
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
 
     #expect(store.filteredApplications == applications)
 
@@ -23,7 +23,7 @@ extension LauncherStoreTests {
     #expect(store.selectedApplicationID == applications[1].id)
   }
 
-  @Test("Launcher store: selecting a second installation launches its own path")
+  @Test("Selecting a second installation launches its own path")
   func testLaunchesSelectedInstallation() async {
     let stable = application("Xcode", id: "com.apple.dt.Xcode")
     let beta = application("Xcode-27.1.0-Beta", id: "com.apple.dt.Xcode")
@@ -37,13 +37,14 @@ extension LauncherStoreTests {
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     store.query = "xcode"
     #expect(store.selectedApplicationID == stable.id)
 
     store.moveSelection(.down)
     #expect(store.selectedApplicationID == beta.id)
     store.openSelectedResult()
+
     while !didLaunch {
       await Task.yield()
     }
@@ -53,28 +54,7 @@ extension LauncherStoreTests {
     #expect(history.load()[stable.persistenceKey] == nil)
   }
 
-  @Test("Launcher store: System Settings sections appear in application search")
-  func testSystemSettingsSectionsAppearInApplicationSearch() {
-    let store = makeStore()
-
-    store.query = "bluetooth"
-
-    #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
-    #expect(store.filteredApplications.first?.isSystemSettingsItem == true)
-  }
-
-  @Test("Launcher store: System Settings sections can be hidden")
-  func testSystemSettingsSectionsCanBeHidden() {
-    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
-    settingsStore.setShowsSystemSettingsItems(false)
-    let store = makeStore(settingsStore: settingsStore)
-
-    store.query = "bluetooth"
-
-    #expect(store.filteredApplications.isEmpty)
-  }
-
-  @Test("Launcher store: cached search follows System Settings inclusion changes")
+  @Test("Cached search follows System Settings inclusion changes")
   func testSearchIndexTracksSettingsInclusion() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     let store = makeStore(settingsStore: settings)
@@ -83,6 +63,7 @@ extension LauncherStoreTests {
     #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
     store.query = "displays"
     #expect(store.filteredApplications.map(\.displayName) == ["Displays"])
+    #expect(store.filteredApplications.first?.isSystemSettingsItem == true)
     store.query = ""
     #expect(store.filteredApplications.isEmpty)
     store.query = "bluetooth"
@@ -96,47 +77,46 @@ extension LauncherStoreTests {
     #expect(store.filteredApplications.map(\.displayName) == ["Bluetooth"])
   }
 
-  @Test("Launcher store: catalog reloads replace cached search data")
+  @Test("Catalog reloads replace cached search data")
   func testCatalogReloadReplacesSearchIndex() async {
     let catalog = ReloadableApplicationCatalog(
       applications: [application("Alpha", id: "dev.example.app")]
     )
     let store = makeStore(catalog: catalog)
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     store.query = "alpha"
     #expect(store.filteredApplications.map(\.displayName) == ["Alpha"])
 
     catalog.applications = [application("Beta", id: "dev.example.app")]
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     #expect(store.filteredApplications.isEmpty)
     store.query = "beta"
     #expect(store.filteredApplications == catalog.applications)
 
     catalog.applications = []
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     #expect(store.filteredApplications.isEmpty)
   }
 
-  @Test("Launcher store: successful launches refresh recent application order")
-  func testSuccessfulLaunchRefreshesRecentApplicationOrder() async {
+  @Test("Successful launches refresh recent application order")
+  func testLaunchUpdatesOrder() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
     ]
     var didLaunch = false
     let store = makeStore(
-      catalog: CatalogStub(applications: applications),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
+      applications: applications,
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
 
     store.open(applications[1])
+
     while !didLaunch {
       await Task.yield()
     }
@@ -145,67 +125,66 @@ extension LauncherStoreTests {
     #expect(store.selectedApplicationID == applications[1].id)
   }
 
-  @Test("Launcher store: catalog failures publish errors and clear selection")
-  func testCatalogFailurePublishesErrorAndClearsSelection() async {
+  @Test("Catalog failures publish errors and clear selection")
+  func testCatalogFailure() async {
     let store = makeStore(
       catalog: FailingCatalogStub(),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
 
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
 
     #expect(store.applications.isEmpty)
-    #expect((store.selectedApplicationID) == nil)
+    #expect(store.selectedApplicationID == nil)
     #expect(
       store.catalogErrorMessage == "Couldn’t load installed applications. Catalog unavailable"
     )
   }
 
-  @Test("Launcher store: successful launches record history, clear the query, and call success")
-  func testSuccessfulLaunchRecordsHistoryClearsQueryAndCallsSuccess() async {
+  @Test("Successful launches record history, clear the query, and call success")
+  func testSuccessfulLaunch() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let userDefaults = makeTestUserDefaults()
     let launchHistory = RecencyStore.applicationLaunches(userDefaults: userDefaults)
     var didLaunch = false
     let store = makeStore(
-      catalog: CatalogStub(applications: [application]),
-      launchApplication: LauncherStub().open,
+      applications: [application],
       launchHistory: launchHistory,
       onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     store.query = "alpha"
 
     store.openSelectedResult()
+
     while !didLaunch {
       await Task.yield()
     }
 
     #expect(store.query == "")
-    #expect((store.launchErrorMessage) == nil)
-    #expect((launchHistory.load()[application.persistenceKey]) != nil)
+    #expect(store.launchErrorMessage == nil)
+    #expect(launchHistory.load()[application.persistenceKey] != nil)
   }
 
-  @Test("Launcher store: failed launches preserve the query and skip history")
-  func testFailedLaunchPreservesQueryAndDoesNotRecordHistory() async {
+  @Test("Failed launches preserve the query and skip history")
+  func testFailedLaunch() async {
     let application = application("Alpha", id: "dev.example.alpha")
     let launchHistory = RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     var didStartLaunch = false
     var didLaunch = false
     let store = makeStore(
-      catalog: CatalogStub(applications: [application]),
+      applications: [application],
       launchApplication: LauncherStub(error: TestError.launchFailed).open,
       launchHistory: launchHistory,
       onEvent: { event in
         if event == .launchStarted { didStartLaunch = true }
+
         if event == .launchSucceeded { didLaunch = true }
       }
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     store.query = "alpha"
 
     store.openSelectedResult()
@@ -216,28 +195,29 @@ extension LauncherStoreTests {
 
     #expect(store.query == "alpha")
     #expect(store.launchErrorMessage == "Couldn’t open Alpha. Launch failed")
-    #expect(!(didLaunch))
+    #expect(!didLaunch)
     #expect(launchHistory.load().isEmpty)
   }
 
-  @Test("Launcher store: activation restores a failed launch")
-  func testPrepareForActivationRestoresFailedLaunch() async {
+  @Test("Activation restores a failed launch")
+  func testActivationAfterFailedLaunch() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
     ]
     let store = makeStore(
-      catalog: CatalogStub(applications: applications),
+      applications: applications,
       launchApplication: LauncherStub(error: TestError.launchFailed).open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
     store.query = "beta"
     store.openSelectedResult()
+
     while store.launchErrorMessage == nil {
       await Task.yield()
     }
+
     let focusRequest = store.focusRequest
 
     store.prepareForActivation()

@@ -6,8 +6,7 @@ import Testing
 @MainActor
 @Suite("Launcher Store")
 struct LauncherStoreTests {
-
-  @Test("Launcher store: mode prefixes switch between all modes")
+  @Test("Mode prefixes switch between all modes")
   func testModePrefixesSwitchBetweenAllModes() async {
     let store = makeStore()
 
@@ -15,7 +14,7 @@ struct LauncherStoreTests {
     #expect(store.mode == .emoji)
 
     store.updateQuery(">")
-    await waitForShortcutsLoadingToFinish(store)
+    await waitForShortcuts(store)
     #expect(store.mode == .shortcuts)
 
     store.updateQuery("/notes")
@@ -26,7 +25,7 @@ struct LauncherStoreTests {
     #expect(store.query == "conjuror")
   }
 
-  @Test("Launcher store: slash switches to files and publishes search results")
+  @Test("Slash switches to files and publishes search results")
   func testSlashSwitchesToFilesAndSearches() async {
     let result = FileSearchResult(
       url: URL(fileURLWithPath: "/Users/example/Documents/Notes.txt"),
@@ -37,6 +36,7 @@ struct LauncherStoreTests {
     let store = makeStore(fileSearcher: FileSearcherStub(results: [result]))
 
     store.updateQuery("/notes")
+
     while store.isSearchingFiles {
       try? await Task.sleep(for: .milliseconds(10))
     }
@@ -47,7 +47,7 @@ struct LauncherStoreTests {
     #expect(store.selectedFileID == result.id)
   }
 
-  @Test("Launcher store: file search waits for two characters")
+  @Test("File search waits for two characters")
   func testFileSearchWaitsForTwoCharacters() async {
     let fileSearcher = RecordingFileSearcher()
     let store = makeStore(fileSearcher: fileSearcher)
@@ -60,6 +60,7 @@ struct LauncherStoreTests {
     #expect(fileSearcher.queries.isEmpty)
 
     store.updateQuery("no")
+
     while store.isSearchingFiles {
       try? await Task.sleep(for: .milliseconds(10))
     }
@@ -67,7 +68,7 @@ struct LauncherStoreTests {
     #expect(fileSearcher.queries == ["no"])
   }
 
-  @Test("Launcher store: disabled files module is skipped by prefixes and mode cycling")
+  @Test("Disabled files module is skipped by prefixes and mode cycling")
   func testDisabledFilesModuleIsSkipped() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     settingsStore.setFilesModuleEnabled(false)
@@ -87,7 +88,7 @@ struct LauncherStoreTests {
   }
 
   @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, files, and applications")
-  func testTabModeCycleVisitsShortcutsEmojiFilesAndApplications() {
+  func testModeCycle() {
     let store = makeStore()
 
     store.cycleMode()
@@ -103,22 +104,15 @@ struct LauncherStoreTests {
     #expect(store.mode == .applications)
   }
 
-  @Test("Launcher store: calculator does not evaluate in shortcuts mode")
-  func testCalculatorDoesNotEvaluateInShortcutsMode() {
-    let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: []),
-      runShortcut: ShortcutRunnerStub().run,
-      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
-    )
+  @Test("Calculator does not evaluate in shortcuts mode")
+  func testNoCalculatorInShortcuts() {
+    let store = makeStore()
 
     store.updateQuery(">2 + 3")
 
     #expect(store.mode == .shortcuts)
-    #expect((store.calculatorResult) == nil)
-    #expect(!(store.isCalculatorSelected))
+    #expect(store.calculatorResult == nil)
+    #expect(!store.isCalculatorSelected)
   }
 
   @Test("Load requests share one follow-up refresh", arguments: [false, true])
@@ -128,10 +122,6 @@ struct LauncherStoreTests {
     let catalog = ControlledCatalog()
     let store = makeStore(
       catalog: catalog,
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(
-        userDefaults: makeTestUserDefaults()
-      )
     )
 
     store.loadApplications()
@@ -139,15 +129,18 @@ struct LauncherStoreTests {
 
     store.loadApplications()
     store.loadApplications()
+
     if cancelFirst {
       catalog.cancelNext()
     } else {
       catalog.resumeNext(returning: firstApplications)
     }
+
     await catalog.waitForLoadCount(2)
 
     #expect(store.isLoading)
     catalog.resumeNext(returning: refreshedApplications)
+
     while store.isLoading {
       await Task.yield()
     }
@@ -158,16 +151,14 @@ struct LauncherStoreTests {
     #expect(store.selectedApplicationID == refreshedApplications[0].id)
   }
 
-  @Test("Launcher store: calculator results are pinned before matching applications")
-  func testCalculatorResultIsPinnedBeforeMatchingApplications() async {
+  @Test("Calculator results are pinned before matching applications")
+  func testCalculatorSelection() async {
     let application = application("Pine", id: "dev.example.pine")
     let store = makeStore(
-      catalog: CatalogStub(applications: [application]),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
+      applications: [application],
     )
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
 
     store.query = "pi"
 
@@ -177,30 +168,26 @@ struct LauncherStoreTests {
     #expect(store.filteredApplications.first == application)
 
     store.moveSelection(.down)
-    #expect(!(store.isCalculatorSelected))
+    #expect(!store.isCalculatorSelected)
     #expect(store.selectedApplicationID == application.id)
 
     store.moveSelection(.up)
     #expect(store.isCalculatorSelected)
   }
 
-  @Test("Launcher store: arrow navigation moves selection down and up")
-  func testArrowNavigationMovesSelectionDownAndUp() async {
+  @Test("Arrow navigation moves selection down and up")
+  func testArrowSelection() async {
     let applications = [
       application("Alpha", id: "dev.example.alpha"),
       application("Beta", id: "dev.example.beta"),
       application("Gamma", id: "dev.example.gamma"),
     ]
     let store = makeStore(
-      catalog: CatalogStub(applications: applications),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(
-        userDefaults: makeTestUserDefaults()
-      )
+      applications: applications,
     )
 
     store.loadApplications()
-    await waitForLoadingToFinish(store)
+    await waitForApplications(store)
 
     #expect(store.selectedApplicationID == applications[0].id)
 
@@ -218,14 +205,11 @@ struct LauncherStoreTests {
   }
 
   @Test("Launcher store: Return copies calculator results, clears the query, and requests hiding")
-  func testReturnCopiesCalculatorResultClearsQueryAndRequestsHide() {
-    let clipboard = RecordingCalculatorClipboard()
+  func testCopyCalculation() {
+    let clipboard = RecordingClipboard()
     var didRequestHide = false
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       onEvent: { if $0 == .calculatorResultCopied { didRequestHide = true } }
     )
     store.query = "2 + 3"
@@ -235,17 +219,14 @@ struct LauncherStoreTests {
     #expect(clipboard.text == "5")
     #expect(didRequestHide)
     #expect(store.query == "")
-    #expect((store.calculatorResult) == nil)
+    #expect(store.calculatorResult == nil)
   }
 
   @Test("Launcher store: Return copies quantity results with their units")
   func testReturnCopiesQuantityResultWithUnit() {
-    let clipboard = RecordingCalculatorClipboard()
+    let clipboard = RecordingClipboard()
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
       writeToClipboard: clipboard.write,
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
     )
     store.query = "1000 m to km"
 
@@ -304,13 +285,13 @@ struct LauncherStoreTests {
     )
   }
 
-  func waitForLoadingToFinish(_ store: LauncherStore) async {
+  func waitForApplications(_ store: LauncherStore) async {
     while store.isLoading {
       await Task.yield()
     }
   }
 
-  func waitForShortcutsLoadingToFinish(_ store: LauncherStore) async {
+  func waitForShortcuts(_ store: LauncherStore) async {
     while store.isLoadingShortcuts {
       await Task.yield()
     }
@@ -339,6 +320,7 @@ final class RecordingFileSearcher: FileSearching {
 
   func search(query: String) async throws -> [FileSearchResult] {
     queries.append(query)
+
     return []
   }
 }
@@ -381,7 +363,7 @@ final class RecordingShortcutRunner {
 }
 
 @MainActor
-final class RecordingCalculatorClipboard {
+final class RecordingClipboard {
   private(set) var text: String?
 
   func write(_ text: String) {
@@ -403,6 +385,20 @@ struct LauncherStub {
   }
 }
 
+enum TestError: LocalizedError {
+  case catalogUnavailable
+  case launchFailed
+
+  var errorDescription: String? {
+    switch self {
+    case .catalogUnavailable:
+      return "Catalog unavailable"
+    case .launchFailed:
+      return "Launch failed"
+    }
+  }
+}
+
 @MainActor
 private final class ControlledCatalog: ApplicationCatalogLoading {
   private(set) var loadCount = 0
@@ -410,6 +406,7 @@ private final class ControlledCatalog: ApplicationCatalogLoading {
 
   func load() async throws -> [InstalledApplication] {
     loadCount += 1
+
     return try await withCheckedThrowingContinuation { continuation in
       continuations.append(continuation)
     }
@@ -426,20 +423,6 @@ private final class ControlledCatalog: ApplicationCatalogLoading {
   func waitForLoadCount(_ expectedCount: Int) async {
     while loadCount < expectedCount {
       await Task.yield()
-    }
-  }
-}
-
-enum TestError: LocalizedError {
-  case catalogUnavailable
-  case launchFailed
-
-  var errorDescription: String? {
-    switch self {
-    case .catalogUnavailable:
-      return "Catalog unavailable"
-    case .launchFailed:
-      return "Launch failed"
     }
   }
 }

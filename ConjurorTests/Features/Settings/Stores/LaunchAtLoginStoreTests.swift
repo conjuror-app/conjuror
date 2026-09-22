@@ -9,7 +9,7 @@ struct LaunchAtLoginStoreTests {
     case failed
   }
 
-  @Test("Launch at login: unregistered services default to off")
+  @Test("Unregistered services default to off")
   func testDefaultsToOff() {
     let store = LaunchAtLoginStore(service: LaunchAtLoginServiceStub(status: .notRegistered))
 
@@ -17,7 +17,7 @@ struct LaunchAtLoginStoreTests {
     #expect(store.errorMessage == nil)
   }
 
-  @Test("Launch at login: enabling registers the service")
+  @Test("Enabling registers the service")
   func testEnablesService() {
     let service = LaunchAtLoginServiceStub(status: .notRegistered)
     let store = LaunchAtLoginStore(service: service)
@@ -29,7 +29,7 @@ struct LaunchAtLoginStoreTests {
     #expect(store.status == .enabled)
   }
 
-  @Test("Launch at login: disabling unregisters the service")
+  @Test("Disabling unregisters the service")
   func testDisablesService() {
     let service = LaunchAtLoginServiceStub(status: .enabled)
     let store = LaunchAtLoginStore(service: service)
@@ -41,7 +41,7 @@ struct LaunchAtLoginStoreTests {
     #expect(store.status == .notRegistered)
   }
 
-  @Test("Launch at login: approval-required registrations remain selected")
+  @Test("Approval-required registrations remain selected")
   func testRequiresApproval() {
     let service = LaunchAtLoginServiceStub(
       status: .notRegistered,
@@ -55,7 +55,7 @@ struct LaunchAtLoginStoreTests {
     #expect(store.status == .requiresApproval)
   }
 
-  @Test("Launch at login: failures expose an error and refresh status")
+  @Test("Failures expose an error and refresh status")
   func testReportsFailure() {
     let service = LaunchAtLoginServiceStub(status: .notRegistered, error: TestError.failed)
     let store = LaunchAtLoginStore(service: service)
@@ -78,7 +78,6 @@ struct LaunchAtLoginStoreTests {
 
     #expect(didOpenSettings)
   }
-
 }
 
 private final class LaunchAtLoginServiceStub: LaunchAtLoginServicing {
@@ -101,12 +100,14 @@ private final class LaunchAtLoginServiceStub: LaunchAtLoginServicing {
 
   func register() throws {
     registerCallCount += 1
+
     if let error { throw error }
     status = statusAfterRegister
   }
 
   func unregister() throws {
     unregisterCallCount += 1
+
     if let error { throw error }
     status = .notRegistered
   }

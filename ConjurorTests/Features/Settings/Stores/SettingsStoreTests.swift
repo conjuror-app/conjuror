@@ -6,8 +6,8 @@ import Testing
 @MainActor
 @Suite("Settings Store")
 struct SettingsStoreTests {
-  @Test("Settings store: default values are used without stored settings")
-  func testUsesDefaultValuesWithoutStoredSettings() {
+  @Test("Default values are used without stored settings")
+  func testDefaults() {
     let userDefaults = makeTestUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
 
@@ -22,7 +22,7 @@ struct SettingsStoreTests {
     #expect(store.launcherCustomBorderColor == .default)
   }
 
-  @Test("Settings store: updated settings persist")
+  @Test("Updated settings persist")
   func testPersistsUpdatedSettings() {
     let userDefaults = makeTestUserDefaults()
     let store = SettingsStore(userDefaults: userDefaults)
@@ -55,7 +55,7 @@ struct SettingsStoreTests {
     )
   }
 
-  @Test("Settings store: existing hotkey persistence keys remain compatible")
+  @Test("Existing hotkey persistence keys remain compatible")
   func testLoadsExistingHotKeyPersistenceKeys() {
     let userDefaults = makeTestUserDefaults()
     let actionsAndPrefixes: [(HotKeyAction, String)] = [
@@ -72,6 +72,7 @@ struct SettingsStoreTests {
     }
 
     let store = SettingsStore(userDefaults: userDefaults)
+
     for (index, (action, _)) in actionsAndPrefixes.enumerated() {
       #expect(
         store.hotKeyConfiguration(for: action)
@@ -99,8 +100,8 @@ struct SettingsStoreTests {
     }
   }
 
-  @Test("Settings store: maximum visible results are clamped and the default resets")
-  func testClampsMaximumVisibleResultsAndResetsDefault() {
+  @Test("Maximum visible results are clamped and the default resets")
+  func testResultLimit() {
     let store = SettingsStore(userDefaults: makeTestUserDefaults())
 
     store.setMaximumVisibleResults(100)

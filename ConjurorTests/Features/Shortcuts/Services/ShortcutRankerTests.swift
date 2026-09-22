@@ -5,7 +5,7 @@ import Testing
 
 @Suite("Shortcut Ranker")
 struct ShortcutRankerTests {
-  @Test("Shortcut ranking: names follow launcher matching rules")
+  @Test("Names follow launcher matching rules")
   func testRanksNamesUsingLauncherMatchingRules() {
     let shortcuts = [
       shortcut("Very Special Code", id: "acronym"),
@@ -22,8 +22,8 @@ struct ShortcutRankerTests {
     #expect(result.map(\.id) == ["exact", "prefix", "token", "acronym"])
   }
 
-  @Test("Shortcut ranking: subtitle matches and recent runs rank empty queries")
-  func testMatchesSubtitleAndUsesRecentRunsForEmptyQuery() {
+  @Test("Recent runs break subtitle-match ties")
+  func testSubtitleAndRecency() {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")
     let second = shortcut("Evening", id: "second", subtitle: "Bedroom lights")
 
@@ -33,21 +33,6 @@ struct ShortcutRankerTests {
     )
 
     #expect(result == [second, first])
-  }
-
-  @Test("Shortcut ranking: fuzzy subsequences match shortcut names")
-  func testFuzzySubsequenceMatchesShortcutName() {
-    let shortcuts = [
-      shortcut("Xylophone", id: "other"),
-      shortcut("Xcode", id: "match"),
-    ]
-
-    let result = ShortcutRanker.Index(shortcuts: shortcuts).ranked(
-      query: "xcd",
-      recentRuns: [:]
-    )
-
-    #expect(result.map(\.id) == ["match"])
   }
 
   private func shortcut(

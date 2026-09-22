@@ -18,6 +18,7 @@ struct ApplicationDirectoryMonitorTests {
     let monitor = ApplicationDirectoryMonitor {
       names = (try? ApplicationCatalog.scan(directories: [applications]).map(\.displayName)) ?? []
     }
+
     defer { monitor.stop() }
     #expect(monitor.start(directories: [directory.appendingPathComponent("Applications")]))
 
@@ -78,9 +79,11 @@ struct ApplicationDirectoryMonitorTests {
 
   private func waitUntil(_ condition: () -> Bool) async -> Bool {
     let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+
     while !condition(), ContinuousClock.now < deadline {
       try? await Task.sleep(for: .milliseconds(50))
     }
+
     return condition()
   }
 }

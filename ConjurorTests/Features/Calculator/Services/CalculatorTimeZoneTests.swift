@@ -4,8 +4,8 @@ import Testing
 @testable import Conjuror
 
 extension CalculatorEngineTests {
-  @Test("Calculator engine: explicit time-zone abbreviations use fixed offsets")
-  func testExplicitTimeZoneAbbreviationsUseFixedOffsets() {
+  @Test("Explicit time-zone abbreviations use fixed offsets")
+  func testFixedOffsets() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
 
     let result = engine.evaluate("10:00 BST in EST")
@@ -17,8 +17,8 @@ extension CalculatorEngineTests {
     #expect(result?.copyText == "04:00 EST")
   }
 
-  @Test("Calculator engine: standard and daylight abbreviations use distinct offsets")
-  func testStandardAndDaylightAbbreviationsHaveDistinctOffsets() {
+  @Test("Standard and daylight abbreviations use distinct offsets")
+  func testDaylightOffsets() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
     #expect(engine.evaluate("10:00 EST in GMT")?.copyText == "15:00 GMT")
@@ -33,16 +33,16 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("10:00 NDT in GMT")?.copyText == "12:30 GMT")
   }
 
-  @Test("Calculator engine: other macOS time-zone abbreviations are supported")
-  func testTimeZoneConversionSupportsOtherMacOSTimeZoneAbbreviations() {
+  @Test("Other macOS time-zone abbreviations are supported")
+  func testSystemAbbreviations() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
     #expect(engine.evaluate("10:00 EAT in IST")?.copyText == "12:30 IST")
     #expect(engine.evaluate("10:00 SGT in WAT")?.copyText == "03:00 WAT")
   }
 
-  @Test("Calculator engine: bare time-zone input converts to the current time zone")
-  func testBareTimeZoneInputConvertsToCurrentTimeZone() {
+  @Test("Bare time-zone input converts to the current time zone")
+  func testDefaultTargetTimeZone() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
 
     let result = engine.evaluate("12:00 PST")
@@ -54,8 +54,8 @@ extension CalculatorEngineTests {
     #expect(result?.copyText == "21:00 BST")
   }
 
-  @Test("Calculator engine: current time zone is used when the source is omitted")
-  func testTimeZoneConversionUsesCurrentTimeZoneWhenSourceIsOmitted() {
+  @Test("Current time zone is used when the source is omitted")
+  func testDefaultSourceTimeZone() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(identifier: "Europe/London")!)
 
     let result = engine.evaluate("1:00 pm in PDT")
@@ -65,8 +65,8 @@ extension CalculatorEngineTests {
     #expect(result?.copyText == "5:00 am PDT")
   }
 
-  @Test("Calculator engine: current context refreshes between evaluations")
-  func testTimeZoneConversionRefreshesCurrentContextBetweenEvaluations() {
+  @Test("Current context refreshes between evaluations")
+  func testTimeZoneContextChanges() {
     var currentDate = ISO8601DateFormatter().date(from: "2026-08-12T12:00:00Z")!
     var currentTimeZone = TimeZone(identifier: "Europe/London")!
     let engine = CalculatorEngine(
@@ -83,21 +83,21 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("10:00 in UTC")?.copyText == "01:00 UTC")
   }
 
-  @Test("Calculator engine: time-zone connectors and day wrapping are supported")
-  func testTimeZoneConversionSupportsConnectorsAndWrapsAcrossDays() {
+  @Test("Time-zone connectors and day wrapping are supported")
+  func testTimeZoneConnectors() {
     let engine = timeZoneEngine(currentTimeZone: TimeZone(secondsFromGMT: 0)!)
 
     #expect(engine.evaluate("23:30 UTC → JST")?.copyText == "08:30 JST")
     #expect(engine.evaluate("9am GMT -> PDT")?.copyText == "2:00 am PDT")
   }
 
-  @Test("Calculator engine: invalid time-zone input stays silent")
+  @Test("Invalid time-zone input stays silent")
   func testInvalidTimeZoneInputStaysSilent() {
-    #expect((engine.evaluate("25:00 GMT in EST")) == nil)
-    #expect((engine.evaluate("10:60 GMT in EST")) == nil)
-    #expect((engine.evaluate("10:00 XYZ in EST")) == nil)
-    #expect((engine.evaluate("10:00 GMT in XYZ")) == nil)
-    #expect((engine.evaluate("10:00 in")) == nil)
-    #expect((engine.evaluate("10:00")) == nil)
+    #expect(engine.evaluate("25:00 GMT in EST") == nil)
+    #expect(engine.evaluate("10:60 GMT in EST") == nil)
+    #expect(engine.evaluate("10:00 XYZ in EST") == nil)
+    #expect(engine.evaluate("10:00 GMT in XYZ") == nil)
+    #expect(engine.evaluate("10:00 in") == nil)
+    #expect(engine.evaluate("10:00") == nil)
   }
 }

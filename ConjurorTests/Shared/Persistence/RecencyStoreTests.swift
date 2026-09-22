@@ -5,7 +5,7 @@ import Testing
 
 @Suite("Recency Store")
 struct RecencyStoreTests {
-  @Test("Recency store: invalid stored representations are ignored")
+  @Test("Invalid stored representations are ignored")
   func testInvalidStoredRepresentationIsIgnored() {
     let userDefaults = makeTestUserDefaults()
     userDefaults.set(["invalid": "date"], forKey: "recency")
@@ -14,7 +14,7 @@ struct RecencyStoreTests {
     #expect(store.load().isEmpty)
   }
 
-  @Test("Recency store: the latest use is recorded and reloaded")
+  @Test("The latest use is recorded and reloaded")
   func testRecordsAndReloadsLatestUse() {
     let store = RecencyStore(
       storageKey: "recency",
@@ -30,7 +30,7 @@ struct RecencyStoreTests {
     #expect(store.load() == ["item": latestDate])
   }
 
-  @Test("Recency store: only the configured number of uses are retained")
+  @Test("Only the configured number of uses are retained")
   func testLimitsHistoryToConfiguredCount() {
     let userDefaults = makeTestUserDefaults()
     let store = RecencyStore(storageKey: "recency", limit: 100, userDefaults: userDefaults)

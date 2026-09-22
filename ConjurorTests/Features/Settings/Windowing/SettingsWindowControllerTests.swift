@@ -6,7 +6,7 @@ import Testing
 @MainActor
 @Suite("Settings Window Controller")
 struct SettingsWindowControllerTests {
-  @Test("Settings window controller: closing releases content and allows recreation")
+  @Test("Closing releases content and allows recreation")
   func testCloseAndReopen() throws {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())
     let hotKeys = HotKeyStore(settingsStore: settings, onHotKeyPressed: { _ in })
@@ -27,7 +27,8 @@ struct SettingsWindowControllerTests {
         )
         closedController = controller
         let window = try #require(controller?.window)
-        closedContent = try #require(window.contentViewController)
+        let content = try #require(window.contentViewController)
+        closedContent = content
 
         // Keep the key window available to the launcher keyboard tests.
         window.orderBack(nil)
@@ -38,6 +39,7 @@ struct SettingsWindowControllerTests {
         #expect(window.contentViewController == nil)
         #expect(controller == nil)
       }
+
       #expect(closedController == nil)
       #expect(closedContent == nil)
     }

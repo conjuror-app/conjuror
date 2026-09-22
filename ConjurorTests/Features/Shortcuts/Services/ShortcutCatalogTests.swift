@@ -5,13 +5,13 @@ import Testing
 
 @Suite("Shortcut Catalog")
 struct ShortcutCatalogTests {
-  @Test("Shortcut catalog: normal launches do not enter helper mode")
+  @Test("Normal launches do not enter helper mode")
   func testNormalLaunchDoesNotEnterHelperMode() {
     #expect(ShortcutCatalogProcess.runHelperIfRequested(arguments: ["Conjuror"]) == nil)
   }
 
-  @Test("Shortcut catalog: helper responses exclude shortcuts that require input")
-  func testHelperResponseExcludesShortcutsThatRequireInput() throws {
+  @Test("Helper responses exclude shortcuts that require input")
+  func testFiltersInputShortcuts() throws {
     let supported = AppleShortcut(
       id: "supported-id",
       name: "Lights",
@@ -34,24 +34,27 @@ struct ShortcutCatalogTests {
   @Test("Existing caches can contain unused colour and action-count fields")
   func testExistingCache() throws {
     let data = Data(
-      #"[{"id":"lights","name":"Lights","subtitle":"","acceptsInput":false,"color":{"red":1,"green":2,"blue":3},"actionCount":2}]"#.utf8
+      #"[{"id":"lights","name":"Lights","subtitle":"","acceptsInput":false,"color":{"red":1,"green":2,"blue":3},"actionCount":2}]"#
+        .utf8
     )
 
     let shortcuts = try ShortcutCatalogProcess.shortcuts(from: data)
 
-    #expect(shortcuts == [AppleShortcut(id: "lights", name: "Lights", subtitle: "", acceptsInput: false)])
+    #expect(
+      shortcuts == [AppleShortcut(id: "lights", name: "Lights", subtitle: "", acceptsInput: false)]
+    )
   }
 
-  @Test("Shortcut catalog: shortcut identifiers are passed directly to run scripts")
-  func testRunScriptUsesTheShortcutIdentifierDirectly() {
+  @Test("Shortcut identifiers are passed directly to run scripts")
+  func testRunScript() {
     let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
 
     #expect(script.contains("run shortcut id \"shortcut-id\""))
-    #expect(!(script.contains("first shortcut")))
+    #expect(!script.contains("first shortcut"))
   }
 
-  @Test("Shortcut catalog: structured Shortcuts Events responses are parsed")
-  func testParsesStructuredShortcutsEventsResponse() throws {
+  @Test("Structured Shortcuts Events responses are parsed")
+  func testShortcutResponse() throws {
     let response = NSAppleEventDescriptor.list()
     response.insert(
       record(id: "first-id", name: "Lights", subtitle: "2 actions", acceptsInput: false),
@@ -83,7 +86,7 @@ struct ShortcutCatalogTests {
   }
 
   @Test(
-    "Shortcut catalog: icons are downsampled with their aspect ratio and alpha",
+    "Icons are downsampled with their aspect ratio and alpha",
     arguments: [256, 512]
   )
   func testDownsamplesIcons(height: Int) throws {
@@ -117,7 +120,7 @@ struct ShortcutCatalogTests {
     #expect(icon.hasAlpha)
   }
 
-  @Test("Shortcut catalog: invalid icons preserve shortcut metadata")
+  @Test("Invalid icons preserve shortcut metadata")
   func testInvalidIconPreservesShortcut() throws {
     let response = NSAppleEventDescriptor.list()
     let record = record(id: "icon-id", name: "Lights", subtitle: "", acceptsInput: false)
@@ -141,6 +144,7 @@ struct ShortcutCatalogTests {
     record.insert(NSAppleEventDescriptor(string: name), at: 2)
     record.insert(NSAppleEventDescriptor(string: subtitle), at: 3)
     record.insert(NSAppleEventDescriptor(boolean: acceptsInput), at: 4)
+
     return record
   }
 }

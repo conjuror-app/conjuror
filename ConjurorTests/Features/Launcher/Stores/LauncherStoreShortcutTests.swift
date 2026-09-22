@@ -5,8 +5,8 @@ import Testing
 
 @MainActor
 extension LauncherStoreTests {
-  @Test("Launcher store: greater-than switches to shortcuts and filters following text")
-  func testGreaterThanSwitchesToShortcutsAndFiltersFollowingText() async {
+  @Test("Greater-than switches to shortcuts and filters following text")
+  func testShortcutPrefix() async {
     let shortcuts = [
       shortcut("Morning Lights", id: "morning"),
       shortcut("Evening Lights", id: "evening"),
@@ -14,7 +14,7 @@ extension LauncherStoreTests {
     let store = makeStore(shortcuts: shortcuts)
 
     store.updateQuery(">evening")
-    await waitForShortcutsLoadingToFinish(store)
+    await waitForShortcuts(store)
 
     #expect(store.mode == .shortcuts)
     #expect(store.query == "evening")
@@ -28,20 +28,17 @@ extension LauncherStoreTests {
     let guestBedroom = shortcut("Guest Bedroom", id: "guest")
     let runner = RecordingShortcutRunner()
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
       shortcutCatalog: ShortcutCatalogStub(
         shortcuts: [mainBedroom, guestBedroom]
       ),
       runShortcut: runner.run,
-      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">bedroom")
-    await waitForShortcutsLoadingToFinish(store)
+    await waitForShortcuts(store)
     store.select(mainBedroom)
 
     store.openSelectedResult()
+
     while runner.lastRunShortcut == nil {
       await Task.yield()
     }
@@ -49,22 +46,18 @@ extension LauncherStoreTests {
     #expect(runner.lastRunShortcut == mainBedroom)
   }
 
-  @Test("Launcher store: running shortcuts hide immediately and record successful runs")
-  func testRunningShortcutHidesImmediatelyAndRecordsSuccessfulRun() async {
+  @Test("Running shortcuts hide immediately and record successful runs")
+  func testSuccessfulShortcutRun() async {
     let shortcut = shortcut("Lights", id: "lights")
     let history = RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     var didRequestHide = false
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
-      runShortcut: ShortcutRunnerStub().run,
+      shortcuts: [shortcut],
       shortcutRunHistory: history,
       onEvent: { if $0 == .shortcutRunStarted { didRequestHide = true } }
     )
     store.prepareForActivation(mode: .shortcuts)
-    await waitForShortcutsLoadingToFinish(store)
+    await waitForShortcuts(store)
 
     store.openSelectedResult()
 
@@ -72,27 +65,26 @@ extension LauncherStoreTests {
     while history.load()[shortcut.persistenceKey] == nil {
       await Task.yield()
     }
-    #expect((store.shortcutRunErrorMessage) == nil)
+
+    #expect(store.shortcutRunErrorMessage == nil)
   }
 
-  @Test("Launcher store: failed shortcut runs appear in shortcut mode on next activation")
-  func testFailedShortcutRunIsShownInShortcutModeOnNextActivation() async {
+  @Test("Failed shortcut runs appear in shortcut mode on next activation")
+  func testFailedShortcutRun() async {
     let shortcut = shortcut("Lights", id: "lights")
     let store = makeStore(
-      catalog: CatalogStub(applications: []),
-      launchApplication: LauncherStub().open,
-      launchHistory: RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults()),
-      shortcutCatalog: ShortcutCatalogStub(shortcuts: [shortcut]),
+      shortcuts: [shortcut],
       runShortcut: ShortcutRunnerStub(error: TestError.launchFailed).run,
-      shortcutRunHistory: RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults())
     )
     store.updateQuery(">light")
-    await waitForShortcutsLoadingToFinish(store)
+    await waitForShortcuts(store)
 
     store.openSelectedResult()
+
     while store.shortcutRunErrorMessage == nil {
       await Task.yield()
     }
+
     store.prepareForActivation()
 
     #expect(store.mode == .shortcuts)
