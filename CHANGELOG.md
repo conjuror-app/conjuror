@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 1.0 alpha (14)
+
+- Showed separate installations of the same app in search with distinct names and preserved launch history.
+- Refreshed application results when app folders change.
+- Included executable apps such as Icon Composer in application search.
+- Fixed scrolling to the selected file result when navigating with the keyboard.
+- Ignored invalid saved hotkey values.
+- Rejected relative date calculations with amounts too large to represent.
+
 ## 1.0 alpha (13)
 
 - Added a Minimal launcher appearance with tighter spacing and smaller result rows.
