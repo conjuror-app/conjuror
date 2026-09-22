@@ -47,5 +47,7 @@ extension CalculatorEngineTests {
     #expect((engine.evaluate("-5 days from now")) == nil)
     #expect((engine.evaluate("5 days later")) == nil)
     #expect((engine.evaluate("days from now")) == nil)
+    #expect(engine.evaluate("9223372036854775807 days from now") == nil)
+    #expect(engine.evaluate("9223372036854775808 days ago") == nil)
   }
 }
