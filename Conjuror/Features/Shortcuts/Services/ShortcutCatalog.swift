@@ -22,10 +22,6 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
     return shortcuts
   }
 
-  private static func loadFresh() throws -> [AppleShortcut] {
-    try ShortcutCatalogProcess.loadShortcuts()
-  }
-
   private static func saveCache(_ shortcuts: [AppleShortcut]) throws {
     guard let cacheURL else { return }
     try FileManager.default.createDirectory(
@@ -39,14 +35,14 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
   func load() async throws -> [AppleShortcut] {
     if let cachedShortcuts = Self.loadCache() {
       Task.detached(priority: .utility) {
-        guard let shortcuts = try? Self.loadFresh() else { return }
+        guard let shortcuts = try? ShortcutCatalogProcess.loadShortcuts() else { return }
         try? Self.saveCache(shortcuts)
       }
       return cachedShortcuts
     }
 
     let loadTask = Task.detached(priority: .userInitiated) {
-      let shortcuts = try Self.loadFresh()
+      let shortcuts = try ShortcutCatalogProcess.loadShortcuts()
       try Task.checkCancellation()
       try? Self.saveCache(shortcuts)
       return shortcuts
