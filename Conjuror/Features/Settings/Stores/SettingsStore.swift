@@ -54,13 +54,16 @@ final class SettingsStore: ObservableObject {
     from userDefaults: UserDefaults,
     keys: HotKeyKeys
   ) -> HotKeyConfiguration? {
-    guard userDefaults.value(for: keys.code) != nil,
-      userDefaults.value(for: keys.modifiers) != nil,
+    guard let storedCode = userDefaults.value(for: keys.code),
+      let storedModifiers = userDefaults.value(for: keys.modifiers),
+      let code = UInt32(exactly: storedCode),
+      let modifiers = UInt32(exactly: storedModifiers),
       let displayName = userDefaults.value(for: keys.displayName)
     else { return nil }
+
     return HotKeyConfiguration(
-      keyCode: UInt32((userDefaults.value(for: keys.code) ?? 0)),
-      modifiers: UInt32((userDefaults.value(for: keys.modifiers) ?? 0)),
+      keyCode: code,
+      modifiers: modifiers,
       displayName: displayName
     )
   }
