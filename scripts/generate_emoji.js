@@ -17,19 +17,23 @@ const output = "Conjuror/Resources/EmojiCatalog.data";
 const [response, ...annotationResponses] = await Promise.all(
   [url, ...annotationURLs].map(async (sourceURL) => {
     const sourceResponse = await fetch(sourceURL);
+
     if (!sourceResponse.ok) {
       throw new Error(
         `Could not download ${sourceURL}: ${sourceResponse.status} ${sourceResponse.statusText}`,
       );
     }
+
     return sourceResponse;
   }),
 );
 
 const annotations = new Map();
+
 for (const annotationResponse of annotationResponses) {
   const data = await annotationResponse.json();
   const entries = data.annotations?.annotations ?? data.annotationsDerived?.annotations;
+
   for (const [emoji, annotation] of Object.entries(entries)) {
     const existing = annotations.get(emoji) ?? [];
     annotations.set(emoji, [...new Set([...existing, ...(annotation.default ?? [])])]);
@@ -38,6 +42,7 @@ for (const annotationResponse of annotationResponses) {
 
 const entries = [];
 let category = "";
+
 for (const line of (await response.text()).split("\n")) {
   if (line.startsWith("# group: ")) {
     category = line.slice("# group: ".length).trim();
@@ -49,21 +54,17 @@ for (const line of (await response.text()).split("\n")) {
   );
   if (!match) continue;
 
+  const value = match[1]
+    .trim()
+    .split(/\s+/)
+    .map((codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
+    .join("");
+
   entries.push({
-    value: match[1]
-      .trim()
-      .split(/\s+/)
-      .map((codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
-      .join(""),
+    value,
     name: match[2].trim(),
     category,
-    keywords: annotations.get(
-      match[1]
-        .trim()
-        .split(/\s+/)
-        .map((codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
-        .join(""),
-    ) ?? [],
+    keywords: annotations.get(value) ?? [],
   });
 }
 
