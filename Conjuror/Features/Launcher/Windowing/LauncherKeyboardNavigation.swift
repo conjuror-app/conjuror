@@ -10,8 +10,13 @@ enum LauncherKeyboardNavigation {
     .shift,
   ]
 
-  static func hasOnlyCommandModifier(_ modifiers: NSEvent.ModifierFlags) -> Bool {
-    modifiers.intersection(conflictingModifiers) == .command
+  /// The modifiers that change a key's meaning, ignoring Caps Lock, Fn, and similar flags.
+  static func relevantModifiers(_ modifiers: NSEvent.ModifierFlags) -> NSEvent.ModifierFlags {
+    modifiers.intersection(conflictingModifiers)
+  }
+
+  static func cyclesMode(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) -> Bool {
+    Int(keyCode) == kVK_Tab && relevantModifiers(modifiers).isEmpty
   }
 
   static func direction(
@@ -21,7 +26,7 @@ enum LauncherKeyboardNavigation {
     allowsHorizontalNavigation: Bool = false
   ) -> MoveCommandDirection? {
     guard !hasMarkedText,
-      modifiers.intersection(conflictingModifiers).isEmpty
+      relevantModifiers(modifiers).isEmpty
     else {
       return nil
     }

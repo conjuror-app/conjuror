@@ -200,8 +200,8 @@ struct LauncherWindowControllerTests {
 
   @Test("Command shortcuts ignore Caps Lock and reject other modifiers")
   func testCommandModifiers() {
-    #expect(LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .capsLock]))
-    #expect(!LauncherKeyboardNavigation.hasOnlyCommandModifier([.command, .option]))
+    #expect(LauncherKeyboardNavigation.relevantModifiers([.command, .capsLock]) == .command)
+    #expect(LauncherKeyboardNavigation.relevantModifiers([.command, .option]) != .command)
   }
 
   @Test("Horizontal navigation requires opt-in")

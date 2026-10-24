@@ -12,8 +12,7 @@ final class LauncherPanel: NSPanel {
 
   override func sendEvent(_ event: NSEvent) {
     if event.type == .keyDown,
-      event.keyCode == 48,
-      event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty
+      LauncherKeyboardNavigation.cyclesMode(keyCode: event.keyCode, modifiers: event.modifierFlags)
     {
       onCycleMode?()
 
@@ -37,7 +36,9 @@ final class LauncherPanel: NSPanel {
   }
 
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
-    if LauncherKeyboardNavigation.hasOnlyCommandModifier(event.modifierFlags) {
+    let modifiers = LauncherKeyboardNavigation.relevantModifiers(event.modifierFlags)
+
+    if modifiers == .command {
       switch event.charactersIgnoringModifiers?.lowercased() {
       case ",":
         onOpenSettings?()
@@ -51,13 +52,6 @@ final class LauncherPanel: NSPanel {
         break
       }
     }
-
-    let modifiers = event.modifierFlags.intersection([
-      .command,
-      .control,
-      .option,
-      .shift,
-    ])
 
     if let command = LauncherTextEditingCommand.command(
       charactersIgnoringModifiers: event.charactersIgnoringModifiers,
