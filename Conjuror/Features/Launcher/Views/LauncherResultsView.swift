@@ -20,21 +20,8 @@ struct LauncherResultsView: View {
 
   @ViewBuilder
   private var applicationResults: some View {
-    if let calculatorResult = store.calculatorResult {
-      resultsScrollView(selectedID: store.selectedResultScrollID) {
-        CalculatorResultRow(
-          result: calculatorResult,
-          layout: layout,
-          isSelected: store.isCalculatorSelected,
-          onHover: store.selectCalculatorResultOnHover,
-          onCopy: store.copyCalculatorResult
-        )
-        .id(LauncherResultID.calculator)
-
-        ForEach(store.filteredApplications) { application in
-          applicationResultRow(application)
-        }
-      }
+    if store.calculatorResult != nil {
+      applicationList
     } else if store.isLoading, store.applications.isEmpty {
       loadingState("Loading applications…")
     } else if let catalogErrorMessage = store.catalogErrorMessage {
@@ -45,10 +32,33 @@ struct LauncherResultsView: View {
         message: store.query.isEmpty ? "No applications found" : "No matches"
       )
     } else {
-      resultsScrollView(selectedID: store.selectedResultScrollID) {
-        ForEach(store.filteredApplications) { application in
-          applicationResultRow(application)
-        }
+      applicationList
+    }
+  }
+
+  private var applicationList: some View {
+    resultsScrollView(selectedID: store.selectedResultScrollID) {
+      if let calculatorResult = store.calculatorResult {
+        CalculatorResultRow(
+          result: calculatorResult,
+          layout: layout,
+          isSelected: store.isCalculatorSelected,
+          onHover: store.selectCalculatorResultOnHover,
+          onCopy: store.copyCalculatorResult
+        )
+        .id(LauncherResultID.calculator)
+      }
+
+      ForEach(store.filteredApplications) { application in
+        ApplicationResultRow(
+          application: application,
+          layout: layout,
+          isSelected: !store.isCalculatorSelected
+            && application.id == store.selectedApplicationID,
+          onHover: { store.selectOnHover(application) },
+          onOpen: { store.open(application) }
+        )
+        .id(LauncherResultID.application(application.id))
       }
     }
   }
@@ -158,18 +168,6 @@ struct LauncherResultsView: View {
         }
       }
     }
-  }
-
-  private func applicationResultRow(_ application: InstalledApplication) -> some View {
-    ApplicationResultRow(
-      application: application,
-      layout: layout,
-      isSelected: !store.isCalculatorSelected
-        && application.id == store.selectedApplicationID,
-      onHover: { store.selectOnHover(application) },
-      onOpen: { store.open(application) }
-    )
-    .id(LauncherResultID.application(application.id))
   }
 
   private func resultsScrollView<Content: View>(
