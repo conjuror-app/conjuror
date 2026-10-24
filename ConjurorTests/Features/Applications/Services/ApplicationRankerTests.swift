@@ -15,9 +15,9 @@ struct ApplicationRankerTests {
       application("Code", id: "dev.example.exact"),
     ]
 
-    let result = ApplicationRanker.Index(applications: applications).ranked(
+    let result = SearchIndex(applications: applications).ranked(
       query: "code",
-      recentLaunches: [:]
+      recency: [:]
     )
 
     #expect(
@@ -34,9 +34,9 @@ struct ApplicationRankerTests {
       application("My VS Code", id: "dev.example.tokens"),
     ]
 
-    let result = ApplicationRanker.Index(applications: applications).ranked(
+    let result = SearchIndex(applications: applications).ranked(
       query: "vs",
-      recentLaunches: [:]
+      recency: [:]
     )
 
     #expect(result.map(\.displayName) == ["My VS Code", "Very Special Code"])
@@ -49,9 +49,9 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = ApplicationRanker.Index(applications: applications).ranked(
+    let result = SearchIndex(applications: applications).ranked(
       query: "xcd",
-      recentLaunches: [:]
+      recency: [:]
     )
 
     #expect(result.map(\.displayName) == ["Xcode"])
@@ -64,9 +64,9 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = ApplicationRanker.Index(applications: applications).ranked(
+    let result = SearchIndex(applications: applications).ranked(
       query: "xcd",
-      recentLaunches: [:]
+      recency: [:]
     )
 
     #expect(result.map(\.displayName) == ["Xcode", "Xylocardial"])
@@ -77,9 +77,9 @@ struct ApplicationRankerTests {
     let older = application("Alpha Editor", id: "dev.example.alpha")
     let newer = application("Atlas Editor", id: "dev.example.atlas")
 
-    let result = ApplicationRanker.Index(applications: [older, newer]).ranked(
+    let result = SearchIndex(applications: [older, newer]).ranked(
       query: "a",
-      recentLaunches: [
+      recency: [
         older.persistenceKey: Date(timeIntervalSince1970: 10),
         newer.persistenceKey: Date(timeIntervalSince1970: 20),
       ]
@@ -96,9 +96,9 @@ struct ApplicationRankerTests {
       application("Zulu", id: nil, path: "/Applications/Zulu-A.app"),
     ]
 
-    let result = ApplicationRanker.Index(applications: applications).ranked(
+    let result = SearchIndex(applications: applications).ranked(
       query: "",
-      recentLaunches: [:]
+      recency: [:]
     )
 
     #expect(
@@ -114,16 +114,16 @@ struct ApplicationRankerTests {
   func testIndependentInstallationRecency() {
     let stable = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode.app")
     let beta = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode-Beta.app")
-    let index = ApplicationRanker.Index(applications: [stable, beta])
+    let index = SearchIndex(applications: [stable, beta])
 
     #expect(stable != beta)
     #expect(
-      index.ranked(query: "xcode", recentLaunches: [stable.persistenceKey: Date()]) == [
+      index.ranked(query: "xcode", recency: [stable.persistenceKey: Date()]) == [
         stable, beta,
       ]
     )
     #expect(
-      index.ranked(query: "xcode", recentLaunches: [beta.persistenceKey: Date()]) == [beta, stable]
+      index.ranked(query: "xcode", recency: [beta.persistenceKey: Date()]) == [beta, stable]
     )
   }
 
@@ -133,16 +133,16 @@ struct ApplicationRankerTests {
   func testLegacyLaunchHistoryFallback() {
     let alpha = application("Alpha", id: "dev.example.Alpha")
     let beta = application("Beta", id: "dev.example.beta")
-    let index = ApplicationRanker.Index(applications: [alpha, beta])
+    let index = SearchIndex(applications: [alpha, beta])
     let legacy: [String: Date] = [
       "dev.example.alpha": Date(timeIntervalSince1970: 20),
       beta.persistenceKey: Date(timeIntervalSince1970: 10),
     ]
 
-    #expect(index.ranked(query: "", recentLaunches: legacy) == [alpha, beta])
+    #expect(index.ranked(query: "", recency: legacy) == [alpha, beta])
     var updated = legacy
     updated[alpha.persistenceKey] = Date(timeIntervalSince1970: 5)
-    #expect(index.ranked(query: "", recentLaunches: updated) == [beta, alpha])
+    #expect(index.ranked(query: "", recency: updated) == [beta, alpha])
   }
 
   @Test("Symlinks share the identity of their destination")

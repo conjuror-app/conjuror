@@ -6,6 +6,8 @@ struct SearchIndex<Item> {
     let name: String
     let secondaryText: String
     let recencyKey: String
+    /// Recency key used until `recencyKey` has its own recorded use.
+    let fallbackRecencyKey: String?
     let stableKey: String
 
     init(
@@ -13,12 +15,14 @@ struct SearchIndex<Item> {
       name: String,
       secondaryText: String = "",
       recencyKey: String,
+      fallbackRecencyKey: String? = nil,
       stableKey: String
     ) {
       self.item = item
       self.name = name
       self.secondaryText = secondaryText
       self.recencyKey = recencyKey
+      self.fallbackRecencyKey = fallbackRecencyKey
       self.stableKey = stableKey
     }
   }
@@ -57,6 +61,7 @@ struct SearchIndex<Item> {
         compactName: nameTokens.joined(),
         acronym: String(nameTokens.compactMap(\.first)),
         recencyKey: candidate.recencyKey,
+        fallbackRecencyKey: candidate.fallbackRecencyKey,
         stableKey: candidate.stableKey
       )
     }
@@ -72,6 +77,7 @@ struct SearchIndex<Item> {
         candidate: candidate,
         rank: rank,
         lastUse: recency[candidate.recencyKey]
+          ?? candidate.fallbackRecencyKey.flatMap { recency[$0] }
       )
     }
     .sorted(by: Self.rankOrder)
@@ -88,6 +94,7 @@ private extension SearchIndex {
     let compactName: String
     let acronym: String
     let recencyKey: String
+    let fallbackRecencyKey: String?
     let stableKey: String
 
     func matchRank(for query: SearchQuery) -> SearchMatchRank? {

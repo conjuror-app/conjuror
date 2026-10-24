@@ -14,9 +14,9 @@ struct ShortcutRankerTests {
       shortcut("Studio Code", id: "token"),
     ]
 
-    let result = ShortcutRanker.Index(shortcuts: shortcuts).ranked(
+    let result = SearchIndex(shortcuts: shortcuts).ranked(
       query: "code",
-      recentRuns: [:]
+      recency: [:]
     )
 
     #expect(result.map(\.id) == ["exact", "prefix", "token", "acronym"])
@@ -27,9 +27,9 @@ struct ShortcutRankerTests {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")
     let second = shortcut("Evening", id: "second", subtitle: "Bedroom lights")
 
-    let result = ShortcutRanker.Index(shortcuts: [first, second]).ranked(
+    let result = SearchIndex(shortcuts: [first, second]).ranked(
       query: "bedroom",
-      recentRuns: [second.persistenceKey: Date(timeIntervalSince1970: 20)]
+      recency: [second.persistenceKey: Date(timeIntervalSince1970: 20)]
     )
 
     #expect(result == [second, first])

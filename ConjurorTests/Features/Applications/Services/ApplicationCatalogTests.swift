@@ -115,15 +115,15 @@ struct ApplicationCatalogTests {
     let applications = ApplicationCatalog.installedApplications(
       from: ApplicationCatalog.filteredAndDeduplicated(candidates)
     )
-    let index = ApplicationRanker.Index(applications: applications)
-    let results = index.ranked(query: "xcode", recentLaunches: [:])
+    let index = SearchIndex(applications: applications)
+    let results = index.ranked(query: "xcode", recency: [:])
 
     #expect(results.map(\.displayName) == ["Xcode", "Xcode-27.1.0-Beta"])
     #expect(results.map { $0.url.lastPathComponent } == ["Xcode.app", "Xcode-27.1.0-Beta.app"])
     #expect(Set(results.map(\.id)).count == 2)
     #expect(Set(results).count == 2)
     #expect(
-      index.ranked(query: "beta", recentLaunches: [:]).map(\.displayName) == ["Xcode-27.1.0-Beta"]
+      index.ranked(query: "beta", recency: [:]).map(\.displayName) == ["Xcode-27.1.0-Beta"]
     )
   }
 

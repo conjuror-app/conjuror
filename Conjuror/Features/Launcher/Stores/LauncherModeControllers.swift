@@ -1,25 +1,29 @@
 import Foundation
 
-final class LauncherApplicationController {
+/// A searchable catalog ranked by recorded uses.
+final class RankedCatalog<Item> {
   private let history: RecencyStore
-  private var index = ApplicationRanker.Index(applications: [])
+  private let makeIndex: ([Item]) -> SearchIndex<Item>
+  private var index: SearchIndex<Item>
   private var recentUses: [String: Date]
 
-  init(history: RecencyStore) {
+  init(history: RecencyStore, makeIndex: @escaping ([Item]) -> SearchIndex<Item>) {
     self.history = history
+    self.makeIndex = makeIndex
+    index = makeIndex([])
     recentUses = history.load()
   }
 
-  func replace(_ applications: [InstalledApplication]) {
-    index = ApplicationRanker.Index(applications: applications)
+  func replace(_ items: [Item]) {
+    index = makeIndex(items)
   }
 
-  func ranked(query: String) -> [InstalledApplication] {
-    index.ranked(query: query, recentLaunches: recentUses)
+  func ranked(query: String) -> [Item] {
+    index.ranked(query: query, recency: recentUses)
   }
 
-  func record(_ application: InstalledApplication) {
-    history.record(key: application.persistenceKey)
+  func record(key: String) {
+    history.record(key: key)
     recentUses = history.load()
   }
 }
@@ -78,29 +82,5 @@ final class LauncherFileController {
   func cancel() {
     task?.cancel()
     task = nil
-  }
-}
-
-final class LauncherShortcutController {
-  private let history: RecencyStore
-  private var index = ShortcutRanker.Index(shortcuts: [])
-  private var recentUses: [String: Date]
-
-  init(history: RecencyStore) {
-    self.history = history
-    recentUses = history.load()
-  }
-
-  func replace(_ shortcuts: [AppleShortcut]) {
-    index = ShortcutRanker.Index(shortcuts: shortcuts)
-  }
-
-  func ranked(query: String) -> [AppleShortcut] {
-    index.ranked(query: query, recentRuns: recentUses)
-  }
-
-  func record(_ shortcut: AppleShortcut) {
-    history.record(key: shortcut.persistenceKey)
-    recentUses = history.load()
   }
 }

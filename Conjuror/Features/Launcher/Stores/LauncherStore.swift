@@ -95,8 +95,8 @@ final class LauncherStore: ObservableObject {
   private let shortcutCatalog: ShortcutCatalogLoading
   private let runShortcut: @MainActor (AppleShortcut) async throws -> Void
   private let emojiHistory: EmojiHistoryStore
-  private let applicationController: LauncherApplicationController
-  private let shortcutController: LauncherShortcutController
+  private let applicationController: RankedCatalog<InstalledApplication>
+  private let shortcutController: RankedCatalog<AppleShortcut>
   private let fileController: LauncherFileController
   private let onEvent: (LauncherEvent) -> Void
 
@@ -170,8 +170,8 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.runShortcut = runShortcut
     self.emojiHistory = emojiHistory
-    applicationController = LauncherApplicationController(history: launchHistory)
-    shortcutController = LauncherShortcutController(history: shortcutRunHistory)
+    applicationController = RankedCatalog(history: launchHistory, makeIndex: SearchIndex.init)
+    shortcutController = RankedCatalog(history: shortcutRunHistory, makeIndex: SearchIndex.init)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
   }
@@ -386,7 +386,7 @@ final class LauncherStore: ObservableObject {
       onSuccess: { [weak self] in
         guard let self else { return }
 
-        applicationController.record(application)
+        applicationController.record(key: application.persistenceKey)
         query = ""
         onEvent(.launchSucceeded)
       },
@@ -469,7 +469,7 @@ final class LauncherStore: ObservableObject {
       onSuccess: { [weak self] in
         guard let self else { return }
 
-        shortcutController.record(shortcut)
+        shortcutController.record(key: shortcut.persistenceKey)
         runningShortcutIDs.remove(shortcut.id)
         query = ""
       },
