@@ -101,7 +101,7 @@ final class LauncherStore: ObservableObject {
   private let fileController: LauncherFileController
   private let onEvent: (LauncherEvent) -> Void
 
-  private var currencySource = CurrencySource.off
+  private var currencyRates: CurrencyRates?
   private let applicationLoader = CatalogLoader<InstalledApplication>()
   private let shortcutsLoader = CatalogLoader<AppleShortcut>()
   private var includesSystemSettings: Bool?
@@ -177,12 +177,12 @@ final class LauncherStore: ObservableObject {
     self.onEvent = onEvent
   }
 
-  func setCurrencySource(_ source: CurrencySource) {
-    guard source != currencySource else {
+  func setCurrencyRates(_ rates: CurrencyRates?) {
+    guard rates != currencyRates else {
       return
     }
 
-    currencySource = source
+    currencyRates = rates
     refreshCurrentResults()
     selectFirstResult()
   }
@@ -678,7 +678,7 @@ final class LauncherStore: ObservableObject {
       self.includesSystemSettings = includesSystemSettings
     }
 
-    let result = calculator.evaluate(query, currencySource: currencySource)
+    let result = calculator.evaluate(query, currencyRates: currencyRates)
     calculatorResult = mode == .applications ? result : nil
     filteredApplications = applicationController.ranked(
       query: mode == .applications ? query : ""

@@ -3,16 +3,11 @@ import Foundation
 struct CalculatorCurrencyEvaluator {
   let formattingOptions: CalculatorFormattingOptions
   let localeCurrencyCode: String?
-  let source: CurrencySource
+  let rates: CurrencyRates?
 
   func evaluate(_ expression: String) -> CalculatorResult? {
-    guard case .on(let rates) = source,
-      let conversion = parse(expression)
-    else {
-      return nil
-    }
-
     guard let rates,
+      let conversion = parse(expression),
       let value = rates.convert(
         conversion.amount,
         from: conversion.sourceCode,

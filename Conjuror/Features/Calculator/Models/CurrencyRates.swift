@@ -32,8 +32,3 @@ struct CurrencyRates: Codable, Equatable, Sendable {
     return value.isFinite ? value : nil
   }
 }
-
-enum CurrencySource: Equatable, Sendable {
-  case off
-  case on(CurrencyRates?)
-}

@@ -13,9 +13,9 @@ extension CalculatorEngineTests {
       fetchedAt: Date()
     )
 
-    #expect(engine.evaluate("100 USD to EUR", currencySource: .on(rates))?.copyText == "80.00 EUR")
-    #expect(engine.evaluate("$50 in GBP", currencySource: .on(rates))?.copyText == "25.00 GBP")
-    #expect(engine.evaluate("20 EUR → ¥", currencySource: .on(rates))?.copyText == "2500 JPY")
+    #expect(engine.evaluate("100 USD to EUR", currencyRates: rates)?.copyText == "80.00 EUR")
+    #expect(engine.evaluate("$50 in GBP", currencyRates: rates)?.copyText == "25.00 GBP")
+    #expect(engine.evaluate("20 EUR → ¥", currencyRates: rates)?.copyText == "2500 JPY")
   }
 
   @Test("Bare currency converts to the locale currency")
@@ -34,17 +34,16 @@ extension CalculatorEngineTests {
       fetchedAt: Date()
     )
 
-    let result = localeEngine.evaluate("1 CAD", currencySource: .on(rates))
+    let result = localeEngine.evaluate("1 CAD", currencyRates: rates)
     #expect(result?.copyText == "0.40 GBP")
     #expect(result?.sourceBadge == "CAD")
     #expect(result?.targetBadge == "GBP")
-    #expect(localeEngine.evaluate("1 GBP", currencySource: .on(rates)) == nil)
+    #expect(localeEngine.evaluate("1 GBP", currencyRates: rates) == nil)
   }
 
   @Test("Disabled or unavailable currency conversion stays silent")
   func testUnavailableCurrency() {
-    #expect(engine.evaluate("100 USD to EUR", currencySource: .off) == nil)
-    #expect(engine.evaluate("100 USD to EUR", currencySource: .on(nil)) == nil)
+    #expect(engine.evaluate("100 USD to EUR", currencyRates: nil) == nil)
   }
 
   @Test(
@@ -59,12 +58,12 @@ extension CalculatorEngineTests {
     )
 
     #expect(
-      engine.evaluate("123.456 USD to EUR", currencySource: .on(rates))?.copyText == "123.46 EUR"
+      engine.evaluate("123.456 USD to EUR", currencyRates: rates)?.copyText == "123.46 EUR"
     )
     #expect(
-      engine.evaluate("1 IDR to USD", currencySource: .on(rates))?.copyText == "0.00005539 USD"
+      engine.evaluate("1 IDR to USD", currencyRates: rates)?.copyText == "0.00005539 USD"
     )
-    #expect(engine.evaluate("1 USD to JPY", currencySource: .on(rates))?.copyText == "123 JPY")
-    #expect(engine.evaluate("1 USD to BHD", currencySource: .on(rates))?.copyText == "0.376 BHD")
+    #expect(engine.evaluate("1 USD to JPY", currencyRates: rates)?.copyText == "123 JPY")
+    #expect(engine.evaluate("1 USD to BHD", currencyRates: rates)?.copyText == "0.376 BHD")
   }
 }

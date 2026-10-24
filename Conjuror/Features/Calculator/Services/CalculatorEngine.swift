@@ -20,7 +20,7 @@ struct CalculatorEngine {
 
   func evaluate(
     _ expression: String,
-    currencySource: CurrencySource = .off
+    currencyRates: CurrencyRates? = nil
   ) -> CalculatorResult? {
     let trimmedExpression = CalculatorInput.trimmed(expression)
 
@@ -41,7 +41,7 @@ struct CalculatorEngine {
       CalculatorCurrencyEvaluator(
         formattingOptions: formattingOptions,
         localeCurrencyCode: localeCurrencyCode,
-        source: currencySource
+        rates: currencyRates
       ).evaluate,
       CalculatorRadixEvaluator().evaluate,
       CalculatorQuantityEvaluator(formattingOptions: formattingOptions).evaluate,

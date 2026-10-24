@@ -215,7 +215,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     currencyRateStore.$isEnabled
       .combineLatest(currencyRateStore.$rates)
       .sink { [weak self] isEnabled, rates in
-        self?.store.setCurrencySource(isEnabled ? .on(rates) : .off)
+        self?.store.setCurrencyRates(isEnabled ? rates : nil)
       }
       .store(in: &cancellables)
   }
