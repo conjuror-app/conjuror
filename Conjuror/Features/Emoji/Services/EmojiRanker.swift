@@ -15,7 +15,7 @@ struct EmojiRanker {
           emojiIndex: index,
           normalizedName: normalizedName,
           searchableText: ([normalizedName] + normalizedKeywords).joined(separator: " "),
-          tokens: ([normalizedName] + normalizedKeywords).flatMap(EmojiRanker.tokens)
+          tokens: ([normalizedName] + normalizedKeywords).flatMap(SearchText.tokens)
         )
       }
     }
@@ -25,7 +25,7 @@ struct EmojiRanker {
 
       guard !query.isEmpty else { return emoji }
 
-      let queryTokens = EmojiRanker.tokens(in: query)
+      let queryTokens = SearchText.tokens(in: query)
 
       return searchableEmoji.compactMap { candidate -> (Int, Int)? in
         let score: Int
@@ -61,19 +61,11 @@ struct EmojiRanker {
   }
 
   private static func normalized(_ value: String) -> String {
-    value.folding(
-      options: [.caseInsensitive, .diacriticInsensitive],
-      locale: Locale(identifier: "en_US_POSIX")
+    SearchText.normalized(
+      value
+        .replacingOccurrences(of: "_", with: " ")
+        .replacingOccurrences(of: "-", with: " ")
     )
-    .lowercased()
-    .replacingOccurrences(of: "_", with: " ")
-    .replacingOccurrences(of: "-", with: " ")
-    .split(whereSeparator: { $0.isWhitespace })
-    .joined(separator: " ")
-  }
-
-  private static func tokens(in value: String) -> [String] {
-    value.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
   }
 }
 

@@ -264,54 +264,29 @@ enum SpotlightFilenameQuery {
 
 enum FileResultRanker {
   static func ranked(results: [FileSearchResult], query: String) -> [FileSearchResult] {
-    let query = SearchText.normalized(query)
+    let query = SearchQuery(query)
 
-    return results.sorted { lhs, rhs in
-      let lhsRank = rank(lhs, query: query)
-      let rhsRank = rank(rhs, query: query)
+    return
+      results
+      .map { result in
+        let rank = SearchableName(result.displayName).matchRank(for: query)
 
-      if lhsRank != rhsRank { return lhsRank < rhsRank }
-
-      if lhs.isDirectory != rhs.isDirectory { return lhs.isDirectory }
-
-      if lhs.modificationDate != rhs.modificationDate {
-        return (lhs.modificationDate ?? .distantPast)
-          > (rhs.modificationDate ?? .distantPast)
+        return (rank: rank ?? SearchMatchRank.unmatched, result: result)
       }
+      .sorted { lhs, rhs in
+        if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
 
-      return lhs.url.path.localizedStandardCompare(rhs.url.path) == .orderedAscending
-    }
+        let (lhs, rhs) = (lhs.result, rhs.result)
+
+        if lhs.isDirectory != rhs.isDirectory { return lhs.isDirectory }
+
+        if lhs.modificationDate != rhs.modificationDate {
+          return (lhs.modificationDate ?? .distantPast)
+            > (rhs.modificationDate ?? .distantPast)
+        }
+
+        return lhs.url.path.localizedStandardCompare(rhs.url.path) == .orderedAscending
+      }
+      .map(\.result)
   }
-
-  private static func rank(_ result: FileSearchResult, query: String) -> FileResultRank {
-    let name = SearchText.normalized(result.displayName)
-
-    if name == query { return FileResultRank(category: 0) }
-
-    if name.hasPrefix(query) { return FileResultRank(category: 1) }
-
-    if SearchText.tokens(in: name).contains(where: { $0.hasPrefix(query) }) {
-      return FileResultRank(category: 2)
-    }
-
-    if name.contains(query) { return FileResultRank(category: 3) }
-
-    let compactQuery = SearchText.tokens(in: query).joined()
-    let compactName = SearchText.tokens(in: name).joined()
-
-    if let score = SearchText.subsequenceScore(of: compactQuery, in: compactName) {
-      return FileResultRank(category: 4, score: score)
-    }
-
-    return FileResultRank(category: 5)
-  }
-}
-
-private struct FileResultRank: Equatable, Comparable {
-  static func < (lhs: FileResultRank, rhs: FileResultRank) -> Bool {
-    lhs.category == rhs.category ? lhs.score < rhs.score : lhs.category < rhs.category
-  }
-
-  let category: Int
-  var score = 0
 }

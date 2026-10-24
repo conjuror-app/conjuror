@@ -37,8 +37,8 @@ struct SearchIndex<Item> {
       return (lhs.lastUse ?? .distantPast) > (rhs.lastUse ?? .distantPast)
     }
 
-    if lhs.candidate.normalizedName != rhs.candidate.normalizedName {
-      return lhs.candidate.normalizedName < rhs.candidate.normalizedName
+    if lhs.candidate.name.normalized != rhs.candidate.name.normalized {
+      return lhs.candidate.name.normalized < rhs.candidate.name.normalized
     }
 
     return lhs.candidate.stableKey < rhs.candidate.stableKey
@@ -50,16 +50,10 @@ struct SearchIndex<Item> {
   init(candidates: [Candidate]) {
     items = candidates.map(\.item)
     self.candidates = candidates.enumerated().map { index, candidate in
-      let normalizedName = SearchText.normalized(candidate.name)
-      let nameTokens = SearchText.tokens(in: normalizedName)
-
-      return SearchableCandidate(
+      SearchableCandidate(
         itemIndex: index,
-        normalizedName: normalizedName,
+        name: SearchableName(candidate.name),
         normalizedSecondaryText: SearchText.normalized(candidate.secondaryText),
-        nameTokens: nameTokens,
-        compactName: nameTokens.joined(),
-        acronym: String(nameTokens.compactMap(\.first)),
         recencyKey: candidate.recencyKey,
         fallbackRecencyKey: candidate.fallbackRecencyKey,
         stableKey: candidate.stableKey
@@ -71,7 +65,12 @@ struct SearchIndex<Item> {
     let query = SearchQuery(query)
 
     return candidates.compactMap { candidate -> RankedCandidate? in
-      guard let rank = candidate.matchRank(for: query) else { return nil }
+      guard
+        let rank = candidate.name.matchRank(
+          for: query,
+          normalizedSecondaryText: candidate.normalizedSecondaryText
+        )
+      else { return nil }
 
       return RankedCandidate(
         candidate: candidate,
@@ -88,53 +87,68 @@ struct SearchIndex<Item> {
 private extension SearchIndex {
   struct SearchableCandidate {
     let itemIndex: Int
-    let normalizedName: String
+    let name: SearchableName
     let normalizedSecondaryText: String
-    let nameTokens: [String]
-    let compactName: String
-    let acronym: String
     let recencyKey: String
     let fallbackRecencyKey: String?
     let stableKey: String
-
-    func matchRank(for query: SearchQuery) -> SearchMatchRank? {
-      guard !query.normalized.isEmpty else { return SearchMatchRank(category: 6) }
-
-      if normalizedName == query.normalized { return SearchMatchRank(category: 0) }
-
-      if normalizedName.hasPrefix(query.normalized) { return SearchMatchRank(category: 1) }
-
-      if !query.tokens.isEmpty,
-        query.tokens.allSatisfy({ token in
-          nameTokens.contains(where: { $0.hasPrefix(token) })
-        })
-      {
-        return SearchMatchRank(category: 2)
-      }
-
-      if !query.compact.isEmpty, acronym.hasPrefix(query.compact) {
-        return SearchMatchRank(category: 3)
-      }
-
-      if normalizedName.contains(query.normalized)
-        || compactName.contains(query.compact)
-        || normalizedSecondaryText.contains(query.normalized)
-      {
-        return SearchMatchRank(category: 4)
-      }
-
-      if let score = SearchText.subsequenceScore(of: query.compact, in: compactName) {
-        return SearchMatchRank(category: 5, score: score)
-      }
-
-      return nil
-    }
   }
 
   struct RankedCandidate {
     let candidate: SearchableCandidate
     let rank: SearchMatchRank
     let lastUse: Date?
+  }
+}
+
+/// Precomputed forms of a name, matched against a query.
+struct SearchableName {
+  let normalized: String
+  let tokens: [String]
+  let compact: String
+  let acronym: String
+
+  init(_ name: String) {
+    normalized = SearchText.normalized(name)
+    tokens = SearchText.tokens(in: normalized)
+    compact = tokens.joined()
+    acronym = String(tokens.compactMap(\.first))
+  }
+
+  func matchRank(
+    for query: SearchQuery,
+    normalizedSecondaryText: String = ""
+  ) -> SearchMatchRank? {
+    guard !query.normalized.isEmpty else { return SearchMatchRank(category: 6) }
+
+    if normalized == query.normalized { return SearchMatchRank(category: 0) }
+
+    if normalized.hasPrefix(query.normalized) { return SearchMatchRank(category: 1) }
+
+    if !query.tokens.isEmpty,
+      query.tokens.allSatisfy({ token in
+        tokens.contains(where: { $0.hasPrefix(token) })
+      })
+    {
+      return SearchMatchRank(category: 2)
+    }
+
+    if !query.compact.isEmpty, acronym.hasPrefix(query.compact) {
+      return SearchMatchRank(category: 3)
+    }
+
+    if normalized.contains(query.normalized)
+      || compact.contains(query.compact)
+      || normalizedSecondaryText.contains(query.normalized)
+    {
+      return SearchMatchRank(category: 4)
+    }
+
+    if let score = SearchText.subsequenceScore(of: query.compact, in: compact) {
+      return SearchMatchRank(category: 5, score: score)
+    }
+
+    return nil
   }
 }
 
@@ -190,7 +204,7 @@ enum SearchText {
   }
 }
 
-private struct SearchQuery {
+struct SearchQuery {
   let normalized: String
   let tokens: [String]
   let compact: String
@@ -202,7 +216,9 @@ private struct SearchQuery {
   }
 }
 
-private struct SearchMatchRank: Equatable, Comparable {
+struct SearchMatchRank: Equatable, Comparable {
+  static let unmatched = SearchMatchRank(category: .max)
+
   static func < (lhs: SearchMatchRank, rhs: SearchMatchRank) -> Bool {
     lhs.category == rhs.category ? lhs.score < rhs.score : lhs.category < rhs.category
   }
