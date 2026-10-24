@@ -9,10 +9,6 @@ final class SpotlightFileSearchService: FileSearching {
   private var didRequestAccess = false
 
   func search(query: String) async throws -> [FileSearchResult] {
-    let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
-
-    guard !query.isEmpty else { return [] }
-
     requestAccessIfNeeded()
 
     let operation = SpotlightSearchOperation(
@@ -39,6 +35,7 @@ final class SpotlightFileSearchService: FileSearching {
 
 @MainActor
 protocol FileSearching {
+  /// Searches for files matching a query that LauncherFileController has already trimmed.
   func search(query: String) async throws -> [FileSearchResult]
 }
 
