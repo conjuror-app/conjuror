@@ -7,13 +7,11 @@ final class SettingsStore: ObservableObject {
     let code: UserDefaultsKey<Int>
     let displayName: UserDefaultsKey<String>
     let modifiers: UserDefaultsKey<Int>
+    /// Set once the default has been stored, so a cleared optional hot key stays cleared.
+    let initialized: UserDefaultsKey<Bool>?
   }
 
   private enum Key {
-    static let filesHotKeyInitialized = UserDefaultsKey<Bool>("settings.filesHotKeyInitialized")
-    static let optionalHotKeysInitialized = UserDefaultsKey<Bool>(
-      "settings.optionalHotKeysInitialized"
-    )
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
@@ -25,18 +23,19 @@ final class SettingsStore: ObservableObject {
     static let launcherAppearance = UserDefaultsKey<String>("settings.launcherAppearance")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
-      let prefix =
+      let (prefix, initialized): (String, String?) =
         switch action {
-        case .launcher: "settings.hotKey"
-        case .shortcuts: "settings.shortcutsHotKey"
-        case .emoji: "settings.emojiHotKey"
-        case .files: "settings.filesHotKey"
+        case .launcher: ("settings.hotKey", nil)
+        case .shortcuts: ("settings.shortcutsHotKey", "settings.optionalHotKeysInitialized")
+        case .emoji: ("settings.emojiHotKey", "settings.optionalHotKeysInitialized")
+        case .files: ("settings.filesHotKey", "settings.filesHotKeyInitialized")
         }
 
       return HotKeyKeys(
         code: UserDefaultsKey("\(prefix)Code"),
         displayName: UserDefaultsKey("\(prefix)DisplayName"),
-        modifiers: UserDefaultsKey("\(prefix)Modifiers")
+        modifiers: UserDefaultsKey("\(prefix)Modifiers"),
+        initialized: initialized.map(UserDefaultsKey.init)
       )
     }
   }
@@ -69,10 +68,6 @@ final class SettingsStore: ObservableObject {
     )
   }
 
-  @Published private(set) var hotKeyConfiguration: HotKeyConfiguration
-  @Published private(set) var shortcutsHotKeyConfiguration: HotKeyConfiguration?
-  @Published private(set) var emojiHotKeyConfiguration: HotKeyConfiguration?
-  @Published private(set) var filesHotKeyConfiguration: HotKeyConfiguration?
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
@@ -81,35 +76,33 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
   @Published private(set) var launcherAppearance: LauncherAppearance
 
+  var hotKeyConfiguration: HotKeyConfiguration {
+    hotKeyConfigurations[.launcher] ?? .defaultValue
+  }
+
+  @Published private var hotKeyConfigurations: [HotKeyAction: HotKeyConfiguration]
+
   private let userDefaults: UserDefaults
 
   init(userDefaults: UserDefaults = .standard) {
     self.userDefaults = userDefaults
 
-    hotKeyConfiguration =
-      Self.loadHotKey(
-        from: userDefaults,
-        keys: Key.hotKeyKeys(for: .launcher)
-      ) ?? .defaultValue
+    var hotKeyConfigurations = [HotKeyAction: HotKeyConfiguration]()
+    var uninitializedActions = [HotKeyAction]()
 
-    let optionalHotKeysInitialized =
-      (userDefaults.value(for: Key.optionalHotKeysInitialized) ?? false)
-    shortcutsHotKeyConfiguration =
-      Self.loadHotKey(
-        from: userDefaults,
-        keys: Key.hotKeyKeys(for: .shortcuts)
-      ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.shortcuts.defaultConfiguration)
-    emojiHotKeyConfiguration =
-      Self.loadHotKey(
-        from: userDefaults,
-        keys: Key.hotKeyKeys(for: .emoji)
-      ) ?? (optionalHotKeysInitialized ? nil : HotKeyAction.emoji.defaultConfiguration)
-    let filesHotKeyInitialized = userDefaults.value(for: Key.filesHotKeyInitialized) ?? false
-    filesHotKeyConfiguration =
-      Self.loadHotKey(
-        from: userDefaults,
-        keys: Key.hotKeyKeys(for: .files)
-      ) ?? (filesHotKeyInitialized ? nil : HotKeyAction.files.defaultConfiguration)
+    for action in HotKeyAction.allCases {
+      let keys = Key.hotKeyKeys(for: action)
+      let isInitialized = keys.initialized.flatMap(userDefaults.value(for:)) ?? false
+
+      if keys.initialized != nil, !isInitialized { uninitializedActions.append(action) }
+
+      hotKeyConfigurations[action] =
+        Self.loadHotKey(from: userDefaults, keys: keys)
+        ?? (isInitialized ? nil : action.defaultConfiguration)
+    }
+
+    self.hotKeyConfigurations = hotKeyConfigurations
+
     let storedMaximum =
       userDefaults.value(for: Key.maximumVisibleResults)
       ?? Self.defaultMaximumVisibleResults
@@ -131,44 +124,27 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.launcherAppearance)
       .flatMap(LauncherAppearance.init(rawValue:)) ?? .standard
 
-    if !optionalHotKeysInitialized {
-      userDefaults.set(true, for: Key.optionalHotKeysInitialized)
-      persistHotKey(shortcutsHotKeyConfiguration, for: .shortcuts)
-      persistHotKey(emojiHotKeyConfiguration, for: .emoji)
-    }
+    for action in uninitializedActions {
+      persistHotKey(hotKeyConfigurations[action], for: action)
 
-    if !filesHotKeyInitialized {
-      userDefaults.set(true, for: Key.filesHotKeyInitialized)
-      persistHotKey(filesHotKeyConfiguration, for: .files)
+      if let initialized = Key.hotKeyKeys(for: action).initialized {
+        userDefaults.set(true, for: initialized)
+      }
     }
   }
 
   func hotKeyConfiguration(for action: HotKeyAction) -> HotKeyConfiguration? {
-    switch action {
-    case .launcher: hotKeyConfiguration
-    case .shortcuts: shortcutsHotKeyConfiguration
-    case .emoji: emojiHotKeyConfiguration
-    case .files: filesHotKeyConfiguration
-    }
+    hotKeyConfigurations[action]
   }
 
   func setHotKeyConfiguration(
     _ configuration: HotKeyConfiguration?,
     for action: HotKeyAction = .launcher
   ) {
-    switch action {
-    case .launcher:
-      guard let configuration else { return }
+    // The launcher hot key cannot be cleared.
+    guard configuration != nil || action != .launcher else { return }
 
-      hotKeyConfiguration = configuration
-    case .shortcuts:
-      shortcutsHotKeyConfiguration = configuration
-    case .emoji:
-      emojiHotKeyConfiguration = configuration
-    case .files:
-      filesHotKeyConfiguration = configuration
-    }
-
+    hotKeyConfigurations[action] = configuration
     persistHotKey(configuration, for: action)
   }
 
@@ -212,6 +188,17 @@ final class SettingsStore: ObservableObject {
 
   func resetMaximumVisibleResults() {
     setMaximumVisibleResults(Self.defaultMaximumVisibleResults)
+  }
+
+  func resetToDefaults() {
+    resetMaximumVisibleResults()
+    setPreferredEmojiSkinTone(.default)
+    setLauncherBorderStyle(.cyan)
+    setLauncherCustomBorderColor(.default)
+
+    for action in HotKeyAction.allCases {
+      setHotKeyConfiguration(action.defaultConfiguration, for: action)
+    }
   }
 
   private func persistHotKey(

@@ -222,7 +222,9 @@ private struct AppsSettingsView: View {
       HStack {
         Spacer()
         Button("Reset to Defaults") {
-          hotKeyErrorMessage = hotKeyStore.resetSettings()
+          store.resetToDefaults()
+          hotKeyStore.register()
+          hotKeyErrorMessage = hotKeyStore.registrationErrorMessage
         }
       }
     }

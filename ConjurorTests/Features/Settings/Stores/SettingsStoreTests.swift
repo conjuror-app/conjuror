@@ -12,7 +12,7 @@ struct SettingsStoreTests {
     let store = SettingsStore(userDefaults: userDefaults)
 
     #expect(store.hotKeyConfiguration == .defaultValue)
-    #expect(store.filesHotKeyConfiguration == HotKeyAction.files.defaultConfiguration)
+    #expect(store.hotKeyConfiguration(for: .files) == HotKeyAction.files.defaultConfiguration)
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
     #expect(store.preferredEmojiSkinTone == .default)
     #expect(store.isFilesModuleEnabled)
