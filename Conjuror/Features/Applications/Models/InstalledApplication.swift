@@ -24,7 +24,7 @@ struct InstalledApplication: Identifiable {
   var persistenceKey: String {
     switch launchTarget {
     case .application:
-      url.standardizedFileURL.resolvingSymlinksInPath().path
+      url.canonicalFileURL.path
     case .systemSettings(let url):
       url.absoluteString.lowercased()
     }
@@ -60,5 +60,12 @@ extension InstalledApplication: Equatable {
 extension InstalledApplication: Hashable {
   func hash(into hasher: inout Hasher) {
     hasher.combine(persistenceKey)
+  }
+}
+
+extension URL {
+  /// The standardized file URL with symlinks resolved, used to identify one installation.
+  var canonicalFileURL: URL {
+    standardizedFileURL.resolvingSymlinksInPath()
   }
 }

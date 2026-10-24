@@ -28,40 +28,31 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     var seenPaths = Set<String>()
 
     return (standardDirectories + mountedApplicationDirectories).filter { directory in
-      seenPaths.insert(canonicalURL(directory).path).inserted
+      seenPaths.insert(directory.canonicalFileURL.path).inserted
     }
   }
 
   static func filteredAndDeduplicated(
-    _ candidates: [ApplicationCatalogCandidate],
-    excludingBundleIdentifier: String?
+    _ candidates: [ApplicationCatalogCandidate]
   ) -> [ApplicationCatalogCandidate] {
-    let excludedIdentifier = excludingBundleIdentifier?.lowercased()
     var seenURLs = Set<String>()
 
     return
       candidates
-      .sorted(by: candidateOrder)
+      .map { (name: SearchText.normalized($0.displayName), candidate: $0) }
+      .sorted { lhs, rhs in
+        if lhs.candidate.sourcePriority != rhs.candidate.sourcePriority {
+          return lhs.candidate.sourcePriority < rhs.candidate.sourcePriority
+        }
+
+        if lhs.name != rhs.name { return lhs.name < rhs.name }
+
+        return lhs.candidate.url.path < rhs.candidate.url.path
+      }
+      .map(\.candidate)
       .filter { candidate in
-        guard !candidate.isBackgroundOnly, !candidate.isHelper else {
-          return false
-        }
-
-        let canonicalPath = canonicalURL(candidate.url).path
-
-        guard seenURLs.insert(canonicalPath).inserted else {
-          return false
-        }
-
-        if let bundleIdentifier = candidate.bundleIdentifier?.lowercased() {
-          guard bundleIdentifier != excludedIdentifier else {
-            return false
-          }
-        } else if candidate.displayName.caseInsensitiveCompare("Conjuror") == .orderedSame {
-          return false
-        }
-
-        return true
+        !candidate.isBackgroundOnly && !candidate.isHelper
+          && seenURLs.insert(candidate.url.canonicalFileURL.path).inserted
       }
   }
 
@@ -102,6 +93,25 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     var readableDirectoryCount = 0
     var unreadableDirectories = [URL]()
 
+    func appendCandidate(at url: URL, sourcePriority: Int) throws {
+      guard url.pathExtension.caseInsensitiveCompare("app") == .orderedSame else { return }
+
+      try Task.checkCancellation()
+
+      let canonicalURL = url.canonicalFileURL
+
+      guard !candidatePaths.contains(canonicalURL.path),
+        let candidate = candidate(
+          at: url,
+          canonicalURL: canonicalURL,
+          sourcePriority: sourcePriority
+        )
+      else { return }
+
+      candidates.append(candidate)
+      candidatePaths.insert(canonicalURL.path)
+    }
+
     for (sourcePriority, directory) in directories.enumerated() {
       try Task.checkCancellation()
 
@@ -119,16 +129,8 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
           includingPropertiesForKeys: keys,
           options: []
         )) ?? []
-      for url in topLevelApplications
-      where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
-        try Task.checkCancellation()
-
-        guard let candidate = candidate(at: url, sourcePriority: sourcePriority) else {
-          continue
-        }
-
-        candidates.append(candidate)
-        candidatePaths.insert(canonicalURL(url).path)
+      for url in topLevelApplications {
+        try appendCandidate(at: url, sourcePriority: sourcePriority)
       }
 
       var enumerationError: Error?
@@ -149,18 +151,8 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
         continue
       }
 
-      for case let url as URL in enumerator
-      where url.pathExtension.caseInsensitiveCompare("app") == .orderedSame {
-        try Task.checkCancellation()
-
-        guard !candidatePaths.contains(canonicalURL(url).path),
-          let candidate = candidate(at: url, sourcePriority: sourcePriority)
-        else {
-          continue
-        }
-
-        candidates.append(candidate)
-        candidatePaths.insert(canonicalURL(url).path)
+      for case let url as URL in enumerator {
+        try appendCandidate(at: url, sourcePriority: sourcePriority)
       }
 
       if enumerationError != nil {
@@ -180,7 +172,11 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     return candidates
   }
 
-  private static func candidate(at url: URL, sourcePriority: Int) -> ApplicationCatalogCandidate? {
+  private static func candidate(
+    at url: URL,
+    canonicalURL: URL,
+    sourcePriority: Int
+  ) -> ApplicationCatalogCandidate? {
     guard let bundle = Bundle(url: url),
       let info = bundle.infoDictionary
     else {
@@ -212,34 +208,12 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     return ApplicationCatalogCandidate(
       displayName: displayName,
       bundleIdentifier: bundle.bundleIdentifier,
-      url: canonicalURL(url),
+      url: canonicalURL,
       sourcePriority: sourcePriority,
       // LSUIElement apps such as Raycast can be launched. Exclude only background-only apps.
       isBackgroundOnly: info["LSBackgroundOnly"] as? Bool == true,
       isHelper: isHelper
     )
-  }
-
-  private static func candidateOrder(
-    _ lhs: ApplicationCatalogCandidate,
-    _ rhs: ApplicationCatalogCandidate
-  ) -> Bool {
-    if lhs.sourcePriority != rhs.sourcePriority {
-      return lhs.sourcePriority < rhs.sourcePriority
-    }
-
-    let lhsName = SearchText.normalized(lhs.displayName)
-    let rhsName = SearchText.normalized(rhs.displayName)
-
-    if lhsName != rhsName {
-      return lhsName < rhsName
-    }
-
-    return canonicalURL(lhs.url).path < canonicalURL(rhs.url).path
-  }
-
-  private static func canonicalURL(_ url: URL) -> URL {
-    url.standardizedFileURL.resolvingSymlinksInPath()
   }
 
   func load() async throws -> [InstalledApplication] {
@@ -248,10 +222,7 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     let scanTask = Task.detached(priority: .userInitiated) {
       let candidates = try Self.scan(directories: directories)
 
-      return Self.filteredAndDeduplicated(
-        candidates,
-        excludingBundleIdentifier: nil
-      )
+      return Self.filteredAndDeduplicated(candidates)
     }
 
     let candidates = try await withTaskCancellationHandler {

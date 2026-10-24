@@ -17,7 +17,7 @@ final class ApplicationDirectoryMonitor {
 
   @discardableResult
   func start(directories: [URL]) -> Bool {
-    let paths = directories.map { $0.standardizedFileURL.resolvingSymlinksInPath().path }.sorted()
+    let paths = directories.map(\.canonicalFileURL.path).sorted()
 
     if stream != nil, paths == watchedPaths { return true }
     stop()

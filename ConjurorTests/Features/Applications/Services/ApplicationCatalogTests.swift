@@ -48,7 +48,7 @@ struct ApplicationCatalogTests {
     #expect(directories.contains(mountedApplications))
   }
 
-  @Test("Helper, background, and Conjuror apps are filtered")
+  @Test("Helper and background apps are filtered")
   func testCatalogFiltering() {
     let candidates = [
       candidate("Visible", id: "dev.example.visible", path: "/Applications/Visible.app"),
@@ -64,31 +64,11 @@ struct ApplicationCatalogTests {
         path: "/Applications/Agent.app",
         isBackgroundOnly: true
       ),
-      candidate("Conjuror", id: "dev.tombell.conjuror", path: "/Applications/Conjuror.app"),
     ]
 
-    let result = ApplicationCatalog.filteredAndDeduplicated(
-      candidates,
-      excludingBundleIdentifier: "dev.tombell.conjuror"
-    )
+    let result = ApplicationCatalog.filteredAndDeduplicated(candidates)
 
     #expect(result.map(\.displayName) == ["Visible"])
-  }
-
-  @Test("Application catalog: Conjuror is included when its bundle identifier is not excluded")
-  func testIncludesConjurorByDefault() {
-    let conjuror = candidate(
-      "Conjuror",
-      id: "dev.tombell.conjuror",
-      path: "/Applications/Conjuror.app"
-    )
-
-    let result = ApplicationCatalog.filteredAndDeduplicated(
-      [conjuror],
-      excludingBundleIdentifier: nil
-    )
-
-    #expect(result == [conjuror])
   }
 
   @Test("Distinct installations survive while canonical URLs are deduplicated")
@@ -105,10 +85,7 @@ struct ApplicationCatalogTests {
       candidate("Path", id: nil, path: "/Applications/Path.app", priority: 0),
     ]
 
-    let result = ApplicationCatalog.filteredAndDeduplicated(
-      candidates,
-      excludingBundleIdentifier: nil
-    )
+    let result = ApplicationCatalog.filteredAndDeduplicated(candidates)
 
     #expect(result.map(\.displayName) == ["Beta", "Path", "Beta Copy"])
   }
@@ -136,7 +113,7 @@ struct ApplicationCatalogTests {
 
     let candidates = try ApplicationCatalog.scan(directories: [directory])
     let applications = ApplicationCatalog.installedApplications(
-      from: ApplicationCatalog.filteredAndDeduplicated(candidates, excludingBundleIdentifier: nil)
+      from: ApplicationCatalog.filteredAndDeduplicated(candidates)
     )
     let index = ApplicationRanker.Index(applications: applications)
     let results = index.ranked(query: "xcode", recentLaunches: [:])
@@ -202,10 +179,7 @@ struct ApplicationCatalogTests {
     )
 
     let candidates = try ApplicationCatalog.scan(directories: [applicationsDirectory])
-    let result = ApplicationCatalog.filteredAndDeduplicated(
-      candidates,
-      excludingBundleIdentifier: nil
-    )
+    let result = ApplicationCatalog.filteredAndDeduplicated(candidates)
 
     #expect(result.map(\.displayName) == ["Safari"])
     #expect(result.first?.bundleIdentifier == "com.apple.Safari")
