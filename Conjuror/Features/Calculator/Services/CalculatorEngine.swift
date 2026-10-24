@@ -28,15 +28,17 @@ struct CalculatorEngine {
       return nil
     }
 
+    let now = currentDate()
+    let timeZone = currentTimeZone()
     let evaluators: [(String) -> CalculatorResult?] = [
       CalculatorRelativeDateEvaluator(
-        currentDate: currentDate(),
-        timeZone: currentTimeZone(),
+        currentDate: now,
+        timeZone: timeZone,
         localeIdentifier: formattingOptions.localeIdentifier
       ).evaluate,
       CalculatorTimeZoneEvaluator(
-        currentDate: currentDate(),
-        currentTimeZone: currentTimeZone()
+        currentDate: now,
+        currentTimeZone: timeZone
       ).evaluate,
       CalculatorCurrencyEvaluator(
         formattingOptions: formattingOptions,
@@ -100,13 +102,25 @@ struct CalculatorNumberFormatter {
   private static let maximumExactInteger = 9_007_199_254_740_992.0
 
   let options: CalculatorFormattingOptions
+  private let locale: Locale
+  private let decimalSeparator: String
+  private let groupingSeparator: String?
+
+  init(options: CalculatorFormattingOptions) {
+    self.options = options
+    locale = Locale(identifier: options.localeIdentifier)
+
+    let formatter = NumberFormatter()
+    formatter.locale = locale
+    decimalSeparator = formatter.decimalSeparator ?? "."
+    groupingSeparator = formatter.groupingSeparator
+  }
 
   func string(
     from value: Double,
     usesGroupingSeparator: Bool
   ) -> String? {
     let normalizedValue = value == 0 ? 0 : value
-    let locale = Locale(identifier: options.localeIdentifier)
     let text =
       if normalizedValue.rounded() == normalizedValue,
         Swift.abs(normalizedValue) <= Self.maximumExactInteger
@@ -121,9 +135,9 @@ struct CalculatorNumberFormatter {
         )
       }
 
-    let ungroupedText = ungrouped(text, locale: locale)
+    let ungroupedText = ungrouped(text)
 
-    return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
+    return usesGroupingSeparator ? grouped(ungroupedText) : ungroupedText
   }
 
   func currencyString(
@@ -137,8 +151,7 @@ struct CalculatorNumberFormatter {
 
     let normalizedValue = value == 0 ? 0 : value
     let magnitude = Swift.abs(normalizedValue)
-    let locale = Locale(identifier: options.localeIdentifier)
-    let fractionDigits = currencyFractionDigits(for: currencyCode, locale: locale)
+    let fractionDigits = currencyFractionDigits(for: currencyCode)
     let minorUnit = pow(10, -Double(fractionDigits))
     let text: String
 
@@ -162,12 +175,12 @@ struct CalculatorNumberFormatter {
       text = formatted
     }
 
-    let ungroupedText = ungrouped(text, locale: locale)
+    let ungroupedText = ungrouped(text)
 
-    return usesGroupingSeparator ? grouped(ungroupedText, locale: locale) : ungroupedText
+    return usesGroupingSeparator ? grouped(ungroupedText) : ungroupedText
   }
 
-  private func currencyFractionDigits(for code: String, locale: Locale) -> Int {
+  private func currencyFractionDigits(for code: String) -> Int {
     let formatter = NumberFormatter()
     formatter.locale = locale
     formatter.numberStyle = .currency
@@ -176,26 +189,20 @@ struct CalculatorNumberFormatter {
     return formatter.maximumFractionDigits
   }
 
-  private func ungrouped(_ text: String, locale: Locale) -> String {
-    let formatter = NumberFormatter()
-    formatter.locale = locale
-
-    guard let groupingSeparator = formatter.groupingSeparator else {
+  private func ungrouped(_ text: String) -> String {
+    guard let groupingSeparator else {
       return text
     }
 
     return text.replacingOccurrences(of: groupingSeparator, with: "")
   }
 
-  private func grouped(_ text: String, locale: Locale) -> String {
+  private func grouped(_ text: String) -> String {
     guard !text.contains("e"), !text.contains("E") else {
       return text
     }
 
-    let formatter = NumberFormatter()
-    formatter.locale = locale
-    let decimalSeparator = formatter.decimalSeparator ?? "."
-    let groupingSeparator = formatter.groupingSeparator ?? ","
+    let groupingSeparator = groupingSeparator ?? ","
     let sign = text.hasPrefix("-") ? "-" : ""
     let unsigned = sign.isEmpty ? text : String(text.dropFirst())
     let parts = unsigned.components(separatedBy: decimalSeparator)
