@@ -60,6 +60,7 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var fileResults = [FileSearchResult]()
   @Published private(set) var isSearchingFiles = false
   @Published private(set) var fileSearchErrorMessage: String?
+  @Published private(set) var fileOpenErrorMessage: String?
   @Published private(set) var selectedFileID: FileSearchResult.ID?
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
@@ -440,10 +441,10 @@ final class LauncherStore: ObservableObject {
     guard let file = selectedFile else { return }
 
     selectedFileID = file.id
-    fileSearchErrorMessage = nil
+    fileOpenErrorMessage = nil
 
     guard NSWorkspace.shared.open(file.url) else {
-      fileSearchErrorMessage = "Couldn’t open \(file.displayName). The item could not be opened."
+      fileOpenErrorMessage = "Couldn’t open \(file.displayName). The item could not be opened."
 
       return
     }
@@ -485,7 +486,7 @@ final class LauncherStore: ObservableObject {
     switch mode {
     case .applications: launchErrorMessage = nil
     case .emoji: break
-    case .files: fileSearchErrorMessage = nil
+    case .files: fileOpenErrorMessage = nil
     case .shortcuts: shortcutRunErrorMessage = nil
     }
   }
@@ -643,6 +644,7 @@ final class LauncherStore: ObservableObject {
 
   private func searchFiles() {
     fileSearchErrorMessage = nil
+    fileOpenErrorMessage = nil
     fileController.search(query: query) { [weak self] update in
       guard let self, mode == .files else { return }
 

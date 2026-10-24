@@ -110,7 +110,7 @@ struct LauncherView: View {
     case .emoji:
       nil
     case .files:
-      store.fileSearchErrorMessage
+      store.fileOpenErrorMessage
     case .shortcuts:
       store.shortcutRunErrorMessage
     }
