@@ -19,7 +19,7 @@ extension LauncherStoreTests {
     #expect(store.mode == .shortcuts)
     #expect(store.query == "evening")
     #expect(store.filteredShortcuts == [shortcuts[1]])
-    #expect(store.selectedShortcutID == shortcuts[1].id)
+    #expect(store.selectedResultID == .shortcut(shortcuts[1].id))
   }
 
   @Test("Launcher store: Return runs the selected fuzzy shortcut")
@@ -35,7 +35,7 @@ extension LauncherStoreTests {
     )
     store.updateQuery(">bedroom")
     await waitForShortcuts(store)
-    store.select(mainBedroom)
+    store.select(.shortcut(mainBedroom.id))
 
     store.openSelectedResult()
 
@@ -66,7 +66,7 @@ extension LauncherStoreTests {
       await Task.yield()
     }
 
-    #expect(store.shortcutRunErrorMessage == nil)
+    #expect(store.actionErrorMessage == nil)
   }
 
   @Test("Failed shortcut runs appear in shortcut mode on next activation")
@@ -81,7 +81,7 @@ extension LauncherStoreTests {
 
     store.openSelectedResult()
 
-    while store.shortcutRunErrorMessage == nil {
+    while store.actionErrorMessage == nil {
       await Task.yield()
     }
 
@@ -89,6 +89,6 @@ extension LauncherStoreTests {
 
     #expect(store.mode == .shortcuts)
     #expect(store.query == "light")
-    #expect(store.shortcutRunErrorMessage == "Couldn’t run Lights. Launch failed")
+    #expect(store.actionErrorMessage == "Couldn’t run Lights. Launch failed")
   }
 }

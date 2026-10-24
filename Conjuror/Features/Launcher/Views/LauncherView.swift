@@ -44,7 +44,7 @@ struct LauncherView: View {
           actionFooter
         }
 
-        if let actionErrorMessage {
+        if let actionErrorMessage = store.actionErrorMessage {
           actionError(actionErrorMessage)
         }
       }
@@ -103,19 +103,6 @@ struct LauncherView: View {
     }
   }
 
-  private var actionErrorMessage: String? {
-    switch store.mode {
-    case .applications:
-      store.launchErrorMessage
-    case .emoji:
-      nil
-    case .files:
-      store.fileOpenErrorMessage
-    case .shortcuts:
-      store.shortcutRunErrorMessage
-    }
-  }
-
   private var contentHeight: CGFloat {
     guard isExpanded else {
       return layout.collapsedHeight
@@ -134,7 +121,7 @@ struct LauncherView: View {
       resultCount: resultCount,
       hasCatalogError: catalogErrorMessage != nil,
       hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
-      hasLaunchError: actionErrorMessage != nil,
+      hasLaunchError: store.actionErrorMessage != nil,
       maximumVisibleResults: settingsStore.maximumVisibleResults
     )
   }

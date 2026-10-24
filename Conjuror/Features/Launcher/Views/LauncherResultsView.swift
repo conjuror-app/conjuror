@@ -37,13 +37,13 @@ struct LauncherResultsView: View {
   }
 
   private var applicationList: some View {
-    resultsScrollView(selectedID: store.selectedResultScrollID) {
+    resultsScrollView(selectedID: store.selectedResultID) {
       if let calculatorResult = store.calculatorResult {
         CalculatorResultRow(
           result: calculatorResult,
           layout: layout,
           isSelected: store.isCalculatorSelected,
-          onHover: store.selectCalculatorResultOnHover,
+          onHover: { store.selectOnHover(.calculator) },
           onCopy: store.copyCalculatorResult
         )
         .id(LauncherResultID.calculator)
@@ -53,9 +53,8 @@ struct LauncherResultsView: View {
         ApplicationResultRow(
           application: application,
           layout: layout,
-          isSelected: !store.isCalculatorSelected
-            && application.id == store.selectedApplicationID,
-          onHover: { store.selectOnHover(application) },
+          isSelected: store.selectedResultID == .application(application.id),
+          onHover: { store.selectOnHover(.application(application.id)) },
           onOpen: { store.open(application) }
         )
         .id(LauncherResultID.application(application.id))
@@ -68,7 +67,7 @@ struct LauncherResultsView: View {
     if store.displayedEmoji.isEmpty {
       emptyState(systemImage: "magnifyingglass", message: "No matches")
     } else {
-      resultsScrollView(selectedID: store.selectedResultScrollID) {
+      resultsScrollView(selectedID: store.selectedResultID) {
         if store.query.isEmpty, !store.recentEmoji.isEmpty {
           Text("Recently Used")
             .font(.caption)
@@ -88,12 +87,9 @@ struct LauncherResultsView: View {
             EmojiResultCell(
               emoji: emoji,
               layout: layout,
-              isSelected: emoji.id == store.selectedEmojiID,
-              onHover: { store.selectOnHover(emoji) },
-              onCopy: {
-                store.select(emoji)
-                store.copySelectedEmoji()
-              }
+              isSelected: store.selectedResultID == .emoji(emoji.id),
+              onHover: { store.selectOnHover(.emoji(emoji.id)) },
+              onCopy: { store.copy(emoji) }
             )
             .id(LauncherResultID.emoji(emoji.id))
           }
@@ -114,17 +110,14 @@ struct LauncherResultsView: View {
         message: fileEmptyStateMessage
       )
     } else {
-      resultsScrollView(selectedID: store.selectedResultScrollID) {
+      resultsScrollView(selectedID: store.selectedResultID) {
         ForEach(store.fileResults) { file in
           FileResultRow(
             result: file,
             layout: layout,
-            isSelected: file.id == store.selectedFileID,
-            onHover: { store.selectOnHover(file) },
-            onOpen: {
-              store.select(file)
-              store.openSelectedFile()
-            }
+            isSelected: store.selectedResultID == .file(file.id),
+            onHover: { store.selectOnHover(.file(file.id)) },
+            onOpen: { store.open(file) }
           )
           .id(LauncherResultID.file(file.id))
         }
@@ -155,13 +148,13 @@ struct LauncherResultsView: View {
         message: store.query.isEmpty ? "No shortcuts without input found" : "No matches"
       )
     } else {
-      resultsScrollView(selectedID: store.selectedResultScrollID) {
+      resultsScrollView(selectedID: store.selectedResultID) {
         ForEach(store.filteredShortcuts) { shortcut in
           ShortcutResultRow(
             shortcut: shortcut,
             layout: layout,
-            isSelected: shortcut.id == store.selectedShortcutID,
-            onHover: { store.selectOnHover(shortcut) },
+            isSelected: store.selectedResultID == .shortcut(shortcut.id),
+            onHover: { store.selectOnHover(.shortcut(shortcut.id)) },
             onRun: { store.run(shortcut) }
           )
           .id(LauncherResultID.shortcut(shortcut.id))

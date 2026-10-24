@@ -44,13 +44,13 @@ extension LauncherStoreTests {
   func testHorizontalArrowsNavigateEmojiGrid() {
     let store = makeStore()
     store.updateQuery(":")
-    let firstID = store.selectedEmojiID
+    let firstID = store.selectedResultID
 
     store.moveSelection(.right)
-    #expect(store.selectedEmojiID == store.displayedEmoji[1].id)
+    #expect(store.selectedResultID == .emoji(store.displayedEmoji[1].id))
 
     store.moveSelection(.left)
-    #expect(store.selectedEmojiID == firstID)
+    #expect(store.selectedResultID == firstID)
   }
 
   @Test("Launcher store: Return copies emoji and records it as recent")

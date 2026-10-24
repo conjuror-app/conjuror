@@ -20,7 +20,7 @@ extension LauncherStoreTests {
     store.query = "beta"
 
     #expect(store.filteredApplications == [applications[1]])
-    #expect(store.selectedApplicationID == applications[1].id)
+    #expect(store.selectedResultID == .application(applications[1].id))
   }
 
   @Test("Selecting a second installation launches its own path")
@@ -39,10 +39,10 @@ extension LauncherStoreTests {
     store.loadApplications()
     await waitForApplications(store)
     store.query = "xcode"
-    #expect(store.selectedApplicationID == stable.id)
+    #expect(store.selectedResultID == .application(stable.id))
 
     store.moveSelection(.down)
-    #expect(store.selectedApplicationID == beta.id)
+    #expect(store.selectedResultID == .application(beta.id))
     store.openSelectedResult()
 
     while !didLaunch {
@@ -122,7 +122,7 @@ extension LauncherStoreTests {
     }
 
     #expect(store.filteredApplications == [applications[1], applications[0]])
-    #expect(store.selectedApplicationID == applications[1].id)
+    #expect(store.selectedResultID == .application(applications[1].id))
   }
 
   @Test("Catalog failures publish errors and clear selection")
@@ -135,7 +135,7 @@ extension LauncherStoreTests {
     await waitForApplications(store)
 
     #expect(store.applications.isEmpty)
-    #expect(store.selectedApplicationID == nil)
+    #expect(store.selectedResultID == nil)
     #expect(
       store.catalogErrorMessage == "Couldn’t load installed applications. Catalog unavailable"
     )
@@ -163,7 +163,7 @@ extension LauncherStoreTests {
     }
 
     #expect(store.query == "")
-    #expect(store.launchErrorMessage == nil)
+    #expect(store.actionErrorMessage == nil)
     #expect(launchHistory.load()[application.persistenceKey] != nil)
   }
 
@@ -189,12 +189,12 @@ extension LauncherStoreTests {
 
     store.openSelectedResult()
     #expect(didStartLaunch)
-    while store.launchErrorMessage == nil {
+    while store.actionErrorMessage == nil {
       await Task.yield()
     }
 
     #expect(store.query == "alpha")
-    #expect(store.launchErrorMessage == "Couldn’t open Alpha. Launch failed")
+    #expect(store.actionErrorMessage == "Couldn’t open Alpha. Launch failed")
     #expect(!didLaunch)
     #expect(launchHistory.load().isEmpty)
   }
@@ -214,7 +214,7 @@ extension LauncherStoreTests {
     store.query = "beta"
     store.openSelectedResult()
 
-    while store.launchErrorMessage == nil {
+    while store.actionErrorMessage == nil {
       await Task.yield()
     }
 
@@ -223,8 +223,8 @@ extension LauncherStoreTests {
     store.prepareForActivation()
 
     #expect(store.query == "beta")
-    #expect(store.launchErrorMessage == "Couldn’t open Beta. Launch failed")
-    #expect(store.selectedApplicationID == applications[1].id)
+    #expect(store.actionErrorMessage == "Couldn’t open Beta. Launch failed")
+    #expect(store.selectedResultID == .application(applications[1].id))
     #expect(store.focusRequest != focusRequest)
   }
 }

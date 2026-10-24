@@ -44,7 +44,7 @@ struct LauncherStoreTests {
     #expect(store.mode == .files)
     #expect(store.query == "notes")
     #expect(store.fileResults == [result])
-    #expect(store.selectedFileID == result.id)
+    #expect(store.selectedResultID == .file(result.id))
   }
 
   @Test("File search waits for two characters")
@@ -148,7 +148,7 @@ struct LauncherStoreTests {
     let loadCount = catalog.loadCount
     #expect(loadCount == 2)
     #expect(store.applications == refreshedApplications)
-    #expect(store.selectedApplicationID == refreshedApplications[0].id)
+    #expect(store.selectedResultID == .application(refreshedApplications[0].id))
   }
 
   @Test("Calculator results are pinned before matching applications")
@@ -164,12 +164,12 @@ struct LauncherStoreTests {
 
     #expect(store.calculatorResult?.expression == "pi")
     #expect(store.isCalculatorSelected)
-    #expect(store.selectedResultScrollID == .calculator)
+    #expect(store.selectedResultID == .calculator)
     #expect(store.filteredApplications.first == application)
 
     store.moveSelection(.down)
     #expect(!store.isCalculatorSelected)
-    #expect(store.selectedApplicationID == application.id)
+    #expect(store.selectedResultID == .application(application.id))
 
     store.moveSelection(.up)
     #expect(store.isCalculatorSelected)
@@ -189,19 +189,19 @@ struct LauncherStoreTests {
     store.loadApplications()
     await waitForApplications(store)
 
-    #expect(store.selectedApplicationID == applications[0].id)
+    #expect(store.selectedResultID == .application(applications[0].id))
 
     let scrollRequestAfterLoad = store.selectionScrollRequest
-    store.select(applications[1])
+    store.select(.application(applications[1].id))
     #expect(store.selectionScrollRequest == scrollRequestAfterLoad)
-    store.select(applications[0])
+    store.select(.application(applications[0].id))
 
     store.moveSelection(.down)
     #expect(store.selectionScrollRequest != scrollRequestAfterLoad)
-    #expect(store.selectedApplicationID == applications[1].id)
+    #expect(store.selectedResultID == .application(applications[1].id))
 
     store.moveSelection(.up)
-    #expect(store.selectedApplicationID == applications[0].id)
+    #expect(store.selectedResultID == .application(applications[0].id))
   }
 
   @Test("Launcher store: Return copies calculator results, clears the query, and requests hiding")

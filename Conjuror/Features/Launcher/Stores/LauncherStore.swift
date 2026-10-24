@@ -31,11 +31,7 @@ final class LauncherStore: ObservableObject {
       refreshCurrentResults()
       selectFirstResult()
 
-      if mode == .applications {
-        launchErrorMessage = nil
-      } else {
-        shortcutRunErrorMessage = nil
-      }
+      if actionError?.mode == mode { actionError = nil }
     }
   }
 
@@ -44,38 +40,27 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var filteredApplications = [InstalledApplication]()
   @Published private(set) var catalogErrorMessage: String?
   @Published private(set) var isLoading = false
-  @Published private(set) var launchErrorMessage: String?
-  @Published private(set) var selectedApplicationID: InstalledApplication.ID?
   @Published private(set) var calculatorResult: CalculatorResult?
-  @Published private(set) var isCalculatorSelected = false
   @Published private(set) var shortcuts = [AppleShortcut]()
   @Published private(set) var filteredShortcuts = [AppleShortcut]()
   @Published private(set) var shortcutCatalogErrorMessage: String?
   @Published private(set) var isLoadingShortcuts = false
-  @Published private(set) var shortcutRunErrorMessage: String?
-  @Published private(set) var selectedShortcutID: AppleShortcut.ID?
   @Published private(set) var filteredEmoji = [Emoji]()
   @Published private(set) var recentEmoji = [Emoji]()
-  @Published private(set) var selectedEmojiID: Emoji.ID?
   @Published private(set) var fileResults = [FileSearchResult]()
   @Published private(set) var isSearchingFiles = false
   @Published private(set) var fileSearchErrorMessage: String?
-  @Published private(set) var fileOpenErrorMessage: String?
-  @Published private(set) var selectedFileID: FileSearchResult.ID?
+  @Published private(set) var selectedResultID: LauncherResultID?
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
-  var selectedResultScrollID: LauncherResultID? {
-    switch mode {
-    case .applications:
-      isCalculatorSelected ? .calculator : selectedApplicationID.map(LauncherResultID.application)
-    case .emoji:
-      selectedEmojiID.map(LauncherResultID.emoji)
-    case .files:
-      selectedFileID.map(LauncherResultID.file)
-    case .shortcuts:
-      selectedShortcutID.map(LauncherResultID.shortcut)
-    }
+  /// The failed action's message, shown only in the mode that started the action.
+  var actionErrorMessage: String? {
+    actionError?.mode == mode ? actionError?.message : nil
+  }
+
+  var isCalculatorSelected: Bool {
+    selectedResultID == .calculator
   }
 
   var displayedEmoji: [Emoji] {
@@ -110,6 +95,7 @@ final class LauncherStore: ObservableObject {
   private var hasLoadedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
+  @Published private var actionError: ActionError?
 
   private var preferredEmoji: [Emoji] {
     guard !isExplicitSkinToneQuery else { return filteredEmoji }
@@ -131,21 +117,18 @@ final class LauncherStore: ObservableObject {
     EmojiRanker.requestsSkinTone(query)
   }
 
-  private var selectedApplication: InstalledApplication? {
-    filteredApplications.first { $0.id == selectedApplicationID }
-      ?? filteredApplications.first
-  }
-
-  private var selectedShortcut: AppleShortcut? {
-    filteredShortcuts.first { $0.id == selectedShortcutID } ?? filteredShortcuts.first
-  }
-
-  private var selectedEmoji: Emoji? {
-    displayedEmoji.first { $0.id == selectedEmojiID } ?? displayedEmoji.first
-  }
-
-  private var selectedFile: FileSearchResult? {
-    fileResults.first { $0.id == selectedFileID } ?? fileResults.first
+  private var resultIDs: [LauncherResultID] {
+    switch mode {
+    case .applications:
+      (calculatorResult == nil ? [] : [.calculator])
+        + filteredApplications.map { .application($0.id) }
+    case .emoji:
+      displayedEmoji.map { .emoji($0.id) }
+    case .files:
+      fileResults.map { .file($0.id) }
+    case .shortcuts:
+      filteredShortcuts.map { .shortcut($0.id) }
+    }
   }
 
   init(
@@ -236,14 +219,13 @@ final class LauncherStore: ObservableObject {
         switch result {
         case .success(let applications):
           replaceApplications(with: applications)
-
-          if mode == .applications { selectFirstResult() }
         case .failure(let error):
           replaceApplications(with: [])
           catalogErrorMessage =
             "Couldn’t load installed applications. \(error.localizedDescription)"
-          selectedApplicationID = nil
         }
+
+        if mode == .applications { selectFirstResult() }
       }
     )
   }
@@ -263,96 +245,35 @@ final class LauncherStore: ObservableObject {
         switch result {
         case .success(let shortcuts):
           replaceShortcuts(with: shortcuts)
-
-          if mode == .shortcuts { selectFirstResult() }
         case .failure(let error):
           hasLoadedShortcuts = false
           replaceShortcuts(with: [])
           shortcutCatalogErrorMessage = "Couldn’t load shortcuts. \(error.localizedDescription)"
-          selectedShortcutID = nil
         }
+
+        if mode == .shortcuts { selectFirstResult() }
       }
     )
   }
 
-  func select(_ application: InstalledApplication) {
-    isCalculatorSelected = false
-    selectedApplicationID = application.id
+  func select(_ id: LauncherResultID) {
+    selectedResultID = id
   }
 
-  func selectOnHover(_ application: InstalledApplication) {
-    guard pointerDidMove() else {
-      return
-    }
+  func selectOnHover(_ id: LauncherResultID) {
+    guard pointerDidMove() else { return }
 
-    select(application)
-  }
-
-  func selectCalculatorResultOnHover() {
-    guard pointerDidMove(), calculatorResult != nil else {
-      return
-    }
-
-    isCalculatorSelected = true
-  }
-
-  func select(_ shortcut: AppleShortcut) {
-    selectedShortcutID = shortcut.id
-  }
-
-  func selectOnHover(_ shortcut: AppleShortcut) {
-    guard pointerDidMove() else {
-      return
-    }
-
-    select(shortcut)
+    select(id)
   }
 
   func moveSelection(_ direction: MoveCommandDirection) {
     lastPointerLocation = NSEvent.mouseLocation
-
-    switch mode {
-    case .applications:
-      let applicationResultIDs = filteredApplications.map { LauncherResultID.application($0.id) }
-      let resultIDs =
-        calculatorResult == nil
-        ? applicationResultIDs
-        : [.calculator] + applicationResultIDs
-      let selectedID: LauncherResultID? =
-        isCalculatorSelected
-        ? .calculator
-        : selectedApplicationID.map(LauncherResultID.application)
-      let movedID = movedSelection(
-        direction,
-        results: resultIDs,
-        selectedID: selectedID
-      )
-      isCalculatorSelected = movedID == .calculator
-
-      if case .application(let applicationID) = movedID {
-        selectedApplicationID = applicationID
-      }
-
-    case .emoji:
-      selectedEmojiID = movedSelection(
-        direction,
-        results: displayedEmoji.map(\.id),
-        selectedID: selectedEmojiID,
-        step: LauncherLayout.emojiColumnCount
-      )
-    case .files:
-      selectedFileID = movedSelection(
-        direction,
-        results: fileResults.map(\.id),
-        selectedID: selectedFileID
-      )
-    case .shortcuts:
-      selectedShortcutID = movedSelection(
-        direction,
-        results: filteredShortcuts.map(\.id),
-        selectedID: selectedShortcutID
-      )
-    }
+    selectedResultID = movedSelection(
+      direction,
+      results: resultIDs,
+      selectedID: selectedResultID,
+      step: mode == .emoji ? LauncherLayout.emojiColumnCount : 1
+    )
   }
 
   func openSelectedResult() {
@@ -360,25 +281,21 @@ final class LauncherStore: ObservableObject {
     case .applications:
       if isCalculatorSelected {
         copyCalculatorResult()
-      } else if let selectedApplication {
-        open(selectedApplication)
+      } else if let application = selected(in: filteredApplications, as: { .application($0) }) {
+        open(application)
       }
-
     case .emoji:
-      copySelectedEmoji()
+      if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { copy(emoji) }
     case .files:
-      openSelectedFile()
+      if let file = selected(in: fileResults, as: { .file($0) }) { open(file) }
     case .shortcuts:
-      if let selectedShortcut {
-        run(selectedShortcut)
-      }
+      if let shortcut = selected(in: filteredShortcuts, as: { .shortcut($0) }) { run(shortcut) }
     }
   }
 
   func open(_ application: InstalledApplication) {
-    isCalculatorSelected = false
-    selectedApplicationID = application.id
-    launchErrorMessage = nil
+    selectedResultID = .application(application.id)
+    actionError = nil
     onEvent(.launchStarted)
 
     let launchApplication = launchApplication
@@ -392,8 +309,10 @@ final class LauncherStore: ObservableObject {
         onEvent(.launchSucceeded)
       },
       onFailure: { [weak self] error in
-        self?.launchErrorMessage =
-          "Couldn’t open \(application.displayName). \(error.localizedDescription)"
+        self?.actionError = ActionError(
+          mode: .applications,
+          message: "Couldn’t open \(application.displayName). \(error.localizedDescription)"
+        )
       }
     )
   }
@@ -408,17 +327,7 @@ final class LauncherStore: ObservableObject {
     onEvent(.calculatorResultCopied)
   }
 
-  func select(_ emoji: Emoji) { selectedEmojiID = emoji.id }
-
-  func selectOnHover(_ emoji: Emoji) {
-    guard pointerDidMove() else { return }
-
-    select(emoji)
-  }
-
-  func copySelectedEmoji() {
-    guard let emoji = selectedEmoji else { return }
-
+  func copy(_ emoji: Emoji) {
     writeToClipboard(emoji.value)
     emojiHistory.record(emoji)
     recentEmoji = Self.emoji(for: emojiHistory.load())
@@ -427,24 +336,15 @@ final class LauncherStore: ObservableObject {
     onEvent(.emojiCopied)
   }
 
-  func select(_ file: FileSearchResult) {
-    selectedFileID = file.id
-  }
-
-  func selectOnHover(_ file: FileSearchResult) {
-    guard pointerDidMove() else { return }
-
-    select(file)
-  }
-
-  func openSelectedFile() {
-    guard let file = selectedFile else { return }
-
-    selectedFileID = file.id
-    fileOpenErrorMessage = nil
+  func open(_ file: FileSearchResult) {
+    selectedResultID = .file(file.id)
+    actionError = nil
 
     guard NSWorkspace.shared.open(file.url) else {
-      fileOpenErrorMessage = "Couldn’t open \(file.displayName). The item could not be opened."
+      actionError = ActionError(
+        mode: .files,
+        message: "Couldn’t open \(file.displayName). The item could not be opened."
+      )
 
       return
     }
@@ -460,8 +360,8 @@ final class LauncherStore: ObservableObject {
       return
     }
 
-    selectedShortcutID = shortcut.id
-    shortcutRunErrorMessage = nil
+    selectedResultID = .shortcut(shortcut.id)
+    actionError = nil
     onEvent(.shortcutRunStarted)
 
     let runShortcut = runShortcut
@@ -476,32 +376,26 @@ final class LauncherStore: ObservableObject {
       },
       onFailure: { [weak self] error in
         self?.runningShortcutIDs.remove(shortcut.id)
-        self?.shortcutRunErrorMessage =
-          "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
+        self?.actionError = ActionError(
+          mode: .shortcuts,
+          message: "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
+        )
       }
     )
   }
 
   func clearActionError() {
-    switch mode {
-    case .applications: launchErrorMessage = nil
-    case .emoji: break
-    case .files: fileOpenErrorMessage = nil
-    case .shortcuts: shortcutRunErrorMessage = nil
-    }
+    actionError = nil
   }
 
   func prepareForActivation(mode requestedMode: LauncherMode? = nil) {
     if let requestedMode {
-      launchErrorMessage = nil
-      shortcutRunErrorMessage = nil
+      actionError = nil
       transition(to: requestedMode)
-    } else if launchErrorMessage != nil {
-      transition(to: .applications, query: nil)
-    } else if shortcutRunErrorMessage != nil {
-      transition(to: .shortcuts, query: nil)
+    } else if let actionError {
+      // Reopen where the action failed so its error and query are still visible.
+      transition(to: actionError.mode, query: nil)
     } else {
-      launchErrorMessage = nil
       transition(to: .applications)
     }
 
@@ -586,22 +480,15 @@ final class LauncherStore: ObservableObject {
   }
 
   private func selectFirstResult() {
-    switch mode {
-    case .applications:
-      isCalculatorSelected = calculatorResult != nil
-      selectedApplicationID = filteredApplications.first?.id
-    case .emoji:
-      isCalculatorSelected = false
-      selectedEmojiID = displayedEmoji.first?.id
-    case .files:
-      isCalculatorSelected = false
-      selectedFileID = fileResults.first?.id
-    case .shortcuts:
-      isCalculatorSelected = false
-      selectedShortcutID = filteredShortcuts.first?.id
-    }
-
+    selectedResultID = resultIDs.first
     selectionScrollRequest &+= 1
+  }
+
+  private func selected<Item: Identifiable>(
+    in items: [Item],
+    as resultID: (Item.ID) -> LauncherResultID
+  ) -> Item? {
+    items.first { resultID($0.id) == selectedResultID } ?? items.first
   }
 
   private func replaceApplications(with applications: [InstalledApplication]) {
@@ -644,24 +531,23 @@ final class LauncherStore: ObservableObject {
 
   private func searchFiles() {
     fileSearchErrorMessage = nil
-    fileOpenErrorMessage = nil
     fileController.search(query: query) { [weak self] update in
       guard let self, mode == .files else { return }
 
       switch update {
       case .cleared:
         fileResults = []
-        selectedFileID = nil
+        selectedResultID = nil
         isSearchingFiles = false
       case .searching:
         isSearchingFiles = true
       case .results(let results):
         fileResults = results
-        selectedFileID = results.first?.id
+        selectedResultID = results.first.map { .file($0.id) }
         isSearchingFiles = false
       case .failed(let error):
         fileResults = []
-        selectedFileID = nil
+        selectedResultID = nil
         fileSearchErrorMessage = "Couldn’t search files. \(error.localizedDescription)"
         isSearchingFiles = false
       }
@@ -690,6 +576,11 @@ final class LauncherStore: ObservableObject {
       query: mode == .shortcuts ? query : ""
     )
   }
+}
+
+private struct ActionError {
+  let mode: LauncherMode
+  let message: String
 }
 
 enum LauncherEvent: Equatable {
