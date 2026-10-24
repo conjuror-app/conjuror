@@ -35,13 +35,15 @@ struct RecencyStore {
     return limited(values).mapValues(Date.init(timeIntervalSince1970:))
   }
 
-  func record(key: String, at date: Date = Date()) {
+  /// Records a use and returns the updated history.
+  @discardableResult
+  func record(key: String, at date: Date = Date()) -> [String: Date] {
     var values = load()
     values[key] = date
-    userDefaults.set(
-      limited(values.mapValues(\.timeIntervalSince1970)),
-      for: storageKey
-    )
+    let storedValues = limited(values.mapValues(\.timeIntervalSince1970))
+    userDefaults.set(storedValues, for: storageKey)
+
+    return storedValues.mapValues(Date.init(timeIntervalSince1970:))
   }
 
   private func limited(_ values: [String: Double]) -> [String: Double] {

@@ -23,8 +23,7 @@ final class RankedCatalog<Item> {
   }
 
   func record(key: String) {
-    history.record(key: key)
-    recentUses = history.load()
+    recentUses = history.record(key: key)
   }
 }
 
