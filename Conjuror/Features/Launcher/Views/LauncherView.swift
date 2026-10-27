@@ -131,16 +131,7 @@ struct LauncherView: View {
   }
 
   private var actionFooterTitle: String {
-    switch store.mode {
-    case .applications:
-      store.isCalculatorSelected ? "Copy result" : "Launch application"
-    case .emoji:
-      "Copy emoji"
-    case .files:
-      "Open item"
-    case .shortcuts:
-      "Run shortcut"
-    }
+    store.isCalculatorSelected ? "Copy result" : store.mode.actionTitle
   }
 
   private var actionFooter: some View {
@@ -150,7 +141,7 @@ struct LauncherView: View {
 
       HStack(spacing: 12) {
         HStack(spacing: 12) {
-          footerHint(keys: store.mode == .emoji ? "←↑↓→" : "↑↓", title: "Navigate")
+          footerHint(keys: store.mode.allowsHorizontalNavigation ? "←↑↓→" : "↑↓", title: "Navigate")
           footerHint(keys: "Tab", title: "Mode")
           footerHint(keys: "Esc", title: store.query.isEmpty ? "Close" : "Clear")
         }

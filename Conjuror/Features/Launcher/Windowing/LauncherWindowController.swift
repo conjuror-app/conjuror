@@ -70,7 +70,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
-      store?.mode == .emoji
+      store?.mode.allowsHorizontalNavigation == true
     }
 
     super.init(window: panel)

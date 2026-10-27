@@ -171,40 +171,20 @@ final class LauncherStore: ObservableObject {
   }
 
   func updateQuery(_ value: String) {
-    guard let prefix = value.first, [";", ">", ":", "/"].contains(prefix) else {
+    guard let prefix = value.first,
+      let requestedMode = LauncherMode.requested(byPrefix: prefix),
+      requestedMode != .files || settingsStore.isFilesModuleEnabled
+    else {
       query = value
 
       return
     }
-
-    if prefix == "/", !settingsStore.isFilesModuleEnabled {
-      query = value
-
-      return
-    }
-
-    let requestedMode: LauncherMode =
-      switch prefix {
-      case ";": .applications
-      case ">": .shortcuts
-      case ":": .emoji
-      default: .files
-      }
 
     transition(to: requestedMode, query: String(value.dropFirst()))
   }
 
   func cycleMode() {
-    switch mode {
-    case .applications:
-      transition(to: .shortcuts)
-    case .shortcuts:
-      transition(to: .emoji)
-    case .emoji:
-      transition(to: settingsStore.isFilesModuleEnabled ? .files : .applications)
-    case .files:
-      transition(to: .applications)
-    }
+    transition(to: mode.next)
   }
 
   func loadApplications() {
@@ -272,7 +252,7 @@ final class LauncherStore: ObservableObject {
       direction,
       results: resultIDs,
       selectedID: selectedResultID,
-      step: mode == .emoji ? LauncherLayout.emojiColumnCount : 1
+      step: mode.allowsHorizontalNavigation ? LauncherLayout.emojiColumnCount : 1
     )
   }
 

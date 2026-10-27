@@ -9,14 +9,14 @@ struct LauncherSearchField: View {
 
   var body: some View {
     HStack(spacing: 8) {
-      Image(systemName: modeIcon)
+      Image(systemName: mode.systemImage)
         .font(.system(size: 14, weight: .medium))
         .foregroundStyle(iconColor)
         .frame(width: 18, height: 18)
-        .help(modeHelp)
-        .accessibilityLabel(modeHelp)
+        .help(mode.help)
+        .accessibilityLabel(mode.help)
 
-      TextField(placeholder, text: $text, axis: .horizontal)
+      TextField(mode.placeholder, text: $text, axis: .horizontal)
         .focused($isFocused)
         .font(.system(size: 18, weight: .regular))
         .lineLimit(1)
@@ -55,33 +55,6 @@ struct LauncherSearchField: View {
       DispatchQueue.main.async {
         isFocused = true
       }
-    }
-  }
-
-  private var modeIcon: String {
-    switch mode {
-    case .applications: "magnifyingglass"
-    case .emoji: "face.smiling"
-    case .files: "doc.text.magnifyingglass"
-    case .shortcuts: "square.stack.3d.up.fill"
-    }
-  }
-
-  private var modeHelp: String {
-    switch mode {
-    case .applications: "Application search mode"
-    case .emoji: "Emoji search mode"
-    case .files: "File and folder search mode"
-    case .shortcuts: "Apple Shortcuts search mode"
-    }
-  }
-
-  private var placeholder: String {
-    switch mode {
-    case .applications: "Search apps…"
-    case .emoji: "Search emoji…"
-    case .files: "Search files and folders…"
-    case .shortcuts: "Search shortcuts…"
     }
   }
 
