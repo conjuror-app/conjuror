@@ -49,15 +49,9 @@ struct CalculatorCurrencyEvaluator {
   }
 
   private func parse(_ expression: String) -> Conversion? {
-    let normalized = CalculatorInput.normalizeConversion(expression)
-    let lowercased = normalized.lowercased()
-    let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
+    let (left, right) = CalculatorInput.splitConversion(expression)
 
-    if let connector {
-      let left = String(normalized[..<connector.lowerBound])
-        .trimmingCharacters(in: .whitespaces)
-      let right = String(normalized[connector.upperBound...])
-        .trimmingCharacters(in: .whitespaces)
+    if let right {
       guard let source = parseAmount(left),
         let targetCode = currencyCode(right)
       else {
@@ -71,7 +65,7 @@ struct CalculatorCurrencyEvaluator {
       )
     }
 
-    guard let source = parseAmount(normalized),
+    guard let source = parseAmount(left),
       let localeCurrencyCode = localeCurrencyCode?.uppercased(),
       currencyCode(localeCurrencyCode) != nil,
       source.code != localeCurrencyCode

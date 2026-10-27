@@ -85,19 +85,12 @@ struct CalculatorTimeZoneEvaluator {
   }
 
   private func parse(_ expression: String) -> Conversion? {
-    let normalized = CalculatorInput.normalizeConversion(expression)
-    let lowercased = normalized.lowercased()
-    let connector = lowercased.range(of: " to ") ?? lowercased.range(of: " in ")
+    let (left, targetName) = CalculatorInput.splitConversion(expression)
 
-    let left: String
     let targetTimeZone: TimeZone
     let targetAbbreviation: String?
 
-    if let connector {
-      left = String(normalized[..<connector.lowerBound])
-        .trimmingCharacters(in: .whitespaces)
-      let targetName = String(normalized[connector.upperBound...])
-        .trimmingCharacters(in: .whitespaces)
+    if let targetName {
       guard let explicitTargetTimeZone = timeZone(abbreviated: targetName) else {
         return nil
       }
@@ -105,7 +98,6 @@ struct CalculatorTimeZoneEvaluator {
       targetTimeZone = explicitTargetTimeZone
       targetAbbreviation = targetName.uppercased()
     } else {
-      left = normalized
       targetTimeZone = currentTimeZone
       targetAbbreviation = nil
     }
@@ -126,7 +118,7 @@ struct CalculatorTimeZoneEvaluator {
       sourceTimeZone = explicitSourceTimeZone
       sourceAbbreviation = sourceName.uppercased()
       timeText = words.dropLast().joined(separator: " ")
-    } else if connector == nil {
+    } else if targetName == nil {
       return nil
     }
 

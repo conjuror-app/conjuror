@@ -96,6 +96,24 @@ enum CalculatorInput {
       .replacingOccurrences(of: "->", with: " to ")
     return lowercased ? normalized.lowercased() : normalized
   }
+
+  /// Splits a conversion at its first " to " or " in ", ignoring case.
+  /// The target is nil when the expression has no connector.
+  static func splitConversion(_ expression: String) -> (source: String, target: String?) {
+    let normalized = normalizeConversion(expression)
+
+    guard
+      let connector = normalized.range(of: " to ", options: .caseInsensitive)
+        ?? normalized.range(of: " in ", options: .caseInsensitive)
+    else {
+      return (normalized, nil)
+    }
+
+    return (
+      normalized[..<connector.lowerBound].trimmingCharacters(in: .whitespaces),
+      normalized[connector.upperBound...].trimmingCharacters(in: .whitespaces)
+    )
+  }
 }
 
 struct CalculatorNumberFormatter {
