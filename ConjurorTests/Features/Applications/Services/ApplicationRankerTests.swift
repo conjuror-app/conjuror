@@ -15,7 +15,7 @@ struct ApplicationRankerTests {
       application("Code", id: "dev.example.exact"),
     ]
 
-    let result = SearchIndex(applications: applications).ranked(
+    let result = SearchIndex(applications).ranked(
       query: "code",
       recency: [:]
     )
@@ -34,7 +34,7 @@ struct ApplicationRankerTests {
       application("My VS Code", id: "dev.example.tokens"),
     ]
 
-    let result = SearchIndex(applications: applications).ranked(
+    let result = SearchIndex(applications).ranked(
       query: "vs",
       recency: [:]
     )
@@ -49,7 +49,7 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = SearchIndex(applications: applications).ranked(
+    let result = SearchIndex(applications).ranked(
       query: "xcd",
       recency: [:]
     )
@@ -64,7 +64,7 @@ struct ApplicationRankerTests {
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]
 
-    let result = SearchIndex(applications: applications).ranked(
+    let result = SearchIndex(applications).ranked(
       query: "xcd",
       recency: [:]
     )
@@ -77,7 +77,7 @@ struct ApplicationRankerTests {
     let older = application("Alpha Editor", id: "dev.example.alpha")
     let newer = application("Atlas Editor", id: "dev.example.atlas")
 
-    let result = SearchIndex(applications: [older, newer]).ranked(
+    let result = SearchIndex([older, newer]).ranked(
       query: "a",
       recency: [
         older.persistenceKey: Date(timeIntervalSince1970: 10),
@@ -96,7 +96,7 @@ struct ApplicationRankerTests {
       application("Zulu", id: nil, path: "/Applications/Zulu-A.app"),
     ]
 
-    let result = SearchIndex(applications: applications).ranked(
+    let result = SearchIndex(applications).ranked(
       query: "",
       recency: [:]
     )
@@ -114,7 +114,7 @@ struct ApplicationRankerTests {
   func testIndependentInstallationRecency() {
     let stable = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode.app")
     let beta = application("Xcode", id: "com.apple.dt.Xcode", path: "/Applications/Xcode-Beta.app")
-    let index = SearchIndex(applications: [stable, beta])
+    let index = SearchIndex([stable, beta])
 
     #expect(stable != beta)
     #expect(
@@ -133,7 +133,7 @@ struct ApplicationRankerTests {
   func testLegacyLaunchHistoryFallback() {
     let alpha = application("Alpha", id: "dev.example.Alpha")
     let beta = application("Beta", id: "dev.example.beta")
-    let index = SearchIndex(applications: [alpha, beta])
+    let index = SearchIndex([alpha, beta])
     let legacy: [String: Date] = [
       "dev.example.alpha": Date(timeIntervalSince1970: 20),
       beta.persistenceKey: Date(timeIntervalSince1970: 10),

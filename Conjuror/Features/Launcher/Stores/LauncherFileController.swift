@@ -1,32 +1,5 @@
 import Foundation
 
-/// A searchable catalog ranked by recorded uses.
-final class RankedCatalog<Item> {
-  private let history: RecencyStore
-  private let makeIndex: ([Item]) -> SearchIndex<Item>
-  private var index: SearchIndex<Item>
-  private var recentUses: [String: Date]
-
-  init(history: RecencyStore, makeIndex: @escaping ([Item]) -> SearchIndex<Item>) {
-    self.history = history
-    self.makeIndex = makeIndex
-    index = makeIndex([])
-    recentUses = history.load()
-  }
-
-  func replace(_ items: [Item]) {
-    index = makeIndex(items)
-  }
-
-  func ranked(query: String) -> [Item] {
-    index.ranked(query: query, recency: recentUses)
-  }
-
-  func record(key: String) {
-    recentUses = history.record(key: key)
-  }
-}
-
 @MainActor
 final class LauncherFileController {
   enum Update {

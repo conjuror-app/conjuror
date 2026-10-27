@@ -21,6 +21,35 @@ struct Emoji: Identifiable, Hashable, Sendable {
     }
   }()
 
+  static let byValue = Dictionary(uniqueKeysWithValues: catalog.map { ($0.value, $0) })
+
+  /// Single-modifier variants keyed by base name and skin-tone modifier.
+  private static let skinToneVariants = Dictionary(
+    uniqueKeysWithValues: catalog.compactMap { emoji -> (String, Emoji)? in
+      guard emoji.skinTones.count == 1, let modifierName = emoji.skinTones.first else {
+        return nil
+      }
+
+      return (skinToneKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
+    }
+  )
+
+  /// Hides skin-tone variants and swaps in the preferred tone where one exists.
+  static func withPreferredSkinTone(_ emoji: [Emoji], _ skinTone: EmojiSkinTone) -> [Emoji] {
+    emoji.compactMap { emoji in
+      guard !emoji.hasSkinTone else { return nil }
+
+      guard let modifierName = skinTone.modifierName else { return emoji }
+
+      return skinToneVariants[skinToneKey(baseName: emoji.name, modifierName: modifierName)]
+        ?? emoji
+    }
+  }
+
+  private static func skinToneKey(baseName: String, modifierName: String) -> String {
+    "\(baseName)\0\(modifierName)"
+  }
+
   let value: String
   let name: String
   let category: String

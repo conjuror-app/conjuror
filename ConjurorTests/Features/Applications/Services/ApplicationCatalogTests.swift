@@ -115,7 +115,7 @@ struct ApplicationCatalogTests {
     let applications = ApplicationCatalog.installedApplications(
       from: ApplicationCatalog.filteredAndDeduplicated(candidates)
     )
-    let index = SearchIndex(applications: applications)
+    let index = SearchIndex(applications)
     let results = index.ranked(query: "xcode", recency: [:])
 
     #expect(results.map(\.displayName) == ["Xcode", "Xcode-27.1.0-Beta"])

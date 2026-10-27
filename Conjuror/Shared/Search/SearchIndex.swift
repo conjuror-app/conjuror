@@ -84,6 +84,17 @@ struct SearchIndex<Item> {
   }
 }
 
+extension SearchIndex where Item: SearchIndexable {
+  init(_ items: [Item]) {
+    self.init(candidates: items.map(\.searchCandidate))
+  }
+}
+
+/// An item that describes how it is matched and ranked in a `SearchIndex`.
+protocol SearchIndexable {
+  var searchCandidate: SearchIndex<Self>.Candidate { get }
+}
+
 private extension SearchIndex {
   struct SearchableCandidate {
     let itemIndex: Int

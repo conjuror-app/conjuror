@@ -1,17 +1,13 @@
 import Foundation
 
-extension SearchIndex where Item == AppleShortcut {
-  init(shortcuts: [AppleShortcut]) {
-    self.init(
-      candidates: shortcuts.map { shortcut in
-        Candidate(
-          item: shortcut,
-          name: shortcut.name,
-          secondaryText: shortcut.subtitle,
-          recencyKey: shortcut.persistenceKey,
-          stableKey: shortcut.id
-        )
-      }
+extension AppleShortcut: SearchIndexable {
+  var searchCandidate: SearchIndex<Self>.Candidate {
+    SearchIndex.Candidate(
+      item: self,
+      name: name,
+      secondaryText: subtitle,
+      recencyKey: persistenceKey,
+      stableKey: id
     )
   }
 }

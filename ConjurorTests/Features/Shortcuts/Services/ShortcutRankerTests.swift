@@ -14,7 +14,7 @@ struct ShortcutRankerTests {
       shortcut("Studio Code", id: "token"),
     ]
 
-    let result = SearchIndex(shortcuts: shortcuts).ranked(
+    let result = SearchIndex(shortcuts).ranked(
       query: "code",
       recency: [:]
     )
@@ -27,7 +27,7 @@ struct ShortcutRankerTests {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")
     let second = shortcut("Evening", id: "second", subtitle: "Bedroom lights")
 
-    let result = SearchIndex(shortcuts: [first, second]).ranked(
+    let result = SearchIndex([first, second]).ranked(
       query: "bedroom",
       recency: [second.persistenceKey: Date(timeIntervalSince1970: 20)]
     )

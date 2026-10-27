@@ -4,26 +4,8 @@ import SwiftUI
 
 @MainActor
 final class LauncherStore: ObservableObject {
-  private static let emojiByValue = Dictionary(
-    uniqueKeysWithValues: Emoji.catalog.map { ($0.value, $0) }
-  )
-
-  private static let skinToneVariants = Dictionary(
-    uniqueKeysWithValues: Emoji.catalog.compactMap { emoji -> (String, Emoji)? in
-      guard emoji.skinTones.count == 1,
-        let modifierName = emoji.skinTones.first
-      else { return nil }
-
-      return (skinToneKey(baseName: emoji.baseName, modifierName: modifierName), emoji)
-    }
-  )
-
-  private static func skinToneKey(baseName: String, modifierName: String) -> String {
-    "\(baseName)\0\(modifierName)"
-  }
-
   private static func emoji(for values: [String]) -> [Emoji] {
-    values.compactMap { emojiByValue[$0] }
+    values.compactMap { Emoji.byValue[$0] }
   }
 
   @Published var query = "" {
@@ -98,23 +80,9 @@ final class LauncherStore: ObservableObject {
   @Published private var actionError: ActionError?
 
   private var preferredEmoji: [Emoji] {
-    guard !isExplicitSkinToneQuery else { return filteredEmoji }
+    guard !EmojiRanker.requestsSkinTone(query) else { return filteredEmoji }
 
-    return filteredEmoji.compactMap { emoji in
-      guard !emoji.hasSkinTone else { return nil }
-
-      guard let modifierName = settingsStore.preferredEmojiSkinTone.modifierName else {
-        return emoji
-      }
-
-      let variantKey = Self.skinToneKey(baseName: emoji.name, modifierName: modifierName)
-
-      return Self.skinToneVariants[variantKey] ?? emoji
-    }
-  }
-
-  private var isExplicitSkinToneQuery: Bool {
-    EmojiRanker.requestsSkinTone(query)
+    return Emoji.withPreferredSkinTone(filteredEmoji, settingsStore.preferredEmojiSkinTone)
   }
 
   private var resultIDs: [LauncherResultID] {
@@ -154,8 +122,8 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.runShortcut = runShortcut
     self.emojiHistory = emojiHistory
-    applicationController = RankedCatalog(history: launchHistory, makeIndex: SearchIndex.init)
-    shortcutController = RankedCatalog(history: shortcutRunHistory, makeIndex: SearchIndex.init)
+    applicationController = RankedCatalog(history: launchHistory)
+    shortcutController = RankedCatalog(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
   }
@@ -535,6 +503,8 @@ final class LauncherStore: ObservableObject {
   }
 
   private func refreshApplications() {
+    guard mode == .applications else { return }
+
     let includesSystemSettings =
       settingsStore.showsSystemSettingsItems && !query.trimmingCharacters(in: .whitespaces).isEmpty
     if self.includesSystemSettings != includesSystemSettings {
@@ -544,17 +514,14 @@ final class LauncherStore: ObservableObject {
       self.includesSystemSettings = includesSystemSettings
     }
 
-    let result = calculator.evaluate(query, currencyRates: currencyRates)
-    calculatorResult = mode == .applications ? result : nil
-    filteredApplications = applicationController.ranked(
-      query: mode == .applications ? query : ""
-    )
+    calculatorResult = calculator.evaluate(query, currencyRates: currencyRates)
+    filteredApplications = applicationController.ranked(query: query)
   }
 
   private func refreshShortcuts() {
-    filteredShortcuts = shortcutController.ranked(
-      query: mode == .shortcuts ? query : ""
-    )
+    guard mode == .shortcuts else { return }
+
+    filteredShortcuts = shortcutController.ranked(query: query)
   }
 }
 
