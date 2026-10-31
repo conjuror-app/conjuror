@@ -54,6 +54,35 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("45 seconds ago")?.copyText == "Aug 12, 2026 at 11:59:15 AM")
   }
 
+  @Test("Date differences default to days and accept a unit")
+  func testDateDifferences() {
+    let engine = relativeDateEngine(
+      currentDate: "2026-10-15T10:28:00Z",
+      timeZone: TimeZone(secondsFromGMT: 0)!
+    )
+
+    #expect(engine.evaluate("now - 1 aug 2025 in days")?.copyText == "440.4361111 days")
+    #expect(engine.evaluate("now - 1 aug 2025")?.copyText == "440.4361111 days")
+    #expect(engine.evaluate("1 jan 2026 - 2025-01-01")?.copyText == "365 days")
+    #expect(engine.evaluate("tomorrow - today")?.copyText == "1 day")
+    #expect(engine.evaluate("now - 1 aug 2025 in months")?.copyText == "14 months")
+    #expect(engine.evaluate("today - 1 january 1990 in years")?.copyText == "36 years")
+    #expect(engine.evaluate("1 aug 2025 - 15 aug 2025 in weeks")?.copyText == "-2 weeks")
+  }
+
+  @Test("Typed dates accept duration offsets and stay dates without a time")
+  func testTypedDateOffsets() {
+    let engine = relativeDateEngine(
+      currentDate: "2026-10-15T10:28:00Z",
+      timeZone: TimeZone(secondsFromGMT: 0)!
+    )
+
+    #expect(engine.evaluate("1 aug 2025 + 30 days")?.copyText == "Aug 31, 2025")
+    #expect(engine.evaluate("2025-08-01 - 1 week")?.copyText == "Jul 25, 2025")
+    #expect(engine.evaluate("aug 1 - 3 days")?.copyText == "Jul 29, 2026")
+    #expect(engine.evaluate("tomorrow + 12 hours")?.copyText == "Oct 16, 2026 at 12:00 PM")
+  }
+
   @Test("Whole days use calendar arithmetic across daylight saving time")
   func testDaylightSavingDates() {
     let engine = relativeDateEngine(
@@ -74,6 +103,9 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("now") == nil)
     #expect(engine.evaluate("now + 1.5 months") == nil)
     #expect(engine.evaluate("now * 2 days") == nil)
+    #expect(engine.evaluate("1 aug 2025 + 1.5 months") == nil)
+    #expect(engine.evaluate("banana - 1 aug 2025") == nil)
+    #expect(engine.evaluate("10 - 5")?.copyText == "5")
     #expect(engine.evaluate("9223372036854775807 days from now") == nil)
     #expect(engine.evaluate("9223372036854775808 days ago") == nil)
   }

@@ -34,7 +34,7 @@ struct CalculatorEngine {
       CalculatorRelativeDateEvaluator(
         currentDate: now,
         timeZone: timeZone,
-        localeIdentifier: formattingOptions.localeIdentifier
+        formattingOptions: formattingOptions
       ).evaluate,
       CalculatorTimeZoneEvaluator(
         currentDate: now,
