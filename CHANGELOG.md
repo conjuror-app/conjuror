@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added ⌘Return to reveal the selected app or file in Finder.
+
 ## 1.0 alpha (16)
 
 - Restored focus to the previous app after copying an emoji or calculation result, or running a Shortcut.

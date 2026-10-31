@@ -144,6 +144,10 @@ struct LauncherView: View {
           footerHint(keys: store.mode.allowsHorizontalNavigation ? "←↑↓→" : "↑↓", title: "Navigate")
           footerHint(keys: "Tab", title: "Mode")
           footerHint(keys: "Esc", title: store.query.isEmpty ? "Close" : "Clear")
+
+          if store.selectedRevealableURL != nil {
+            footerHint(keys: "⌘↵", title: "Reveal")
+          }
         }
 
         Spacer()

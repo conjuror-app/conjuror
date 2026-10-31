@@ -47,6 +47,31 @@ struct LauncherStoreTests {
     #expect(store.selectedResultID == .file(result.id))
   }
 
+  @Test("Command-Return reveals the selected file")
+  func testRevealSelectedFile() async {
+    let result = FileSearchResult(
+      url: URL(fileURLWithPath: "/Users/example/Documents/Notes.txt"),
+      displayName: "Notes.txt",
+      isDirectory: false,
+      modificationDate: nil
+    )
+    var revealedURLs = [URL]()
+    let store = makeStore(
+      revealInFinder: { revealedURLs.append($0) },
+      fileSearcher: FileSearcherStub(results: [result])
+    )
+    store.updateQuery("/notes")
+
+    while store.isSearchingFiles {
+      try? await Task.sleep(for: .milliseconds(10))
+    }
+
+    store.revealSelectedResult()
+
+    #expect(revealedURLs == [result.url])
+    #expect(store.query.isEmpty)
+  }
+
   @Test("File search waits for two characters")
   func testFileSearchWaitsForTwoCharacters() async {
     let fileSearcher = RecordingFileSearcher()
@@ -251,6 +276,7 @@ struct LauncherStoreTests {
       ShortcutRunnerStub().run,
     shortcutRunHistory: RecencyStore? = nil,
     emojiHistory: EmojiHistoryStore? = nil,
+    revealInFinder: @escaping @MainActor (URL) -> Void = { _ in },
     fileSearcher: FileSearching = FileSearcherStub(results: []),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
@@ -267,6 +293,7 @@ struct LauncherStoreTests {
       shortcutRunHistory: shortcutRunHistory
         ?? RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults()),
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
+      revealInFinder: revealInFinder,
       fileSearcher: fileSearcher,
       onEvent: onEvent
     )

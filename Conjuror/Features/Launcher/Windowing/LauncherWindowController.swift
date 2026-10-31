@@ -69,6 +69,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.cycleMode()
     }
 
+    panel.onRevealSelection = { [weak store] in
+      store?.revealSelectedResult()
+    }
+
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode.allowsHorizontalNavigation == true
