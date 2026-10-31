@@ -12,7 +12,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     onEvent: { [weak self] event in
       guard event != .launchSucceeded else { return }
 
-      self?.hideLauncher()
+      self?.hideLauncher(restoringFocus: event.restoresPreviousFocus)
     }
   )
 
@@ -75,13 +75,13 @@ final class AppController: NSObject, NSApplicationDelegate {
     }
   }
 
-  func hideLauncher() {
+  func hideLauncher(restoringFocus: Bool = false) {
     guard let launcherWindowController else {
       return
     }
 
     self.launcherWindowController = nil
-    launcherWindowController.hide()
+    launcherWindowController.hide(restoringFocus: restoringFocus)
   }
 
   func showLauncher() {
@@ -110,8 +110,8 @@ final class AppController: NSObject, NSApplicationDelegate {
       store: store,
       settingsStore: settingsStore,
       hotKeyStore: hotKeyStore,
-      onHide: { [weak self] in
-        self?.hideLauncher()
+      onHide: { [weak self] restoringFocus in
+        self?.hideLauncher(restoringFocus: restoringFocus)
       },
       onOpenSettings: { [weak self] in
         self?.showSettingsFromLauncher()
