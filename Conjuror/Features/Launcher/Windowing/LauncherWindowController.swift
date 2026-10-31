@@ -99,7 +99,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   func toggle(mode: LauncherMode) {
     if isVisible, store.mode == mode {
-      onHide(false)
+      onHide(true)
     } else {
       show(mode: mode)
     }
