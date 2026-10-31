@@ -30,6 +30,30 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("1.5 weeks ago")?.copyText == "Aug 2, 2026 at 12:00 AM")
   }
 
+  @Test("Now plus or minus a duration matches the from-now and ago forms")
+  func testNowArithmetic() {
+    let engine = relativeDateEngine(
+      currentDate: "2024-02-29T15:30:00Z",
+      timeZone: TimeZone(secondsFromGMT: 0)!
+    )
+
+    #expect(engine.evaluate("now + 1 day")?.copyText == "Mar 1, 2024 at 3:30 PM")
+    #expect(engine.evaluate("NOW - 2 weeks")?.copyText == "Feb 15, 2024 at 3:30 PM")
+    #expect(engine.evaluate("now+1.5hours")?.copyText == "Feb 29, 2024 at 5:00 PM")
+    #expect(engine.evaluate("now + 1 year")?.copyText == "Feb 28, 2025 at 3:30 PM")
+  }
+
+  @Test("Second offsets show the seconds in the result")
+  func testSecondOffsets() {
+    let engine = relativeDateEngine(
+      currentDate: "2026-08-12T12:00:00Z",
+      timeZone: TimeZone(secondsFromGMT: 0)!
+    )
+
+    #expect(engine.evaluate("now + 90 seconds")?.copyText == "Aug 12, 2026 at 12:01:30 PM")
+    #expect(engine.evaluate("45 seconds ago")?.copyText == "Aug 12, 2026 at 11:59:15 AM")
+  }
+
   @Test("Whole days use calendar arithmetic across daylight saving time")
   func testDaylightSavingDates() {
     let engine = relativeDateEngine(
@@ -47,6 +71,9 @@ extension CalculatorEngineTests {
     #expect(engine.evaluate("-5 days from now") == nil)
     #expect(engine.evaluate("5 days later") == nil)
     #expect(engine.evaluate("days from now") == nil)
+    #expect(engine.evaluate("now") == nil)
+    #expect(engine.evaluate("now + 1.5 months") == nil)
+    #expect(engine.evaluate("now * 2 days") == nil)
     #expect(engine.evaluate("9223372036854775807 days from now") == nil)
     #expect(engine.evaluate("9223372036854775808 days ago") == nil)
   }

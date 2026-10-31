@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added ⌘Return to reveal the selected app or file in Finder.
+- Added `now + 2 hours` and `now - 3 days` relative dates, and seconds as a relative date unit.
 
 ## 1.0 alpha (16)
 

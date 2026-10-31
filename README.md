@@ -31,7 +31,7 @@ Select a calculation result to copy it and close the launcher.
 - Arithmetic: `2 plus 3 times 4`, `100 + 15%`, `20% of 50`, `2pi`.
 - Number bases: `255 to hex`, `0o377 to binary`.
 - Units: `10 km to miles`, `10kg + 500g`, `30 °C to °F`, `5 ft 3 in`.
-- Relative dates: `5 days from now`, `2 weeks ago`.
+- Relative dates: `5 days from now`, `2 weeks ago`, `now + 90 seconds`, `now - 3 months`.
 - Timezones: `10:00 BST in EST`, `9am GMT → PDT`.
 - Currency: `100 USD to EUR`, `$50 in GBP`.
 
