@@ -367,7 +367,7 @@ struct LauncherWindowControllerTests {
       store: LauncherStore(settingsStore: settings),
       settingsStore: settings,
       hotKeyStore: hotKeys,
-      onHide: {},
+      onHide: { _ in },
       onOpenSettings: {}
     )
   }

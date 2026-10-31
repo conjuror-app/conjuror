@@ -27,14 +27,15 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   private let store: LauncherStore
   private let settingsStore: SettingsStore
-  private let onHide: () -> Void
+  private let onHide: (_ restoringFocus: Bool) -> Void
   private var resizeWorkItem: DispatchWorkItem?
+  private var previousApplication: NSRunningApplication?
 
   init(
     store: LauncherStore,
     settingsStore: SettingsStore,
     hotKeyStore: HotKeyStore,
-    onHide: @escaping () -> Void,
+    onHide: @escaping (_ restoringFocus: Bool) -> Void,
     onOpenSettings: @escaping () -> Void
   ) {
     self.store = store
@@ -79,7 +80,8 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store: store,
       settingsStore: settingsStore,
       hotKeyStore: hotKeyStore,
-      onHide: onHide,
+      // Escape dismisses without choosing another app, so focus returns to the previous one.
+      onHide: { onHide(true) },
       onHeightChange: { [weak self] height in
         self?.scheduleResize(height: height)
       }
@@ -97,7 +99,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   func toggle(mode: LauncherMode) {
     if isVisible, store.mode == mode {
-      onHide()
+      onHide(false)
     } else {
       show(mode: mode)
     }
@@ -106,6 +108,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   func show(mode: LauncherMode? = nil) {
     guard let window else {
       return
+    }
+
+    if !window.isVisible {
+      previousApplication = Self.otherFrontmostApplication()
     }
 
     store.prepareForActivation(mode: mode)
@@ -127,15 +133,32 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     }
   }
 
-  func hide() {
+  func hide(restoringFocus: Bool = false) {
     resizeWorkItem?.cancel()
     resizeWorkItem = nil
     window?.orderOut(nil)
     window?.contentViewController = nil
+
+    if restoringFocus, let previousApplication, !previousApplication.isTerminated {
+      // The panel took key focus, so hand it back to the app the user was typing in.
+      previousApplication.activate(from: .current)
+    }
+
+    previousApplication = nil
   }
 
   func windowDidResignKey(_ notification: Notification) {
-    onHide()
+    onHide(false)
+  }
+
+  private static func otherFrontmostApplication() -> NSRunningApplication? {
+    guard let application = NSWorkspace.shared.frontmostApplication,
+      application != .current
+    else {
+      return nil
+    }
+
+    return application
   }
 
   private func scheduleResize(height: CGFloat) {
