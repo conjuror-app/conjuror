@@ -18,6 +18,7 @@ struct CalculatorRelativeDateEvaluator {
     case hour
     case minute
     case month
+    case second
     case week
     case year
 
@@ -27,6 +28,7 @@ struct CalculatorRelativeDateEvaluator {
       case .hour: .hour
       case .minute: .minute
       case .month: .month
+      case .second: .second
       case .week: .weekOfYear
       case .year: .year
       }
@@ -34,6 +36,7 @@ struct CalculatorRelativeDateEvaluator {
 
     var secondsPerUnit: Double? {
       switch self {
+      case .second: 1
       case .minute: 60
       case .hour: 3_600
       case .day: 86_400
@@ -58,20 +61,35 @@ struct CalculatorRelativeDateEvaluator {
   }
 
   func evaluate(_ expression: String) -> CalculatorResult? {
-    guard
-      let match = expression.wholeMatch(
-        of: /(?i)(\d+(?:\.\d+)?|\.\d+)\s+(minute|hour|day|week|month|year)s?\s+(from\s+now|ago)/
-      ),
-      let amount = Double(match.1),
-      amount > 0,
-      amount < Double(Int.max),
-      amount.isFinite,
-      let unit = Unit(rawValue: String(match.2).lowercased())
-    else {
+    let amountText: Substring
+    let unitText: Substring
+    let direction: Direction
+
+    if let match = expression.wholeMatch(
+      of:
+        /(?i)(\d+(?:\.\d+)?|\.\d+)\s+(second|minute|hour|day|week|month|year)s?\s+(from\s+now|ago)/
+    ) {
+      amountText = match.1
+      unitText = match.2
+      direction = match.3.lowercased() == "ago" ? .ago : .fromNow
+    } else if let match = expression.wholeMatch(
+      of: /(?i)now\s*([+-])\s*(\d+(?:\.\d+)?|\.\d+)\s*(second|minute|hour|day|week|month|year)s?/
+    ) {
+      amountText = match.2
+      unitText = match.3
+      direction = match.1 == "-" ? .ago : .fromNow
+    } else {
       return nil
     }
 
-    let direction: Direction = String(match.3).lowercased() == "ago" ? .ago : .fromNow
+    guard let amount = Double(amountText),
+      amount > 0,
+      amount < Double(Int.max),
+      amount.isFinite,
+      let unit = Unit(rawValue: unitText.lowercased())
+    else {
+      return nil
+    }
 
     guard let date = date(byAdding: amount * direction.multiplier, unit: unit) else {
       return nil
@@ -81,7 +99,8 @@ struct CalculatorRelativeDateEvaluator {
     formatter.locale = Locale(identifier: localeIdentifier)
     formatter.timeZone = timeZone
     formatter.dateStyle = .medium
-    formatter.timeStyle = .short
+    // Short times drop seconds, which would hide a change of seconds.
+    formatter.timeStyle = unit == .second ? .medium : .short
     let formattedDate = formatter.string(from: date)
 
     return CalculatorResult(
