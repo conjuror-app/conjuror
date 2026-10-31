@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0 alpha (16)
+
+- Restored focus to the previous app after copying an emoji or calculation result, or running a Shortcut.
+- Restored focus to the previous app when closing the launcher with Escape or its hotkey.
+
 ## 1.0 alpha (15)
 
 - Rendered the menu bar icon as a bolder monochrome symbol.
