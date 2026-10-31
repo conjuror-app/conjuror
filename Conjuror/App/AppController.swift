@@ -69,7 +69,7 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   func toggleLauncher() {
     if launcherWindowController?.isVisible == true {
-      hideLauncher()
+      hideLauncher(restoringFocus: true)
     } else {
       showLauncher()
     }

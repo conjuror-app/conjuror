@@ -538,11 +538,12 @@ enum LauncherEvent: Equatable {
   case launchSucceeded
   case shortcutRunStarted
 
-  /// Copy events leave no other app to take focus, so the launcher returns it to the previous app.
+  /// Copies and shortcut runs leave no other app to take focus, so the launcher returns it to the
+  /// previous app.
   var restoresPreviousFocus: Bool {
     switch self {
-    case .calculatorResultCopied, .emojiCopied: true
-    case .fileOpened, .launchStarted, .launchSucceeded, .shortcutRunStarted: false
+    case .calculatorResultCopied, .emojiCopied, .shortcutRunStarted: true
+    case .fileOpened, .launchStarted, .launchSucceeded: false
     }
   }
 }
