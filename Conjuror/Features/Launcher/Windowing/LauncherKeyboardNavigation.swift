@@ -19,6 +19,11 @@ enum LauncherKeyboardNavigation {
     Int(keyCode) == kVK_Tab && relevantModifiers(modifiers).isEmpty
   }
 
+  static func revealsSelection(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) -> Bool {
+    [kVK_Return, kVK_ANSI_KeypadEnter].contains(Int(keyCode))
+      && relevantModifiers(modifiers) == .command
+  }
+
   static func direction(
     forKeyCode keyCode: UInt16,
     modifiers: NSEvent.ModifierFlags,

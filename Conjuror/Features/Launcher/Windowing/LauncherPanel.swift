@@ -4,6 +4,7 @@ import SwiftUI
 final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
   var onCycleMode: (() -> Void)?
+  var onRevealSelection: (() -> Void)?
   var allowsHorizontalNavigation: (() -> Bool)?
   var onOpenSettings: (() -> Void)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
@@ -15,6 +16,17 @@ final class LauncherPanel: NSPanel {
       LauncherKeyboardNavigation.cyclesMode(keyCode: event.keyCode, modifiers: event.modifierFlags)
     {
       onCycleMode?()
+
+      return
+    }
+
+    if event.type == .keyDown,
+      LauncherKeyboardNavigation.revealsSelection(
+        keyCode: event.keyCode,
+        modifiers: event.modifierFlags
+      )
+    {
+      onRevealSelection?()
 
       return
     }

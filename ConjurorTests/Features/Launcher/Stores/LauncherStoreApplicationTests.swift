@@ -54,6 +54,38 @@ extension LauncherStoreTests {
     #expect(history.load()[stable.persistenceKey] == nil)
   }
 
+  @Test("Command-Return reveals the selected app, but not calculations or System Settings items")
+  func testRevealSelectedApplication() async {
+    let applications = [
+      application("Alpha", id: "dev.example.alpha"),
+      application("Beta", id: "dev.example.beta"),
+    ]
+    var revealedURLs = [URL]()
+    var events = [LauncherEvent]()
+    let store = makeStore(
+      applications: applications,
+      revealInFinder: { revealedURLs.append($0) },
+      onEvent: { events.append($0) }
+    )
+    store.loadApplications()
+    await waitForApplications(store)
+
+    store.query = "2 + 2"
+    store.revealSelectedResult()
+    store.query = "display"
+    #expect(store.filteredApplications.first?.isSystemSettingsItem == true)
+    store.revealSelectedResult()
+    #expect(revealedURLs.isEmpty)
+
+    store.query = "a"
+    store.select(.application(applications[1].id))
+    store.revealSelectedResult()
+
+    #expect(revealedURLs == [applications[1].url])
+    #expect(events == [.itemRevealed])
+    #expect(store.query.isEmpty)
+  }
+
   @Test("Cached search follows System Settings inclusion changes")
   func testSearchIndexTracksSettingsInclusion() {
     let settings = SettingsStore(userDefaults: makeTestUserDefaults())

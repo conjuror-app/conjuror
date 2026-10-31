@@ -55,6 +55,26 @@ final class LauncherStore: ObservableObject {
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
 
+  /// The selected app or file, which Finder can reveal. Calculations, emoji, shortcuts, and
+  /// System Settings items have no file to reveal.
+  var selectedRevealableURL: URL? {
+    switch mode {
+    case .applications:
+      guard !isCalculatorSelected,
+        let application = selected(in: filteredApplications, as: { .application($0) }),
+        !application.isSystemSettingsItem
+      else {
+        return nil
+      }
+
+      return application.url
+    case .files:
+      return selected(in: fileResults, as: { .file($0) })?.url
+    case .emoji, .shortcuts:
+      return nil
+    }
+  }
+
   private let settingsStore: SettingsStore
   private let catalog: ApplicationCatalogLoading
   private let calculator: CalculatorEngine
@@ -62,6 +82,7 @@ final class LauncherStore: ObservableObject {
   private let launchApplication: @MainActor (InstalledApplication) async throws -> Void
   private let shortcutCatalog: ShortcutCatalogLoading
   private let runShortcut: @MainActor (AppleShortcut) async throws -> Void
+  private let revealInFinder: @MainActor (URL) -> Void
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: RankedCatalog<InstalledApplication>
   private let shortcutController: RankedCatalog<AppleShortcut>
@@ -111,6 +132,9 @@ final class LauncherStore: ObservableObject {
     runShortcut: @escaping @MainActor (AppleShortcut) async throws -> Void = ShortcutRunner().run,
     shortcutRunHistory: RecencyStore = .shortcutRuns(),
     emojiHistory: EmojiHistoryStore = EmojiHistoryStore(),
+    revealInFinder: @escaping @MainActor (URL) -> Void = {
+      NSWorkspace.shared.activateFileViewerSelecting([$0])
+    },
     fileSearcher: FileSearching = SpotlightFileSearchService(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
@@ -122,6 +146,7 @@ final class LauncherStore: ObservableObject {
     self.shortcutCatalog = shortcutCatalog
     self.runShortcut = runShortcut
     self.emojiHistory = emojiHistory
+    self.revealInFinder = revealInFinder
     applicationController = RankedCatalog(history: launchHistory)
     shortcutController = RankedCatalog(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)
@@ -239,6 +264,14 @@ final class LauncherStore: ObservableObject {
     case .shortcuts:
       if let shortcut = selected(in: filteredShortcuts, as: { .shortcut($0) }) { run(shortcut) }
     }
+  }
+
+  func revealSelectedResult() {
+    guard let url = selectedRevealableURL else { return }
+
+    revealInFinder(url)
+    query = ""
+    onEvent(.itemRevealed)
   }
 
   func open(_ application: InstalledApplication) {
@@ -534,6 +567,7 @@ enum LauncherEvent: Equatable {
   case calculatorResultCopied
   case emojiCopied
   case fileOpened
+  case itemRevealed
   case launchStarted
   case launchSucceeded
   case shortcutRunStarted
@@ -543,7 +577,7 @@ enum LauncherEvent: Equatable {
   var restoresPreviousFocus: Bool {
     switch self {
     case .calculatorResultCopied, .emojiCopied, .shortcutRunStarted: true
-    case .fileOpened, .launchStarted, .launchSucceeded: false
+    case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded: false
     }
   }
 }

@@ -20,8 +20,8 @@ to install it. You can enable launch at login in General Settings.
 ## Usage
 
 Press `⌥ Space` to show or hide Conjuror. Type to search, use the arrow keys to select
-a result, then press Return or click to use it. Open Settings or quit from the menu
-bar item.
+a result, then press Return or click to use it. Press `⌘ Return` to reveal the selected
+app or file in Finder. Open Settings or quit from the menu bar item.
 
 ### Applications and calculations
 
