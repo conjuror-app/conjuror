@@ -2,9 +2,9 @@ import AppKit
 import SwiftUI
 
 struct AboutSettingsView: View {
-  private static let githubURL = URL(string: "https://github.com/conjuror-app")!
+  private static let githubURL = URL(string: "https://github.com/conjuror-app/conjuror")!
   private static let reportBugURL = URL(
-    string: "https://github.com/conjuror-app/releases/discussions"
+    string: "https://github.com/conjuror-app/conjuror/issues"
   )!
 
   var body: some View {

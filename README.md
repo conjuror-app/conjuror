@@ -5,6 +5,18 @@ copying emoji, and doing calculations and conversions.
 
 ## Installation
 
+Download the app ZIP from [GitHub Releases](https://github.com/conjuror-app/conjuror/releases),
+unzip it, and move `Conjuror.app` into `/Applications`. Requires macOS 26 or later.
+The `.dSYM.zip` files are debug symbols and are not needed to run the app.
+
+Alternatively, install the alpha with Homebrew:
+
+```fish
+brew install --cask conjuror-app/tap/conjuror@alpha
+```
+
+### Building from source
+
 Building from source requires macOS 26 or later and Xcode.
 
 ```sh
@@ -56,3 +68,12 @@ selected emoji. Recent emoji appear first when the search is empty.
 Type `/` to search files and folders by name using Spotlight. Press Return to open
 the selected item. On first use, Conjuror requests access to Desktop, Documents,
 Downloads, and iCloud Drive. You can also grant access in Settings.
+
+## Feedback
+
+Report bugs and suggest changes in [Issues](https://github.com/conjuror-app/conjuror/issues).
+
+## Publishing releases
+
+See [the release instructions](docs/releases.md) for signing, notarizing, and
+publishing a release from this repository.
