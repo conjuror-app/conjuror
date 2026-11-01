@@ -1,0 +1,581 @@
+{
+  "default-configuration": "Release",
+  "configurations": [
+    "Debug",
+    "Release",
+  ],
+  "localizations": {
+    "development": "en",
+    "supported": [
+      "Base",
+    ],
+  },
+  "files": [
+    {
+      "kind": "group",
+      "path": "Conjuror",
+      "children": [
+        {
+          "kind": "group",
+          "path": "App",
+          "children": [
+            { "path": "AppController.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+            { "path": "ConjurorApp.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+          ],
+        }, {
+          "kind": "group",
+          "path": "Features",
+          "children": [
+            {
+              "kind": "group",
+              "path": "Applications",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "InstalledApplication.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ApplicationCatalog.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationDirectoryMonitor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationIconCache.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationLauncher.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationRanker.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SystemSettingsCatalog.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "ApplicationResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Calculator",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "CalculatorFormattingOptions.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorResult.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CurrencyRates.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "CalculatorArithmeticParser.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorClipboard.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorCurrency.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorEngine.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorQuantity.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorQuantityParser.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorRadix.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorRelativeDate.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorTimeZone.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorUnitRegistry.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CurrencyRateServices.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CurrencyRateStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "CalculatorResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Emoji",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "Emoji.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "EmojiRanker.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "EmojiHistoryStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "EmojiResultCell.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Files",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "FileSearchResult.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "FileSearchService.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "FileResultRow.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Launcher",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "LauncherAppearance.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherBorderColor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherBorderStyle.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherMode.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "CatalogLoader.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherFileController.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "RankedCatalog.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "LauncherLayout.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherResultsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherSearchField.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherSurfaceModifier.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SelectableResultRow.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Windowing",
+                  "children": [
+                    { "path": "LauncherKeyboardNavigation.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherPanel.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherTextEditingCommand.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherWindowController.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LauncherWindowGeometry.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Settings",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "HotKeyConfiguration.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "GlobalHotKey.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "HotKeyStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LaunchAtLoginStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SettingsStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "AboutSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "CalculatorSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "EmojiSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "GeneralSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "LaunchAtLoginCheckbox.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SettingsPane.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SettingsRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ShortcutRecorder.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Windowing",
+                  "children": [
+                    { "path": "SettingsWindowController.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Shortcuts",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "AppleShortcut.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ShortcutCatalog.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ShortcutRanker.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ShortcutRunner.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ShortcutsEventsBridge.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "ShortcutResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            },
+          ],
+        }, {
+          "kind": "group",
+          "path": "Resources",
+          "children": [
+            { "path": "Conjuror.entitlements" },
+            { "path": "Conjuror.icon", "target-membership": [ "Conjuror/resources" ] },
+            { "path": "EmojiCatalog.data", "target-membership": [ "Conjuror/resources" ] },
+          ],
+        }, {
+          "kind": "group",
+          "path": "Shared",
+          "children": [
+            {
+              "kind": "group",
+              "path": "Persistence",
+              "children": [
+                { "path": "RecencyStore.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+                { "path": "UserDefaultsKey.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Search",
+              "children": [
+                { "path": "SearchIndex.swift", "index": true, "target-membership": [ "Conjuror/compile-sources" ] },
+              ],
+            },
+          ],
+        },
+      ],
+    }, {
+      "kind": "group",
+      "path": "ConjurorTests",
+      "children": [
+        {
+          "kind": "group",
+          "path": "Features",
+          "children": [
+            {
+              "kind": "group",
+              "path": "Applications",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ApplicationCatalogTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "ApplicationDirectoryMonitorTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "ApplicationRankerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Calculator",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "CalculatorCurrencyTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CalculatorEngineTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CalculatorQuantityTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CalculatorRadixTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CalculatorRelativeDateTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CalculatorTimeZoneTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "CurrencyRateStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Emoji",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "EmojiRankerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Files",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "FileSearchServiceTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Launcher",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "LauncherStoreApplicationTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreEmojiTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreShortcutTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Windowing",
+                  "children": [
+                    { "path": "LauncherWindowControllerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Settings",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "HotKeyStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LaunchAtLoginStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "SettingsStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Windowing",
+                  "children": [
+                    { "path": "SettingsWindowControllerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Shortcuts",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ShortcutCatalogTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "ShortcutRankerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            },
+          ],
+        }, {
+          "kind": "group",
+          "path": "Shared",
+          "children": [
+            {
+              "kind": "group",
+              "path": "Persistence",
+              "children": [
+                { "path": "RecencyStoreTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+              ],
+            },
+          ],
+        }, {
+          "kind": "group",
+          "path": "Support",
+          "children": [
+            { "path": "TestUserDefaults.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+          ],
+        },
+      ],
+    }, {
+      "kind": "group",
+      "name": "Products",
+      "children": [
+        { "path": "<PRODUCTS>/Conjuror.app", "id": "8A4E32132C55C00100C0A001", "type": "wrapper.application", "index": false },
+        { "path": "<PRODUCTS>/ConjurorTests.xctest", "id": "8A4E33142C55C00100C0A001", "type": "wrapper.cfbundle", "index": false },
+      ],
+    },
+  ],
+  "targets": [
+    {
+      "name": "Conjuror",
+      "id": "8A4E32402C55C00100C0A001",
+      "product": "Products/Conjuror.app",
+      "product-type": "application",
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
+      "build-settings": {
+        "ARCHS[config=Release]": "arm64",
+        "ASSETCATALOG_COMPILER_APPICON_NAME": "Conjuror",
+        "CODE_SIGN_ENTITLEMENTS": "Conjuror/Resources/Conjuror.entitlements",
+        "CODE_SIGN_STYLE": "Automatic",
+        "COMBINE_HIDPI_IMAGES": "YES",
+        "CURRENT_PROJECT_VERSION": "16",
+        "DEVELOPMENT_TEAM": "Y54Z78V9M7",
+        "ENABLE_APP_SANDBOX": "NO",
+        "ENABLE_HARDENED_RUNTIME": "YES",
+        "ENABLE_PREVIEWS": "YES",
+        "GENERATE_INFOPLIST_FILE": "YES",
+        "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.productivity",
+        "INFOPLIST_KEY_LSUIElement": "YES",
+        "INFOPLIST_KEY_NSAppleEventsUsageDescription": "Conjuror uses Shortcuts Events to list and run your Apple Shortcuts.",
+        "INFOPLIST_KEY_NSDesktopFolderUsageDescription": "Conjuror searches file and folder names on your Desktop.",
+        "INFOPLIST_KEY_NSDocumentsFolderUsageDescription": "Conjuror searches file and folder names in Documents.",
+        "INFOPLIST_KEY_NSDownloadsFolderUsageDescription": "Conjuror searches file and folder names in Downloads.",
+        "INFOPLIST_KEY_NSHumanReadableCopyright": "",
+        "LD_RUNPATH_SEARCH_PATHS": [
+          "$(inherited)",
+          "@executable_path/../Frameworks",
+        ],
+        "MARKETING_VERSION": "1.0",
+        "PRODUCT_BUNDLE_IDENTIFIER[config=Debug]": "dev.tombell.conjuror.dev",
+        "PRODUCT_BUNDLE_IDENTIFIER[config=Release]": "dev.tombell.conjuror",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SWIFT_EMIT_LOC_STRINGS": "YES",
+        "SWIFT_VERSION": "5.0",
+      },
+    }, {
+      "name": "ConjurorTests",
+      "id": "8A4E33412C55C00100C0A001",
+      "product": "Products/ConjurorTests.xctest",
+      "product-type": "bundle.unit-test",
+      "dependencies": [
+        "Conjuror",
+      ],
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
+      "build-settings": {
+        "BUNDLE_LOADER": "$(TEST_HOST)",
+        "CODE_SIGN_STYLE": "Automatic",
+        "DEVELOPMENT_TEAM": "Y54Z78V9M7",
+        "GENERATE_INFOPLIST_FILE": "YES",
+        "MACOSX_DEPLOYMENT_TARGET": "26.0",
+        "PRODUCT_BUNDLE_IDENTIFIER": "dev.tombell.conjuror.tests",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SWIFT_VERSION": "5.0",
+        "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Conjuror.app/Contents/MacOS/Conjuror",
+      },
+    },
+  ],
+  "build-settings": {
+    "ALWAYS_SEARCH_USER_PATHS": "NO",
+    "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
+    "CLANG_ANALYZER_NONNULL": "YES",
+    "CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION": "YES_AGGRESSIVE",
+    "CLANG_CXX_LANGUAGE_STANDARD": "gnu++20",
+    "CLANG_ENABLE_MODULES": "YES",
+    "CLANG_ENABLE_OBJC_ARC": "YES",
+    "CLANG_ENABLE_OBJC_WEAK": "YES",
+    "CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING": "YES",
+    "CLANG_WARN_BOOL_CONVERSION": "YES",
+    "CLANG_WARN_COMMA": "YES",
+    "CLANG_WARN_CONSTANT_CONVERSION": "YES",
+    "CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS": "YES",
+    "CLANG_WARN_DIRECT_OBJC_ISA_USAGE": "YES_ERROR",
+    "CLANG_WARN_DOCUMENTATION_COMMENTS": "YES",
+    "CLANG_WARN_EMPTY_BODY": "YES",
+    "CLANG_WARN_ENUM_CONVERSION": "YES",
+    "CLANG_WARN_INFINITE_RECURSION": "YES",
+    "CLANG_WARN_INT_CONVERSION": "YES",
+    "CLANG_WARN_NON_LITERAL_NULL_CONVERSION": "YES",
+    "CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF": "YES",
+    "CLANG_WARN_OBJC_LITERAL_CONVERSION": "YES",
+    "CLANG_WARN_OBJC_ROOT_CLASS": "YES_ERROR",
+    "CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER": "YES",
+    "CLANG_WARN_RANGE_LOOP_ANALYSIS": "YES",
+    "CLANG_WARN_STRICT_PROTOTYPES": "YES",
+    "CLANG_WARN_SUSPICIOUS_MOVE": "YES",
+    "CLANG_WARN_UNGUARDED_AVAILABILITY": "YES_AGGRESSIVE",
+    "CLANG_WARN_UNREACHABLE_CODE": "YES",
+    "CLANG_WARN__DUPLICATE_METHOD_MATCH": "YES",
+    "COPY_PHASE_STRIP": "NO",
+    "DEBUG_INFORMATION_FORMAT[config=Debug]": "dwarf",
+    "DEBUG_INFORMATION_FORMAT[config=Release]": "dwarf-with-dsym",
+    "ENABLE_NS_ASSERTIONS[config=Release]": "NO",
+    "ENABLE_STRICT_OBJC_MSGSEND": "YES",
+    "ENABLE_TESTABILITY[config=Debug]": "YES",
+    "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
+    "GCC_C_LANGUAGE_STANDARD": "gnu17",
+    "GCC_DYNAMIC_NO_PIC[config=Debug]": "NO",
+    "GCC_NO_COMMON_BLOCKS": "YES",
+    "GCC_OPTIMIZATION_LEVEL[config=Debug]": "0",
+    "GCC_PREPROCESSOR_DEFINITIONS[config=Debug]": [
+      "DEBUG=1",
+      "$(inherited)",
+    ],
+    "GCC_WARN_64_TO_32_BIT_CONVERSION": "YES",
+    "GCC_WARN_ABOUT_RETURN_TYPE": "YES_ERROR",
+    "GCC_WARN_UNDECLARED_SELECTOR": "YES",
+    "GCC_WARN_UNINITIALIZED_AUTOS": "YES_AGGRESSIVE",
+    "GCC_WARN_UNUSED_FUNCTION": "YES",
+    "GCC_WARN_UNUSED_VARIABLE": "YES",
+    "LOCALIZATION_PREFERS_STRING_CATALOGS": "YES",
+    "MACOSX_DEPLOYMENT_TARGET": "26.0",
+    "MTL_ENABLE_DEBUG_INFO[config=Debug]": "INCLUDE_SOURCE",
+    "MTL_ENABLE_DEBUG_INFO[config=Release]": "NO",
+    "MTL_FAST_MATH": "YES",
+    "ONLY_ACTIVE_ARCH[config=Debug]": "YES",
+    "SDKROOT": "macosx",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Debug]": "DEBUG $(inherited)",
+    "SWIFT_COMPILATION_MODE[config=Release]": "wholemodule",
+    "SWIFT_OPTIMIZATION_LEVEL[config=Debug]": "-Onone",
+    "SWIFT_STRICT_CONCURRENCY": "complete",
+    "VALIDATE_PRODUCT[config=Release]": "YES",
+  },
+  "last-upgrade": "26.6",
+  "last-swift-update": "26.6",
+}
