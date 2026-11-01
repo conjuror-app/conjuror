@@ -77,3 +77,7 @@ Report bugs and suggest changes in [Issues](https://github.com/conjuror-app/conj
 
 See [the release instructions](docs/releases.md) for signing, notarizing, and
 publishing a release from this repository.
+
+## Licence
+
+Conjuror is licensed under the [BSD 3-Clause License](LICENSE).
