@@ -52,6 +52,34 @@ struct CalculatorCurrencyEvaluator {
     let (left, right) = CalculatorInput.splitConversion(expression)
 
     if let right {
+      // "500*21 in GBP in USD" or "500*21 in GBP to USD" name the source currency
+      // with a connector instead of attaching it to the amount.
+      let (target, chainedTarget) = CalculatorInput.splitConversion(right)
+      let (amountText, chainedSource) = CalculatorInput.splitConversion(left)
+
+      if let chainedTarget {
+        guard chainedSource == nil,
+          let amount = arithmeticValue(left),
+          let sourceCode = currencyCode(target),
+          let targetCode = currencyCode(chainedTarget)
+        else {
+          return nil
+        }
+
+        return Conversion(amount: amount, sourceCode: sourceCode, targetCode: targetCode)
+      }
+
+      if let chainedSource {
+        guard let amount = arithmeticValue(amountText),
+          let sourceCode = currencyCode(chainedSource),
+          let targetCode = currencyCode(right)
+        else {
+          return nil
+        }
+
+        return Conversion(amount: amount, sourceCode: sourceCode, targetCode: targetCode)
+      }
+
       guard let source = parseAmount(left),
         let targetCode = currencyCode(right)
       else {
@@ -85,33 +113,58 @@ struct CalculatorCurrencyEvaluator {
 
     if let first = trimmed.first,
       let code = Self.symbolCodes[first],
-      let amount = Double(trimmed.dropFirst().trimmingCharacters(in: .whitespaces))
+      let amount = arithmeticValue(String(trimmed.dropFirst()))
     {
       return (amount, code)
     }
 
     if let last = trimmed.last,
       let code = Self.symbolCodes[last],
-      let amount = Double(trimmed.dropLast().trimmingCharacters(in: .whitespaces))
+      let amount = arithmeticValue(String(trimmed.dropLast()))
     {
       return (amount, code)
     }
 
     let parts = trimmed.split(whereSeparator: \.isWhitespace)
 
-    guard parts.count == 2 else {
+    guard parts.count >= 2 else {
       return nil
     }
 
-    if let amount = Double(parts[0]), let code = currencyCode(String(parts[1])) {
+    if let code = currencyCode(String(parts[parts.count - 1])),
+      let amount = arithmeticValue(parts.dropLast().joined(separator: " "))
+    {
       return (amount, code)
     }
 
-    if let code = currencyCode(String(parts[0])), let amount = Double(parts[1]) {
+    if let code = currencyCode(String(parts[0])),
+      let amount = arithmeticValue(parts.dropFirst().joined(separator: " "))
+    {
       return (amount, code)
     }
 
     return nil
+  }
+
+  /// Evaluates a plain number or an arithmetic expression such as `500*21`.
+  private func arithmeticValue(_ text: String) -> Double? {
+    let trimmed = text.trimmingCharacters(in: .whitespaces)
+
+    if let number = Double(trimmed) {
+      return number
+    }
+
+    guard let tokens = CalculatorLexer.tokenize(trimmed) else {
+      return nil
+    }
+
+    var parser = CalculatorParser(tokens: tokens)
+
+    guard let value = parser.parse(), value.isFinite else {
+      return nil
+    }
+
+    return value
   }
 
   private func currencyCode(_ text: String) -> String? {

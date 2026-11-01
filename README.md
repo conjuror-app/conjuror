@@ -34,7 +34,7 @@ Select a calculation result to copy it and close the launcher.
 - Relative dates: `5 days from now`, `2 weeks ago`, `now + 90 seconds`, `now - 3 months`.
 - Dates: `now - 1 aug 2025 in days`, `today - 1 jan 1990 in years`, `1 aug 2025 + 30 days`.
 - Timezones: `10:00 BST in EST`, `9am GMT → PDT`.
-- Currency: `100 USD to EUR`, `$50 in GBP`.
+- Currency: `100 USD to EUR`, `$50 in GBP`, `500*21 in GBP in USD`.
 
 Use `to`, `in`, `->`, or `→` for conversions. Currency conversion is off by default.
 Enable it in Settings to download daily exchange rates from
