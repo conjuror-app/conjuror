@@ -37,7 +37,11 @@ app or file in Finder. Open Settings or quit from the menu bar item.
 
 ### Applications and calculations
 
-Type an app's name to find and open it. Calculations appear above matching apps.
+Type an app's name to find and open it. Use Settings → Apps → Excluded apps to hide
+individual installations from search and recent results. Remove an exclusion to show
+the app again. Exclusions use the app's path, so moving an app requires excluding it again.
+
+Calculations appear above matching apps.
 Select a calculation result to copy it and close the launcher.
 
 - Arithmetic: `2 plus 3 times 4`, `100 + 15%`, `20% of 50`, `2pi`.

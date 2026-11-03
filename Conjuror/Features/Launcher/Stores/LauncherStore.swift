@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Foundation
 import SwiftUI
 
@@ -92,6 +93,8 @@ final class LauncherStore: ObservableObject {
   private var currencyRates: CurrencyRates?
   private let applicationLoader = CatalogLoader<InstalledApplication>()
   private let shortcutsLoader = CatalogLoader<AppleShortcut>()
+  private var excludedApplicationPaths = Set<String>()
+  private var exclusionSubscription: AnyCancellable?
   private var includesSystemSettings: Bool?
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
@@ -151,6 +154,18 @@ final class LauncherStore: ObservableObject {
     shortcutController = RankedCatalog(history: shortcutRunHistory)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.onEvent = onEvent
+
+    exclusionSubscription = settingsStore.$excludedApplications
+      .sink { [weak self] exclusions in
+        guard let self else { return }
+
+        excludedApplicationPaths = Set(exclusions.keys)
+        includesSystemSettings = nil
+        refreshApplications()
+        if mode == .applications, !resultIDs.contains(where: { $0 == self.selectedResultID }) {
+          selectFirstResult()
+        }
+      }
   }
 
   func setCurrencyRates(_ rates: CurrencyRates?) {
@@ -541,8 +556,12 @@ final class LauncherStore: ObservableObject {
     let includesSystemSettings =
       settingsStore.showsSystemSettingsItems && !query.trimmingCharacters(in: .whitespaces).isEmpty
     if self.includesSystemSettings != includesSystemSettings {
+      let visibleApplications = applications.filter {
+        !excludedApplicationPaths.contains($0.persistenceKey)
+      }
       applicationController.replace(
-        includesSystemSettings ? applications + SystemSettingsCatalog.items : applications
+        includesSystemSettings
+          ? visibleApplications + SystemSettingsCatalog.items : visibleApplications
       )
       self.includesSystemSettings = includesSystemSettings
     }
