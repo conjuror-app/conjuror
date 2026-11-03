@@ -15,6 +15,9 @@ final class SettingsStore: ObservableObject {
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
+    static let excludedApplications = UserDefaultsKey<[String: String]>(
+      "settings.excludedApplications"
+    )
     static let showsSystemSettingsItems = UserDefaultsKey<Bool>("settings.showsSystemSettingsItems")
     static let launcherBorderStyle = UserDefaultsKey<String>("settings.launcherBorderStyle")
     static let launcherBorderRed = UserDefaultsKey<Double>("settings.launcherBorderRed")
@@ -71,6 +74,8 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  /// Canonical installation paths mapped to names, including apps no longer installed.
+  @Published private(set) var excludedApplications: [String: String]
   @Published private(set) var showsSystemSettingsItems: Bool
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
@@ -111,6 +116,7 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
+    excludedApplications = userDefaults.value(for: Key.excludedApplications) ?? [:]
     showsSystemSettingsItems = userDefaults.value(for: Key.showsSystemSettingsItems) ?? true
     launcherBorderStyle =
       userDefaults.value(for: Key.launcherBorderStyle)
@@ -164,6 +170,20 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
   }
 
+  func excludeApplication(_ application: InstalledApplication) {
+    guard !application.isSystemSettingsItem else { return }
+
+    var exclusions = excludedApplications
+    exclusions[application.persistenceKey] = application.displayName
+    setExcludedApplications(exclusions)
+  }
+
+  func removeExcludedApplication(at path: String) {
+    var exclusions = excludedApplications
+    exclusions.removeValue(forKey: path)
+    setExcludedApplications(exclusions)
+  }
+
   func setShowsSystemSettingsItems(_ showsItems: Bool) {
     showsSystemSettingsItems = showsItems
     userDefaults.set(showsItems, for: Key.showsSystemSettingsItems)
@@ -192,6 +212,7 @@ final class SettingsStore: ObservableObject {
 
   func resetToDefaults() {
     resetMaximumVisibleResults()
+    setExcludedApplications([:])
     setPreferredEmojiSkinTone(.default)
     setLauncherBorderStyle(.cyan)
     setLauncherCustomBorderColor(.default)
@@ -199,6 +220,11 @@ final class SettingsStore: ObservableObject {
     for action in HotKeyAction.allCases {
       setHotKeyConfiguration(action.defaultConfiguration, for: action)
     }
+  }
+
+  private func setExcludedApplications(_ exclusions: [String: String]) {
+    excludedApplications = exclusions
+    userDefaults.set(exclusions, for: Key.excludedApplications)
   }
 
   private func persistHotKey(

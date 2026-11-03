@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
   @ObservedObject var store: SettingsStore
+  @ObservedObject var launcherStore: LauncherStore
   @ObservedObject var hotKeyStore: HotKeyStore
   @ObservedObject var currencyRateStore: CurrencyRateStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
@@ -67,7 +68,7 @@ struct SettingsView: View {
         launchAtLoginStore: launchAtLoginStore
       )
     case .apps:
-      AppsSettingsView(store: store, hotKeyStore: hotKeyStore)
+      AppsSettingsView(store: store, launcherStore: launcherStore, hotKeyStore: hotKeyStore)
     case .emoji:
       EmojiSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .shortcuts:
@@ -177,6 +178,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
 
 private struct AppsSettingsView: View {
   @ObservedObject var store: SettingsStore
+  @ObservedObject var launcherStore: LauncherStore
   @ObservedObject var hotKeyStore: HotKeyStore
 
   var body: some View {
@@ -217,7 +219,8 @@ private struct AppsSettingsView: View {
           .lineLimit(2)
       }
 
-      Spacer()
+      ExcludedApplicationsView(store: store, launcherStore: launcherStore)
+        .frame(maxHeight: .infinity)
 
       HStack {
         Spacer()

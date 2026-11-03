@@ -9,6 +9,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
   init(
     store: SettingsStore,
+    launcherStore: LauncherStore,
     hotKeyStore: HotKeyStore,
     currencyRateStore: CurrencyRateStore,
     launchAtLoginStore: LaunchAtLoginStore,
@@ -28,6 +29,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     window.contentViewController = NSHostingController(
       rootView: SettingsView(
         store: store,
+        launcherStore: launcherStore,
         hotKeyStore: hotKeyStore,
         currencyRateStore: currencyRateStore,
         launchAtLoginStore: launchAtLoginStore

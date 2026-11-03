@@ -23,6 +23,74 @@ extension LauncherStoreTests {
     #expect(store.selectedResultID == .application(applications[1].id))
   }
 
+  @Test("Exclusions immediately update search and recent results without changing the catalog")
+  func testExclusionsUpdateResults() async {
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    let stable = application("Xcode", id: "com.apple.dt.Xcode")
+    let beta = application("Xcode Beta", id: "com.apple.dt.Xcode")
+    let history = RecencyStore.applicationLaunches(userDefaults: makeTestUserDefaults())
+    history.record(key: beta.persistenceKey)
+    let store = makeStore(
+      applications: [stable, beta],
+      settingsStore: settings,
+      launchHistory: history
+    )
+    store.loadApplications()
+    await waitForApplications(store)
+    #expect(store.filteredApplications.first == beta)
+
+    settings.excludeApplication(beta)
+    #expect(store.filteredApplications == [stable])
+    #expect(store.selectedResultID == .application(stable.id))
+    #expect(store.applications == [stable, beta])
+
+    store.query = "xcode"
+    settings.removeExcludedApplication(at: beta.persistenceKey)
+    #expect(store.filteredApplications.contains(beta))
+    store.query = ""
+    #expect(store.filteredApplications.first == beta)
+    store.query = "xcode"
+    settings.excludeApplication(beta)
+    #expect(store.filteredApplications == [stable])
+    #expect(history.load()[beta.persistenceKey] != nil)
+
+    settings.excludeApplication(stable)
+    #expect(store.filteredApplications.isEmpty)
+    #expect(store.selectedResultID == nil)
+    settings.removeExcludedApplication(at: stable.persistenceKey)
+    #expect(store.filteredApplications == [stable])
+    #expect(store.selectedResultID == .application(stable.id))
+  }
+
+  @Test("Saved exclusions survive catalog reloads and mode changes")
+  func testSavedExclusionsSurviveReloadsAndModes() async {
+    let defaults = makeTestUserDefaults()
+    let excluded = application("Example", id: "dev.example.app")
+    SettingsStore(userDefaults: defaults).excludeApplication(excluded)
+    let settings = SettingsStore(userDefaults: defaults)
+    let store = makeStore(applications: [excluded], settingsStore: settings)
+    store.loadApplications()
+    await waitForApplications(store)
+    #expect(store.filteredApplications.isEmpty)
+
+    store.updateQuery("/notes")
+    settings.removeExcludedApplication(at: excluded.persistenceKey)
+    store.prepareForActivation(mode: .applications)
+    #expect(store.filteredApplications == [excluded])
+    store.updateQuery("/notes")
+    settings.excludeApplication(excluded)
+    store.prepareForActivation(mode: .applications)
+    #expect(store.filteredApplications.isEmpty)
+
+    store.loadApplications()
+    await waitForApplications(store)
+    #expect(store.filteredApplications.isEmpty)
+    store.query = "bluetooth"
+    #expect(store.filteredApplications.first?.isSystemSettingsItem == true)
+    settings.excludeApplication(SystemSettingsCatalog.items[0])
+    #expect(settings.excludedApplications.count == 1)
+  }
+
   @Test("Selecting a second installation launches its own path")
   func testLaunchesSelectedInstallation() async {
     let stable = application("Xcode", id: "com.apple.dt.Xcode")

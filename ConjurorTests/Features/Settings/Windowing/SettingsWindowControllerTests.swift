@@ -20,6 +20,7 @@ struct SettingsWindowControllerTests {
       try autoreleasepool {
         controller = SettingsWindowController(
           store: settings,
+          launcherStore: LauncherStore(settingsStore: settings),
           hotKeyStore: hotKeys,
           currencyRateStore: currencyRates,
           launchAtLoginStore: launchAtLogin,

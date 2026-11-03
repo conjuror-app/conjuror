@@ -17,6 +17,7 @@ struct SettingsStoreTests {
     #expect(store.preferredEmojiSkinTone == .default)
     #expect(store.isFilesModuleEnabled)
     #expect(store.showsSystemSettingsItems)
+    #expect(store.excludedApplications.isEmpty)
     #expect(store.launcherBorderStyle == .cyan)
     #expect(store.launcherAppearance == .standard)
     #expect(store.launcherCustomBorderColor == .default)
@@ -53,6 +54,28 @@ struct SettingsStoreTests {
       reloadedStore.launcherCustomBorderColor
         == LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3)
     )
+  }
+
+  @Test("App exclusions persist, deduplicate, and can be removed after the app disappears")
+  func testApplicationExclusionsPersist() {
+    let defaults = makeTestUserDefaults()
+    let store = SettingsStore(userDefaults: defaults)
+    let application = InstalledApplication(
+      displayName: "Example",
+      bundleIdentifier: "dev.example.app",
+      url: URL(fileURLWithPath: "/Applications/Example.app")
+    )
+    store.excludeApplication(application)
+    store.excludeApplication(application)
+
+    let reloaded = SettingsStore(userDefaults: defaults)
+    #expect(reloaded.excludedApplications == [application.persistenceKey: "Example"])
+    reloaded.removeExcludedApplication(at: application.persistenceKey)
+    #expect(SettingsStore(userDefaults: defaults).excludedApplications.isEmpty)
+
+    reloaded.excludeApplication(application)
+    reloaded.resetToDefaults()
+    #expect(SettingsStore(userDefaults: defaults).excludedApplications.isEmpty)
   }
 
   @Test("Existing hotkey persistence keys remain compatible")

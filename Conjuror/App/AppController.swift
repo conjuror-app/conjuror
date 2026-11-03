@@ -131,6 +131,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     if settingsWindowController == nil {
       settingsWindowController = SettingsWindowController(
         store: settingsStore,
+        launcherStore: store,
         hotKeyStore: hotKeyStore,
         currencyRateStore: currencyRateStore,
         launchAtLoginStore: launchAtLoginStore,
