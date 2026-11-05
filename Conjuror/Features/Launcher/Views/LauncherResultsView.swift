@@ -62,6 +62,7 @@ struct LauncherResultsView: View {
         case .application(let application):
           ApplicationResultRow(
             application: application,
+            alias: store.alias(for: application),
             layout: layout,
             isSelected: store.selectedResultID == result.id,
             onHover: { store.selectOnHover(result.id) },

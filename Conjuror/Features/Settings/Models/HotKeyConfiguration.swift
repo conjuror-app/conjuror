@@ -1,6 +1,6 @@
 import Carbon.HIToolbox
 
-struct HotKeyConfiguration: Equatable {
+struct HotKeyConfiguration: Codable, Equatable {
   static let defaultValue = HotKeyConfiguration(
     keyCode: UInt32(kVK_Space),
     modifiers: UInt32(optionKey),

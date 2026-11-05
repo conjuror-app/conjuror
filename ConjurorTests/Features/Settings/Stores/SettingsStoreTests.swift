@@ -78,6 +78,94 @@ struct SettingsStoreTests {
     #expect(SettingsStore(userDefaults: defaults).excludedApplications.isEmpty)
   }
 
+  @Test("App aliases and hotkeys persist, and clearing both removes the app")
+  func testApplicationCustomizationsPersist() {
+    let userDefaults = makeTestUserDefaults()
+    let store = SettingsStore(userDefaults: userDefaults)
+    let code = application("Visual Studio Code", id: "com.microsoft.VSCode")
+    let hotKey = HotKeyConfiguration(keyCode: 9, modifiers: 2_048, displayName: "⌥ V")
+
+    #expect(store.setAlias(" vs ", for: code) == nil)
+    store.setApplicationHotKey(hotKey, for: code)
+
+    let reloaded = SettingsStore(userDefaults: userDefaults)
+    #expect(
+      reloaded.applicationCustomizations[code.persistenceKey]
+        == ApplicationCustomization(
+          name: "Visual Studio Code",
+          bundleIdentifier: "com.microsoft.VSCode",
+          alias: "vs",
+          hotKey: hotKey
+        )
+    )
+
+    #expect(reloaded.setAlias("", for: code) == nil)
+    reloaded.setApplicationHotKey(nil, for: code)
+    #expect(reloaded.applicationCustomizations.isEmpty)
+    #expect(SettingsStore(userDefaults: userDefaults).applicationCustomizations.isEmpty)
+  }
+
+  @Test("Invalid aliases are rejected without saving", arguments: ["VS", "v s", ">vs", "/vs"])
+  func testInvalidAliases(alias: String) {
+    let store = SettingsStore(userDefaults: makeTestUserDefaults())
+    let code = application("Visual Studio Code", id: "com.microsoft.VSCode")
+    let studio = application("Android Studio", id: "com.google.android.studio")
+    #expect(store.setAlias("vs", for: code) == nil)
+
+    #expect(store.setAlias(alias, for: studio) != nil)
+    #expect(store.applicationCustomizations[studio.persistenceKey] == nil)
+    #expect(store.setAlias("VS", for: code) == nil)
+  }
+
+  @Test("Customizations follow a deleted app to its only reinstalled copy")
+  func testRelocation() {
+    let store = SettingsStore(userDefaults: makeTestUserDefaults())
+    let old = application("Code", id: "com.microsoft.VSCode", path: "/Applications/Code.app")
+    let moved = application(
+      "Code",
+      id: "com.microsoft.VSCode",
+      path: "/Users/me/Applications/Code.app"
+    )
+    #expect(store.setAlias("vs", for: old) == nil)
+
+    #expect(!store.relocateApplicationCustomizations(installed: [moved], fileExists: { _ in true }))
+    #expect(store.relocateApplicationCustomizations(installed: [moved], fileExists: { _ in false }))
+    #expect(store.applicationCustomizations.keys.sorted() == [moved.persistenceKey])
+    #expect(store.applicationCustomizations[moved.persistenceKey]?.alias == "vs")
+  }
+
+  @Test("Customizations stay put when the new copy is ambiguous, taken, or on another volume")
+  func testRelocationIsConservative() {
+    let id = "com.microsoft.VSCode"
+    let old = application("Code", id: id, path: "/Applications/Code.app")
+    let first = application("Code", id: id, path: "/Users/me/Applications/Code.app")
+    let second = application("Code", id: id, path: "/Users/me/Downloads/Code.app")
+    let external = application("Code", id: id, path: "/Volumes/External/Applications/Code.app")
+
+    let ambiguous = SettingsStore(userDefaults: makeTestUserDefaults())
+    #expect(ambiguous.setAlias("vs", for: old) == nil)
+    #expect(
+      !ambiguous.relocateApplicationCustomizations(
+        installed: [first, second],
+        fileExists: { _ in false }
+      )
+    )
+
+    let taken = SettingsStore(userDefaults: makeTestUserDefaults())
+    #expect(taken.setAlias("vs", for: old) == nil)
+    #expect(taken.setAlias("code", for: first) == nil)
+    #expect(
+      !taken.relocateApplicationCustomizations(installed: [first], fileExists: { _ in false })
+    )
+
+    let unmounted = SettingsStore(userDefaults: makeTestUserDefaults())
+    #expect(unmounted.setAlias("vs", for: external) == nil)
+    #expect(
+      !unmounted.relocateApplicationCustomizations(installed: [first], fileExists: { _ in false })
+    )
+    #expect(unmounted.applicationCustomizations[external.persistenceKey] != nil)
+  }
+
   @Test("Existing hotkey persistence keys remain compatible")
   func testLoadsExistingHotKeyPersistenceKeys() {
     let userDefaults = makeTestUserDefaults()
@@ -132,6 +220,18 @@ struct SettingsStoreTests {
 
     store.resetMaximumVisibleResults()
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
+  }
+
+  private func application(
+    _ name: String,
+    id: String,
+    path: String? = nil
+  ) -> InstalledApplication {
+    InstalledApplication(
+      displayName: name,
+      bundleIdentifier: id,
+      url: URL(fileURLWithPath: path ?? "/Applications/\(name).app")
+    )
   }
 }
 

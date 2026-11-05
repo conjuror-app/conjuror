@@ -161,6 +161,54 @@ struct ApplicationRankerTests {
     #expect(Set([original, linked]).count == 1)
   }
 
+  @Test("An exact alias ranks its app above exact names and recent launches")
+  func testExactAliasRanksFirst() {
+    let visualStudioCode = application("Visual Studio Code", id: "com.microsoft.VSCode")
+    let exactName = application("VS", id: "dev.example.vs")
+    let recentToken = application("My VS Tool", id: "dev.example.token")
+
+    let result = SearchIndex(
+      [exactName, recentToken, visualStudioCode],
+      aliases: [visualStudioCode.persistenceKey: "VS"]
+    ).ranked(
+      query: "vs",
+      recency: [recentToken.persistenceKey: Date(), exactName.persistenceKey: Date()]
+    )
+
+    #expect(result.first == visualStudioCode)
+    #expect(result.dropFirst().first == exactName)
+  }
+
+  @Test("A partial alias ranks as a name prefix, ordered by recency")
+  func testPartialAliasMatchesAsPrefix() {
+    let terminal = application("Terminal", id: "com.apple.Terminal")
+    let safari = application("Safari", id: "com.apple.Safari")
+    let exactName = application("S", id: "dev.example.s")
+    let substring = application("Notes", id: "com.apple.Notes")
+    let applications = [substring, terminal, safari, exactName]
+    let aliases = [terminal.persistenceKey: "sh"]
+
+    let withoutRecency = SearchIndex(applications, aliases: aliases)
+      .ranked(query: "s", recency: [:])
+    let withRecency = SearchIndex(applications, aliases: aliases)
+      .ranked(query: "s", recency: [terminal.persistenceKey: Date()])
+
+    #expect(withoutRecency.map(\.displayName) == ["S", "Safari", "Terminal", "Notes"])
+    #expect(withRecency.map(\.displayName) == ["S", "Terminal", "Safari", "Notes"])
+    #expect(!SearchIndex(applications).ranked(query: "s", recency: [:]).contains(terminal))
+  }
+
+  @Test("Aliases match regardless of case and diacritics")
+  func testAliasNormalization() {
+    let terminal = application("Terminal", id: "com.apple.Terminal")
+    let other = application("Térm Notes", id: "dev.example.notes")
+
+    let result = SearchIndex([other, terminal], aliases: [terminal.persistenceKey: "Tërm"])
+      .ranked(query: "TERM", recency: [:])
+
+    #expect(result.first == terminal)
+  }
+
   private func application(
     _ name: String,
     id: String?,

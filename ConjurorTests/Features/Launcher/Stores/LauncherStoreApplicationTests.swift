@@ -62,6 +62,33 @@ extension LauncherStoreTests {
     #expect(store.selectedResultID == .application(stable.id))
   }
 
+  @Test("Alias changes immediately update results, and excluded apps stay hidden")
+  func testAliasesUpdateResults() async {
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    let code = application("Visual Studio Code", id: "com.microsoft.VSCode")
+    let viewer = application("VS Viewer", id: "dev.example.viewer")
+    let store = makeStore(applications: [viewer, code], settingsStore: settings)
+    store.loadApplications()
+    await waitForApplications(store)
+
+    store.query = "vs"
+    #expect(store.filteredApplications.first == viewer)
+
+    #expect(settings.setAlias("vs", for: code) == nil)
+    #expect(store.filteredApplications.first == code)
+    #expect(store.alias(for: code) == "vs")
+    #expect(store.alias(for: viewer) == nil)
+
+    settings.excludeApplication(code)
+    #expect(!store.filteredApplications.contains(code))
+    settings.removeExcludedApplication(at: code.persistenceKey)
+    #expect(store.filteredApplications.first == code)
+
+    #expect(settings.setAlias("", for: code) == nil)
+    #expect(store.filteredApplications.first == viewer)
+    #expect(store.alias(for: code) == nil)
+  }
+
   @Test("Saved exclusions survive catalog reloads and mode changes")
   func testSavedExclusionsSurviveReloadsAndModes() async {
     let defaults = makeTestUserDefaults()

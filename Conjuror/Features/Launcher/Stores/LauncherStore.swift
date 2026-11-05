@@ -126,7 +126,9 @@ final class LauncherStore: ObservableObject {
   private let applicationLoader = CatalogLoader<InstalledApplication>()
   private let shortcutsLoader = CatalogLoader<AppleShortcut>()
   private var excludedApplicationPaths = Set<String>()
-  private var exclusionSubscription: AnyCancellable?
+  /// Aliases by canonical installation path.
+  private var applicationAliases = [String: String]()
+  private var applicationSettingsSubscription: AnyCancellable?
   private var showsSystemCommands = true
   private var systemCommandsSubscription: AnyCancellable?
   /// The optional items in the application search index, rebuilt only when they change.
@@ -229,11 +231,14 @@ final class LauncherStore: ObservableObject {
     quicklinkUses = quicklinkHistory.load()
     self.onEvent = onEvent
 
-    exclusionSubscription = settingsStore.$excludedApplications
-      .sink { [weak self] exclusions in
+    // Published values arrive before the store's properties change, so use the emitted ones.
+    applicationSettingsSubscription = settingsStore.$excludedApplications
+      .combineLatest(settingsStore.$applicationCustomizations)
+      .sink { [weak self] exclusions, customizations in
         guard let self else { return }
 
         excludedApplicationPaths = Set(exclusions.keys)
+        applicationAliases = customizations.compactMapValues(\.alias)
         catalogComposition = nil
         refreshApplications()
         reloadRunningApplications()
@@ -336,6 +341,11 @@ final class LauncherStore: ObservableObject {
         if mode == .shortcuts { selectFirstResult() }
       }
     )
+  }
+
+  /// The alias shown beside an app's result, if it has one.
+  func alias(for application: InstalledApplication) -> String? {
+    applicationAliases[application.persistenceKey]
   }
 
   func select(_ id: LauncherResultID) {
@@ -900,7 +910,7 @@ final class LauncherStore: ObservableObject {
         results += SystemCommand.allCases.map(ApplicationSearchResult.systemCommand)
       }
 
-      applicationController.replace(results)
+      applicationController.replace(results, aliases: applicationAliases)
       catalogComposition = composition
     }
 

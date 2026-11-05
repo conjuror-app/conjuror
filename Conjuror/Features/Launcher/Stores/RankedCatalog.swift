@@ -12,8 +12,8 @@ final class RankedCatalog<Item: SearchIndexable> {
     recentUses = history.load()
   }
 
-  func replace(_ items: [Item]) {
-    index = SearchIndex(items)
+  func replace(_ items: [Item], aliases: [String: String] = [:]) {
+    index = SearchIndex(items, aliases: aliases)
   }
 
   func ranked(query: String) -> [Item] {

@@ -44,16 +44,30 @@ struct SearchIndex<Item> {
     return lhs.candidate.stableKey < rhs.candidate.stableKey
   }
 
+  /// An exact alias ranks above every name match, and a partial alias counts as a name prefix.
+  private static func aliasRank(for normalizedAlias: String, query: SearchQuery) -> SearchMatchRank?
+  {
+    guard !query.normalized.isEmpty else { return nil }
+
+    if normalizedAlias == query.normalized { return .alias }
+
+    if normalizedAlias.hasPrefix(query.normalized) { return SearchMatchRank(category: 1) }
+
+    return nil
+  }
+
   private let items: [Item]
   private let candidates: [SearchableCandidate]
 
-  init(candidates: [Candidate]) {
+  /// `aliases` maps a candidate's `recencyKey` to an alias typed in place of its name.
+  init(candidates: [Candidate], aliases: [String: String] = [:]) {
     items = candidates.map(\.item)
     self.candidates = candidates.enumerated().map { index, candidate in
       SearchableCandidate(
         itemIndex: index,
         name: SearchableName(candidate.name),
         normalizedSecondaryText: SearchText.normalized(candidate.secondaryText),
+        normalizedAlias: aliases[candidate.recencyKey].map(SearchText.normalized),
         recencyKey: candidate.recencyKey,
         fallbackRecencyKey: candidate.fallbackRecencyKey,
         stableKey: candidate.stableKey
@@ -66,11 +80,13 @@ struct SearchIndex<Item> {
     let query = SearchQuery(query)
 
     return candidates.compactMap { candidate -> RankedCandidate? in
-      guard
-        let rank = candidate.name.matchRank(
-          for: query,
-          normalizedSecondaryText: candidate.normalizedSecondaryText
-        ),
+      let nameRank = candidate.name.matchRank(
+        for: query,
+        normalizedSecondaryText: candidate.normalizedSecondaryText
+      )
+      let aliasRank = candidate.normalizedAlias.flatMap { Self.aliasRank(for: $0, query: query) }
+
+      guard let rank = [nameRank, aliasRank].compactMap({ $0 }).min(),
         rank.category <= maximumCategory ?? .max
       else { return nil }
 
@@ -87,8 +103,8 @@ struct SearchIndex<Item> {
 }
 
 extension SearchIndex where Item: SearchIndexable {
-  init(_ items: [Item]) {
-    self.init(candidates: items.map(\.searchCandidate))
+  init(_ items: [Item], aliases: [String: String] = [:]) {
+    self.init(candidates: items.map(\.searchCandidate), aliases: aliases)
   }
 }
 
@@ -102,6 +118,7 @@ private extension SearchIndex {
     let itemIndex: Int
     let name: SearchableName
     let normalizedSecondaryText: String
+    let normalizedAlias: String?
     let recencyKey: String
     let fallbackRecencyKey: String?
     let stableKey: String
@@ -231,6 +248,8 @@ struct SearchQuery {
 
 struct SearchMatchRank: Equatable, Comparable {
   static let unmatched = SearchMatchRank(category: .max)
+  /// An exact alias match, ranked above an exact name match.
+  static let alias = SearchMatchRank(category: -1)
 
   static func < (lhs: SearchMatchRank, rhs: SearchMatchRank) -> Bool {
     lhs.category == rhs.category ? lhs.score < rhs.score : lhs.category < rhs.category
