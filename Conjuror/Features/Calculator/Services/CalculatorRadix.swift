@@ -1,69 +1,5 @@
 import Foundation
 
-struct CalculatorRadixEvaluator {
-  func evaluate(_ expression: String) -> CalculatorResult? {
-    let trimmedExpression = CalculatorInput.trimmed(expression)
-
-    guard !trimmedExpression.isEmpty else {
-      return nil
-    }
-
-    let canonicalExpression = CalculatorInput.normalizeConversion(
-      trimmedExpression,
-      lowercased: true
-    )
-    let parts = canonicalExpression.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-
-    let sourceText: String
-    let sourceRadix: CalculatorRadix
-    let targetRadix: CalculatorRadix
-
-    switch parts.count {
-    case 1:
-      sourceText = parts[0]
-
-      guard let inferredRadix = CalculatorRadix.inferred(from: sourceText),
-        inferredRadix != .decimal
-      else {
-        return nil
-      }
-
-      sourceRadix = inferredRadix
-      targetRadix = .decimal
-    case 3:
-      sourceText = parts[0]
-
-      guard parts[1] == "to" || parts[1] == "in",
-        let parsedTargetRadix = CalculatorRadix(alias: parts[2])
-      else {
-        return nil
-      }
-
-      sourceRadix = CalculatorRadix.inferred(from: sourceText) ?? .decimal
-      targetRadix = parsedTargetRadix
-    default:
-      return nil
-    }
-
-    guard sourceRadix != targetRadix,
-      let value = sourceRadix.parse(sourceText),
-      let sourceDisplay = sourceRadix.format(value),
-      let display = targetRadix.format(value)
-    else {
-      return nil
-    }
-
-    return CalculatorResult(
-      expression: trimmedExpression,
-      display: display,
-      copyText: display,
-      sourceDisplay: sourceDisplay,
-      sourceBadge: sourceRadix.badge,
-      targetBadge: targetRadix.badge
-    )
-  }
-}
-
 private enum CalculatorRadix: Int {
   case binary = 2
   case octal = 8
@@ -155,5 +91,69 @@ private enum CalculatorRadix: Int {
     let digits = String(magnitude, radix: rawValue, uppercase: self == .hexadecimal)
 
     return (value < 0 ? "-" : "") + prefix + digits
+  }
+}
+
+struct CalculatorRadixEvaluator {
+  func evaluate(_ expression: String) -> CalculatorResult? {
+    let trimmedExpression = CalculatorInput.trimmed(expression)
+
+    guard !trimmedExpression.isEmpty else {
+      return nil
+    }
+
+    let canonicalExpression = CalculatorInput.normalizeConversion(
+      trimmedExpression,
+      lowercased: true
+    )
+    let parts = canonicalExpression.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+
+    let sourceText: String
+    let sourceRadix: CalculatorRadix
+    let targetRadix: CalculatorRadix
+
+    switch parts.count {
+    case 1:
+      sourceText = parts[0]
+
+      guard let inferredRadix = CalculatorRadix.inferred(from: sourceText),
+        inferredRadix != .decimal
+      else {
+        return nil
+      }
+
+      sourceRadix = inferredRadix
+      targetRadix = .decimal
+    case 3:
+      sourceText = parts[0]
+
+      guard parts[1] == "to" || parts[1] == "in",
+        let parsedTargetRadix = CalculatorRadix(alias: parts[2])
+      else {
+        return nil
+      }
+
+      sourceRadix = CalculatorRadix.inferred(from: sourceText) ?? .decimal
+      targetRadix = parsedTargetRadix
+    default:
+      return nil
+    }
+
+    guard sourceRadix != targetRadix,
+      let value = sourceRadix.parse(sourceText),
+      let sourceDisplay = sourceRadix.format(value),
+      let display = targetRadix.format(value)
+    else {
+      return nil
+    }
+
+    return CalculatorResult(
+      expression: trimmedExpression,
+      display: display,
+      copyText: display,
+      sourceDisplay: sourceDisplay,
+      sourceBadge: sourceRadix.badge,
+      targetBadge: targetRadix.badge
+    )
   }
 }
