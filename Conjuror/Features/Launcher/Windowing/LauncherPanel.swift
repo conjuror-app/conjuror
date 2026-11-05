@@ -5,6 +5,7 @@ final class LauncherPanel: NSPanel {
   var onMoveSelection: ((MoveCommandDirection) -> Void)?
   var onCycleMode: (() -> Void)?
   var onRevealSelection: (() -> Void)?
+  var onOpenWebSearch: (() -> Void)?
   var allowsHorizontalNavigation: (() -> Bool)?
   var handlesRunningApplicationCommands: (() -> Bool)?
   var onRunningApplicationCommand: ((RunningApplicationCommand) -> Void)?
@@ -38,6 +39,18 @@ final class LauncherPanel: NSPanel {
       )
     {
       onRevealSelection?()
+
+      return
+    }
+
+    // Always consumed, so Option-Return never inserts a line break in the search field.
+    if event.type == .keyDown,
+      LauncherKeyboardNavigation.opensWebSearch(
+        keyCode: event.keyCode,
+        modifiers: event.modifierFlags
+      )
+    {
+      onOpenWebSearch?()
 
       return
     }

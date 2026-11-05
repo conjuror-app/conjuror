@@ -30,6 +30,11 @@ enum LauncherKeyboardNavigation {
     isARepeat && [kVK_Return, kVK_ANSI_KeypadEnter].contains(Int(keyCode))
   }
 
+  static func opensWebSearch(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) -> Bool {
+    [kVK_Return, kVK_ANSI_KeypadEnter].contains(Int(keyCode))
+      && relevantModifiers(modifiers) == .option
+  }
+
   /// Running app commands use Command so they never reach the search field. Command-Q still
   /// quits Conjuror and Command-Return still reveals the selection.
   static func runningApplicationCommand(

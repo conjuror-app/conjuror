@@ -87,6 +87,7 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.filteredResults.count + (store.calculatorResult == nil ? 0 : 1)
+        + store.quicklinkResultCount
     case .emoji:
       store.displayedEmoji.count
     case .files:

@@ -207,6 +207,13 @@
                   "path": "Services",
                   "children": [
                     { "path": "QuicklinkMatcher.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "QuicklinkOpener.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "QuicklinkResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                   ],
                 },
               ],
@@ -442,6 +449,7 @@
                   "children": [
                     { "path": "LauncherStoreApplicationTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreEmojiTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreQuicklinkTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreRunningApplicationTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreShortcutTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreSystemCommandTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
