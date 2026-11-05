@@ -4,6 +4,8 @@
 
 - Added system commands such as Lock Screen, Sleep, Restart, and Empty Trash to application search, and `!` to list them, with confirmation for Empty Trash and Eject All Disks.
 - Ignored held Return key repeats in the launcher.
+- Added quicklinks that open URLs from the launcher. Use keywords such as `gh swift testing` and choose the app each one opens in.
+- Added a web search row at the end of app results, opened with Return or ⌥Return, using a search engine chosen in Settings.
 - Added a running apps mode: type `@` to switch to, hide, quit, force quit, or relaunch running apps.
 - Added ⌘Return to reveal the selected app or file in Finder.
 - Added `now + 2 hours` and `now - 3 days` relative dates, and seconds as a relative date unit.

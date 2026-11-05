@@ -1,8 +1,8 @@
 # Conjuror
 
-Conjuror is a macOS launcher for opening apps and files, managing running apps,
-running Apple Shortcuts and system commands, copying emoji, and doing calculations
-and conversions.
+Conjuror is a macOS launcher for opening apps, files, and links, managing running
+apps, running Apple Shortcuts and system commands, copying emoji, and doing
+calculations and conversions.
 
 ## Installation
 
@@ -57,6 +57,24 @@ Use `to`, `in`, `->`, or `→` for conversions. Currency conversion is off by de
 Enable it in Settings to download daily exchange rates from
 [Frankfurter](https://frankfurter.dev). Conjuror never sends your search text.
 Cached rates work offline; turning currency conversion off deletes the cache.
+
+### Quicklinks and web search
+
+Quicklinks open saved URLs from the launcher. Type a quicklink's keyword followed by
+search text, such as `gh swift testing`, to search GitHub for "swift testing". Typing
+part of a quicklink's name also finds it, listed after matching apps. Pressing Return on
+a keyword with no search text fills in the keyword so you can keep typing.
+
+The last row searches the web for whatever you typed. Press `⌥ Return` to choose it
+from any row. Choose the search engine, or turn the row off, in Settings → Quicklinks.
+
+Conjuror comes with Google (`g`), DuckDuckGo (`ddg`), GitHub (`gh`), and Wikipedia
+(`wiki`). Add, edit, or remove quicklinks in Settings → Quicklinks. Put `{query}` in a
+URL where the search text goes, as in `https://kagi.com/search?q={query}`. A URL
+without `{query}` opens as it is. Each quicklink opens in the default app for its URL
+or in an app you choose. "Restore Built-ins" adds back any built-in you removed.
+
+Search text is only sent to a site when you open one of its quicklinks.
 
 ### Apple Shortcuts
 
