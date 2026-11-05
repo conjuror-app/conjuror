@@ -239,8 +239,25 @@ private struct AppsSettingsView: View {
           .lineLimit(2)
       }
 
-      ExcludedApplicationsView(store: store, launcherStore: launcherStore)
-        .frame(maxHeight: .infinity)
+      Picker("App list", selection: $appList) {
+        ForEach(AppList.allCases) { Text($0.title).tag($0) }
+      }
+      .pickerStyle(.segmented)
+      .labelsHidden()
+
+      Group {
+        switch appList {
+        case .customizations:
+          ApplicationCustomizationsView(
+            store: store,
+            launcherStore: launcherStore,
+            hotKeyStore: hotKeyStore
+          )
+        case .excluded:
+          ExcludedApplicationsView(store: store, launcherStore: launcherStore)
+        }
+      }
+      .frame(maxHeight: .infinity)
 
       HStack {
         Spacer()
@@ -254,6 +271,21 @@ private struct AppsSettingsView: View {
   }
 
   @State private var hotKeyErrorMessage: String?
+  @State private var appList = AppList.customizations
+}
+
+private enum AppList: CaseIterable, Identifiable {
+  case customizations
+  case excluded
+
+  var id: Self { self }
+
+  var title: String {
+    switch self {
+    case .customizations: "Aliases & Hotkeys"
+    case .excluded: "Excluded"
+    }
+  }
 }
 
 private struct ShortcutsSettingsView: View {

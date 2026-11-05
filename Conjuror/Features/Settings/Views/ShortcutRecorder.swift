@@ -3,7 +3,8 @@ import Carbon.HIToolbox
 import SwiftUI
 
 struct ShortcutRecorder: NSViewRepresentable {
-  let configuration: HotKeyConfiguration
+  /// `nil` shows a prompt to record one.
+  let configuration: HotKeyConfiguration?
   let onChange: (HotKeyConfiguration) -> Bool
   let onRecordingChange: (Bool) -> Void
 
@@ -108,12 +109,12 @@ private final class ShortcutRecorderButton: NSButton {
     }
   }
 
-  var configuration: HotKeyConfiguration {
+  var configuration: HotKeyConfiguration? {
     didSet {
       guard !isRecording else {
         return
       }
-      title = configuration.displayName
+      title = idleTitle
     }
   }
 
@@ -124,8 +125,12 @@ private final class ShortcutRecorderButton: NSButton {
 
   private var isRecording = false
 
+  private var idleTitle: String {
+    configuration?.displayName ?? "Record Shortcut"
+  }
+
   init(
-    configuration: HotKeyConfiguration,
+    configuration: HotKeyConfiguration?,
     onChange: @escaping (HotKeyConfiguration) -> Bool,
     onRecordingChange: @escaping (Bool) -> Void
   ) {
@@ -134,7 +139,7 @@ private final class ShortcutRecorderButton: NSButton {
     self.onRecordingChange = onRecordingChange
     super.init(frame: .zero)
 
-    title = configuration.displayName
+    title = idleTitle
     bezelStyle = .rounded
     setButtonType(.momentaryPushIn)
     target = self
@@ -194,7 +199,7 @@ private final class ShortcutRecorderButton: NSButton {
     title = "Press shortcut…"
     guard window?.makeFirstResponder(self) == true else {
       isRecording = false
-      title = configuration.displayName
+      title = idleTitle
       return
     }
     onRecordingChange(true)
@@ -205,7 +210,7 @@ private final class ShortcutRecorderButton: NSButton {
       return
     }
     isRecording = false
-    title = configuration.displayName
+    title = idleTitle
     onRecordingChange(false)
   }
 }

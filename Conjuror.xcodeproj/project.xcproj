@@ -275,6 +275,8 @@
                   "path": "Views",
                   "children": [
                     { "path": "AboutSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationCustomizationsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ApplicationPickerSheet.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "CalculatorSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ExcludedApplicationsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "EmojiSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
