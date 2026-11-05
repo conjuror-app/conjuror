@@ -17,6 +17,14 @@ struct RecencyStore {
     )
   }
 
+  static func quicklinkOpens(userDefaults: UserDefaults = .standard) -> Self {
+    Self(
+      storageKey: "recentQuicklinkOpens",
+      limit: 50,
+      userDefaults: userDefaults
+    )
+  }
+
   private let storageKey: UserDefaultsKey<[String: Double]>
   private let limit: Int
   private let userDefaults: UserDefaults

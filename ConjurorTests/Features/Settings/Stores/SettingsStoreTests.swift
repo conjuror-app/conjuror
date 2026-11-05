@@ -134,3 +134,75 @@ struct SettingsStoreTests {
     #expect(store.maximumVisibleResults == SettingsStore.defaultMaximumVisibleResults)
   }
 }
+
+@MainActor
+extension SettingsStoreTests {
+  @Test("Quicklink edits persist, and removed built-ins stay removed")
+  func testQuicklinkEditsPersist() throws {
+    let userDefaults = makeTestUserDefaults()
+    let store = SettingsStore(userDefaults: userDefaults)
+    let github = try #require(store.quicklinks.first { $0.keyword == "gh" })
+    let kagi = Quicklink(
+      name: "Kagi",
+      keyword: "k",
+      urlTemplate: "https://kagi.com/search?q={query}"
+    )
+
+    #expect(store.quicklinks == Quicklink.builtIns)
+    #expect(store.webSearchQuicklink?.name == "DuckDuckGo")
+
+    store.removeQuicklink(id: github.id)
+    #expect(store.saveQuicklink(kagi) == nil)
+    store.setWebSearchQuicklink(id: kagi.id)
+
+    let reloaded = SettingsStore(userDefaults: userDefaults)
+    #expect(reloaded.quicklinks == Quicklink.builtIns.filter { $0.id != github.id } + [kagi])
+    #expect(reloaded.webSearchQuicklink == kagi)
+  }
+
+  @Test("The web search fallback turns off when its quicklink can no longer search")
+  func testWebSearchFallbackTurnsOff() throws {
+    let userDefaults = makeTestUserDefaults()
+    let store = SettingsStore(userDefaults: userDefaults)
+    let engine = try #require(store.webSearchQuicklink)
+
+    let withoutPlaceholder = Quicklink(
+      id: engine.id,
+      name: engine.name,
+      keyword: engine.keyword,
+      urlTemplate: "https://duckduckgo.com"
+    )
+    #expect(store.saveQuicklink(withoutPlaceholder) == nil)
+
+    #expect(store.webSearchQuicklinkID == nil)
+    #expect(SettingsStore(userDefaults: userDefaults).webSearchQuicklink == nil)
+  }
+
+  @Test("Restoring built-ins keeps edits and leaves taken keywords with their new owner")
+  func testRestoreBuiltInQuicklinks() throws {
+    let store = SettingsStore(userDefaults: makeTestUserDefaults())
+    let google = try #require(store.quicklinks.first { $0.keyword == "g" })
+    let github = try #require(store.quicklinks.first { $0.keyword == "gh" })
+    let renamedGoogle = Quicklink(
+      id: google.id,
+      name: "Google UK",
+      keyword: "g",
+      urlTemplate: "https://www.google.co.uk/search?q={query}"
+    )
+    let gitHubEnterprise = Quicklink(
+      name: "GitHub Enterprise",
+      keyword: "gh",
+      urlTemplate: "https://github.example.com/search?q={query}"
+    )
+
+    #expect(store.saveQuicklink(renamedGoogle) == nil)
+    store.removeQuicklink(id: github.id)
+    #expect(store.saveQuicklink(gitHubEnterprise) == nil)
+    store.restoreBuiltInQuicklinks()
+
+    let restoredGitHub = try #require(store.quicklinks.first { $0.id == github.id })
+    #expect(store.quicklinks.first { $0.id == google.id } == renamedGoogle)
+    #expect(restoredGitHub.keyword == nil)
+    #expect(store.quicklinks.count == Quicklink.builtIns.count + 1)
+  }
+}
