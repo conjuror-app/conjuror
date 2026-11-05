@@ -42,6 +42,14 @@ Type an app's name to find and open it. Use Settings → Apps → Excluded apps 
 individual installations from search and recent results. Remove an exclusion to show
 the app again. Exclusions use the app's path, so moving an app requires excluding it again.
 
+Give an app an alias or a hotkey in Settings → Apps → Aliases & Hotkeys. Typing an
+alias, such as `vs` for Visual Studio Code, ranks that app first, and typing the start
+of an alias also finds it. Each app's alias appears beside it in results. A hotkey
+opens or switches to the app without showing Conjuror, and hides the app if it's
+already in front. An alias does nothing while its app is excluded, but its hotkey still
+works. Aliases and hotkeys follow an app that moves, as long as only one copy is
+installed.
+
 Calculations appear above matching apps.
 Select a calculation result to copy it and close the launcher.
 

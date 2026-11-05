@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added app aliases: type a short keyword such as `vs` to rank its app first.
+- Added per-app hotkeys that open or switch to an app, or hide it when it's already in front.
+- Kept other hotkeys working when one can't be registered.
 - Added system commands such as Lock Screen, Sleep, Restart, and Empty Trash to application search, and `!` to list them, with confirmation for Empty Trash and Eject All Disks.
 - Ignored held Return key repeats in the launcher.
 - Added quicklinks that open URLs from the launcher. Use keywords such as `gh swift testing` and choose the app each one opens in.
