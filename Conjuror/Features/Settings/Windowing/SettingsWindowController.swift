@@ -3,7 +3,17 @@ import SwiftUI
 
 @MainActor
 final class SettingsWindowController: NSWindowController, NSWindowDelegate {
-  private static let windowSize = NSSize(width: 640, height: 420)
+  private static let windowSize = NSSize(width: 640, height: 560)
+  /// Tall enough for the Apps pane's lists. The width is fixed; only the height resizes.
+  private static let minimumWindowSize = NSSize(width: 640, height: 500)
+
+  /// Keeps the fixed width and at least the minimum height.
+  private static func constrained(_ size: NSSize) -> NSSize {
+    NSSize(
+      width: minimumWindowSize.width,
+      height: max(size.height, minimumWindowSize.height)
+    )
+  }
 
   private let onClose: () -> Void
 
@@ -18,7 +28,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     self.onClose = onClose
     let window = NSWindow(
       contentRect: NSRect(origin: .zero, size: Self.windowSize),
-      styleMask: [.titled, .closable],
+      styleMask: [.titled, .closable, .resizable],
       backing: .buffered,
       defer: false
     )
@@ -26,7 +36,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     window.isReleasedWhenClosed = false
     window.animationBehavior = .documentWindow
     window.collectionBehavior = [.moveToActiveSpace]
-    window.contentViewController = NSHostingController(
+    let hostingController = NSHostingController(
       rootView: SettingsView(
         store: store,
         launcherStore: launcherStore,
@@ -35,7 +45,20 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         launchAtLoginStore: launchAtLoginStore
       )
     )
+    // The window's size limits apply, rather than the SwiftUI content's.
+    hostingController.sizingOptions = []
+    window.contentViewController = hostingController
+    window.contentMinSize = Self.minimumWindowSize
+    window.contentMaxSize = NSSize(
+      width: Self.minimumWindowSize.width,
+      height: .greatestFiniteMagnitude
+    )
     window.setContentSize(Self.windowSize)
+    window.setFrameAutosaveName("Settings")
+    // A restored frame keeps its height, but never a different width.
+    window.setContentSize(
+      Self.constrained(window.contentRect(forFrameRect: window.frame).size)
+    )
 
     super.init(window: window)
     window.delegate = self
@@ -58,6 +81,16 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     NSApp.activate(ignoringOtherApps: true)
     window.makeKeyAndOrderFront(nil)
     window.makeFirstResponder(nil)
+  }
+
+  func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+    let contentSize = sender.contentRect(
+      forFrameRect: NSRect(origin: .zero, size: frameSize)
+    ).size
+
+    return sender.frameRect(
+      forContentRect: NSRect(origin: .zero, size: Self.constrained(contentSize))
+    ).size
   }
 
   func windowWillClose(_ notification: Notification) {
