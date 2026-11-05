@@ -1,13 +1,16 @@
 import Carbon.HIToolbox
 import Foundation
+import Synchronization
 
 final class GlobalHotKey {
   private static let signature: OSType = 0x434F_4E4A  // CONJ
+  /// Gives each hot key its own ID, so handlers never respond to another hot key's presses.
+  private static let lastIdentifier = Atomic<UInt32>(0)
 
   private var eventHandler: EventHandlerRef?
   private var hotKey: EventHotKeyRef?
   private let handler: () -> Void
-  private let identifier = UInt32.random(in: 1...UInt32.max)
+  private let identifier = GlobalHotKey.lastIdentifier.add(1, ordering: .relaxed).newValue
 
   init(
     configuration: HotKeyConfiguration,
