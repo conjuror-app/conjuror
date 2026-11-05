@@ -28,6 +28,9 @@ final class SettingsStore: ObservableObject {
     static let quicklinks = UserDefaultsKey<Data>("settings.quicklinks")
     /// An empty string turns the web search fallback off.
     static let webSearchQuicklinkID = UserDefaultsKey<String>("settings.webSearchQuicklinkID")
+    static let applicationCustomizations = UserDefaultsKey<Data>(
+      "settings.applicationCustomizations"
+    )
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       let (prefix, initialized): (String, String?) =
@@ -87,6 +90,8 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var launcherAppearance: LauncherAppearance
   @Published private(set) var quicklinks: [Quicklink]
   @Published private(set) var webSearchQuicklinkID: Quicklink.ID?
+  /// Aliases and hot keys by canonical installation path, including apps no longer installed.
+  @Published private(set) var applicationCustomizations: [String: ApplicationCustomization]
 
   var hotKeyConfiguration: HotKeyConfiguration {
     hotKeyConfigurations[.launcher] ?? .defaultValue
@@ -149,6 +154,10 @@ final class SettingsStore: ObservableObject {
     webSearchQuicklinkID =
       userDefaults.value(for: Key.webSearchQuicklinkID)
       .map(UUID.init(uuidString:)) ?? Quicklink.defaultWebSearchID
+    applicationCustomizations =
+      userDefaults.value(for: Key.applicationCustomizations)
+      .flatMap { try? JSONDecoder().decode([String: ApplicationCustomization].self, from: $0) }
+      ?? [:]
 
     for action in uninitializedActions {
       persistHotKey(hotKeyConfigurations[action], for: action)
@@ -202,6 +211,76 @@ final class SettingsStore: ObservableObject {
     var exclusions = excludedApplications
     exclusions.removeValue(forKey: path)
     setExcludedApplications(exclusions)
+  }
+
+  /// Saves the app's alias, returning why it can't be used instead when it's invalid. An empty
+  /// alias removes it.
+  func setAlias(_ alias: String, for application: InstalledApplication) -> String? {
+    let alias = alias.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    if !alias.isEmpty,
+      let error = ApplicationCustomization.validationError(
+        forAlias: alias,
+        path: application.persistenceKey,
+        among: applicationCustomizations
+      )
+    {
+      return error
+    }
+
+    updateCustomization(for: application) { $0.alias = alias.isEmpty ? nil : alias }
+
+    return nil
+  }
+
+  /// Stores the app's hot key. `HotKeyStore` registers it first.
+  func setApplicationHotKey(
+    _ configuration: HotKeyConfiguration?,
+    for application: InstalledApplication
+  ) {
+    updateCustomization(for: application) { $0.hotKey = configuration }
+  }
+
+  func removeApplicationCustomization(at path: String) {
+    var customizations = applicationCustomizations
+    customizations.removeValue(forKey: path)
+    setApplicationCustomizations(customizations)
+  }
+
+  /// Moves each customization of a deleted app to the one installed app with the same bundle
+  /// identifier, and returns whether any moved. Paths on other volumes stay, since an unmounted
+  /// volume's apps aren't deleted.
+  @discardableResult
+  func relocateApplicationCustomizations(
+    installed applications: [InstalledApplication],
+    fileExists: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }
+  ) -> Bool {
+    let installedPaths = Set(applications.map(\.persistenceKey))
+    let applicationsByBundleIdentifier = Dictionary(
+      grouping: applications.filter { !$0.isSystemSettingsItem && $0.bundleIdentifier != nil },
+      by: { $0.bundleIdentifier!.lowercased() }
+    )
+    var customizations = applicationCustomizations
+    var didMove = false
+
+    for (path, customization) in applicationCustomizations.sorted(by: { $0.key < $1.key })
+    where !installedPaths.contains(path) {
+      guard !path.hasPrefix("/Volumes/"), !fileExists(path),
+        let bundleIdentifier = customization.bundleIdentifier?.lowercased(),
+        let matches = applicationsByBundleIdentifier[bundleIdentifier], matches.count == 1,
+        customizations[matches[0].persistenceKey] == nil
+      else { continue }
+
+      var moved = customization
+      moved.name = matches[0].displayName
+      customizations[path] = nil
+      customizations[matches[0].persistenceKey] = moved
+      didMove = true
+    }
+
+    if didMove { setApplicationCustomizations(customizations) }
+
+    return didMove
   }
 
   func setShowsSystemSettingsItems(_ showsItems: Bool) {
@@ -286,6 +365,7 @@ final class SettingsStore: ObservableObject {
   func resetToDefaults() {
     resetMaximumVisibleResults()
     setExcludedApplications([:])
+    setApplicationCustomizations([:])
     setPreferredEmojiSkinTone(.default)
     setLauncherBorderStyle(.cyan)
     setLauncherCustomBorderColor(.default)
@@ -307,6 +387,36 @@ final class SettingsStore: ObservableObject {
     }
 
     if webSearchQuicklinkID != nil, webSearchQuicklink == nil { setWebSearchQuicklink(id: nil) }
+  }
+
+  private func setApplicationCustomizations(
+    _ customizations: [String: ApplicationCustomization]
+  ) {
+    let customizations = customizations.filter { !$0.value.isEmpty }
+    applicationCustomizations = customizations
+
+    if let data = try? JSONEncoder().encode(customizations) {
+      userDefaults.set(data, for: Key.applicationCustomizations)
+    }
+  }
+
+  private func updateCustomization(
+    for application: InstalledApplication,
+    _ change: (inout ApplicationCustomization) -> Void
+  ) {
+    let path = application.persistenceKey
+    var customization =
+      applicationCustomizations[path]
+      ?? ApplicationCustomization(
+        name: application.displayName,
+        bundleIdentifier: application.bundleIdentifier
+      )
+    customization.name = application.displayName
+    change(&customization)
+
+    var customizations = applicationCustomizations
+    customizations[path] = customization
+    setApplicationCustomizations(customizations)
   }
 
   private func persistHotKey(

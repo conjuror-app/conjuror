@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ApplicationResultRow: View {
   let application: InstalledApplication
+  /// Shown at the trailing edge, so the alias is learned by seeing it.
+  let alias: String?
   let layout: LauncherLayout
   let isSelected: Bool
   let onHover: () -> Void
@@ -11,7 +13,8 @@ struct ApplicationResultRow: View {
     SelectableResultRow(
       isSelected: isSelected,
       layout: layout,
-      accessibilityLabel: application.displayName,
+      accessibilityLabel: alias.map { "\(application.displayName), alias \($0)" }
+        ?? application.displayName,
       accessibilityHint: application.isSystemSettingsItem
         ? "Opens this section in System Settings"
         : "Opens the application",
@@ -45,6 +48,17 @@ struct ApplicationResultRow: View {
           .font(.caption2)
           .foregroundStyle(.secondary)
           .lineLimit(1)
+      }
+
+      if let alias {
+        Text(alias)
+          .font(.caption.monospaced())
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+          .padding(.horizontal, 6)
+          .padding(.vertical, 1)
+          .background(.quaternary, in: Capsule())
+          .accessibilityHidden(true)
       }
     }
   }
