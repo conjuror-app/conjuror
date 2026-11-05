@@ -61,7 +61,8 @@ struct SearchIndex<Item> {
     }
   }
 
-  func ranked(query: String, recency: [String: Date]) -> [Item] {
+  /// Matches ranked best first. `maximumCategory` drops weaker matches, such as fuzzy ones.
+  func ranked(query: String, recency: [String: Date], maximumCategory: Int? = nil) -> [Item] {
     let query = SearchQuery(query)
 
     return candidates.compactMap { candidate -> RankedCandidate? in
@@ -69,7 +70,8 @@ struct SearchIndex<Item> {
         let rank = candidate.name.matchRank(
           for: query,
           normalizedSecondaryText: candidate.normalizedSecondaryText
-        )
+        ),
+        rank.category <= maximumCategory ?? .max
       else { return nil }
 
       return RankedCandidate(

@@ -194,6 +194,24 @@
               ],
             }, {
               "kind": "group",
+              "path": "Quicklinks",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "Quicklink.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "QuicklinkMatcher.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
               "path": "RunningApplications",
               "children": [
                 {
@@ -434,6 +452,24 @@
                   "path": "Windowing",
                   "children": [
                     { "path": "LauncherWindowControllerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Quicklinks",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "QuicklinkTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "QuicklinkMatcherTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                   ],
                 },
               ],

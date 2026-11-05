@@ -25,6 +25,9 @@ final class SettingsStore: ObservableObject {
     static let launcherBorderGreen = UserDefaultsKey<Double>("settings.launcherBorderGreen")
     static let launcherBorderBlue = UserDefaultsKey<Double>("settings.launcherBorderBlue")
     static let launcherAppearance = UserDefaultsKey<String>("settings.launcherAppearance")
+    static let quicklinks = UserDefaultsKey<Data>("settings.quicklinks")
+    /// An empty string turns the web search fallback off.
+    static let webSearchQuicklinkID = UserDefaultsKey<String>("settings.webSearchQuicklinkID")
 
     static func hotKeyKeys(for action: HotKeyAction) -> HotKeyKeys {
       let (prefix, initialized): (String, String?) =
@@ -82,9 +85,16 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
   @Published private(set) var launcherAppearance: LauncherAppearance
+  @Published private(set) var quicklinks: [Quicklink]
+  @Published private(set) var webSearchQuicklinkID: Quicklink.ID?
 
   var hotKeyConfiguration: HotKeyConfiguration {
     hotKeyConfigurations[.launcher] ?? .defaultValue
+  }
+
+  /// The quicklink the web search fallback row uses, if it still exists and accepts search text.
+  var webSearchQuicklink: Quicklink? {
+    quicklinks.first { $0.id == webSearchQuicklinkID && $0.acceptsQuery }
   }
 
   @Published private var hotKeyConfigurations: [HotKeyAction: HotKeyConfiguration]
@@ -132,6 +142,13 @@ final class SettingsStore: ObservableObject {
     launcherAppearance =
       userDefaults.value(for: Key.launcherAppearance)
       .flatMap(LauncherAppearance.init(rawValue:)) ?? .standard
+    // Built-ins are used until the first edit, so removed built-ins stay removed afterwards.
+    quicklinks =
+      userDefaults.value(for: Key.quicklinks)
+      .flatMap { try? JSONDecoder().decode([Quicklink].self, from: $0) } ?? Quicklink.builtIns
+    webSearchQuicklinkID =
+      userDefaults.value(for: Key.webSearchQuicklinkID)
+      .map(UUID.init(uuidString:)) ?? Quicklink.defaultWebSearchID
 
     for action in uninitializedActions {
       persistHotKey(hotKeyConfigurations[action], for: action)
@@ -214,6 +231,54 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(color.blue, for: Key.launcherBorderBlue)
   }
 
+  /// Adds or replaces the quicklink, returning why it can't be saved instead when it's invalid.
+  func saveQuicklink(_ quicklink: Quicklink) -> String? {
+    if let error = Quicklink.validationError(for: quicklink, among: quicklinks) { return error }
+
+    var quicklinks = quicklinks
+    if let index = quicklinks.firstIndex(where: { $0.id == quicklink.id }) {
+      quicklinks[index] = quicklink
+    } else {
+      quicklinks.append(quicklink)
+    }
+    setQuicklinks(quicklinks)
+
+    return nil
+  }
+
+  func removeQuicklink(id: Quicklink.ID) {
+    setQuicklinks(quicklinks.filter { $0.id != id })
+  }
+
+  func setWebSearchQuicklink(id: Quicklink.ID?) {
+    webSearchQuicklinkID = id
+    userDefaults.set(id?.uuidString ?? "", for: Key.webSearchQuicklinkID)
+  }
+
+  /// Adds back removed built-ins without changing edited ones. A restored built-in whose keyword
+  /// another quicklink now uses comes back without a keyword.
+  func restoreBuiltInQuicklinks() {
+    var quicklinks = quicklinks
+
+    for builtIn in Quicklink.builtIns where !quicklinks.contains(where: { $0.id == builtIn.id }) {
+      let keywordIsTaken = quicklinks.contains {
+        $0.keyword?.lowercased() == builtIn.keyword?.lowercased()
+      }
+      quicklinks.append(
+        keywordIsTaken
+          ? Quicklink(
+            id: builtIn.id,
+            name: builtIn.name,
+            urlTemplate: builtIn.urlTemplate,
+            target: builtIn.target
+          )
+          : builtIn
+      )
+    }
+
+    setQuicklinks(quicklinks)
+  }
+
   func resetMaximumVisibleResults() {
     setMaximumVisibleResults(Self.defaultMaximumVisibleResults)
   }
@@ -233,6 +298,15 @@ final class SettingsStore: ObservableObject {
   private func setExcludedApplications(_ exclusions: [String: String]) {
     excludedApplications = exclusions
     userDefaults.set(exclusions, for: Key.excludedApplications)
+  }
+
+  private func setQuicklinks(_ quicklinks: [Quicklink]) {
+    self.quicklinks = quicklinks
+    if let data = try? JSONEncoder().encode(quicklinks) {
+      userDefaults.set(data, for: Key.quicklinks)
+    }
+
+    if webSearchQuicklinkID != nil, webSearchQuicklink == nil { setWebSearchQuicklink(id: nil) }
   }
 
   private func persistHotKey(
