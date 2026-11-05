@@ -3,6 +3,7 @@ enum LauncherMode: Equatable, Sendable {
   case emoji
   case files
   case shortcuts
+  case systemCommands
 
   /// The mode a query prefix switches to, such as `>` for shortcuts.
   static func requested(byPrefix prefix: Character) -> Self? {
@@ -11,6 +12,7 @@ enum LauncherMode: Equatable, Sendable {
     case ">": .shortcuts
     case ":": .emoji
     case "/": .files
+    case "!": .systemCommands
     default: nil
     }
   }
@@ -21,7 +23,8 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: .shortcuts
     case .shortcuts: .emoji
     case .emoji: .files
-    case .files: .applications
+    case .files: .systemCommands
+    case .systemCommands: .applications
     }
   }
 
@@ -33,6 +36,7 @@ enum LauncherMode: Equatable, Sendable {
     case .emoji: "face.smiling"
     case .files: "doc.text.magnifyingglass"
     case .shortcuts: "square.stack.3d.up.fill"
+    case .systemCommands: "power"
     }
   }
 
@@ -42,6 +46,7 @@ enum LauncherMode: Equatable, Sendable {
     case .emoji: "Emoji search mode"
     case .files: "File and folder search mode"
     case .shortcuts: "Apple Shortcuts search mode"
+    case .systemCommands: "System commands search mode"
     }
   }
 
@@ -51,6 +56,7 @@ enum LauncherMode: Equatable, Sendable {
     case .emoji: "Search emoji…"
     case .files: "Search files and folders…"
     case .shortcuts: "Search shortcuts…"
+    case .systemCommands: "Search system commands…"
     }
   }
 
@@ -60,6 +66,7 @@ enum LauncherMode: Equatable, Sendable {
     case .emoji: "Copy emoji"
     case .files: "Open item"
     case .shortcuts: "Run shortcut"
+    case .systemCommands: "Run command"
     }
   }
 }

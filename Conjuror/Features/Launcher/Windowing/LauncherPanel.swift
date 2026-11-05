@@ -13,6 +13,15 @@ final class LauncherPanel: NSPanel {
 
   override func sendEvent(_ event: NSEvent) {
     if event.type == .keyDown,
+      LauncherKeyboardNavigation.isRepeatedSubmit(
+        keyCode: event.keyCode,
+        isARepeat: event.isARepeat
+      )
+    {
+      return
+    }
+
+    if event.type == .keyDown,
       LauncherKeyboardNavigation.cyclesMode(keyCode: event.keyCode, modifiers: event.modifierFlags)
     {
       onCycleMode?()

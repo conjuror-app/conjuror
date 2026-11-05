@@ -19,6 +19,7 @@ final class SettingsStore: ObservableObject {
       "settings.excludedApplications"
     )
     static let showsSystemSettingsItems = UserDefaultsKey<Bool>("settings.showsSystemSettingsItems")
+    static let showsSystemCommands = UserDefaultsKey<Bool>("settings.showsSystemCommands")
     static let launcherBorderStyle = UserDefaultsKey<String>("settings.launcherBorderStyle")
     static let launcherBorderRed = UserDefaultsKey<Double>("settings.launcherBorderRed")
     static let launcherBorderGreen = UserDefaultsKey<Double>("settings.launcherBorderGreen")
@@ -77,6 +78,7 @@ final class SettingsStore: ObservableObject {
   /// Canonical installation paths mapped to names, including apps no longer installed.
   @Published private(set) var excludedApplications: [String: String]
   @Published private(set) var showsSystemSettingsItems: Bool
+  @Published private(set) var showsSystemCommands: Bool
   @Published private(set) var launcherBorderStyle: LauncherBorderStyle
   @Published private(set) var launcherCustomBorderColor: LauncherBorderColor
   @Published private(set) var launcherAppearance: LauncherAppearance
@@ -118,6 +120,7 @@ final class SettingsStore: ObservableObject {
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
     excludedApplications = userDefaults.value(for: Key.excludedApplications) ?? [:]
     showsSystemSettingsItems = userDefaults.value(for: Key.showsSystemSettingsItems) ?? true
+    showsSystemCommands = userDefaults.value(for: Key.showsSystemCommands) ?? true
     launcherBorderStyle =
       userDefaults.value(for: Key.launcherBorderStyle)
       .flatMap(LauncherBorderStyle.init(rawValue:)) ?? .cyan
@@ -187,6 +190,11 @@ final class SettingsStore: ObservableObject {
   func setShowsSystemSettingsItems(_ showsItems: Bool) {
     showsSystemSettingsItems = showsItems
     userDefaults.set(showsItems, for: Key.showsSystemSettingsItems)
+  }
+
+  func setShowsSystemCommands(_ showsCommands: Bool) {
+    showsSystemCommands = showsCommands
+    userDefaults.set(showsCommands, for: Key.showsSystemCommands)
   }
 
   func setLauncherBorderStyle(_ style: LauncherBorderStyle) {
