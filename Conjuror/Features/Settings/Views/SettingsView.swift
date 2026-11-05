@@ -80,6 +80,8 @@ struct SettingsView: View {
         store: store,
         hotKeyStore: hotKeyStore
       )
+    case .quicklinks:
+      QuicklinksSettingsView(store: store)
     case .about:
       AboutSettingsView()
     }
@@ -147,6 +149,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
   case shortcuts
   case calculator
   case files
+  case quicklinks
   case about
 
   var id: Self { self }
@@ -159,6 +162,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case .shortcuts: "Shortcuts"
     case .calculator: "Calculator"
     case .files: "Files"
+    case .quicklinks: "Quicklinks"
     case .about: "About"
     }
   }
@@ -171,6 +175,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case .shortcuts: "square.stack.3d.up"
     case .calculator: "function"
     case .files: "folder"
+    case .quicklinks: "link"
     case .about: "info.circle"
     }
   }
