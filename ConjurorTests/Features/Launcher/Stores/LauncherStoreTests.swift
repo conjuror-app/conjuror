@@ -106,13 +106,15 @@ struct LauncherStoreTests {
     store.updateQuery(":")
     #expect(store.mode == .emoji)
     store.cycleMode()
-    #expect(store.mode == .applications)
+    #expect(store.mode == .systemCommands)
 
     store.prepareForActivation(mode: .files)
     #expect(store.mode == .applications)
   }
 
-  @Test("Launcher store: Tab mode cycling visits shortcuts, emoji, files, and applications")
+  @Test(
+    "Launcher store: Tab mode cycling visits shortcuts, emoji, files, system commands, and apps"
+  )
   func testModeCycle() {
     let store = makeStore()
 
@@ -124,6 +126,9 @@ struct LauncherStoreTests {
 
     store.cycleMode()
     #expect(store.mode == .files)
+
+    store.cycleMode()
+    #expect(store.mode == .systemCommands)
 
     store.cycleMode()
     #expect(store.mode == .applications)
@@ -275,6 +280,7 @@ struct LauncherStoreTests {
     runShortcut: @escaping @MainActor (AppleShortcut) async throws -> Void =
       ShortcutRunnerStub().run,
     shortcutRunHistory: RecencyStore? = nil,
+    performSystemCommand: @escaping @MainActor (SystemCommand) async throws -> Void = { _ in },
     emojiHistory: EmojiHistoryStore? = nil,
     revealInFinder: @escaping @MainActor (URL) -> Void = { _ in },
     fileSearcher: FileSearching = FileSearcherStub(results: []),
@@ -292,6 +298,7 @@ struct LauncherStoreTests {
       runShortcut: runShortcut,
       shortcutRunHistory: shortcutRunHistory
         ?? RecencyStore.shortcutRuns(userDefaults: makeTestUserDefaults()),
+      performSystemCommand: performSystemCommand,
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
       revealInFinder: revealInFinder,
       fileSearcher: fileSearcher,

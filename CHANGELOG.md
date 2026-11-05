@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added system commands such as Lock Screen, Sleep, Restart, and Empty Trash to application search, and `!` to list them, with confirmation for Empty Trash and Eject All Disks.
+- Ignored held Return key repeats in the launcher.
 - Added ⌘Return to reveal the selected app or file in Finder.
 - Added `now + 2 hours` and `now - 3 days` relative dates, and seconds as a relative date unit.
 - Added date differences such as `now - 1 aug 2025 in days`, and offsets from typed dates such as `1 aug 2025 + 30 days`.

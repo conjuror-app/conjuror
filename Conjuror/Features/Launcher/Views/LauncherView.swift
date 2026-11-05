@@ -65,7 +65,9 @@ struct LauncherView: View {
       onHeightChange(contentHeight)
     }
     .onExitCommand {
-      if !store.query.isEmpty {
+      if store.armedCommand != nil {
+        store.cancelConfirmation()
+      } else if !store.query.isEmpty {
         store.updateQuery("")
       } else {
         onHide()
@@ -80,13 +82,15 @@ struct LauncherView: View {
   private var resultCount: Int {
     switch store.mode {
     case .applications:
-      store.filteredApplications.count + (store.calculatorResult == nil ? 0 : 1)
+      store.filteredResults.count + (store.calculatorResult == nil ? 0 : 1)
     case .emoji:
       store.displayedEmoji.count
     case .files:
       store.fileResults.count
     case .shortcuts:
       store.filteredShortcuts.count
+    case .systemCommands:
+      store.filteredSystemCommands.count
     }
   }
 
@@ -94,7 +98,7 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.catalogErrorMessage
-    case .emoji:
+    case .emoji, .systemCommands:
       nil
     case .files:
       store.fileSearchErrorMessage
@@ -131,7 +135,19 @@ struct LauncherView: View {
   }
 
   private var actionFooterTitle: String {
-    store.isCalculatorSelected ? "Copy result" : store.mode.actionTitle
+    if let armedCommand = store.armedCommand {
+      return "Confirm \(armedCommand.title)"
+    }
+
+    if store.isCalculatorSelected {
+      return "Copy result"
+    }
+
+    if case .systemCommand = store.selectedResultID {
+      return LauncherMode.systemCommands.actionTitle
+    }
+
+    return store.mode.actionTitle
   }
 
   private var actionFooter: some View {
@@ -143,7 +159,7 @@ struct LauncherView: View {
         HStack(spacing: 12) {
           footerHint(keys: store.mode.allowsHorizontalNavigation ? "←↑↓→" : "↑↓", title: "Navigate")
           footerHint(keys: "Tab", title: "Mode")
-          footerHint(keys: "Esc", title: store.query.isEmpty ? "Close" : "Clear")
+          footerHint(keys: "Esc", title: escapeTitle)
 
           if store.selectedRevealableURL != nil {
             footerHint(keys: "⌘↵", title: "Reveal")
@@ -172,6 +188,12 @@ struct LauncherView: View {
     }
     .accessibilityElement(children: .combine)
     .accessibilityLabel("Press Return to " + actionFooterTitle.lowercased())
+  }
+
+  private var escapeTitle: String {
+    if store.armedCommand != nil { return "Cancel" }
+
+    return store.query.isEmpty ? "Close" : "Clear"
   }
 
   private func footerHint(keys: String, title: String) -> some View {

@@ -1,7 +1,7 @@
 # Conjuror
 
-Conjuror is a macOS launcher for opening apps and files, running Apple Shortcuts,
-copying emoji, and doing calculations and conversions.
+Conjuror is a macOS launcher for opening apps and files, running Apple Shortcuts and
+system commands, copying emoji, and doing calculations and conversions.
 
 ## Installation
 
@@ -61,6 +61,18 @@ Cached rates work offline; turning currency conversion off deletes the cache.
 
 Type `>` to search your shortcuts, then select one to run it. Conjuror excludes
 shortcuts that require input. macOS may ask for Automation permission on first use.
+
+### System commands
+
+Type a command's name, such as `lock`, `sleep`, or `empty trash`, to find it among
+your apps. Type `!` to list every command. The commands are Lock Screen, Sleep,
+Sleep Displays, Start Screen Saver, Show Desktop, Toggle Dark Mode, Eject All Disks,
+Empty Trash, Log Out, Restart, and Shut Down.
+
+Empty Trash and Eject All Disks ask you to press Return again to confirm; press Escape
+to cancel. Log Out, Restart, and Shut Down show the macOS confirmation dialog.
+macOS may ask for Automation permission the first time you empty the Trash (Finder)
+or toggle dark mode (System Events). Turn system commands off in Settings → Apps.
 
 ### Emoji
 

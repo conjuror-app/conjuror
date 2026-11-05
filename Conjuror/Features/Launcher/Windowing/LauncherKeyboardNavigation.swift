@@ -24,6 +24,12 @@ enum LauncherKeyboardNavigation {
       && relevantModifiers(modifiers) == .command
   }
 
+  /// Whether a key event is Return or Enter repeating while held, which must not run or confirm
+  /// another result.
+  static func isRepeatedSubmit(keyCode: UInt16, isARepeat: Bool) -> Bool {
+    isARepeat && [kVK_Return, kVK_ANSI_KeypadEnter].contains(Int(keyCode))
+  }
+
   static func direction(
     forKeyCode keyCode: UInt16,
     modifiers: NSEvent.ModifierFlags,

@@ -15,6 +15,8 @@ struct LauncherResultsView: View {
       fileResults
     case .shortcuts:
       shortcutResults
+    case .systemCommands:
+      systemCommandResults
     }
   }
 
@@ -26,7 +28,7 @@ struct LauncherResultsView: View {
       loadingState("Loading applications…")
     } else if let catalogErrorMessage = store.catalogErrorMessage {
       errorState(catalogErrorMessage, retry: store.loadApplications)
-    } else if store.filteredApplications.isEmpty {
+    } else if store.filteredResults.isEmpty {
       emptyState(
         systemImage: store.query.isEmpty ? "app.dashed" : "magnifyingglass",
         message: store.query.isEmpty ? "No applications found" : "No matches"
@@ -49,15 +51,33 @@ struct LauncherResultsView: View {
         .id(LauncherResultID.calculator)
       }
 
-      ForEach(store.filteredApplications) { application in
-        ApplicationResultRow(
-          application: application,
-          layout: layout,
-          isSelected: store.selectedResultID == .application(application.id),
-          onHover: { store.selectOnHover(.application(application.id)) },
-          onOpen: { store.open(application) }
-        )
-        .id(LauncherResultID.application(application.id))
+      ForEach(store.filteredResults) { result in
+        switch result {
+        case .application(let application):
+          ApplicationResultRow(
+            application: application,
+            layout: layout,
+            isSelected: store.selectedResultID == result.id,
+            onHover: { store.selectOnHover(result.id) },
+            onOpen: { store.open(application) }
+          )
+          .id(result.id)
+        case .systemCommand(let command):
+          systemCommandRow(command)
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var systemCommandResults: some View {
+    if store.filteredSystemCommands.isEmpty {
+      emptyState(systemImage: "magnifyingglass", message: "No matches")
+    } else {
+      resultsScrollView(selectedID: store.selectedResultID) {
+        ForEach(store.filteredSystemCommands) { command in
+          systemCommandRow(command)
+        }
       }
     }
   }
@@ -161,6 +181,20 @@ struct LauncherResultsView: View {
         }
       }
     }
+  }
+
+  private func systemCommandRow(_ command: SystemCommand) -> some View {
+    let id = LauncherResultID.systemCommand(command.id)
+
+    return SystemCommandResultRow(
+      command: command,
+      layout: layout,
+      isSelected: store.selectedResultID == id,
+      isArmed: store.armedCommand == command,
+      onHover: { store.selectOnHover(id) },
+      onRun: { store.run(command) }
+    )
+    .id(id)
   }
 
   private func resultsScrollView<Content: View>(

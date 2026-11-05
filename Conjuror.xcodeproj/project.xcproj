@@ -154,6 +154,7 @@
                   "kind": "group",
                   "path": "Models",
                   "children": [
+                    { "path": "ApplicationSearchResult.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "LauncherAppearance.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "LauncherBorderColor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "LauncherBorderStyle.swift", "target-membership": [ "Conjuror/compile-sources" ] },
@@ -265,6 +266,32 @@
                   ],
                 },
               ],
+            }, {
+              "kind": "group",
+              "path": "SystemCommands",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "SystemCommand.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "SystemAppleEvents.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SystemCommandRanker.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "SystemCommandRunner.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "SystemCommandResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
             },
           ],
         }, {
@@ -371,6 +398,7 @@
                     { "path": "LauncherStoreApplicationTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreEmojiTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreShortcutTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreSystemCommandTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                   ],
                 }, {
@@ -411,6 +439,18 @@
                   "children": [
                     { "path": "ShortcutCatalogTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "ShortcutRankerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "SystemCommands",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "SystemCommandRunnerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                   ],
                 },
               ],
@@ -470,7 +510,7 @@
         "GENERATE_INFOPLIST_FILE": "YES",
         "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.productivity",
         "INFOPLIST_KEY_LSUIElement": "YES",
-        "INFOPLIST_KEY_NSAppleEventsUsageDescription": "Conjuror uses Shortcuts Events to list and run your Apple Shortcuts.",
+        "INFOPLIST_KEY_NSAppleEventsUsageDescription": "Conjuror uses Shortcuts Events to list and run your Apple Shortcuts, Finder to empty the Trash, and System Events to toggle dark mode.",
         "INFOPLIST_KEY_NSDesktopFolderUsageDescription": "Conjuror searches file and folder names on your Desktop.",
         "INFOPLIST_KEY_NSDocumentsFolderUsageDescription": "Conjuror searches file and folder names in Documents.",
         "INFOPLIST_KEY_NSDownloadsFolderUsageDescription": "Conjuror searches file and folder names in Downloads.",

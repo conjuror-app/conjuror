@@ -212,6 +212,20 @@ private struct AppsSettingsView: View {
         .labelsHidden()
       }
 
+      SettingsRow(
+        title: "System commands",
+        description: "Include lock, sleep, restart, and other system commands in apps search."
+      ) {
+        Toggle(
+          "System commands",
+          isOn: Binding(
+            get: { store.showsSystemCommands },
+            set: { store.setShowsSystemCommands($0) }
+          )
+        )
+        .labelsHidden()
+      }
+
       if let hotKeyErrorMessage {
         Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
           .font(.caption)
