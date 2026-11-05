@@ -143,7 +143,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     window?.orderOut(nil)
     window?.contentViewController = nil
 
-    if restoringFocus, let previousApplication, !previousApplication.isTerminated {
+    // Activating a hidden app unhides it, so leave an app the user just hid or quit alone.
+    if restoringFocus, let previousApplication, !previousApplication.isTerminated,
+      !previousApplication.isHidden
+    {
       // The panel took key focus, so hand it back to the app the user was typing in.
       previousApplication.activate(from: .current)
     }
