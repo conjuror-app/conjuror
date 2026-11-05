@@ -7,16 +7,25 @@ final class HotKeyStore: ObservableObject {
     @escaping () -> Void
   ) throws -> AnyObject
 
+  private static func ownerName(of action: HotKeyAction) -> String {
+    switch action {
+    case .launcher: "the launcher"
+    case .shortcuts: "Shortcuts mode"
+    case .emoji: "Emoji mode"
+    case .files: "Files mode"
+    }
+  }
+
   @Published private(set) var registrationErrorMessage: String?
 
   private let settingsStore: SettingsStore
-  private let onHotKeyPressed: (HotKeyAction) -> Void
+  private let onHotKeyPressed: (HotKeyTarget) -> Void
   private let registrationFactory: RegistrationFactory
-  private var registrations = [HotKeyAction: AnyObject]()
+  private var registrations = [HotKeyTarget: AnyObject]()
 
   init(
     settingsStore: SettingsStore,
-    onHotKeyPressed: @escaping (HotKeyAction) -> Void,
+    onHotKeyPressed: @escaping (HotKeyTarget) -> Void,
     registrationFactory: @escaping RegistrationFactory = { configuration, handler in
       try GlobalHotKey(configuration: configuration, handler: handler)
     }
@@ -26,65 +35,55 @@ final class HotKeyStore: ObservableObject {
     self.registrationFactory = registrationFactory
   }
 
+  /// Registers every assigned hot key. Each registers on its own, so one that's unavailable
+  /// doesn't stop the others, and the first failure is published.
   func register() {
     registrations.removeAll()
+    var firstError: Error?
 
-    do {
-      for action in HotKeyAction.allCases {
-        guard let configuration = settingsStore.hotKeyConfiguration(for: action) else { continue }
-
-        registrations[action] = try makeRegistration(configuration: configuration, action: action)
+    for (target, configuration) in assignedConfigurations() {
+      do {
+        registrations[target] = try makeRegistration(configuration: configuration, target: target)
+      } catch {
+        firstError = firstError ?? error
       }
-
-      registrationErrorMessage = nil
-    } catch {
-      registrations.removeAll()
-      registrationErrorMessage = error.localizedDescription
     }
+
+    registrationErrorMessage = firstError?.localizedDescription
   }
 
   func updateConfiguration(
     _ configuration: HotKeyConfiguration?,
     for action: HotKeyAction = .launcher
   ) -> String? {
-    let existingConfiguration = settingsStore.hotKeyConfiguration(for: action)
-
-    if configuration == existingConfiguration, registrations[action] != nil || configuration == nil
-    {
-      registrationErrorMessage = nil
-
-      return nil
-    }
-
-    if let configuration,
-      HotKeyAction.allCases.contains(where: {
-        $0 != action && settingsStore.hotKeyConfiguration(for: $0) == configuration
-      })
-    {
-      return "That shortcut is already assigned in Conjuror."
-    }
-
-    registrations[action] = nil
-
-    do {
-      if let configuration {
-        registrations[action] = try makeRegistration(configuration: configuration, action: action)
-      }
-
-      registrationErrorMessage = nil
+    update(
+      configuration,
+      for: .action(action),
+      existingConfiguration: settingsStore.hotKeyConfiguration(for: action)
+    ) {
       settingsStore.setHotKeyConfiguration(configuration, for: action)
-
-      return nil
-    } catch {
-      if let existingConfiguration {
-        registrations[action] = try? makeRegistration(
-          configuration: existingConfiguration,
-          action: action
-        )
-      }
-
-      return error.localizedDescription
     }
+  }
+
+  func updateHotKey(
+    _ configuration: HotKeyConfiguration?,
+    for application: InstalledApplication
+  ) -> String? {
+    let path = application.persistenceKey
+
+    return update(
+      configuration,
+      for: .application(path: path),
+      existingConfiguration: settingsStore.applicationCustomizations[path]?.hotKey
+    ) {
+      settingsStore.setApplicationHotKey(configuration, for: application)
+    }
+  }
+
+  /// Unregisters the app's hot key and removes its alias and hot key.
+  func removeApplicationCustomization(at path: String) {
+    registrations[.application(path: path)] = nil
+    settingsStore.removeApplicationCustomization(at: path)
   }
 
   func setShortcutRecording(_ isRecording: Bool) {
@@ -95,10 +94,84 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
+  /// Launcher actions first, then apps by path, so registration order is stable.
+  private func assignedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
+    let actions = HotKeyAction.allCases.compactMap { action in
+      settingsStore.hotKeyConfiguration(for: action).map { (HotKeyTarget.action(action), $0) }
+    }
+    let applications = settingsStore.applicationCustomizations
+      .sorted { $0.key < $1.key }
+      .compactMap { path, customization in
+        customization.hotKey.map { (HotKeyTarget.application(path: path), $0) }
+      }
+
+    return actions + applications
+  }
+
+  /// What already uses the configuration's keys, other than `target`.
+  private func owner(
+    of configuration: HotKeyConfiguration,
+    excluding target: HotKeyTarget
+  ) -> String? {
+    guard
+      let (owner, _) = assignedConfigurations().first(where: { candidate, assigned in
+        candidate != target && assigned.keyCode == configuration.keyCode
+          && assigned.modifiers == configuration.modifiers
+      })
+    else { return nil }
+
+    switch owner {
+    case .action(let action):
+      return Self.ownerName(of: action)
+    case .application(let path):
+      return settingsStore.applicationCustomizations[path]?.name ?? path
+    }
+  }
+
+  private func update(
+    _ configuration: HotKeyConfiguration?,
+    for target: HotKeyTarget,
+    existingConfiguration: HotKeyConfiguration?,
+    save: () -> Void
+  ) -> String? {
+    if configuration == existingConfiguration, registrations[target] != nil || configuration == nil
+    {
+      registrationErrorMessage = nil
+
+      return nil
+    }
+
+    if let configuration, let owner = owner(of: configuration, excluding: target) {
+      return "That shortcut is already used by \(owner)."
+    }
+
+    registrations[target] = nil
+
+    do {
+      if let configuration {
+        registrations[target] = try makeRegistration(configuration: configuration, target: target)
+      }
+
+      registrationErrorMessage = nil
+      save()
+
+      return nil
+    } catch {
+      if let existingConfiguration {
+        registrations[target] = try? makeRegistration(
+          configuration: existingConfiguration,
+          target: target
+        )
+      }
+
+      return error.localizedDescription
+    }
+  }
+
   private func makeRegistration(
     configuration: HotKeyConfiguration,
-    action: HotKeyAction
+    target: HotKeyTarget
   ) throws -> AnyObject {
-    try registrationFactory(configuration) { [onHotKeyPressed] in onHotKeyPressed(action) }
+    try registrationFactory(configuration) { [onHotKeyPressed] in onHotKeyPressed(target) }
   }
 }

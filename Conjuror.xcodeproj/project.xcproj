@@ -41,6 +41,7 @@
                   "kind": "group",
                   "path": "Services",
                   "children": [
+                    { "path": "ApplicationActivator.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ApplicationCatalog.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ApplicationDirectoryMonitor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ApplicationIconCache.swift", "target-membership": [ "Conjuror/compile-sources" ] },

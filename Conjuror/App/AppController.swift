@@ -21,9 +21,9 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   private lazy var hotKeyStore = HotKeyStore(
     settingsStore: settingsStore,
-    onHotKeyPressed: { [weak self] action in
+    onHotKeyPressed: { [weak self] target in
       Task { @MainActor [weak self] in
-        self?.handleHotKey(action)
+        self?.handleHotKey(target)
       }
     }
   )
@@ -45,6 +45,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     observeVolumeChanges()
     applicationDirectoryMonitor.start(directories: ApplicationCatalog.applicationDirectories())
     observeCurrencyRates()
+    observeApplicationCatalog()
     currencyRateStore.start()
     store.loadApplications()
   }
@@ -87,6 +88,22 @@ final class AppController: NSObject, NSApplicationDelegate {
 
   func showLauncher() {
     launcherController().show()
+  }
+
+  private func handleHotKey(_ target: HotKeyTarget) {
+    switch target {
+    case .action(let action):
+      handleHotKey(action)
+    case .application(let path):
+      hideLauncher()
+      Task {
+        do {
+          try await ApplicationActivator().toggle(path: path)
+        } catch {
+          NSSound.beep()
+        }
+      }
+    }
   }
 
   private func handleHotKey(_ action: HotKeyAction) {
@@ -218,6 +235,20 @@ final class AppController: NSObject, NSApplicationDelegate {
       .combineLatest(currencyRateStore.$rates)
       .sink { [weak self] isEnabled, rates in
         self?.store.setCurrencyRates(isEnabled ? rates : nil)
+      }
+      .store(in: &cancellables)
+  }
+
+  /// Follows customized apps that moved, then re-registers hot keys for their new paths.
+  private func observeApplicationCatalog() {
+    store.$applications
+      .dropFirst()
+      .sink { [weak self] applications in
+        guard let self, !applications.isEmpty,
+          settingsStore.relocateApplicationCustomizations(installed: applications)
+        else { return }
+
+        hotKeyStore.register()
       }
       .store(in: &cancellables)
   }

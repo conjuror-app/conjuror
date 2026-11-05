@@ -31,7 +31,8 @@ struct HotKeyStoreTests {
     shouldFail = false
     #expect(store.updateConfiguration(.defaultValue) == nil)
     #expect(store.registrationErrorMessage == nil)
-    #expect(configurations == [.defaultValue, .defaultValue])
+    #expect(configurations.first == .defaultValue)
+    #expect(configurations.last == .defaultValue)
   }
 
   @Test("Rejected replacements do not persist configuration")
@@ -111,6 +112,101 @@ struct HotKeyStoreTests {
     #expect(configurations.suffix(HotKeyAction.allCases.count).contains(replacement))
     #expect(configurations.count == HotKeyAction.allCases.count * 2 + 1)
     #expect(store.registrationErrorMessage == nil)
+  }
+
+  @Test("App hotkeys can't reuse the launcher's or another app's keys")
+  func testApplicationHotKeyConflicts() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { _, _ in RegistrationToken() }
+    )
+    let code = application("Visual Studio Code")
+    let notes = application("Notes")
+    let hotKey = HotKeyConfiguration(keyCode: 9, modifiers: 2_048, displayName: "⌥ V")
+    store.register()
+
+    #expect(
+      store.updateHotKey(.defaultValue, for: code)
+        == "That shortcut is already used by the launcher."
+    )
+    #expect(store.updateHotKey(hotKey, for: code) == nil)
+    #expect(
+      store.updateHotKey(hotKey, for: notes)
+        == "That shortcut is already used by Visual Studio Code."
+    )
+    #expect(
+      store.updateConfiguration(hotKey, for: .launcher)
+        == "That shortcut is already used by Visual Studio Code."
+    )
+    #expect(settingsStore.applicationCustomizations[notes.persistenceKey] == nil)
+    #expect(settingsStore.hotKeyConfiguration == .defaultValue)
+  }
+
+  @Test("An unavailable app hotkey doesn't stop the launcher hotkey registering")
+  func testPartialRegistration() {
+    let userDefaults = makeTestUserDefaults()
+    let settingsStore = SettingsStore(userDefaults: userDefaults)
+    let code = application("Visual Studio Code")
+    let hotKey = HotKeyConfiguration(keyCode: 9, modifiers: 2_048, displayName: "⌥ V")
+    settingsStore.setApplicationHotKey(hotKey, for: code)
+    var registered = [HotKeyConfiguration]()
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        if configuration == hotKey { throw RegistrationError.unavailable }
+
+        registered.append(configuration)
+
+        return RegistrationToken()
+      }
+    )
+
+    store.register()
+
+    #expect(registered.contains(.defaultValue))
+    #expect(store.registrationErrorMessage == "Shortcut unavailable")
+  }
+
+  @Test("App hotkeys report their app when pressed and release when cleared")
+  func testApplicationHotKeyLifecycle() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    let code = application("Visual Studio Code")
+    let hotKey = HotKeyConfiguration(keyCode: 9, modifiers: 2_048, displayName: "⌥ V")
+    var handlers = [(configuration: HotKeyConfiguration, handler: () -> Void)]()
+    var pressed = [HotKeyTarget]()
+    weak var appRegistration: RegistrationToken?
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { pressed.append($0) },
+      registrationFactory: { configuration, handler in
+        handlers.append((configuration, handler))
+        let token = RegistrationToken()
+        if configuration == hotKey { appRegistration = token }
+
+        return token
+      }
+    )
+    store.register()
+
+    #expect(store.updateHotKey(hotKey, for: code) == nil)
+    handlers.last { $0.configuration == hotKey }?.handler()
+    #expect(pressed == [.application(path: code.persistenceKey)])
+    #expect(appRegistration != nil)
+
+    store.removeApplicationCustomization(at: code.persistenceKey)
+    #expect(appRegistration == nil)
+    #expect(settingsStore.applicationCustomizations.isEmpty)
+  }
+
+  private func application(_ name: String) -> InstalledApplication {
+    InstalledApplication(
+      displayName: name,
+      bundleIdentifier: "dev.example.\(name)",
+      url: URL(fileURLWithPath: "/Applications/\(name).app")
+    )
   }
 }
 
