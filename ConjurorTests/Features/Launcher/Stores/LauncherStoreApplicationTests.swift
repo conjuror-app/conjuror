@@ -56,7 +56,7 @@ extension LauncherStoreTests {
 
     settings.excludeApplication(stable)
     #expect(store.filteredApplications.isEmpty)
-    #expect(store.selectedResultID == nil)
+    #expect(store.selectedResultID == .webSearch)
     settings.removeExcludedApplication(at: stable.persistenceKey)
     #expect(store.filteredApplications == [stable])
     #expect(store.selectedResultID == .application(stable.id))

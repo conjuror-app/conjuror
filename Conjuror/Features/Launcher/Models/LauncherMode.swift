@@ -57,7 +57,7 @@ enum LauncherMode: Equatable, Sendable {
 
   var placeholder: String {
     switch self {
-    case .applications: "Search apps…"
+    case .applications: "Search apps and links…"
     case .emoji: "Search emoji…"
     case .files: "Search files and folders…"
     case .running: "Search running apps…"

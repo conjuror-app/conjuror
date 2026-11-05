@@ -24,7 +24,7 @@ struct LauncherResultsView: View {
 
   @ViewBuilder
   private var applicationResults: some View {
-    if store.calculatorResult != nil {
+    if store.calculatorResult != nil || store.quicklinkResultCount > 0 {
       applicationList
     } else if store.isLoading, store.applications.isEmpty {
       loadingState("Loading applications…")
@@ -42,6 +42,10 @@ struct LauncherResultsView: View {
 
   private var applicationList: some View {
     resultsScrollView(selectedID: store.selectedResultID) {
+      if let match = store.keywordQuicklinkMatch {
+        quicklinkRow(match, id: .quicklink(match.quicklink.id))
+      }
+
       if let calculatorResult = store.calculatorResult {
         CalculatorResultRow(
           result: calculatorResult,
@@ -67,6 +71,17 @@ struct LauncherResultsView: View {
         case .systemCommand(let command):
           systemCommandRow(command)
         }
+      }
+
+      ForEach(store.filteredQuicklinks) { quicklink in
+        quicklinkRow(
+          QuicklinkMatcher.Match(quicklink: quicklink, argument: ""),
+          id: .quicklink(quicklink.id)
+        )
+      }
+
+      if let match = store.webSearchMatch {
+        quicklinkRow(match, id: .webSearch)
       }
     }
   }
@@ -218,6 +233,18 @@ struct LauncherResultsView: View {
       isArmed: store.armedCommand == command,
       onHover: { store.selectOnHover(id) },
       onRun: { store.run(command) }
+    )
+    .id(id)
+  }
+
+  private func quicklinkRow(_ match: QuicklinkMatcher.Match, id: LauncherResultID) -> some View {
+    QuicklinkResultRow(
+      match: match,
+      isWebSearch: id == .webSearch,
+      layout: layout,
+      isSelected: store.selectedResultID == id,
+      onHover: { store.selectOnHover(id) },
+      onOpen: { store.open(match) }
     )
     .id(id)
   }

@@ -26,6 +26,9 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var catalogErrorMessage: String?
   @Published private(set) var isLoading = false
   @Published private(set) var calculatorResult: CalculatorResult?
+  @Published private(set) var keywordQuicklinkMatch: QuicklinkMatcher.Match?
+  @Published private(set) var filteredQuicklinks = [Quicklink]()
+  @Published private(set) var webSearchMatch: QuicklinkMatcher.Match?
   @Published private(set) var shortcuts = [AppleShortcut]()
   @Published private(set) var filteredShortcuts = [AppleShortcut]()
   @Published private(set) var shortcutCatalogErrorMessage: String?
@@ -58,6 +61,12 @@ final class LauncherStore: ObservableObject {
     filteredResults.compactMap(\.application)
   }
 
+  /// Keyword, name-matched, and web search rows shown with app results.
+  var quicklinkResultCount: Int {
+    (keywordQuicklinkMatch == nil ? 0 : 1) + filteredQuicklinks.count
+      + (webSearchMatch == nil ? 0 : 1)
+  }
+
   var handlesRunningApplicationCommands: Bool {
     mode == .running
   }
@@ -77,7 +86,7 @@ final class LauncherStore: ObservableObject {
   var selectedRevealableURL: URL? {
     switch mode {
     case .applications:
-      guard !isCalculatorSelected,
+      guard isApplicationSelected,
         let application = selected(in: filteredResults, as: { $0 })?.application,
         !application.isSystemSettingsItem
       else {
@@ -104,6 +113,8 @@ final class LauncherStore: ObservableObject {
   private let performSystemCommand: @MainActor (SystemCommand) async throws -> Void
   private let revealInFinder: @MainActor (URL) -> Void
   private let runningApplicationController: RunningApplicationControlling
+  private let openQuicklink: @MainActor (URL, Quicklink.Target) async throws -> Void
+  private let quicklinkHistory: RecencyStore
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: RankedCatalog<ApplicationSearchResult>
   private let shortcutController: RankedCatalog<AppleShortcut>
@@ -120,6 +131,10 @@ final class LauncherStore: ObservableObject {
   private var systemCommandsSubscription: AnyCancellable?
   /// The optional items in the application search index, rebuilt only when they change.
   private var catalogComposition: CatalogComposition?
+  private var quicklinkSubscription: AnyCancellable?
+  private var quicklinkMatcher = QuicklinkMatcher(quicklinks: [])
+  private var webSearchQuicklink: Quicklink?
+  private var quicklinkUses: [String: Date]
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
   private var hasLoadedShortcuts = false
@@ -135,6 +150,13 @@ final class LauncherStore: ObservableObject {
     return Emoji.withPreferredSkinTone(filteredEmoji, settingsStore.preferredEmojiSkinTone)
   }
 
+  private var isApplicationSelected: Bool {
+    switch selectedResultID {
+    case .application, nil: true
+    default: false
+    }
+  }
+
   private var selectedRunningApplication: RunningApplication? {
     selected(in: filteredRunningApplications, as: { .runningApplication($0) })
   }
@@ -142,7 +164,11 @@ final class LauncherStore: ObservableObject {
   private var resultIDs: [LauncherResultID] {
     switch mode {
     case .applications:
-      (calculatorResult == nil ? [] : [.calculator]) + filteredResults.map(\.id)
+      (keywordQuicklinkMatch.map { [.quicklink($0.quicklink.id)] } ?? [])
+        + (calculatorResult == nil ? [] : [.calculator])
+        + filteredResults.map(\.id)
+        + filteredQuicklinks.map { .quicklink($0.id) }
+        + (webSearchMatch == nil ? [] : [.webSearch])
     case .emoji:
       displayedEmoji.map { .emoji($0.id) }
     case .files:
@@ -176,6 +202,9 @@ final class LauncherStore: ObservableObject {
     fileSearcher: FileSearching = SpotlightFileSearchService(),
     runningApplicationController: RunningApplicationControlling =
       WorkspaceRunningApplicationController(),
+    openQuicklink: @escaping @MainActor (URL, Quicklink.Target) async throws -> Void =
+      QuicklinkOpener().open,
+    quicklinkHistory: RecencyStore = .quicklinkOpens(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
@@ -195,6 +224,9 @@ final class LauncherStore: ObservableObject {
     systemCommandController.replace(SystemCommand.allCases)
     fileController = LauncherFileController(searcher: fileSearcher)
     self.runningApplicationController = runningApplicationController
+    self.openQuicklink = openQuicklink
+    self.quicklinkHistory = quicklinkHistory
+    quicklinkUses = quicklinkHistory.load()
     self.onEvent = onEvent
 
     exclusionSubscription = settingsStore.$excludedApplications
@@ -205,9 +237,19 @@ final class LauncherStore: ObservableObject {
         catalogComposition = nil
         refreshApplications()
         reloadRunningApplications()
-        if mode == .applications, !resultIDs.contains(where: { $0 == self.selectedResultID }) {
-          selectFirstResult()
-        }
+        reselectApplicationResultIfNeeded()
+      }
+
+    // Published values arrive before the store's properties change, so use the emitted ones.
+    quicklinkSubscription = settingsStore.$quicklinks
+      .combineLatest(settingsStore.$webSearchQuicklinkID)
+      .sink { [weak self] quicklinks, webSearchID in
+        guard let self else { return }
+
+        quicklinkMatcher = QuicklinkMatcher(quicklinks: quicklinks)
+        webSearchQuicklink = quicklinks.first { $0.id == webSearchID && $0.acceptsQuery }
+        refreshApplications()
+        reselectApplicationResultIfNeeded()
       }
 
     systemCommandsSubscription = settingsStore.$showsSystemCommands
@@ -323,12 +365,19 @@ final class LauncherStore: ObservableObject {
   func openSelectedResult() {
     switch mode {
     case .applications:
-      if isCalculatorSelected {
+      switch selectedResultID {
+      case .calculator:
         copyCalculatorResult()
-      } else if let result = selected(in: filteredResults, as: { $0 }) {
-        switch result {
-        case .application(let application): open(application)
-        case .systemCommand(let command): run(command)
+      case .quicklink(let id):
+        if let match = quicklinkMatch(for: id) { open(match) }
+      case .webSearch:
+        openWebSearch()
+      default:
+        if let result = selected(in: filteredResults, as: { $0 }) {
+          switch result {
+          case .application(let application): open(application)
+          case .systemCommand(let command): run(command)
+          }
         }
       }
     case .emoji:
@@ -380,6 +429,53 @@ final class LauncherStore: ObservableObject {
         )
       }
     )
+  }
+
+  /// Opens a quicklink. A keyword quicklink that needs search text and has none completes the
+  /// query to its keyword instead, ready for typing.
+  func open(_ match: QuicklinkMatcher.Match) {
+    let quicklink = match.quicklink
+    actionError = nil
+
+    if quicklink.acceptsQuery, match.argument.isEmpty, let keyword = quicklink.keyword {
+      query = "\(keyword) "
+
+      return
+    }
+
+    guard let url = quicklink.url(argument: match.argument) else {
+      actionError = ActionError(
+        mode: .applications,
+        message: "Couldn’t open \(quicklink.name). Its URL isn’t valid."
+      )
+
+      return
+    }
+
+    let openQuicklink = openQuicklink
+    perform(
+      operation: { try await openQuicklink(url, quicklink.target) },
+      onSuccess: { [weak self] in
+        guard let self else { return }
+
+        quicklinkUses = quicklinkHistory.record(key: quicklink.id.uuidString)
+        query = ""
+        onEvent(.quicklinkOpened)
+      },
+      onFailure: { [weak self] error in
+        self?.actionError = ActionError(
+          mode: .applications,
+          message: "Couldn’t open \(quicklink.name). \(error.localizedDescription)"
+        )
+      }
+    )
+  }
+
+  /// Opens the web search fallback row, whichever result is selected.
+  func openWebSearch() {
+    guard mode == .applications, let webSearchMatch else { return }
+
+    open(webSearchMatch)
   }
 
   func copyCalculatorResult() {
@@ -698,6 +794,16 @@ final class LauncherStore: ObservableObject {
     return results[nextIndex]
   }
 
+  /// Keeps the selection when results change outside typing, unless it's gone or it's the web
+  /// search row, which is only selected by default when nothing else matches.
+  private func reselectApplicationResultIfNeeded() {
+    guard mode == .applications else { return }
+
+    if selectedResultID == .webSearch || !resultIDs.contains(where: { $0 == selectedResultID }) {
+      selectFirstResult()
+    }
+  }
+
   private func selectFirstResult() {
     selectedResultID = resultIDs.first
     selectionScrollRequest &+= 1
@@ -800,6 +906,36 @@ final class LauncherStore: ObservableObject {
 
     calculatorResult = calculator.evaluate(query, currencyRates: currencyRates)
     filteredResults = applicationController.ranked(query: query)
+    refreshQuicklinks()
+  }
+
+  private func refreshQuicklinks() {
+    let keywordMatch = quicklinkMatcher.keywordMatch(for: query)
+    let keywordID = keywordMatch?.quicklink.id
+    let searchText = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    keywordQuicklinkMatch = keywordMatch
+    filteredQuicklinks = quicklinkMatcher.nameMatches(
+      for: query,
+      recency: quicklinkUses,
+      excluding: keywordID
+    )
+    webSearchMatch = webSearchQuicklink.flatMap { quicklink in
+      // Searching with the engine's own keyword already shows that engine first.
+      guard !searchText.isEmpty, quicklink.id != keywordID else { return nil }
+
+      return QuicklinkMatcher.Match(quicklink: quicklink, argument: searchText)
+    }
+  }
+
+  private func quicklinkMatch(for id: Quicklink.ID) -> QuicklinkMatcher.Match? {
+    if let keywordQuicklinkMatch, keywordQuicklinkMatch.quicklink.id == id {
+      return keywordQuicklinkMatch
+    }
+
+    return filteredQuicklinks.first { $0.id == id }.map {
+      QuicklinkMatcher.Match(quicklink: $0, argument: "")
+    }
   }
 
   /// Builds the running app list when its mode opens and follows workspace changes until it closes.
@@ -902,6 +1038,7 @@ enum LauncherEvent: Equatable {
   case itemRevealed
   case launchStarted
   case launchSucceeded
+  case quicklinkOpened
   case runningApplicationActivated
   case shortcutRunStarted
   case systemCommandStarted
@@ -911,7 +1048,7 @@ enum LauncherEvent: Equatable {
   var restoresPreviousFocus: Bool {
     switch self {
     case .calculatorResultCopied, .emojiCopied, .shortcutRunStarted, .systemCommandStarted: true
-    case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded,
+    case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded, .quicklinkOpened,
       .runningApplicationActivated:
       false
     }
@@ -923,7 +1060,9 @@ enum LauncherResultID: Hashable {
   case calculator
   case emoji(Emoji.ID)
   case file(FileSearchResult.ID)
+  case quicklink(Quicklink.ID)
   case runningApplication(RunningApplication.ID)
   case shortcut(AppleShortcut.ID)
   case systemCommand(SystemCommand.ID)
+  case webSearch
 }

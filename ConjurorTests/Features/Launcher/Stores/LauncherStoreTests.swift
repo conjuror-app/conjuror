@@ -292,6 +292,8 @@ struct LauncherStoreTests {
     revealInFinder: @escaping @MainActor (URL) -> Void = { _ in },
     fileSearcher: FileSearching = FileSearcherStub(results: []),
     runningApplicationController: RunningApplicationControlling? = nil,
+    openQuicklink: @escaping @MainActor (URL, Quicklink.Target) async throws -> Void = { _, _ in },
+    quicklinkHistory: RecencyStore? = nil,
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
@@ -312,6 +314,9 @@ struct LauncherStoreTests {
       fileSearcher: fileSearcher,
       runningApplicationController: runningApplicationController
         ?? RunningApplicationControllerStub(),
+      openQuicklink: openQuicklink,
+      quicklinkHistory: quicklinkHistory
+        ?? RecencyStore.quicklinkOpens(userDefaults: makeTestUserDefaults()),
       onEvent: onEvent
     )
   }
