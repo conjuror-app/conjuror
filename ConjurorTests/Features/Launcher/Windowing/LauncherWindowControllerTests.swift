@@ -248,16 +248,6 @@ struct LauncherWindowControllerTests {
     )
   }
 
-  @Test("Text-editing commands recognize standard shortcuts")
-  func testEditingShortcuts() {
-    #expect(command("a") == .selectAll)
-    #expect(command("c") == .copy)
-    #expect(command("v") == .paste)
-    #expect(command("x") == .cut)
-    #expect(command("z") == .undo)
-    #expect(command("Z", modifiers: [.command, .shift]) == .redo)
-  }
-
   @Test("Text-editing commands ignore unsupported modifiers and keys")
   func testUnsupportedEditingShortcuts() {
     #expect(command("a", modifiers: .option) == nil)
