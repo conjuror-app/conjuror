@@ -108,11 +108,6 @@ extension SearchIndex where Item: SearchIndexable {
   }
 }
 
-/// An item that describes how it is matched and ranked in a `SearchIndex`.
-protocol SearchIndexable {
-  var searchCandidate: SearchIndex<Self>.Candidate { get }
-}
-
 private extension SearchIndex {
   struct SearchableCandidate {
     let itemIndex: Int
@@ -129,6 +124,11 @@ private extension SearchIndex {
     let rank: SearchMatchRank
     let lastUse: Date?
   }
+}
+
+/// An item that describes how it is matched and ranked in a `SearchIndex`.
+protocol SearchIndexable {
+  var searchCandidate: SearchIndex<Self>.Candidate { get }
 }
 
 /// Precomputed forms of a name, matched against a query.

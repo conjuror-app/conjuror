@@ -21,6 +21,16 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     window.setFrame(targetFrame, display: false)
   }
 
+  private static func otherFrontmostApplication() -> NSRunningApplication? {
+    guard let application = NSWorkspace.shared.frontmostApplication,
+      application != .current
+    else {
+      return nil
+    }
+
+    return application
+  }
+
   var isVisible: Bool {
     window?.isVisible == true
   }
@@ -168,16 +178,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
 
   func windowDidResignKey(_ notification: Notification) {
     onHide(false)
-  }
-
-  private static func otherFrontmostApplication() -> NSRunningApplication? {
-    guard let application = NSWorkspace.shared.frontmostApplication,
-      application != .current
-    else {
-      return nil
-    }
-
-    return application
   }
 
   private func scheduleResize(height: CGFloat) {
