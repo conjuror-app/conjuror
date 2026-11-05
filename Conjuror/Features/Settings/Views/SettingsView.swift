@@ -34,7 +34,8 @@ struct SettingsView: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
     }
-    .frame(width: 640, height: 420)
+    .frame(width: 640)
+    .frame(maxHeight: .infinity)
     .onAppear {
       launchAtLoginStore.refresh()
     }

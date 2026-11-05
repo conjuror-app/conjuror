@@ -45,4 +45,33 @@ struct SettingsWindowControllerTests {
       #expect(closedContent == nil)
     }
   }
+
+  @Test("Resizing changes only the height, down to the minimum")
+  func testResizeKeepsWidth() throws {
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    let controller = SettingsWindowController(
+      store: settings,
+      launcherStore: LauncherStore(settingsStore: settings),
+      hotKeyStore: HotKeyStore(settingsStore: settings, onHotKeyPressed: { _ in }),
+      currencyRateStore: CurrencyRateStore(userDefaults: makeTestUserDefaults()),
+      launchAtLoginStore: LaunchAtLoginStore(),
+      onClose: {}
+    )
+    let window = try #require(controller.window)
+    let frame = window.frame.size
+    defer { window.close() }
+
+    let taller = controller.windowWillResize(
+      window,
+      to: NSSize(width: frame.width + 300, height: frame.height + 200)
+    )
+    let shorter = controller.windowWillResize(
+      window,
+      to: NSSize(width: frame.width - 200, height: 100)
+    )
+
+    #expect(taller == NSSize(width: frame.width, height: frame.height + 200))
+    #expect(shorter.width == frame.width)
+    #expect(shorter.height > 100)
+  }
 }
