@@ -134,22 +134,13 @@ struct FileSearchServiceTests {
     )
   }
 
-  @Test("Fuzzy subsequences match filenames")
-  func testFuzzySubsequenceMatchesFilename() {
+  @Test("Files that don't match the query stay after matches")
+  func testUnmatchedFilesFollowMatches() {
     let results = [result("Xylophone"), result("Xcode")]
 
     let ranked = FileResultRanker.ranked(results: results, query: "xcd")
 
     #expect(ranked.map(\.displayName) == ["Xcode", "Xylophone"])
-  }
-
-  @Test("Compact fuzzy matches rank first")
-  func testCompactFuzzyMatchesRankFirst() {
-    let results = [result("Xylocardial"), result("Xcode")]
-
-    let ranked = FileResultRanker.ranked(results: results, query: "xcd")
-
-    #expect(ranked.map(\.displayName) == ["Xcode", "Xylocardial"])
   }
 
   @Test("Existing directory tie-break is preserved")

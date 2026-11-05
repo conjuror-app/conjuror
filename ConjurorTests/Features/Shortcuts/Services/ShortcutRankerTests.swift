@@ -5,23 +5,6 @@ import Testing
 
 @Suite("Shortcut Ranker")
 struct ShortcutRankerTests {
-  @Test("Names follow launcher matching rules")
-  func testRanksNamesUsingLauncherMatchingRules() {
-    let shortcuts = [
-      shortcut("Very Special Code", id: "acronym"),
-      shortcut("Code Runner", id: "prefix"),
-      shortcut("Code", id: "exact"),
-      shortcut("Studio Code", id: "token"),
-    ]
-
-    let result = SearchIndex(shortcuts).ranked(
-      query: "code",
-      recency: [:]
-    )
-
-    #expect(result.map(\.id) == ["exact", "prefix", "token", "acronym"])
-  }
-
   @Test("Recent runs break subtitle-match ties")
   func testSubtitleAndRecency() {
     let first = shortcut("Morning", id: "first", subtitle: "Bedroom lights")

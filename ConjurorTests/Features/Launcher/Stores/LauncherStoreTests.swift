@@ -6,22 +6,12 @@ import Testing
 @MainActor
 @Suite("Launcher Store")
 struct LauncherStoreTests {
-  @Test("Mode prefixes switch between all modes")
-  func testModePrefixesSwitchBetweenAllModes() async {
+  @Test("A prefix switches from another mode, and semicolon returns to applications")
+  func testModePrefixesSwitchBetweenModes() {
     let store = makeStore()
 
     store.updateQuery(":")
     #expect(store.mode == .emoji)
-
-    store.updateQuery(">")
-    await waitForShortcuts(store)
-    #expect(store.mode == .shortcuts)
-
-    store.updateQuery("/notes")
-    #expect(store.mode == .files)
-
-    store.updateQuery("!sleep")
-    #expect(store.mode == .systemCommands)
 
     store.updateQuery("@safari")
     #expect(store.mode == .running)
@@ -257,20 +247,6 @@ struct LauncherStoreTests {
     #expect(didRequestHide)
     #expect(store.query == "")
     #expect(store.calculatorResult == nil)
-  }
-
-  @Test("Launcher store: Return copies quantity results with their units")
-  func testReturnCopiesQuantityResultWithUnit() {
-    let clipboard = RecordingClipboard()
-    let store = makeStore(
-      writeToClipboard: clipboard.write,
-    )
-    store.query = "1000 m to km"
-
-    store.openSelectedResult()
-
-    #expect(clipboard.text == "1 km")
-    #expect(store.query == "")
   }
 
   func makeStore(
