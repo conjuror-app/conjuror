@@ -1,7 +1,8 @@
 # Conjuror
 
-Conjuror is a macOS launcher for opening apps and files, running Apple Shortcuts and
-system commands, copying emoji, and doing calculations and conversions.
+Conjuror is a macOS launcher for opening apps and files, managing running apps,
+running Apple Shortcuts and system commands, copying emoji, and doing calculations
+and conversions.
 
 ## Installation
 
@@ -84,6 +85,24 @@ selected emoji. Recent emoji appear first when the search is empty.
 Type `/` to search files and folders by name using Spotlight. Press Return to open
 the selected item. On first use, Conjuror requests access to Desktop, Documents,
 Downloads, and iCloud Drive. You can also grant access in Settings.
+
+### Running apps
+
+Type `@` to list running apps, then press Return to switch to the selected one.
+Apps excluded in Settings do not appear.
+
+| Key | Action |
+| --- | --- |
+| `⌘ H` | Hide the app |
+| `⌥ ⌘ H` | Hide other apps and switch to this one |
+| `⌘ ⌫` | Quit the app |
+| `⌥ ⌘ ⌫` | Force quit the app |
+| `⌘ R` | Quit and reopen the app |
+| `⇧ ⌘ ⌫` | Quit every listed app except Finder |
+| `⌘ Return` | Reveal the app in Finder |
+
+Force quit and quitting all listed apps ask for confirmation. Press Return to
+confirm or Escape to cancel.
 
 ## Feedback
 

@@ -13,6 +13,8 @@ struct LauncherResultsView: View {
       emojiResults
     case .files:
       fileResults
+    case .running:
+      runningApplicationResults
     case .shortcuts:
       shortcutResults
     case .systemCommands:
@@ -154,6 +156,29 @@ struct LauncherResultsView: View {
       return "Type at least 2 characters"
     }
     return "No matches"
+  }
+
+  @ViewBuilder
+  private var runningApplicationResults: some View {
+    if store.filteredRunningApplications.isEmpty {
+      emptyState(
+        systemImage: store.query.isEmpty ? "macwindow" : "magnifyingglass",
+        message: store.query.isEmpty ? "No running apps" : "No matches"
+      )
+    } else {
+      resultsScrollView(selectedID: store.selectedResultID) {
+        ForEach(store.filteredRunningApplications) { application in
+          RunningApplicationResultRow(
+            application: application,
+            layout: layout,
+            isSelected: store.selectedResultID == .runningApplication(application.id),
+            onHover: { store.selectOnHover(.runningApplication(application.id)) },
+            onSwitch: { store.switchTo(application) }
+          )
+          .id(LauncherResultID.runningApplication(application.id))
+        }
+      }
+    }
   }
 
   @ViewBuilder

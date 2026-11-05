@@ -2,6 +2,7 @@ enum LauncherMode: Equatable, Sendable {
   case applications
   case emoji
   case files
+  case running
   case shortcuts
   case systemCommands
 
@@ -13,6 +14,7 @@ enum LauncherMode: Equatable, Sendable {
     case ":": .emoji
     case "/": .files
     case "!": .systemCommands
+    case "@": .running
     default: nil
     }
   }
@@ -23,7 +25,8 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: .shortcuts
     case .shortcuts: .emoji
     case .emoji: .files
-    case .files: .systemCommands
+    case .files: .running
+    case .running: .systemCommands
     case .systemCommands: .applications
     }
   }
@@ -35,6 +38,7 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: "magnifyingglass"
     case .emoji: "face.smiling"
     case .files: "doc.text.magnifyingglass"
+    case .running: "macwindow.on.rectangle"
     case .shortcuts: "square.stack.3d.up.fill"
     case .systemCommands: "power"
     }
@@ -45,6 +49,7 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: "Application search mode"
     case .emoji: "Emoji search mode"
     case .files: "File and folder search mode"
+    case .running: "Running apps mode"
     case .shortcuts: "Apple Shortcuts search mode"
     case .systemCommands: "System commands search mode"
     }
@@ -55,6 +60,7 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: "Search apps…"
     case .emoji: "Search emoji…"
     case .files: "Search files and folders…"
+    case .running: "Search running apps…"
     case .shortcuts: "Search shortcuts…"
     case .systemCommands: "Search system commands…"
     }
@@ -65,6 +71,7 @@ enum LauncherMode: Equatable, Sendable {
     case .applications: "Launch application"
     case .emoji: "Copy emoji"
     case .files: "Open item"
+    case .running: "Switch to app"
     case .shortcuts: "Run shortcut"
     case .systemCommands: "Run command"
     }

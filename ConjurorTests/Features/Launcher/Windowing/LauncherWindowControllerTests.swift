@@ -311,6 +311,56 @@ struct LauncherWindowControllerTests {
   }
 
   @MainActor
+  @Test("The panel routes running app commands only while their mode handles them")
+  func testRunningApplicationCommands() {
+    let panel = makePanel()
+    defer { panel.close() }
+    let textView = RecordingTextView()
+    panel.contentView?.addSubview(textView)
+    #expect(panel.makeFirstResponder(textView))
+    var handlesCommands = false
+    var commands = [RunningApplicationCommand]()
+    var terminateCount = 0
+    panel.handlesRunningApplicationCommands = { handlesCommands }
+    panel.onRunningApplicationCommand = { commands.append($0) }
+    panel.onTerminate = { terminateCount += 1 }
+    let delete = UInt16(kVK_Delete)
+
+    #expect(!panel.performKeyEquivalent(with: keyEvent("h", modifiers: .command)))
+    #expect(!panel.performKeyEquivalent(with: keyEvent("", keyCode: delete, modifiers: .command)))
+    #expect(commands.isEmpty)
+
+    handlesCommands = true
+    for (characters, keyCode, modifiers): (String, UInt16, NSEvent.ModifierFlags) in [
+      ("h", 0, .command),
+      ("h", 0, [.command, .option]),
+      ("", delete, .command),
+      ("", delete, [.command, .option]),
+      ("", delete, [.command, .shift]),
+      ("r", 0, .command),
+    ] {
+      #expect(
+        panel.performKeyEquivalent(
+          with: keyEvent(characters, keyCode: keyCode, modifiers: modifiers)
+        )
+      )
+    }
+    #expect(commands == [.hide, .hideOthers, .quit, .forceQuit, .quitAll, .relaunch])
+
+    #expect(panel.performKeyEquivalent(with: keyEvent("q", modifiers: .command)))
+    #expect(panel.performKeyEquivalent(with: keyEvent("a", modifiers: .command)))
+    #expect(terminateCount == 1)
+    #expect(textView.actions == ["selectAll"])
+    #expect(
+      LauncherKeyboardNavigation.revealsSelection(
+        keyCode: UInt16(kVK_Return),
+        modifiers: .command
+      )
+    )
+    #expect(commands.count == 6)
+  }
+
+  @MainActor
   @Test(
     "The panel routes text-editing shortcuts to the active text view"
   )

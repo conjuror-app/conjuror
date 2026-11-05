@@ -20,6 +20,12 @@ struct LauncherStoreTests {
     store.updateQuery("/notes")
     #expect(store.mode == .files)
 
+    store.updateQuery("!sleep")
+    #expect(store.mode == .systemCommands)
+
+    store.updateQuery("@safari")
+    #expect(store.mode == .running)
+
     store.updateQuery(";conjuror")
     #expect(store.mode == .applications)
     #expect(store.query == "conjuror")
@@ -106,15 +112,13 @@ struct LauncherStoreTests {
     store.updateQuery(":")
     #expect(store.mode == .emoji)
     store.cycleMode()
-    #expect(store.mode == .systemCommands)
+    #expect(store.mode == .running)
 
     store.prepareForActivation(mode: .files)
     #expect(store.mode == .applications)
   }
 
-  @Test(
-    "Launcher store: Tab mode cycling visits shortcuts, emoji, files, system commands, and apps"
-  )
+  @Test("Tab mode cycling visits every mode and returns to applications")
   func testModeCycle() {
     let store = makeStore()
 
@@ -126,6 +130,9 @@ struct LauncherStoreTests {
 
     store.cycleMode()
     #expect(store.mode == .files)
+
+    store.cycleMode()
+    #expect(store.mode == .running)
 
     store.cycleMode()
     #expect(store.mode == .systemCommands)
@@ -284,6 +291,7 @@ struct LauncherStoreTests {
     emojiHistory: EmojiHistoryStore? = nil,
     revealInFinder: @escaping @MainActor (URL) -> Void = { _ in },
     fileSearcher: FileSearching = FileSearcherStub(results: []),
+    runningApplicationController: RunningApplicationControlling? = nil,
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
@@ -302,6 +310,8 @@ struct LauncherStoreTests {
       emojiHistory: emojiHistory ?? EmojiHistoryStore(userDefaults: makeTestUserDefaults()),
       revealInFinder: revealInFinder,
       fileSearcher: fileSearcher,
+      runningApplicationController: runningApplicationController
+        ?? RunningApplicationControllerStub(),
       onEvent: onEvent
     )
   }

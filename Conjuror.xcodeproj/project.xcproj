@@ -194,6 +194,33 @@
               ],
             }, {
               "kind": "group",
+              "path": "RunningApplications",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "RunningApplication.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "RunningApplicationCommand.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "RunningApplicationCatalog.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "RunningApplicationController.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "RunningApplicationRanker.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "RunningApplicationResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
               "path": "Settings",
               "children": [
                 {
@@ -397,6 +424,7 @@
                   "children": [
                     { "path": "LauncherStoreApplicationTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreEmojiTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreRunningApplicationTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreShortcutTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreSystemCommandTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
@@ -406,6 +434,18 @@
                   "path": "Windowing",
                   "children": [
                     { "path": "LauncherWindowControllerTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "RunningApplications",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "RunningApplicationCatalogTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                   ],
                 },
               ],

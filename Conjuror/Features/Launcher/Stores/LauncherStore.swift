@@ -12,6 +12,7 @@ final class LauncherStore: ObservableObject {
   @Published var query = "" {
     didSet {
       armedCommand = nil
+      pendingConfirmation = nil
       refreshCurrentResults()
       selectFirstResult()
 
@@ -37,6 +38,8 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var filteredSystemCommands = [SystemCommand]()
   /// The command waiting for a second Return before it runs.
   @Published private(set) var armedCommand: SystemCommand?
+  @Published private(set) var filteredRunningApplications = [RunningApplication]()
+  @Published private(set) var pendingConfirmation: RunningApplicationConfirmation?
   @Published private(set) var selectedResultID: LauncherResultID?
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
@@ -53,6 +56,10 @@ final class LauncherStore: ObservableObject {
   /// The apps and System Settings sections in the ranked application results.
   var filteredApplications: [InstalledApplication] {
     filteredResults.compactMap(\.application)
+  }
+
+  var handlesRunningApplicationCommands: Bool {
+    mode == .running
   }
 
   var displayedEmoji: [Emoji] {
@@ -80,6 +87,8 @@ final class LauncherStore: ObservableObject {
       return application.url
     case .files:
       return selected(in: fileResults, as: { .file($0) })?.url
+    case .running:
+      return selectedRunningApplication?.bundleURL
     case .emoji, .shortcuts, .systemCommands:
       return nil
     }
@@ -94,6 +103,7 @@ final class LauncherStore: ObservableObject {
   private let runShortcut: @MainActor (AppleShortcut) async throws -> Void
   private let performSystemCommand: @MainActor (SystemCommand) async throws -> Void
   private let revealInFinder: @MainActor (URL) -> Void
+  private let runningApplicationController: RunningApplicationControlling
   private let emojiHistory: EmojiHistoryStore
   private let applicationController: RankedCatalog<ApplicationSearchResult>
   private let shortcutController: RankedCatalog<AppleShortcut>
@@ -115,12 +125,18 @@ final class LauncherStore: ObservableObject {
   private var hasLoadedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
+  private var runningApplicationIndex: SearchIndex<RunningApplication>?
+  private var runningApplicationObservation: AnyObject?
   @Published private var actionError: ActionError?
 
   private var preferredEmoji: [Emoji] {
     guard !EmojiRanker.requestsSkinTone(query) else { return filteredEmoji }
 
     return Emoji.withPreferredSkinTone(filteredEmoji, settingsStore.preferredEmojiSkinTone)
+  }
+
+  private var selectedRunningApplication: RunningApplication? {
+    selected(in: filteredRunningApplications, as: { .runningApplication($0) })
   }
 
   private var resultIDs: [LauncherResultID] {
@@ -131,6 +147,8 @@ final class LauncherStore: ObservableObject {
       displayedEmoji.map { .emoji($0.id) }
     case .files:
       fileResults.map { .file($0.id) }
+    case .running:
+      filteredRunningApplications.map { .runningApplication($0.id) }
     case .shortcuts:
       filteredShortcuts.map { .shortcut($0.id) }
     case .systemCommands:
@@ -156,6 +174,8 @@ final class LauncherStore: ObservableObject {
       NSWorkspace.shared.activateFileViewerSelecting([$0])
     },
     fileSearcher: FileSearching = SpotlightFileSearchService(),
+    runningApplicationController: RunningApplicationControlling =
+      WorkspaceRunningApplicationController(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
@@ -174,6 +194,7 @@ final class LauncherStore: ObservableObject {
     systemCommandController = RankedCatalog(history: launchHistory)
     systemCommandController.replace(SystemCommand.allCases)
     fileController = LauncherFileController(searcher: fileSearcher)
+    self.runningApplicationController = runningApplicationController
     self.onEvent = onEvent
 
     exclusionSubscription = settingsStore.$excludedApplications
@@ -183,6 +204,7 @@ final class LauncherStore: ObservableObject {
         excludedApplicationPaths = Set(exclusions.keys)
         catalogComposition = nil
         refreshApplications()
+        reloadRunningApplications()
         if mode == .applications, !resultIDs.contains(where: { $0 == self.selectedResultID }) {
           selectFirstResult()
         }
@@ -287,6 +309,7 @@ final class LauncherStore: ObservableObject {
   }
 
   func moveSelection(_ direction: MoveCommandDirection) {
+    pendingConfirmation = nil
     lastPointerLocation = NSEvent.mouseLocation
     armedCommand = nil
     selectedResultID = movedSelection(
@@ -312,6 +335,12 @@ final class LauncherStore: ObservableObject {
       if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { copy(emoji) }
     case .files:
       if let file = selected(in: fileResults, as: { .file($0) }) { open(file) }
+    case .running:
+      if pendingConfirmation != nil {
+        confirmPendingAction()
+      } else if let application = selectedRunningApplication {
+        switchTo(application)
+      }
     case .shortcuts:
       if let shortcut = selected(in: filteredShortcuts, as: { .shortcut($0) }) { run(shortcut) }
     case .systemCommands:
@@ -458,6 +487,91 @@ final class LauncherStore: ObservableObject {
     armedCommand = nil
   }
 
+  func switchTo(_ application: RunningApplication) {
+    selectedResultID = .runningApplication(application.id)
+    pendingConfirmation = nil
+
+    guard
+      attempt("switch to", application, { try runningApplicationController.activate($0) })
+    else {
+      return
+    }
+
+    query = ""
+    onEvent(.runningApplicationActivated)
+  }
+
+  func perform(_ command: RunningApplicationCommand) {
+    guard mode == .running else { return }
+
+    actionError = nil
+    pendingConfirmation = nil
+
+    if command == .quitAll {
+      let applications = filteredRunningApplications.filter { !$0.isFinder }
+      if !applications.isEmpty { pendingConfirmation = .quitAll(applications) }
+
+      return
+    }
+
+    guard let application = selectedRunningApplication else { return }
+
+    let controller = runningApplicationController
+    switch command {
+    case .forceQuit:
+      pendingConfirmation = .forceQuit(application)
+    case .hide:
+      attempt("hide", application, controller.hide)
+    case .hideOthers:
+      guard attempt("hide apps other than", application, controller.hideOthers) else { return }
+
+      query = ""
+      onEvent(.runningApplicationActivated)
+    case .quit:
+      attempt("quit", application, controller.quit)
+    case .quitAll:
+      break
+    case .relaunch:
+      perform(
+        operation: { try await controller.relaunch(application) },
+        onSuccess: {},
+        onFailure: { [weak self] error in
+          self?.actionError = ActionError(
+            mode: .running,
+            message: "Couldn’t relaunch \(application.displayName). \(error.localizedDescription)"
+          )
+        }
+      )
+      query = ""
+      onEvent(.runningApplicationActivated)
+    }
+  }
+
+  func confirmPendingAction() {
+    guard let confirmation = pendingConfirmation else { return }
+
+    pendingConfirmation = nil
+    let controller = runningApplicationController
+    switch confirmation {
+    case .forceQuit(let application):
+      attempt("force quit", application, controller.forceQuit)
+    case .quitAll(let applications):
+      for application in applications {
+        attempt("quit", application, controller.quit)
+      }
+    }
+  }
+
+  func cancelPendingAction() {
+    pendingConfirmation = nil
+  }
+
+  /// Releases results that only matter while the launcher is visible.
+  func didHide() {
+    pendingConfirmation = nil
+    stopRunningApplications()
+  }
+
   func clearActionError() {
     actionError = nil
   }
@@ -502,7 +616,7 @@ final class LauncherStore: ObservableObject {
     switch mode {
     case .files: settingsStore.isFilesModuleEnabled
     case .systemCommands: showsSystemCommands
-    case .applications, .emoji, .shortcuts: true
+    case .applications, .emoji, .running, .shortcuts: true
     }
   }
 
@@ -523,6 +637,13 @@ final class LauncherStore: ObservableObject {
   private func transition(to mode: LauncherMode, query: String? = "") {
     let mode = isEnabled(mode) ? mode : .applications
     self.mode = mode
+    pendingConfirmation = nil
+
+    if mode == .running {
+      startRunningApplications()
+    } else {
+      stopRunningApplications()
+    }
 
     if let query {
       self.query = query
@@ -615,6 +736,7 @@ final class LauncherStore: ObservableObject {
       loadEmojiIfNeeded()
       filteredEmoji = emojiIndex?.ranked(query: query) ?? []
     case .files: searchFiles()
+    case .running: refreshRunningApplications()
     case .shortcuts: refreshShortcuts()
     case .systemCommands: refreshSystemCommands()
     }
@@ -680,6 +802,76 @@ final class LauncherStore: ObservableObject {
     filteredResults = applicationController.ranked(query: query)
   }
 
+  /// Builds the running app list when its mode opens and follows workspace changes until it closes.
+  private func startRunningApplications() {
+    guard runningApplicationObservation == nil else { return }
+
+    runningApplicationObservation = runningApplicationController.observeChanges { [weak self] in
+      self?.reloadRunningApplications()
+    }
+    reloadRunningApplications()
+  }
+
+  private func stopRunningApplications() {
+    runningApplicationObservation = nil
+    runningApplicationIndex = nil
+    filteredRunningApplications = []
+  }
+
+  private func reloadRunningApplications() {
+    guard mode == .running, runningApplicationObservation != nil else { return }
+
+    let applications = RunningApplicationCatalog.applications(
+      from: runningApplicationController.candidates(),
+      ownProcessIdentifier: ProcessInfo.processInfo.processIdentifier,
+      installed: self.applications,
+      excludedPaths: excludedApplicationPaths
+    )
+    runningApplicationIndex = SearchIndex(applications)
+
+    let runningIDs = Set(applications.map(\.id))
+    if let pendingConfirmation,
+      !pendingConfirmation.targets.allSatisfy({ runningIDs.contains($0.id) })
+    {
+      self.pendingConfirmation = nil
+    }
+
+    let selectedID = selectedResultID
+    refreshRunningApplications()
+    if let selectedID, resultIDs.contains(selectedID) {
+      selectedResultID = selectedID
+    } else {
+      selectFirstResult()
+    }
+  }
+
+  private func refreshRunningApplications() {
+    guard mode == .running else { return }
+
+    filteredRunningApplications = runningApplicationIndex?.ranked(query: query, recency: [:]) ?? []
+  }
+
+  /// Runs an action on a running app, showing its error in Running apps mode.
+  @discardableResult
+  private func attempt(
+    _ verb: String,
+    _ application: RunningApplication,
+    _ action: @MainActor (RunningApplication) throws -> Void
+  ) -> Bool {
+    do {
+      try action(application)
+
+      return true
+    } catch {
+      actionError = ActionError(
+        mode: .running,
+        message: "Couldn’t \(verb) \(application.displayName). \(error.localizedDescription)"
+      )
+
+      return false
+    }
+  }
+
   private func refreshShortcuts() {
     guard mode == .shortcuts else { return }
 
@@ -710,6 +902,7 @@ enum LauncherEvent: Equatable {
   case itemRevealed
   case launchStarted
   case launchSucceeded
+  case runningApplicationActivated
   case shortcutRunStarted
   case systemCommandStarted
 
@@ -718,7 +911,9 @@ enum LauncherEvent: Equatable {
   var restoresPreviousFocus: Bool {
     switch self {
     case .calculatorResultCopied, .emojiCopied, .shortcutRunStarted, .systemCommandStarted: true
-    case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded: false
+    case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded,
+      .runningApplicationActivated:
+      false
     }
   }
 }
@@ -728,6 +923,7 @@ enum LauncherResultID: Hashable {
   case calculator
   case emoji(Emoji.ID)
   case file(FileSearchResult.ID)
+  case runningApplication(RunningApplication.ID)
   case shortcut(AppleShortcut.ID)
   case systemCommand(SystemCommand.ID)
 }

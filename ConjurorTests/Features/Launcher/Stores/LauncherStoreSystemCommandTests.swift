@@ -150,7 +150,7 @@ extension LauncherStoreTests {
     #expect(store.mode == .applications)
     #expect(store.query == "!sleep")
 
-    store.prepareForActivation(mode: .files)
+    store.prepareForActivation(mode: .running)
     store.cycleMode()
     #expect(store.mode == .applications)
   }

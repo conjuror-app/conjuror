@@ -6,6 +6,8 @@ final class LauncherPanel: NSPanel {
   var onCycleMode: (() -> Void)?
   var onRevealSelection: (() -> Void)?
   var allowsHorizontalNavigation: (() -> Bool)?
+  var handlesRunningApplicationCommands: (() -> Bool)?
+  var onRunningApplicationCommand: ((RunningApplicationCommand) -> Void)?
   var onOpenSettings: (() -> Void)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
 
@@ -58,6 +60,18 @@ final class LauncherPanel: NSPanel {
 
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
     let modifiers = LauncherKeyboardNavigation.relevantModifiers(event.modifierFlags)
+
+    if handlesRunningApplicationCommands?() == true,
+      let command = LauncherKeyboardNavigation.runningApplicationCommand(
+        keyCode: event.keyCode,
+        charactersIgnoringModifiers: event.charactersIgnoringModifiers,
+        modifiers: modifiers
+      )
+    {
+      onRunningApplicationCommand?(command)
+
+      return true
+    }
 
     if modifiers == .command {
       switch event.charactersIgnoringModifiers?.lowercased() {
