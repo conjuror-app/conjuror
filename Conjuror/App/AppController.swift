@@ -82,6 +82,7 @@ final class AppController: NSObject, NSApplicationDelegate {
 
     self.launcherWindowController = nil
     launcherWindowController.hide(restoringFocus: restoringFocus)
+    store.didHide()
   }
 
   func showLauncher() {

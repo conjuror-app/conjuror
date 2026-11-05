@@ -73,6 +73,14 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.revealSelectedResult()
     }
 
+    panel.handlesRunningApplicationCommands = { [weak store] in
+      store?.handlesRunningApplicationCommands == true
+    }
+
+    panel.onRunningApplicationCommand = { [weak store] command in
+      store?.perform(command)
+    }
+
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode.allowsHorizontalNavigation == true

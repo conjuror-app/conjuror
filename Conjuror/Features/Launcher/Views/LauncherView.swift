@@ -44,7 +44,9 @@ struct LauncherView: View {
           actionFooter
         }
 
-        if let actionErrorMessage = store.actionErrorMessage {
+        if let pendingConfirmation = store.pendingConfirmation {
+          confirmationBar(pendingConfirmation)
+        } else if let actionErrorMessage = store.actionErrorMessage {
           actionError(actionErrorMessage)
         }
       }
@@ -67,6 +69,8 @@ struct LauncherView: View {
     .onExitCommand {
       if store.armedCommand != nil {
         store.cancelConfirmation()
+      } else if store.pendingConfirmation != nil {
+        store.cancelPendingAction()
       } else if !store.query.isEmpty {
         store.updateQuery("")
       } else {
@@ -87,6 +91,8 @@ struct LauncherView: View {
       store.displayedEmoji.count
     case .files:
       store.fileResults.count
+    case .running:
+      store.filteredRunningApplications.count
     case .shortcuts:
       store.filteredShortcuts.count
     case .systemCommands:
@@ -98,7 +104,7 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.catalogErrorMessage
-    case .emoji, .systemCommands:
+    case .emoji, .running, .systemCommands:
       nil
     case .files:
       store.fileSearchErrorMessage
@@ -125,7 +131,7 @@ struct LauncherView: View {
       resultCount: resultCount,
       hasCatalogError: catalogErrorMessage != nil,
       hasHotKeyError: hotKeyStore.registrationErrorMessage != nil,
-      hasLaunchError: store.actionErrorMessage != nil,
+      hasLaunchError: store.actionErrorMessage != nil || store.pendingConfirmation != nil,
       maximumVisibleResults: settingsStore.maximumVisibleResults
     )
   }
@@ -157,8 +163,16 @@ struct LauncherView: View {
 
       HStack(spacing: 12) {
         HStack(spacing: 12) {
-          footerHint(keys: store.mode.allowsHorizontalNavigation ? "←↑↓→" : "↑↓", title: "Navigate")
-          footerHint(keys: "Tab", title: "Mode")
+          if store.mode == .running {
+            footerHint(keys: "⌘H", title: "Hide")
+            footerHint(keys: "⌘⌫", title: "Quit")
+          } else {
+            footerHint(
+              keys: store.mode.allowsHorizontalNavigation ? "←↑↓→" : "↑↓",
+              title: "Navigate"
+            )
+            footerHint(keys: "Tab", title: "Mode")
+          }
           footerHint(keys: "Esc", title: escapeTitle)
 
           if store.selectedRevealableURL != nil {
@@ -191,7 +205,7 @@ struct LauncherView: View {
   }
 
   private var escapeTitle: String {
-    if store.armedCommand != nil { return "Cancel" }
+    if store.armedCommand != nil || store.pendingConfirmation != nil { return "Cancel" }
 
     return store.query.isEmpty ? "Close" : "Clear"
   }
@@ -228,6 +242,32 @@ struct LauncherView: View {
     .padding(.horizontal, 10)
     .frame(height: LauncherLayout.statusHeight)
     .background(.red.opacity(0.06))
+  }
+
+  private func confirmationBar(_ confirmation: RunningApplicationConfirmation) -> some View {
+    HStack(spacing: 6) {
+      Image(systemName: "exclamationmark.triangle")
+        .foregroundStyle(.red)
+
+      Text(confirmation.message)
+        .lineLimit(1)
+        .truncationMode(.tail)
+
+      Spacer()
+
+      Button("Cancel", action: store.cancelPendingAction)
+        .help("Cancel (Esc)")
+
+      Button(confirmation.confirmTitle, role: .destructive, action: store.confirmPendingAction)
+        .help("\(confirmation.confirmTitle) (Return)")
+    }
+    .font(.caption)
+    .controlSize(.small)
+    .padding(.horizontal, 10)
+    .frame(height: LauncherLayout.statusHeight)
+    .background(.red.opacity(0.06))
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(confirmation.message)
   }
 
   private func statusMessage(
