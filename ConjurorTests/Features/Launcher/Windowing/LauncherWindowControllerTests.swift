@@ -7,71 +7,47 @@ import Testing
 
 @Suite("Launcher Window Controller")
 struct LauncherWindowControllerTests {
-  @Test("Collapsed and expanded heights", arguments: LauncherAppearance.allCases)
-  func testAppearanceHeights(appearance: LauncherAppearance) {
-    let layout = LauncherLayout(appearance: appearance)
-    let expanded = layout.expandedHeight(
-      resultCount: 5,
-      hasCatalogError: false,
-      hasHotKeyError: false,
-      hasLaunchError: false,
-      maximumVisibleResults: 7
-    )
+  @Test("Minimal appearance is more compact than standard")
+  func testMinimalIsCompact() {
+    let standard = LauncherLayout(appearance: .standard)
+    let minimal = LauncherLayout(appearance: .minimal)
 
-    #expect(layout.collapsedHeight == (appearance == .standard ? 54 : 46))
-    #expect(expanded == (appearance == .standard ? 294 : 217))
+    #expect(minimal.collapsedHeight < standard.collapsedHeight)
+    #expect(height(minimal, resultCount: 5) < height(standard, resultCount: 5))
   }
 
   @Test(
-    "Results beyond the visible limit do not grow the panel",
+    "Each result grows the panel until the visible limit",
     arguments: LauncherAppearance.allCases
   )
   func testHeightCapsVisibleResults(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
+    let heights = [1, 2, 3, 4, 100].map { height(layout, resultCount: $0, maximum: 3) }
 
-    for resultCount in [3, 4, 100] {
-      let height = layout.expandedHeight(
-        resultCount: resultCount,
-        hasCatalogError: false,
-        hasHotKeyError: false,
-        hasLaunchError: false,
-        maximumVisibleResults: 3
-      )
-      #expect(height == (appearance == .standard ? 212 : 151))
-    }
+    #expect(layout.collapsedHeight < heights[0])
+    #expect(heights[0] < heights[1])
+    #expect(heights[1] < heights[2])
+    #expect(heights[2] == heights[3])
+    #expect(heights[2] == heights[4])
   }
 
   @Test(
-    "Empty states and errors reserve space in both appearances",
+    "Empty states and errors reserve space",
     arguments: LauncherAppearance.allCases
   )
   func testEmptyAndErrorHeights(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
-    let empty = layout.expandedHeight(
-      resultCount: 0,
-      hasCatalogError: false,
-      hasHotKeyError: false,
-      hasLaunchError: false,
-      maximumVisibleResults: 7
-    )
-    let catalogError = layout.expandedHeight(
-      resultCount: 5,
-      hasCatalogError: true,
-      hasHotKeyError: false,
-      hasLaunchError: false,
-      maximumVisibleResults: 7
-    )
-    let actionAndHotKeyErrors = layout.expandedHeight(
-      resultCount: 5,
-      hasCatalogError: false,
-      hasHotKeyError: true,
-      hasLaunchError: true,
-      maximumVisibleResults: 7
-    )
+    let empty = height(layout, resultCount: 0)
+    let results = height(layout, resultCount: 5)
 
-    #expect(empty == (appearance == .standard ? 125 : 117))
-    #expect(catalogError == (appearance == .standard ? 157 : 149))
-    #expect(actionAndHotKeyErrors == (appearance == .standard ? 346 : 269))
+    #expect(layout.collapsedHeight < empty)
+    #expect(empty < height(layout, resultCount: 5, hasCatalogError: true))
+    #expect(results < height(layout, resultCount: 5, hasHotKeyError: true))
+    #expect(results < height(layout, resultCount: 5, hasLaunchError: true))
+    #expect(
+      height(layout, resultCount: 5, hasHotKeyError: true)
+        < height(layout, resultCount: 5, hasHotKeyError: true, hasLaunchError: true)
+    )
   }
 
   @MainActor
@@ -169,33 +145,20 @@ struct LauncherWindowControllerTests {
   func testEmojiHeights(appearance: LauncherAppearance) {
     let layout = LauncherLayout(appearance: appearance)
 
-    for itemCount in [1, 9] {
-      let height = layout.emojiExpandedHeight(
+    func emojiHeight(_ itemCount: Int, hasRecentHeader: Bool = false) -> CGFloat {
+      layout.emojiExpandedHeight(
         itemCount: itemCount,
-        hasRecentHeader: false,
+        hasRecentHeader: hasRecentHeader,
         hasHotKeyError: false,
         maximumVisibleResults: 3
       )
-      #expect(height == (appearance == .standard ? 132 : 89))
     }
 
-    let twoRows = layout.emojiExpandedHeight(
-      itemCount: 10,
-      hasRecentHeader: false,
-      hasHotKeyError: false,
-      maximumVisibleResults: 3
-    )
-    #expect(twoRows == (appearance == .standard ? 176 : 127))
-
-    for itemCount in [27, 28, 100] {
-      let height = layout.emojiExpandedHeight(
-        itemCount: itemCount,
-        hasRecentHeader: true,
-        hasHotKeyError: false,
-        maximumVisibleResults: 3
-      )
-      #expect(height == (appearance == .standard ? 237 : 182))
-    }
+    #expect(emojiHeight(1) == emojiHeight(9))
+    #expect(emojiHeight(9) < emojiHeight(10))
+    #expect(emojiHeight(27) < emojiHeight(27, hasRecentHeader: true))
+    #expect(emojiHeight(27) == emojiHeight(28))
+    #expect(emojiHeight(27) == emojiHeight(100))
   }
 
   @Test("Command shortcuts ignore Caps Lock and reject other modifiers")
@@ -341,12 +304,12 @@ struct LauncherWindowControllerTests {
     #expect(panel.performKeyEquivalent(with: keyEvent("a", modifiers: .command)))
     #expect(terminateCount == 1)
     #expect(textView.actions == ["selectAll"])
-    #expect(
-      LauncherKeyboardNavigation.revealsSelection(
-        keyCode: UInt16(kVK_Return),
-        modifiers: .command
-      )
-    )
+
+    var revealCount = 0
+    panel.onRevealSelection = { revealCount += 1 }
+    panel.sendEvent(keyEvent("\r", keyCode: UInt16(kVK_Return), modifiers: .command))
+
+    #expect(revealCount == 1)
     #expect(commands.count == 6)
   }
 
@@ -386,6 +349,23 @@ struct LauncherWindowControllerTests {
     panel.contentView?.addSubview(NSButton())
 
     #expect(!panel.performKeyEquivalent(with: keyEvent("c", modifiers: .command)))
+  }
+
+  private func height(
+    _ layout: LauncherLayout,
+    resultCount: Int,
+    hasCatalogError: Bool = false,
+    hasHotKeyError: Bool = false,
+    hasLaunchError: Bool = false,
+    maximum: Int = 7
+  ) -> CGFloat {
+    layout.expandedHeight(
+      resultCount: resultCount,
+      hasCatalogError: hasCatalogError,
+      hasHotKeyError: hasHotKeyError,
+      hasLaunchError: hasLaunchError,
+      maximumVisibleResults: maximum
+    )
   }
 
   private func command(

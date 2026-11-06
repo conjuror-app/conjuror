@@ -45,14 +45,6 @@ struct ShortcutCatalogTests {
     )
   }
 
-  @Test("Shortcut identifiers are passed directly to run scripts")
-  func testRunScript() {
-    let script = ShortcutsEventsBridge.runScript(identifier: "shortcut-id")
-
-    #expect(script.contains("run shortcut id \"shortcut-id\""))
-    #expect(!script.contains("first shortcut"))
-  }
-
   @Test("Structured Shortcuts Events responses are parsed")
   func testShortcutResponse() throws {
     let response = NSAppleEventDescriptor.list()

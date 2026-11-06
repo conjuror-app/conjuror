@@ -97,41 +97,23 @@ struct FileSearchServiceTests {
     #expect(metadataQuery.didStop)
   }
 
-  @Test("Each word becomes an ordered fuzzy pattern")
-  func testFuzzyPatterns() {
-    #expect(SpotlightFilenameQuery.patterns(for: "xcd") == ["*x*c*d*"])
-    #expect(SpotlightFilenameQuery.patterns(for: "rés umé") == ["*r*e*s*", "*u*m*e*"])
-    #expect(SpotlightFilenameQuery.patterns(for: "char games") == ["*c*h*a*r*", "*g*a*m*e*s*"])
-  }
-
-  @Test("Wildcard characters are escaped")
-  func testEscapedWildcards() {
-    #expect(SpotlightFilenameQuery.patterns(for: "*") == ["*\\**"])
-    #expect(SpotlightFilenameQuery.patterns(for: "?") == ["*\\?*"])
-    #expect(SpotlightFilenameQuery.patterns(for: "\\") == ["*\\\\*"])
-  }
-
-  @Test("Single words use a direct predicate")
-  func testSingleWordSpotlightPredicateIsDirect() {
-    let predicate = SpotlightFilenameQuery.predicate(for: "notes")
-
-    #expect(!(predicate is NSCompoundPredicate))
-    #expect(
-      predicate.evaluate(
-        with: [NSMetadataItemDisplayNameKey: "Meeting Notes.md"]
-      )
-    )
-  }
-
-  @Test("Fuzzy words match across a filename")
+  @Test("Each word matches its letters in order, ignoring case and diacritics")
   func testFuzzyWords() {
-    let predicate = SpotlightFilenameQuery.predicate(for: "char games")
+    #expect(matches("xcd", "Xcode.app"))
+    #expect(!matches("xcd", "dcx.txt"))
+    #expect(matches("rés umé", "Resume.pdf"))
+    #expect(matches("char games", "Characteristics of Games.pdf"))
+    #expect(!matches("char games", "Characteristics.pdf"))
+  }
 
-    #expect(
-      predicate.evaluate(
-        with: [NSMetadataItemDisplayNameKey: "Characteristics of Games.pdf"]
-      )
-    )
+  @Test("Wildcard characters match literally")
+  func testWildcardsMatchLiterally() {
+    #expect(matches("*", "a*b.txt"))
+    #expect(!matches("*", "notes.txt"))
+    #expect(matches("?", "why?.txt"))
+    #expect(!matches("?", "notes.txt"))
+    #expect(matches("\\", "back\\slash.txt"))
+    #expect(!matches("\\", "notes.txt"))
   }
 
   @Test("Files that don't match the query stay after matches")
@@ -152,6 +134,11 @@ struct FileSearchServiceTests {
     let ranked = FileResultRanker.ranked(results: results, query: "alpha")
 
     #expect(ranked.map(\.isDirectory) == [true, false])
+  }
+
+  private func matches(_ query: String, _ filename: String) -> Bool {
+    SpotlightFilenameQuery.predicate(for: query)
+      .evaluate(with: [NSMetadataItemDisplayNameKey: filename])
   }
 
   private func result(_ name: String, isDirectory: Bool = false) -> FileSearchResult {
