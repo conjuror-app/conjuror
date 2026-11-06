@@ -33,7 +33,8 @@ repository retains historical downloads and feedback links for older apps.
    release URL, and display name, and update the Homebrew cask's version, URL,
    and SHA-256.
 
-Source tags and archive filenames are separate. Historical source tags use
-`1.0.0-alpha.N`, while their archives use `1.0-alpha.N` or `1.0-N`. Preserve
-the actual filenames. Use explicit release URLs for alphas; GitHub's
+Source tags and archive filenames are separate. Source tags use
+`1.0.0-alpha.N`, while `make zip` creates `conjuror-1.0-alpha.N.zip` and
+`conjuror-1.0-alpha.N.dSYM.zip` to match the Homebrew alpha cask's version.
+Preserve historical filenames. Use explicit release URLs for alphas; GitHub's
 `/releases/latest` shortcut excludes prereleases.

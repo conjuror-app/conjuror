@@ -64,8 +64,8 @@ zip:
 	xcrun stapler validate "$(EXPORTED_APP)"
 	@version=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$(EXPORTED_APP)/Contents/Info.plist"); \
 	build=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$(EXPORTED_APP)/Contents/Info.plist"); \
-	output="$(BUILDS_PATH)/conjuror-$$version-$$build.zip"; \
-	symbols="$(BUILDS_PATH)/conjuror-$$version-$$build.dSYM.zip"; \
+	output="$(BUILDS_PATH)/conjuror-$$version-alpha.$$build.zip"; \
+	symbols="$(BUILDS_PATH)/conjuror-$$version-alpha.$$build.dSYM.zip"; \
 	mkdir -p "$(BUILDS_PATH)"; \
 	rm -f "$$output" "$$symbols"; \
 	ditto -c -k --keepParent "$(EXPORTED_APP)" "$$output"; \
