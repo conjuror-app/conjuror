@@ -2,14 +2,20 @@
 
 ## Unreleased
 
+## 1.0 alpha (17)
+
 - Added app aliases: type a short keyword such as `vs` to rank its app first.
 - Added per-app hotkeys that open or switch to an app, or hide it when it's already in front.
+- Added controls for app aliases and hotkeys in Settings → Apps → Aliases & Hotkeys.
+- Added app exclusions in Settings → Apps to hide selected apps from search and recent results.
+- Made the Settings window resize vertically and remember its height between launches.
 - Kept other hotkeys working when one can't be registered.
 - Added system commands such as Lock Screen, Sleep, Restart, and Empty Trash to application search, and `!` to list them, with confirmation for Empty Trash and Eject All Disks.
 - Ignored held Return key repeats in the launcher.
 - Added quicklinks that open URLs from the launcher. Use keywords such as `gh swift testing` and choose the app each one opens in.
 - Added a web search row at the end of app results, opened with Return or ⌥Return, using a search engine chosen in Settings.
 - Added a running apps mode: type `@` to switch to, hide, quit, force quit, or relaunch running apps.
+- Kept apps hidden when closing the launcher after hiding them.
 - Added ⌘Return to reveal the selected app or file in Finder.
 - Added `now + 2 hours` and `now - 3 days` relative dates, and seconds as a relative date unit.
 - Added date differences such as `now - 1 aug 2025 in days`, and offsets from typed dates such as `1 aug 2025 + 30 days`.
