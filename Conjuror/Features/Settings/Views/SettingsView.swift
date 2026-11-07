@@ -72,6 +72,8 @@ struct SettingsView: View {
       AppsSettingsView(store: store, launcherStore: launcherStore, hotKeyStore: hotKeyStore)
     case .emoji:
       EmojiSettingsView(store: store, hotKeyStore: hotKeyStore)
+    case .clipboard:
+      ClipboardSettingsView(store: store, launcherStore: launcherStore, hotKeyStore: hotKeyStore)
     case .shortcuts:
       ShortcutsSettingsView(store: store, hotKeyStore: hotKeyStore)
     case .calculator:
@@ -147,6 +149,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
   case general
   case apps
   case emoji
+  case clipboard
   case shortcuts
   case calculator
   case files
@@ -160,6 +163,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case .general: "General"
     case .apps: "Apps"
     case .emoji: "Emoji"
+    case .clipboard: "Clipboard"
     case .shortcuts: "Shortcuts"
     case .calculator: "Calculator"
     case .files: "Files"
@@ -173,6 +177,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable {
     case .general: "gearshape"
     case .apps: "square.grid.2x2"
     case .emoji: "face.smiling"
+    case .clipboard: "doc.on.clipboard"
     case .shortcuts: "square.stack.3d.up"
     case .calculator: "function"
     case .files: "folder"

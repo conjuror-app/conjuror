@@ -88,6 +88,8 @@ struct LauncherView: View {
     case .applications:
       store.filteredResults.count + (store.calculatorResult == nil ? 0 : 1)
         + store.quicklinkResultCount
+    case .clipboard:
+      store.filteredClipboardItems.count
     case .emoji:
       store.displayedEmoji.count
     case .files:
@@ -105,7 +107,7 @@ struct LauncherView: View {
     switch store.mode {
     case .applications:
       store.catalogErrorMessage
-    case .emoji, .running, .systemCommands:
+    case .clipboard, .emoji, .running, .systemCommands:
       nil
     case .files:
       store.fileSearchErrorMessage
@@ -154,6 +156,10 @@ struct LauncherView: View {
       return LauncherMode.systemCommands.actionTitle
     }
 
+    if store.mode == .clipboard {
+      return store.clipboardActionTitle
+    }
+
     return store.mode.actionTitle
   }
 
@@ -178,6 +184,14 @@ struct LauncherView: View {
 
           if store.selectedRevealableURL != nil {
             footerHint(keys: "⌘↵", title: "Reveal")
+          }
+
+          if store.mode == .clipboard {
+            footerHint(keys: "⌃X", title: "Delete")
+
+            if store.pastesClipboardItems {
+              footerHint(keys: "⌘↵", title: "Copy")
+            }
           }
         }
 

@@ -39,6 +39,7 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var isSearchingFiles = false
   @Published private(set) var fileSearchErrorMessage: String?
   @Published private(set) var filteredSystemCommands = [SystemCommand]()
+  @Published private(set) var filteredClipboardItems = [ClipboardItem]()
   /// The command waiting for a second Return before it runs.
   @Published private(set) var armedCommand: SystemCommand?
   @Published private(set) var filteredRunningApplications = [RunningApplication]()
@@ -71,6 +72,19 @@ final class LauncherStore: ObservableObject {
     mode == .running
   }
 
+  var handlesClipboardCommands: Bool {
+    mode == .clipboard
+  }
+
+  /// Return pastes into the previous app when macOS allows it, and only copies otherwise.
+  var pastesClipboardItems: Bool {
+    clipboardPaster.canPaste
+  }
+
+  var clipboardActionTitle: String {
+    pastesClipboardItems ? "Paste" : "Copy"
+  }
+
   var displayedEmoji: [Emoji] {
     let emoji = preferredEmoji
 
@@ -98,7 +112,7 @@ final class LauncherStore: ObservableObject {
       return selected(in: fileResults, as: { .file($0) })?.url
     case .running:
       return selectedRunningApplication?.bundleURL
-    case .emoji, .shortcuts, .systemCommands:
+    case .clipboard, .emoji, .shortcuts, .systemCommands:
       return nil
     }
   }
@@ -116,6 +130,8 @@ final class LauncherStore: ObservableObject {
   private let openQuicklink: @MainActor (URL, Quicklink.Target) async throws -> Void
   private let quicklinkHistory: RecencyStore
   private let emojiHistory: EmojiHistoryStore
+  private let clipboardHistory: ClipboardHistoryStore
+  private let clipboardPaster: ClipboardPasting
   private let applicationController: RankedCatalog<ApplicationSearchResult>
   private let shortcutController: RankedCatalog<AppleShortcut>
   private let systemCommandController: RankedCatalog<SystemCommand>
@@ -144,6 +160,9 @@ final class LauncherStore: ObservableObject {
   private var lastPointerLocation: NSPoint?
   private var runningApplicationIndex: SearchIndex<RunningApplication>?
   private var runningApplicationObservation: AnyObject?
+  private var clipboardIndex = ClipboardSearchIndex(items: [])
+  private var clipboardSubscription: AnyCancellable?
+  private var clipboardSettingsSubscription: AnyCancellable?
   @Published private var actionError: ActionError?
 
   private var preferredEmoji: [Emoji] {
@@ -163,6 +182,10 @@ final class LauncherStore: ObservableObject {
     selected(in: filteredRunningApplications, as: { .runningApplication($0) })
   }
 
+  private var selectedClipboardItem: ClipboardItem? {
+    selected(in: filteredClipboardItems, as: { .clipboardItem($0) })
+  }
+
   private var resultIDs: [LauncherResultID] {
     switch mode {
     case .applications:
@@ -171,6 +194,8 @@ final class LauncherStore: ObservableObject {
         + filteredResults.map(\.id)
         + filteredQuicklinks.map { .quicklink($0.id) }
         + (webSearchMatch == nil ? [] : [.webSearch])
+    case .clipboard:
+      filteredClipboardItems.map { .clipboardItem($0.id) }
     case .emoji:
       displayedEmoji.map { .emoji($0.id) }
     case .files:
@@ -207,6 +232,8 @@ final class LauncherStore: ObservableObject {
     openQuicklink: @escaping @MainActor (URL, Quicklink.Target) async throws -> Void =
       QuicklinkOpener().open,
     quicklinkHistory: RecencyStore = .quicklinkOpens(),
+    clipboardHistory: ClipboardHistoryStore = ClipboardHistoryStore(fileURL: nil),
+    clipboardPaster: ClipboardPasting = KeystrokeClipboardPaster(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) {
     self.settingsStore = settingsStore
@@ -229,6 +256,8 @@ final class LauncherStore: ObservableObject {
     self.openQuicklink = openQuicklink
     self.quicklinkHistory = quicklinkHistory
     quicklinkUses = quicklinkHistory.load()
+    self.clipboardHistory = clipboardHistory
+    self.clipboardPaster = clipboardPaster
     self.onEvent = onEvent
 
     // Published values arrive before the store's properties change, so use the emitted ones.
@@ -260,6 +289,18 @@ final class LauncherStore: ObservableObject {
     systemCommandsSubscription = settingsStore.$showsSystemCommands
       .sink { [weak self] showsCommands in
         self?.setShowsSystemCommands(showsCommands)
+      }
+
+    clipboardSubscription = clipboardHistory.$items
+      .sink { [weak self] items in
+        self?.replaceClipboardItems(with: items)
+      }
+
+    clipboardSettingsSubscription = settingsStore.$isClipboardHistoryEnabled
+      .sink { [weak self] isEnabled in
+        guard let self, !isEnabled, mode == .clipboard else { return }
+
+        transition(to: .applications)
       }
   }
 
@@ -390,6 +431,8 @@ final class LauncherStore: ObservableObject {
           }
         }
       }
+    case .clipboard:
+      if let item = selectedClipboardItem { paste(item) }
     case .emoji:
       if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { copy(emoji) }
     case .files:
@@ -409,7 +452,14 @@ final class LauncherStore: ObservableObject {
     }
   }
 
+  /// Reveals the selected app or file in Finder. In clipboard mode, copies without pasting.
   func revealSelectedResult() {
+    if mode == .clipboard {
+      if let item = selectedClipboardItem { copy(item) }
+
+      return
+    }
+
     guard let url = selectedRevealableURL else { return }
 
     revealInFinder(url)
@@ -505,6 +555,42 @@ final class LauncherStore: ObservableObject {
     query = ""
     mode = .applications
     onEvent(.emojiCopied)
+  }
+
+  /// Puts the item back on the clipboard and pastes it into the previous app, or only copies it
+  /// when Conjuror isn't allowed to send keystrokes.
+  func paste(_ item: ClipboardItem) {
+    guard clipboardPaster.canPaste else {
+      copy(item)
+
+      return
+    }
+
+    restoreToClipboard(item)
+    onEvent(.clipboardItemPasted)
+    clipboardPaster.paste()
+  }
+
+  func copy(_ item: ClipboardItem) {
+    restoreToClipboard(item)
+    onEvent(.clipboardItemCopied)
+  }
+
+  func deleteSelectedClipboardItem() {
+    guard mode == .clipboard, let item = selectedClipboardItem else { return }
+
+    let index = filteredClipboardItems.firstIndex(of: item) ?? 0
+    clipboardHistory.remove(id: item.id)
+
+    let remainingItems = filteredClipboardItems
+    if !remainingItems.isEmpty {
+      selectedResultID = .clipboardItem(remainingItems[min(index, remainingItems.count - 1)].id)
+      selectionScrollRequest &+= 1
+    }
+  }
+
+  func clearClipboardHistory() {
+    clipboardHistory.removeAll()
   }
 
   func open(_ file: FileSearchResult) {
@@ -720,6 +806,7 @@ final class LauncherStore: ObservableObject {
 
   private func isEnabled(_ mode: LauncherMode) -> Bool {
     switch mode {
+    case .clipboard: settingsStore.isClipboardHistoryEnabled
     case .files: settingsStore.isFilesModuleEnabled
     case .systemCommands: showsSystemCommands
     case .applications, .emoji, .running, .shortcuts: true
@@ -848,6 +935,7 @@ final class LauncherStore: ObservableObject {
 
     switch mode {
     case .applications: refreshApplications()
+    case .clipboard: refreshClipboardItems()
     case .emoji:
       loadEmojiIfNeeded()
       filteredEmoji = emojiIndex?.ranked(query: query) ?? []
@@ -1024,6 +1112,34 @@ final class LauncherStore: ObservableObject {
     filteredShortcuts = shortcutController.ranked(query: query)
   }
 
+  private func restoreToClipboard(_ item: ClipboardItem) {
+    writeToClipboard(item.text)
+    clipboardHistory.record(item.text, source: item.source)
+    query = ""
+    mode = .applications
+  }
+
+  /// Rebuilds the search index when history changes, keeping the selection if it's still there.
+  private func replaceClipboardItems(with items: [ClipboardItem]) {
+    clipboardIndex = ClipboardSearchIndex(items: items)
+
+    guard mode == .clipboard else { return }
+
+    let selectedID = selectedResultID
+    refreshClipboardItems()
+    if let selectedID, resultIDs.contains(selectedID) {
+      selectedResultID = selectedID
+    } else {
+      selectFirstResult()
+    }
+  }
+
+  private func refreshClipboardItems() {
+    guard mode == .clipboard else { return }
+
+    filteredClipboardItems = clipboardIndex.matches(for: query)
+  }
+
   private func refreshSystemCommands() {
     guard mode == .systemCommands else { return }
 
@@ -1043,6 +1159,8 @@ private struct ActionError {
 
 enum LauncherEvent: Equatable {
   case calculatorResultCopied
+  case clipboardItemCopied
+  case clipboardItemPasted
   case emojiCopied
   case fileOpened
   case itemRevealed
@@ -1057,7 +1175,9 @@ enum LauncherEvent: Equatable {
   /// returns it to the previous app.
   var restoresPreviousFocus: Bool {
     switch self {
-    case .calculatorResultCopied, .emojiCopied, .shortcutRunStarted, .systemCommandStarted: true
+    case .calculatorResultCopied, .clipboardItemCopied, .clipboardItemPasted, .emojiCopied,
+      .shortcutRunStarted, .systemCommandStarted:
+      true
     case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded, .quicklinkOpened,
       .runningApplicationActivated:
       false
@@ -1068,6 +1188,7 @@ enum LauncherEvent: Equatable {
 enum LauncherResultID: Hashable {
   case application(InstalledApplication.ID)
   case calculator
+  case clipboardItem(ClipboardItem.ID)
   case emoji(Emoji.ID)
   case file(FileSearchResult.ID)
   case quicklink(Quicklink.ID)

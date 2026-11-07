@@ -15,6 +15,12 @@ final class SettingsStore: ObservableObject {
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
+    static let isClipboardHistoryEnabled = UserDefaultsKey<Bool>(
+      "settings.isClipboardHistoryEnabled"
+    )
+    static let clipboardHistoryRetention = UserDefaultsKey<String>(
+      "settings.clipboardHistoryRetention"
+    )
     static let excludedApplications = UserDefaultsKey<[String: String]>(
       "settings.excludedApplications"
     )
@@ -39,6 +45,7 @@ final class SettingsStore: ObservableObject {
         case .shortcuts: ("settings.shortcutsHotKey", "settings.optionalHotKeysInitialized")
         case .emoji: ("settings.emojiHotKey", "settings.optionalHotKeysInitialized")
         case .files: ("settings.filesHotKey", "settings.filesHotKeyInitialized")
+        case .clipboard: ("settings.clipboardHotKey", "settings.clipboardHotKeyInitialized")
         }
 
       return HotKeyKeys(
@@ -81,6 +88,8 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  @Published private(set) var isClipboardHistoryEnabled: Bool
+  @Published private(set) var clipboardHistoryRetention: ClipboardHistoryRetention
   /// Canonical installation paths mapped to names, including apps no longer installed.
   @Published private(set) var excludedApplications: [String: String]
   @Published private(set) var showsSystemSettingsItems: Bool
@@ -133,6 +142,10 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
+    isClipboardHistoryEnabled = userDefaults.value(for: Key.isClipboardHistoryEnabled) ?? false
+    clipboardHistoryRetention =
+      userDefaults.value(for: Key.clipboardHistoryRetention)
+      .flatMap(ClipboardHistoryRetention.init(rawValue:)) ?? .default
     excludedApplications = userDefaults.value(for: Key.excludedApplications) ?? [:]
     showsSystemSettingsItems = userDefaults.value(for: Key.showsSystemSettingsItems) ?? true
     showsSystemCommands = userDefaults.value(for: Key.showsSystemCommands) ?? true
@@ -197,6 +210,16 @@ final class SettingsStore: ObservableObject {
   func setFilesModuleEnabled(_ isEnabled: Bool) {
     isFilesModuleEnabled = isEnabled
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
+  }
+
+  func setClipboardHistoryEnabled(_ isEnabled: Bool) {
+    isClipboardHistoryEnabled = isEnabled
+    userDefaults.set(isEnabled, for: Key.isClipboardHistoryEnabled)
+  }
+
+  func setClipboardHistoryRetention(_ retention: ClipboardHistoryRetention) {
+    clipboardHistoryRetention = retention
+    userDefaults.set(retention.rawValue, for: Key.clipboardHistoryRetention)
   }
 
   func excludeApplication(_ application: InstalledApplication) {

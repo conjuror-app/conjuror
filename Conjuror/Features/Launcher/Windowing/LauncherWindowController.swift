@@ -95,6 +95,14 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.perform(command)
     }
 
+    panel.handlesClipboardCommands = { [weak store] in
+      store?.handlesClipboardCommands == true
+    }
+
+    panel.onDeleteClipboardItem = { [weak store] in
+      store?.deleteSelectedClipboardItem()
+    }
+
     panel.onOpenSettings = onOpenSettings
     panel.allowsHorizontalNavigation = { [weak store] in
       store?.mode.allowsHorizontalNavigation == true

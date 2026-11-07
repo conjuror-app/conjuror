@@ -17,6 +17,7 @@ enum HotKeyAction: CaseIterable, Hashable {
   case shortcuts
   case emoji
   case files
+  case clipboard
 
   var defaultConfiguration: HotKeyConfiguration {
     switch self {
@@ -38,6 +39,12 @@ enum HotKeyAction: CaseIterable, Hashable {
         keyCode: UInt32(kVK_ANSI_F),
         modifiers: UInt32(cmdKey | shiftKey),
         displayName: "⌘⇧ F"
+      )
+    case .clipboard:
+      HotKeyConfiguration(
+        keyCode: UInt32(kVK_ANSI_V),
+        modifiers: UInt32(optionKey | shiftKey),
+        displayName: "⌥⇧ V"
       )
     }
   }
