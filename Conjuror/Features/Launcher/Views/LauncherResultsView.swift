@@ -9,6 +9,8 @@ struct LauncherResultsView: View {
     switch store.mode {
     case .applications:
       applicationResults
+    case .clipboard:
+      clipboardResults
     case .emoji:
       emojiResults
     case .files:
@@ -95,6 +97,30 @@ struct LauncherResultsView: View {
       resultsScrollView(selectedID: store.selectedResultID) {
         ForEach(store.filteredSystemCommands) { command in
           systemCommandRow(command)
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var clipboardResults: some View {
+    if store.filteredClipboardItems.isEmpty {
+      emptyState(
+        systemImage: store.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass",
+        message: store.query.isEmpty ? "Copy some text to see it here" : "No matches"
+      )
+    } else {
+      resultsScrollView(selectedID: store.selectedResultID) {
+        ForEach(store.filteredClipboardItems) { item in
+          ClipboardResultRow(
+            item: item,
+            layout: layout,
+            isSelected: store.selectedResultID == .clipboardItem(item.id),
+            actionTitle: store.clipboardActionTitle,
+            onHover: { store.selectOnHover(.clipboardItem(item.id)) },
+            onSelect: { store.paste(item) }
+          )
+          .id(LauncherResultID.clipboardItem(item.id))
         }
       }
     }

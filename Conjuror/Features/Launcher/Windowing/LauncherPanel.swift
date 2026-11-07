@@ -9,6 +9,8 @@ final class LauncherPanel: NSPanel {
   var allowsHorizontalNavigation: (() -> Bool)?
   var handlesRunningApplicationCommands: (() -> Bool)?
   var onRunningApplicationCommand: ((RunningApplicationCommand) -> Void)?
+  var handlesClipboardCommands: (() -> Bool)?
+  var onDeleteClipboardItem: (() -> Void)?
   var onOpenSettings: (() -> Void)?
   var onTerminate: (() -> Void) = { NSApp.terminate(nil) }
 
@@ -82,6 +84,17 @@ final class LauncherPanel: NSPanel {
       )
     {
       onRunningApplicationCommand?(command)
+
+      return true
+    }
+
+    if handlesClipboardCommands?() == true,
+      LauncherKeyboardNavigation.deletesClipboardItem(
+        charactersIgnoringModifiers: event.charactersIgnoringModifiers,
+        modifiers: modifiers
+      )
+    {
+      onDeleteClipboardItem?()
 
       return true
     }

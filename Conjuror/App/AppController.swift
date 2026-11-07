@@ -5,10 +5,17 @@ import Combine
 final class AppController: NSObject, NSApplicationDelegate {
   private lazy var settingsStore = SettingsStore()
   private lazy var fileSearchService = SpotlightFileSearchService()
+  private lazy var clipboardHistory = ClipboardHistoryStore(
+    fileURL: ClipboardHistoryStore.defaultURL()
+  )
+  private lazy var clipboardMonitor = ClipboardMonitor { [weak self] text, source in
+    self?.clipboardHistory.record(text, source: source)
+  }
 
   private lazy var store = LauncherStore(
     settingsStore: settingsStore,
     fileSearcher: fileSearchService,
+    clipboardHistory: clipboardHistory,
     onEvent: { [weak self] event in
       guard event != .launchSucceeded else { return }
 
@@ -46,12 +53,14 @@ final class AppController: NSObject, NSApplicationDelegate {
     applicationDirectoryMonitor.start(directories: ApplicationCatalog.applicationDirectories())
     observeCurrencyRates()
     observeApplicationCatalog()
+    observeClipboardHistorySettings()
     currencyRateStore.start()
     store.loadApplications()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
     applicationDirectoryMonitor.stop()
+    clipboardMonitor.stop()
     catalogRefresh.cancel()
 
     let notificationCenter = NSWorkspace.shared.notificationCenter
@@ -116,6 +125,8 @@ final class AppController: NSObject, NSApplicationDelegate {
       launcherController().toggle(mode: .emoji)
     case .files:
       launcherController().toggle(mode: .files)
+    case .clipboard:
+      launcherController().toggle(mode: .clipboard)
     }
   }
 
@@ -249,6 +260,24 @@ final class AppController: NSObject, NSApplicationDelegate {
         else { return }
 
         hotKeyStore.register()
+      }
+      .store(in: &cancellables)
+  }
+
+  /// Watches the clipboard only while history is on. Turning it off deletes the history.
+  private func observeClipboardHistorySettings() {
+    settingsStore.$isClipboardHistoryEnabled
+      .combineLatest(settingsStore.$clipboardHistoryRetention)
+      .sink { [weak self] isEnabled, retention in
+        guard let self else { return }
+
+        if isEnabled {
+          clipboardHistory.setRetention(retention)
+          clipboardMonitor.start()
+        } else {
+          clipboardMonitor.stop()
+          clipboardHistory.removeAll()
+        }
       }
       .store(in: &cancellables)
   }

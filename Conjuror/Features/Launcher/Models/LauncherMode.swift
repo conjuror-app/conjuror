@@ -1,5 +1,6 @@
 enum LauncherMode: Equatable, Sendable {
   case applications
+  case clipboard
   case emoji
   case files
   case running
@@ -12,6 +13,7 @@ enum LauncherMode: Equatable, Sendable {
     case ";": .applications
     case ">": .shortcuts
     case ":": .emoji
+    case "#": .clipboard
     case "/": .files
     case "!": .systemCommands
     case "@": .running
@@ -24,7 +26,8 @@ enum LauncherMode: Equatable, Sendable {
     switch self {
     case .applications: .shortcuts
     case .shortcuts: .emoji
-    case .emoji: .files
+    case .emoji: .clipboard
+    case .clipboard: .files
     case .files: .running
     case .running: .systemCommands
     case .systemCommands: .applications
@@ -36,6 +39,7 @@ enum LauncherMode: Equatable, Sendable {
   var systemImage: String {
     switch self {
     case .applications: "magnifyingglass"
+    case .clipboard: "doc.on.clipboard"
     case .emoji: "face.smiling"
     case .files: "doc.text.magnifyingglass"
     case .running: "macwindow.on.rectangle"
@@ -47,6 +51,7 @@ enum LauncherMode: Equatable, Sendable {
   var help: String {
     switch self {
     case .applications: "Application search mode"
+    case .clipboard: "Clipboard history mode"
     case .emoji: "Emoji search mode"
     case .files: "File and folder search mode"
     case .running: "Running apps mode"
@@ -58,6 +63,7 @@ enum LauncherMode: Equatable, Sendable {
   var placeholder: String {
     switch self {
     case .applications: "Search apps and links…"
+    case .clipboard: "Search clipboard history…"
     case .emoji: "Search emoji…"
     case .files: "Search files and folders…"
     case .running: "Search running apps…"
@@ -69,6 +75,7 @@ enum LauncherMode: Equatable, Sendable {
   var actionTitle: String {
     switch self {
     case .applications: "Launch application"
+    case .clipboard: "Paste"
     case .emoji: "Copy emoji"
     case .files: "Open item"
     case .running: "Switch to app"

@@ -270,6 +270,8 @@ struct LauncherStoreTests {
     runningApplicationController: RunningApplicationControlling? = nil,
     openQuicklink: @escaping @MainActor (URL, Quicklink.Target) async throws -> Void = { _, _ in },
     quicklinkHistory: RecencyStore? = nil,
+    clipboardHistory: ClipboardHistoryStore? = nil,
+    clipboardPaster: ClipboardPasting = ClipboardPasterStub(),
     onEvent: @escaping (LauncherEvent) -> Void = { _ in }
   ) -> LauncherStore {
     LauncherStore(
@@ -293,6 +295,8 @@ struct LauncherStoreTests {
       openQuicklink: openQuicklink,
       quicklinkHistory: quicklinkHistory
         ?? RecencyStore.quicklinkOpens(userDefaults: makeTestUserDefaults()),
+      clipboardHistory: clipboardHistory ?? ClipboardHistoryStore(fileURL: nil),
+      clipboardPaster: clipboardPaster,
       onEvent: onEvent
     )
   }

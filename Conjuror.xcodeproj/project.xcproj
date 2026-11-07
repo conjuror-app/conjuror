@@ -312,6 +312,7 @@
                     { "path": "ApplicationCustomizationsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ApplicationPickerSheet.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "CalculatorSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ClipboardSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "ExcludedApplicationsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "EmojiSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "GeneralSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
@@ -506,6 +507,7 @@
                   "path": "Stores",
                   "children": [
                     { "path": "LauncherStoreApplicationTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
+                    { "path": "LauncherStoreClipboardTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreEmojiTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreQuicklinkTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "LauncherStoreRunningApplicationTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },

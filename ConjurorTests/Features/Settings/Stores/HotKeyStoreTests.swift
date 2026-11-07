@@ -66,6 +66,7 @@ struct HotKeyStoreTests {
   @Test("Recording temporarily unregisters and restores the shortcuts")
   func testRecordingRestoresShortcuts() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setClipboardHistoryEnabled(true)
     var registrationCount = 0
     let store = HotKeyStore(
       settingsStore: settingsStore,
@@ -85,9 +86,33 @@ struct HotKeyStoreTests {
     #expect(store.registrationErrorMessage == nil)
   }
 
+  @Test("Clipboard history's shortcut is registered only while history is on")
+  func testClipboardShortcutFollowsSetting() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    var registered = [HotKeyConfiguration]()
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        registered.append(configuration)
+
+        return RegistrationToken()
+      }
+    )
+    let clipboardShortcut = HotKeyAction.clipboard.defaultConfiguration
+
+    store.register()
+    #expect(!registered.contains(clipboardShortcut))
+
+    settingsStore.setClipboardHistoryEnabled(true)
+    store.register()
+    #expect(registered.contains(clipboardShortcut))
+  }
+
   @Test("Changing a shortcut while recording restores every shortcut")
   func testRecordingReplacement() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setClipboardHistoryEnabled(true)
     var configurations = [HotKeyConfiguration]()
     let replacement = HotKeyConfiguration(
       keyCode: 1,

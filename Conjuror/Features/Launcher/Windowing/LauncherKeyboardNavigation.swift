@@ -61,6 +61,13 @@ enum LauncherKeyboardNavigation {
     }
   }
 
+  static func deletesClipboardItem(
+    charactersIgnoringModifiers: String?,
+    modifiers: NSEvent.ModifierFlags
+  ) -> Bool {
+    relevantModifiers(modifiers) == .control && charactersIgnoringModifiers?.lowercased() == "x"
+  }
+
   static func direction(
     forKeyCode keyCode: UInt16,
     modifiers: NSEvent.ModifierFlags,
