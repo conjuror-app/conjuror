@@ -96,6 +96,40 @@
               ],
             }, {
               "kind": "group",
+              "path": "Clipboard",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Models",
+                  "children": [
+                    { "path": "ClipboardHistoryRetention.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ClipboardItem.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ClipboardCapturePolicy.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ClipboardMonitor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ClipboardPaster.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "ClipboardSearchIndex.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "ClipboardHistoryStore.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Views",
+                  "children": [
+                    { "path": "ClipboardResultRow.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
               "path": "Emoji",
               "children": [
                 {
@@ -418,6 +452,24 @@
                     { "path": "CalculatorRelativeDateTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "CalculatorTimeZoneTests.swift", "index": true, "target-membership": [ "ConjurorTests/compile-sources" ] },
                     { "path": "CurrencyRateStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                },
+              ],
+            }, {
+              "kind": "group",
+              "path": "Clipboard",
+              "children": [
+                {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "ClipboardMonitorTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                }, {
+                  "kind": "group",
+                  "path": "Stores",
+                  "children": [
+                    { "path": "ClipboardHistoryStoreTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
                   ],
                 },
               ],
