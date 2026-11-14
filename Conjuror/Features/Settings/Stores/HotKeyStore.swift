@@ -95,12 +95,12 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// Launcher actions first, then apps by path, so registration order is stable. Clipboard
-  /// history's hot key stays free for other apps until history is turned on.
+  /// Launcher actions first, then apps by path, so registration order is stable. A mode's
+  /// hot key stays free for other apps while the mode is turned off.
   private func assignedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
     let actions = HotKeyAction.allCases.compactMap {
       action -> (HotKeyTarget, HotKeyConfiguration)? in
-      guard action != .clipboard || settingsStore.isClipboardHistoryEnabled else { return nil }
+      guard isAvailable(action) else { return nil }
 
       return settingsStore.hotKeyConfiguration(for: action).map { (.action(action), $0) }
     }
@@ -111,6 +111,16 @@ final class HotKeyStore: ObservableObject {
       }
 
     return actions + applications
+  }
+
+  private func isAvailable(_ action: HotKeyAction) -> Bool {
+    switch action {
+    case .clipboard: settingsStore.isClipboardHistoryEnabled
+    case .emoji: settingsStore.isEmojiModeEnabled
+    case .files: settingsStore.isFilesModuleEnabled
+    case .shortcuts: settingsStore.isShortcutsModeEnabled
+    case .launcher: true
+    }
   }
 
   /// What already uses the configuration's keys, other than `target`.

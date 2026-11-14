@@ -137,7 +137,8 @@ cancel.
 ### Apple Shortcuts
 
 Type `>` to search your shortcuts, then select one to run it. Shortcuts that need input
-don't appear. macOS may ask for Automation permission the first time.
+don't appear. macOS may ask for Automation permission the first time. Turn Shortcuts
+mode off in Settings → Shortcuts.
 
 ### System commands
 
@@ -167,7 +168,8 @@ Settings → Apps.
 
 Type `:` to search emoji by name, gender, or skin tone, then press Return to copy one.
 With nothing typed, your recent emoji come first. Set a preferred skin tone in
-Settings → Emoji and Conjuror applies it to every emoji that supports one.
+Settings → Emoji and Conjuror applies it to every emoji that supports one. Turn emoji
+mode off in the same pane.
 
 ### Files and folders
 

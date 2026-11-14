@@ -7,118 +7,118 @@ struct GeneralSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      SettingsRow(
-        title: "Launch at login",
-        description: "Start Conjuror automatically when you log in."
-      ) {
-        LaunchAtLoginCheckbox(
-          isOn: launchAtLoginStore.isEnabled,
-          onChange: launchAtLoginStore.setEnabled
-        )
-        .frame(width: 18, height: 18)
-      }
-
-      if launchAtLoginStore.status == .requiresApproval {
-        HStack {
-          Label(
-            "Allow Conjuror in System Settings to finish enabling launch at login.",
-            systemImage: "exclamationmark.triangle"
-          )
-          .font(.caption)
-          .foregroundStyle(.orange)
-
-          Spacer()
-          Button("Open Login Items Settings") {
-            launchAtLoginStore.openLoginItemsSettings()
-          }
-        }
-      }
-
-      if let errorMessage = launchAtLoginStore.errorMessage {
-        Label(errorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
-      }
-
-      SettingsRow(
-        title: "Launcher appearance",
-        description: "Choose the spacing and detail shown in the launcher."
-      ) {
-        Picker(
-          "Launcher appearance",
-          selection: Binding(
-            get: { store.launcherAppearance },
-            set: { store.setLauncherAppearance($0) }
-          )
+      SettingsGroup(title: "Startup") {
+        SettingsRow(
+          title: "Launch at login",
+          description: "Start Conjuror automatically when you log in."
         ) {
-          ForEach(LauncherAppearance.allCases) { appearance in
-            Text(appearance.displayName).tag(appearance)
+          Toggle(
+            "Launch at login",
+            isOn: Binding(
+              get: { launchAtLoginStore.isEnabled },
+              set: { launchAtLoginStore.setEnabled($0) }
+            )
+          )
+          .labelsHidden()
+        } footer: {
+          if launchAtLoginStore.status == .requiresApproval {
+            HStack {
+              SettingsNote(
+                text: "Allow Conjuror in System Settings to finish enabling launch at login.",
+                style: .warning
+              )
+
+              Spacer()
+              Button("Open Login Items Settings") {
+                launchAtLoginStore.openLoginItemsSettings()
+              }
+            }
+          }
+
+          if let errorMessage = launchAtLoginStore.errorMessage {
+            SettingsNote(text: errorMessage, style: .error)
           }
         }
-        .labelsHidden()
-        .frame(width: 110)
       }
 
-      SettingsRow(
-        title: "Accent colour",
-        description: "Set the colour of the launcher border and mode icons."
-      ) {
-        HStack {
+      SettingsGroup(title: "Launcher") {
+        SettingsRow(
+          title: "Launcher appearance",
+          description: "Choose the spacing and detail shown in the launcher."
+        ) {
           Picker(
-            "Accent colour",
+            "Launcher appearance",
             selection: Binding(
-              get: { store.launcherBorderStyle },
-              set: { store.setLauncherBorderStyle($0) }
+              get: { store.launcherAppearance },
+              set: { store.setLauncherAppearance($0) }
             )
           ) {
-            ForEach(LauncherBorderStyle.allCases) { style in
-              Label {
-                Text(style.displayName)
-              } icon: {
-                Image(nsImage: borderSwatch(for: style))
-              }
-              .tag(style)
+            ForEach(LauncherAppearance.allCases) { appearance in
+              Text(appearance.displayName).tag(appearance)
             }
           }
           .labelsHidden()
           .frame(width: 110)
+        }
 
-          if store.launcherBorderStyle == .custom {
-            ColorPicker(
-              "Custom accent colour",
-              selection: customBorderColor,
-              supportsOpacity: false
+        SettingsRow(
+          title: "Accent colour",
+          description: "Set the colour of the launcher border and mode icons."
+        ) {
+          HStack {
+            Picker(
+              "Accent colour",
+              selection: Binding(
+                get: { store.launcherBorderStyle },
+                set: { store.setLauncherBorderStyle($0) }
+              )
+            ) {
+              ForEach(LauncherBorderStyle.allCases) { style in
+                Label {
+                  Text(style.displayName)
+                } icon: {
+                  Image(nsImage: borderSwatch(for: style))
+                }
+                .tag(style)
+              }
+            }
+            .labelsHidden()
+            .frame(width: 110)
+
+            if store.launcherBorderStyle == .custom {
+              ColorPicker(
+                "Custom accent colour",
+                selection: customBorderColor,
+                supportsOpacity: false
+              )
+              .labelsHidden()
+            }
+          }
+        }
+
+        SettingsRow(
+          title: "Visible results",
+          description: "Maximum results shown before scrolling."
+        ) {
+          HStack {
+            Text("\(store.maximumVisibleResults)")
+              .monospacedDigit()
+              .frame(minWidth: 18)
+
+            Stepper(
+              "Visible results",
+              value: Binding(
+                get: { store.maximumVisibleResults },
+                set: { value in
+                  store.setMaximumVisibleResults(value)
+                }
+              ),
+              in: SettingsStore.maximumVisibleResultsRange
             )
             .labelsHidden()
           }
         }
       }
-
-      SettingsRow(
-        title: "Visible results",
-        description: "Maximum results shown before scrolling."
-      ) {
-        HStack {
-          Text("\(store.maximumVisibleResults)")
-            .monospacedDigit()
-            .frame(minWidth: 18)
-
-          Stepper(
-            "Visible results",
-            value: Binding(
-              get: { store.maximumVisibleResults },
-              set: { value in
-                store.setMaximumVisibleResults(value)
-              }
-            ),
-            in: SettingsStore.maximumVisibleResultsRange
-          )
-          .labelsHidden()
-        }
-      }
-
-      Spacer()
     }
   }
 

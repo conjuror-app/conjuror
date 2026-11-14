@@ -7,50 +7,33 @@ struct ApplicationCustomizationsView: View {
   @ObservedObject var hotKeyStore: HotKeyStore
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack {
-        Text("Aliases and hotkeys").fontWeight(.medium)
-        Spacer()
-        Button("Add…") { showsPicker = true }
-      }
-
-      Text(
-        "Type an alias to rank its app first. A hotkey opens the app, or hides it when in front."
-      )
-      .font(.caption)
-      .foregroundStyle(.secondary)
-
-      ScrollView {
-        LazyVStack(spacing: 8) {
-          if rows.isEmpty {
-            Text("No aliases or hotkeys")
-              .foregroundStyle(.secondary)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(.vertical, 8)
+    SettingsListCard(
+      title: "Aliases and hotkeys",
+      description:
+        "Type an alias to rank its app first. A hotkey opens the app, or hides it when in front.",
+      emptyText: "No aliases or hotkeys",
+      isEmpty: rows.isEmpty,
+      onAdd: { showsPicker = true }
+    ) {
+      ForEach(rows, id: \.path) { row in
+        ApplicationCustomizationRow(
+          path: row.path,
+          name: row.name,
+          application: installedApplications[row.path],
+          customization: store.applicationCustomizations[row.path],
+          isExcluded: store.excludedApplications[row.path] != nil,
+          focusesAlias: row.path == focusedPath,
+          store: store,
+          hotKeyStore: hotKeyStore,
+          onEdit: {
+            if !addedPaths.contains(row.path) { addedPaths.append(row.path) }
+          },
+          onRemove: {
+            addedPaths.removeAll { $0 == row.path }
+            hotKeyStore.removeApplicationCustomization(at: row.path)
           }
-          ForEach(rows, id: \.path) { row in
-            ApplicationCustomizationRow(
-              path: row.path,
-              name: row.name,
-              application: installedApplications[row.path],
-              customization: store.applicationCustomizations[row.path],
-              isExcluded: store.excludedApplications[row.path] != nil,
-              focusesAlias: row.path == focusedPath,
-              store: store,
-              hotKeyStore: hotKeyStore,
-              onEdit: {
-                if !addedPaths.contains(row.path) { addedPaths.append(row.path) }
-              },
-              onRemove: {
-                addedPaths.removeAll { $0 == row.path }
-                hotKeyStore.removeApplicationCustomization(at: row.path)
-              }
-            )
-          }
-        }
-        .padding(8)
+        )
       }
-      .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 6))
     }
     .sheet(isPresented: $showsPicker) {
       ApplicationPickerSheet(
@@ -165,10 +148,7 @@ private struct ApplicationCustomizationRow: View {
       }
 
       if let errorMessage {
-        Label(errorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
+        SettingsNote(text: errorMessage, style: .error)
       }
     }
     .onAppear {
