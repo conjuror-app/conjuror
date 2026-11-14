@@ -56,15 +56,7 @@ struct SettingsView: View {
       selection = section
     } label: {
       HStack(spacing: 8) {
-        Image(systemName: section.systemImage)
-          .font(.system(size: 12, weight: .semibold))
-          .foregroundStyle(.white)
-          .frame(width: 22, height: 22)
-          .background(
-            section.tint.gradient,
-            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
-          )
-
+        SettingsIconTile(section: section)
         Text(section.title)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -160,7 +152,7 @@ struct ModeShortcutSettingsRow: View {
   @State private var errorMessage: String?
 }
 
-private enum SettingsSection: String, Identifiable {
+enum SettingsSection: String, Identifiable {
   /// Sidebar order, with a gap between groups.
   static let groups: [[SettingsSection]] = [
     [.general],
@@ -353,24 +345,22 @@ private struct FilesSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      SettingsGroup {
-        SettingsRow(
-          title: "Files module",
-          description: "Search Spotlight-indexed files and folders from the launcher."
-        ) {
-          Toggle(
-            "Files module",
-            isOn: Binding(
-              get: { store.isFilesModuleEnabled },
-              set: { isEnabled in
-                store.setFilesModuleEnabled(isEnabled)
-              }
-            )
-          )
-          .labelsHidden()
-        }
+      SettingsHeroCard(
+        section: .files,
+        title: "Files",
+        status: store.isFilesModuleEnabled
+          ? "Searching Spotlight-indexed files and folders."
+          : "Off. Turn on to search files and folders from the launcher.",
+        isOn: Binding(
+          get: { store.isFilesModuleEnabled },
+          set: { isEnabled in
+            store.setFilesModuleEnabled(isEnabled)
+          }
+        )
+      )
 
-        if store.isFilesModuleEnabled {
+      if store.isFilesModuleEnabled {
+        SettingsGroup {
           ModeShortcutSettingsRow(
             description: "Open the launcher directly in files mode.",
             action: .files,

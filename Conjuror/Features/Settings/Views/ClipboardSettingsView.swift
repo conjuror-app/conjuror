@@ -8,40 +8,38 @@ struct ClipboardSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      SettingsGroup(title: "History") {
-        SettingsRow(
-          title: "Clipboard history",
-          description: "Keep text you copy so you can search and paste it again."
-        ) {
-          Toggle(
-            "Clipboard history",
-            isOn: Binding(
-              get: { store.isClipboardHistoryEnabled },
-              set: { isEnabled in
-                store.setClipboardHistoryEnabled(isEnabled)
-                hotKeyStore.register()
-              }
-            )
-          )
-          .labelsHidden()
-        } footer: {
+      SettingsHeroCard(
+        section: .clipboard,
+        title: "Clipboard History",
+        status: store.isClipboardHistoryEnabled
+          ? "Keeping text you copy so you can search and paste it again."
+          : "Off. Turn on to search and paste text you copied.",
+        isOn: Binding(
+          get: { store.isClipboardHistoryEnabled },
+          set: { isEnabled in
+            store.setClipboardHistoryEnabled(isEnabled)
+            hotKeyStore.register()
+          }
+        )
+      ) {
+        SettingsNote(
+          text:
+            "History stays on this Mac. Conjuror skips text from password managers and anything an app marks as secret. Turning history off deletes it."
+        )
+
+        if store.isClipboardHistoryEnabled,
+          NSPasteboard.general.accessBehavior == .alwaysDeny
+        {
           SettingsNote(
             text:
-              "History stays on this Mac. Conjuror skips text from password managers and anything an app marks as secret. Turning history off deletes it."
+              "macOS is blocking Conjuror from reading the clipboard. Allow pasteboard access for Conjuror in System Settings → Privacy & Security.",
+            style: .warning
           )
-
-          if store.isClipboardHistoryEnabled,
-            NSPasteboard.general.accessBehavior == .alwaysDeny
-          {
-            SettingsNote(
-              text:
-                "macOS is blocking Conjuror from reading the clipboard. Allow pasteboard access for Conjuror in System Settings → Privacy & Security.",
-              style: .warning
-            )
-          }
         }
+      }
 
-        if store.isClipboardHistoryEnabled {
+      if store.isClipboardHistoryEnabled {
+        SettingsGroup(title: "History") {
           SettingsRow(
             title: "Keep history for",
             description: "Older items are removed. Up to 1,000 items are kept."
@@ -79,9 +77,7 @@ struct ClipboardSettingsView: View {
             Text("This deletes every item in your clipboard history.")
           }
         }
-      }
 
-      if store.isClipboardHistoryEnabled {
         SettingsGroup(title: "Shortcut") {
           ModeShortcutSettingsRow(
             description: "Open the launcher directly in clipboard history.",
