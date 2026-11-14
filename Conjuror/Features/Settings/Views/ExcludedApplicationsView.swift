@@ -5,37 +5,21 @@ struct ExcludedApplicationsView: View {
   @ObservedObject var launcherStore: LauncherStore
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack {
-        Text("Excluded apps").fontWeight(.medium)
-        Spacer()
-        Button("Add…") { showsPicker = true }
-      }
-
-      Text("Hide these apps from search and recent results.")
-        .font(.caption)
-        .foregroundStyle(.secondary)
-
-      ScrollView {
-        LazyVStack(spacing: 8) {
-          if excludedApps.isEmpty {
-            Text("No excluded apps")
-              .foregroundStyle(.secondary)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(.vertical, 8)
-          }
-          ForEach(excludedApps, id: \.key) { path, name in
-            HStack(spacing: 8) {
-              ApplicationLabel(name: name, path: path)
-              Spacer(minLength: 4)
-              Button("Remove") { store.removeExcludedApplication(at: path) }
-                .accessibilityLabel("Remove \(name) from excluded apps")
-            }
-          }
+    SettingsListCard(
+      title: "Excluded apps",
+      description: "Hide these apps from search and recent results.",
+      emptyText: "No excluded apps",
+      isEmpty: excludedApps.isEmpty,
+      onAdd: { showsPicker = true }
+    ) {
+      ForEach(excludedApps, id: \.key) { path, name in
+        HStack(spacing: 8) {
+          ApplicationLabel(name: name, path: path)
+          Spacer(minLength: 4)
+          Button("Remove") { store.removeExcludedApplication(at: path) }
+            .accessibilityLabel("Remove \(name) from excluded apps")
         }
-        .padding(8)
       }
-      .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 6))
     }
     .sheet(isPresented: $showsPicker) {
       ApplicationPickerSheet(

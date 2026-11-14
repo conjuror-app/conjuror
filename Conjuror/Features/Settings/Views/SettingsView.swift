@@ -98,42 +98,37 @@ struct ModeShortcutSettingsRow: View {
   @ObservedObject var hotKeyStore: HotKeyStore
 
   var body: some View {
-    Group {
-      SettingsRow(title: "Keyboard shortcut", description: description) {
-        HStack {
-          Toggle(
-            "Keyboard shortcut",
-            isOn: Binding(
-              get: { configuration != nil },
-              set: { isEnabled in
-                errorMessage = hotKeyStore.updateConfiguration(
-                  isEnabled ? action.defaultConfiguration : nil,
-                  for: action
-                )
-              }
-            )
+    SettingsRow(title: "Keyboard shortcut", description: description) {
+      HStack {
+        Toggle(
+          "Keyboard shortcut",
+          isOn: Binding(
+            get: { configuration != nil },
+            set: { isEnabled in
+              errorMessage = hotKeyStore.updateConfiguration(
+                isEnabled ? action.defaultConfiguration : nil,
+                for: action
+              )
+            }
           )
-          .labelsHidden()
+        )
+        .labelsHidden()
 
-          if let configuration {
-            ShortcutRecorder(
-              configuration: configuration,
-              onChange: { newConfiguration in
-                errorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
-                return errorMessage == nil
-              },
-              onRecordingChange: hotKeyStore.setShortcutRecording
-            )
-            .frame(width: 120, height: 28)
-          }
+        if let configuration {
+          ShortcutRecorder(
+            configuration: configuration,
+            onChange: { newConfiguration in
+              errorMessage = hotKeyStore.updateConfiguration(newConfiguration, for: action)
+              return errorMessage == nil
+            },
+            onRecordingChange: hotKeyStore.setShortcutRecording
+          )
+          .frame(width: 120, height: 28)
         }
       }
-
+    } footer: {
       if let errorMessage {
-        Label(errorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
+        SettingsNote(text: errorMessage, style: .error)
       }
     }
   }
@@ -193,55 +188,54 @@ private struct AppsSettingsView: View {
   @ObservedObject var hotKeyStore: HotKeyStore
 
   var body: some View {
-    SettingsPane {
-      SettingsRow(
-        title: "Keyboard shortcut",
-        description: "Show or hide the apps launcher from anywhere."
-      ) {
-        ShortcutRecorder(
-          configuration: store.hotKeyConfiguration,
-          onChange: { configuration in
-            hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration, for: .launcher)
-            return hotKeyErrorMessage == nil
-          },
-          onRecordingChange: hotKeyStore.setShortcutRecording
-        )
-        .frame(width: 120, height: 28)
-      }
-
-      SettingsRow(
-        title: "System Settings results",
-        description: "Include System Settings sections in apps search."
-      ) {
-        Toggle(
-          "System Settings results",
-          isOn: Binding(
-            get: { store.showsSystemSettingsItems },
-            set: { store.setShowsSystemSettingsItems($0) }
+    SettingsPane(scrolls: false) {
+      SettingsGroup {
+        SettingsRow(
+          title: "Keyboard shortcut",
+          description: "Show or hide the apps launcher from anywhere."
+        ) {
+          ShortcutRecorder(
+            configuration: store.hotKeyConfiguration,
+            onChange: { configuration in
+              hotKeyErrorMessage = hotKeyStore.updateConfiguration(configuration, for: .launcher)
+              return hotKeyErrorMessage == nil
+            },
+            onRecordingChange: hotKeyStore.setShortcutRecording
           )
-        )
-        .labelsHidden()
-      }
+          .frame(width: 120, height: 28)
+        } footer: {
+          if let hotKeyErrorMessage {
+            SettingsNote(text: hotKeyErrorMessage, style: .error)
+          }
+        }
 
-      SettingsRow(
-        title: "System commands",
-        description: "Include lock, sleep, restart, and other system commands in apps search."
-      ) {
-        Toggle(
-          "System commands",
-          isOn: Binding(
-            get: { store.showsSystemCommands },
-            set: { store.setShowsSystemCommands($0) }
+        SettingsRow(
+          title: "System Settings results",
+          description: "Include System Settings sections in apps search."
+        ) {
+          Toggle(
+            "System Settings results",
+            isOn: Binding(
+              get: { store.showsSystemSettingsItems },
+              set: { store.setShowsSystemSettingsItems($0) }
+            )
           )
-        )
-        .labelsHidden()
-      }
+          .labelsHidden()
+        }
 
-      if let hotKeyErrorMessage {
-        Label(hotKeyErrorMessage, systemImage: "exclamationmark.triangle")
-          .font(.caption)
-          .foregroundStyle(.red)
-          .lineLimit(2)
+        SettingsRow(
+          title: "System commands",
+          description: "Include lock, sleep, restart, and other system commands in apps search."
+        ) {
+          Toggle(
+            "System commands",
+            isOn: Binding(
+              get: { store.showsSystemCommands },
+              set: { store.setShowsSystemCommands($0) }
+            )
+          )
+          .labelsHidden()
+        }
       }
 
       Picker("App list", selection: $appList) {
@@ -271,6 +265,7 @@ private struct AppsSettingsView: View {
           hotKeyStore.register()
           hotKeyErrorMessage = hotKeyStore.registrationErrorMessage
         }
+        .buttonStyle(SettingsDestructiveButtonStyle())
       }
     }
   }
@@ -299,14 +294,14 @@ private struct ShortcutsSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      ModeShortcutSettingsRow(
-        description: "Open the launcher directly in Apple Shortcuts mode.",
-        action: .shortcuts,
-        store: store,
-        hotKeyStore: hotKeyStore
-      )
-
-      Spacer()
+      SettingsGroup {
+        ModeShortcutSettingsRow(
+          description: "Open the launcher directly in Apple Shortcuts mode.",
+          action: .shortcuts,
+          store: store,
+          hotKeyStore: hotKeyStore
+        )
+      }
     }
   }
 }
@@ -317,48 +312,47 @@ private struct FilesSettingsView: View {
 
   var body: some View {
     SettingsPane {
-      SettingsRow(
-        title: "Files module",
-        description: "Search Spotlight-indexed files and folders from the launcher."
-      ) {
-        Toggle(
-          "Files module",
-          isOn: Binding(
-            get: { store.isFilesModuleEnabled },
-            set: { isEnabled in
-              store.setFilesModuleEnabled(isEnabled)
-            }
-          )
-        )
-        .labelsHidden()
-      }
-
-      if store.isFilesModuleEnabled {
-        ModeShortcutSettingsRow(
-          description: "Open the launcher directly in files mode.",
-          action: .files,
-          store: store,
-          hotKeyStore: hotKeyStore
-        )
-
+      SettingsGroup {
         SettingsRow(
-          title: "Protected folders",
-          description:
-            "Allow Conjuror to find files in Desktop, Documents, Downloads, and iCloud Drive."
+          title: "Files module",
+          description: "Search Spotlight-indexed files and folders from the launcher."
         ) {
-          Button("Grant Access") {
-            FileAccessAuthorizer.requestAccess()
-          }
+          Toggle(
+            "Files module",
+            isOn: Binding(
+              get: { store.isFilesModuleEnabled },
+              set: { isEnabled in
+                store.setFilesModuleEnabled(isEnabled)
+              }
+            )
+          )
+          .labelsHidden()
         }
 
-        Text(
-          "macOS controls access to protected folders. Approve each prompt to include that folder in file search results."
-        )
-        .font(.caption)
-        .foregroundStyle(.secondary)
-      }
+        if store.isFilesModuleEnabled {
+          ModeShortcutSettingsRow(
+            description: "Open the launcher directly in files mode.",
+            action: .files,
+            store: store,
+            hotKeyStore: hotKeyStore
+          )
 
-      Spacer()
+          SettingsRow(
+            title: "Protected folders",
+            description:
+              "Allow Conjuror to find files in Desktop, Documents, Downloads, and iCloud Drive."
+          ) {
+            Button("Grant Access") {
+              FileAccessAuthorizer.requestAccess()
+            }
+          } footer: {
+            SettingsNote(
+              text:
+                "macOS controls access to protected folders. Approve each prompt to include that folder in file search results."
+            )
+          }
+        }
+      }
     }
   }
 }
