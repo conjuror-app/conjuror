@@ -28,11 +28,18 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     self.onClose = onClose
     let window = NSWindow(
       contentRect: NSRect(origin: .zero, size: Self.windowSize),
-      styleMask: [.titled, .closable, .resizable],
+      styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
       backing: .buffered,
       defer: false
     )
     window.title = "Settings"
+    // The sidebar runs under the title bar and the pane title sits in it. An empty toolbar
+    // gives the title bar its taller, unified height.
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
+    window.titlebarSeparatorStyle = .none
+    window.toolbar = NSToolbar()
+    window.toolbarStyle = .unified
     window.isReleasedWhenClosed = false
     window.animationBehavior = .documentWindow
     window.collectionBehavior = [.moveToActiveSpace]
