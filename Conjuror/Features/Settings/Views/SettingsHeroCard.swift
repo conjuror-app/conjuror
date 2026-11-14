@@ -26,7 +26,6 @@ struct SettingsHeroCard<Footer: View>: View {
         Spacer(minLength: 24)
         Toggle(title, isOn: $isOn)
           .labelsHidden()
-          .toggleStyle(.switch)
       }
 
       footer

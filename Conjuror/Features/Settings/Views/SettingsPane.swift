@@ -23,5 +23,6 @@ struct SettingsPane<Content: View>: View {
     }
     .padding(24)
     .frame(maxWidth: .infinity, alignment: .leading)
+    .toggleStyle(.switch)
   }
 }

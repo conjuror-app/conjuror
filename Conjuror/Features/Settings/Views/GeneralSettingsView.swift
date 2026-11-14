@@ -12,11 +12,14 @@ struct GeneralSettingsView: View {
           title: "Launch at login",
           description: "Start Conjuror automatically when you log in."
         ) {
-          LaunchAtLoginCheckbox(
-            isOn: launchAtLoginStore.isEnabled,
-            onChange: launchAtLoginStore.setEnabled
+          Toggle(
+            "Launch at login",
+            isOn: Binding(
+              get: { launchAtLoginStore.isEnabled },
+              set: { launchAtLoginStore.setEnabled($0) }
+            )
           )
-          .frame(width: 18, height: 18)
+          .labelsHidden()
         } footer: {
           if launchAtLoginStore.status == .requiresApproval {
             HStack {
