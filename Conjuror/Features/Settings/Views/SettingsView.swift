@@ -372,6 +372,7 @@ private struct FilesSettingsView: View {
           get: { store.isFilesModuleEnabled },
           set: { isEnabled in
             store.setFilesModuleEnabled(isEnabled)
+            hotKeyStore.register()
           }
         )
       )

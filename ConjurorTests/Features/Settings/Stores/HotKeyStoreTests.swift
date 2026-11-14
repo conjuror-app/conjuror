@@ -109,10 +109,11 @@ struct HotKeyStoreTests {
     #expect(registered.contains(clipboardShortcut))
   }
 
-  @Test("Emoji and Shortcuts hot keys are registered only while their modes are on")
+  @Test("Emoji, Files, and Shortcuts hot keys are registered only while their modes are on")
   func testModeShortcutsFollowSettings() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
     settingsStore.setEmojiModeEnabled(false)
+    settingsStore.setFilesModuleEnabled(false)
     settingsStore.setShortcutsModeEnabled(false)
     var registered = [HotKeyConfiguration]()
     let store = HotKeyStore(
@@ -125,16 +126,20 @@ struct HotKeyStoreTests {
       }
     )
     let emojiShortcut = HotKeyAction.emoji.defaultConfiguration
+    let filesShortcut = HotKeyAction.files.defaultConfiguration
     let shortcutsShortcut = HotKeyAction.shortcuts.defaultConfiguration
 
     store.register()
     #expect(!registered.contains(emojiShortcut))
+    #expect(!registered.contains(filesShortcut))
     #expect(!registered.contains(shortcutsShortcut))
 
     settingsStore.setEmojiModeEnabled(true)
+    settingsStore.setFilesModuleEnabled(true)
     settingsStore.setShortcutsModeEnabled(true)
     store.register()
     #expect(registered.contains(emojiShortcut))
+    #expect(registered.contains(filesShortcut))
     #expect(registered.contains(shortcutsShortcut))
     #expect(settingsStore.hotKeyConfiguration(for: .emoji) == emojiShortcut)
   }

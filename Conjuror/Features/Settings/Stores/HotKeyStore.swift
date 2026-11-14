@@ -117,8 +117,9 @@ final class HotKeyStore: ObservableObject {
     switch action {
     case .clipboard: settingsStore.isClipboardHistoryEnabled
     case .emoji: settingsStore.isEmojiModeEnabled
+    case .files: settingsStore.isFilesModuleEnabled
     case .shortcuts: settingsStore.isShortcutsModeEnabled
-    case .files, .launcher: true
+    case .launcher: true
     }
   }
 
