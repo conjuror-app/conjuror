@@ -25,6 +25,23 @@ struct CalculatorQuantityTests {
     #expect(evaluate("1e+3 g to kg") == "1 kg")
   }
 
+  @Test("Average duration conversions accept singular, plural and fractional quantities")
+  func testLongDurations() {
+    #expect(evaluate("90 days in months") == "2.95687885 mo")
+    #expect(evaluate("400 days to years") == "1.095140315 yr")
+    #expect(evaluate("1000 days") == "142.8571429 wk")
+    #expect(evaluate("14 days in weeks") == "2 wk")
+    #expect(evaluate("2 years in days") == "730.5 day")
+    #expect(evaluate("1 month in days") == "30.4375 day")
+    #expect(evaluate("0.5 year to months") == "6 mo")
+    #expect(evaluate("365.25 days to year") == "1 yr")
+    #expect(evaluate("1 yr") == "365.25 day")
+    #expect(evaluate("1 mo") == "30.4375 day")
+    #expect(evaluate("0 days in years") == "0 yr")
+    #expect(evaluate("1 year + 6 months to days") == "547.875 day")
+    #expect(engine.evaluate("1 year to kg") == nil)
+  }
+
   @Test("In and arrow separators are accepted")
   func testUnitConnectors() {
     #expect(evaluate("12 in in cm") == "30.48 cm")
@@ -62,7 +79,7 @@ struct CalculatorQuantityTests {
       ("1 s", "0.01666666667 min", "s", "min"),
       ("90 minutes", "1.5 hr", "min", "hr"),
       ("1 hr", "60 min", "hr", "min"),
-      ("1 day", "24 hr", "day", "hr"),
+      ("1 day", "0.1428571429 wk", "day", "wk"),
       ("1 wk", "7 day", "wk", "day"),
       ("30 c", "86 °F", "°C", "°F"),
       ("1 f", "-17.22222222 °C", "°F", "°C"),

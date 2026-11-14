@@ -90,6 +90,12 @@ launcher.
 - Timezones: `10:00 BST in EST`, `9am GMT → PDT`
 - Currency: `100 USD to EUR`, `$50 in GBP`, `500*21 in GBP in USD`
 
+Duration conversions support seconds, minutes, hours, days, weeks, months, and years,
+including `90 days in months` and `2 years in days`. A year is a fixed 365.25 days
+and a month is one twelfth of a year, or 30.4375 days. These are average durations,
+not calendar intervals. Bare days convert to weeks, for example `1000 days`.
+Results use unit symbols such as `wk`, `mo`, and `yr` for both singular and plural values.
+
 Any of `to`, `in`, `->`, or `→` works for a conversion.
 
 Currency conversion is off by default. Turn it on in Settings → Calculator and Conjuror
