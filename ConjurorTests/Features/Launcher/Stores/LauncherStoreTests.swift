@@ -108,6 +108,48 @@ struct LauncherStoreTests {
     #expect(store.mode == .applications)
   }
 
+  @Test("Disabled emoji and Shortcuts modes are skipped by prefixes and mode cycling")
+  func testDisabledEmojiAndShortcutsModesAreSkipped() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setEmojiModeEnabled(false)
+    settingsStore.setShortcutsModeEnabled(false)
+    settingsStore.setFilesModuleEnabled(false)
+    let store = makeStore(settingsStore: settingsStore)
+
+    store.updateQuery(":smile")
+    #expect(store.mode == .applications)
+    #expect(store.query == ":smile")
+
+    store.updateQuery(">resize")
+    #expect(store.mode == .applications)
+    #expect(store.query == ">resize")
+
+    store.updateQuery("")
+    store.cycleMode()
+    #expect(store.mode == .running)
+
+    store.prepareForActivation(mode: .emoji)
+    #expect(store.mode == .applications)
+    store.prepareForActivation(mode: .shortcuts)
+    #expect(store.mode == .applications)
+  }
+
+  @Test("Turning emoji or Shortcuts mode off leaves that mode")
+  func testDisablingLeavesEmojiAndShortcutsModes() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    let store = makeStore(settingsStore: settingsStore)
+
+    store.updateQuery(":")
+    #expect(store.mode == .emoji)
+    settingsStore.setEmojiModeEnabled(false)
+    #expect(store.mode == .applications)
+
+    store.updateQuery(">")
+    #expect(store.mode == .shortcuts)
+    settingsStore.setShortcutsModeEnabled(false)
+    #expect(store.mode == .applications)
+  }
+
   @Test("Tab mode cycling visits every mode and returns to applications")
   func testModeCycle() {
     let store = makeStore()

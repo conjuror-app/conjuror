@@ -15,6 +15,8 @@ final class SettingsStore: ObservableObject {
     static let maximumVisibleResults = UserDefaultsKey<Int>("settings.maximumVisibleResults")
     static let preferredEmojiSkinTone = UserDefaultsKey<String>("settings.preferredEmojiSkinTone")
     static let isFilesModuleEnabled = UserDefaultsKey<Bool>("settings.isFilesModuleEnabled")
+    static let isEmojiModeEnabled = UserDefaultsKey<Bool>("settings.isEmojiModeEnabled")
+    static let isShortcutsModeEnabled = UserDefaultsKey<Bool>("settings.isShortcutsModeEnabled")
     static let isClipboardHistoryEnabled = UserDefaultsKey<Bool>(
       "settings.isClipboardHistoryEnabled"
     )
@@ -88,6 +90,8 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var maximumVisibleResults: Int
   @Published private(set) var preferredEmojiSkinTone: EmojiSkinTone
   @Published private(set) var isFilesModuleEnabled: Bool
+  @Published private(set) var isEmojiModeEnabled: Bool
+  @Published private(set) var isShortcutsModeEnabled: Bool
   @Published private(set) var isClipboardHistoryEnabled: Bool
   @Published private(set) var clipboardHistoryRetention: ClipboardHistoryRetention
   /// Canonical installation paths mapped to names, including apps no longer installed.
@@ -142,6 +146,8 @@ final class SettingsStore: ObservableObject {
       userDefaults.value(for: Key.preferredEmojiSkinTone)
       .flatMap(EmojiSkinTone.init(rawValue:)) ?? .default
     isFilesModuleEnabled = userDefaults.value(for: Key.isFilesModuleEnabled) ?? true
+    isEmojiModeEnabled = userDefaults.value(for: Key.isEmojiModeEnabled) ?? true
+    isShortcutsModeEnabled = userDefaults.value(for: Key.isShortcutsModeEnabled) ?? true
     isClipboardHistoryEnabled = userDefaults.value(for: Key.isClipboardHistoryEnabled) ?? false
     clipboardHistoryRetention =
       userDefaults.value(for: Key.clipboardHistoryRetention)
@@ -210,6 +216,16 @@ final class SettingsStore: ObservableObject {
   func setFilesModuleEnabled(_ isEnabled: Bool) {
     isFilesModuleEnabled = isEnabled
     userDefaults.set(isEnabled, for: Key.isFilesModuleEnabled)
+  }
+
+  func setEmojiModeEnabled(_ isEnabled: Bool) {
+    isEmojiModeEnabled = isEnabled
+    userDefaults.set(isEnabled, for: Key.isEmojiModeEnabled)
+  }
+
+  func setShortcutsModeEnabled(_ isEnabled: Bool) {
+    isShortcutsModeEnabled = isEnabled
+    userDefaults.set(isEnabled, for: Key.isShortcutsModeEnabled)
   }
 
   func setClipboardHistoryEnabled(_ isEnabled: Bool) {
