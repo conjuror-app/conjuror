@@ -30,8 +30,10 @@ enum CalculatorUnitRegistry {
     "second": "minute",
     "minute": "hour",
     "hour": "minute",
-    "day": "hour",
+    "day": "week",
     "week": "day",
+    "month": "day",
+    "year": "day",
     "celsius": "fahrenheit",
     "fahrenheit": "celsius",
     "kelvin": "celsius",
@@ -182,6 +184,21 @@ enum CalculatorUnitRegistry {
       symbol: "wk",
       aliases: ["wk", "wks", "week", "weeks"],
       scaleToBase: 604_800
+    ),
+    // Fixed average durations, separate from calendar date arithmetic.
+    CalculatorUnit(
+      id: "month",
+      dimension: .duration,
+      symbol: "mo",
+      aliases: ["mo", "mos", "month", "months"],
+      scaleToBase: 30.4375 * 86_400
+    ),
+    CalculatorUnit(
+      id: "year",
+      dimension: .duration,
+      symbol: "yr",
+      aliases: ["y", "yr", "yrs", "year", "years"],
+      scaleToBase: 365.25 * 86_400
     ),
     CalculatorUnit(
       id: "celsius",
