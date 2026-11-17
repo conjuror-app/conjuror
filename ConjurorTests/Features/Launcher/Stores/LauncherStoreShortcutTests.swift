@@ -69,6 +69,30 @@ extension LauncherStoreTests {
     #expect(store.actionErrorMessage == nil)
   }
 
+  @Test("A cancelled shortcut can run again")
+  func testCancelledShortcutCanRunAgain() async {
+    let shortcut = shortcut("Lights", id: "lights")
+    var attempts = 0
+    let store = makeStore(
+      shortcuts: [shortcut],
+      runShortcut: { _ in
+        attempts += 1
+        if attempts == 1 { throw CancellationError() }
+      }
+    )
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+
+    let deadline = ContinuousClock.now + .seconds(1)
+    while attempts < 2, ContinuousClock.now < deadline {
+      store.openSelectedResult()
+      await Task.yield()
+    }
+
+    #expect(attempts == 2)
+    #expect(store.actionErrorMessage == nil)
+  }
+
   @Test("Failed shortcut runs appear in shortcut mode on next activation")
   func testFailedShortcutRun() async {
     let shortcut = shortcut("Lights", id: "lights")

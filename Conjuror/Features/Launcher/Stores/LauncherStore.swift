@@ -638,16 +638,17 @@ final class LauncherStore: ObservableObject {
 
     let runShortcut = runShortcut
     perform(
-      operation: { try await runShortcut(shortcut) },
+      operation: { [weak self] in
+        defer { self?.runningShortcutIDs.remove(shortcut.id) }
+        try await runShortcut(shortcut)
+      },
       onSuccess: { [weak self] in
         guard let self else { return }
 
         shortcutController.record(key: shortcut.persistenceKey)
-        runningShortcutIDs.remove(shortcut.id)
         query = ""
       },
       onFailure: { [weak self] error in
-        self?.runningShortcutIDs.remove(shortcut.id)
         self?.actionError = ActionError(
           mode: .shortcuts,
           message: "Couldn’t run \(shortcut.name). \(error.localizedDescription)"
