@@ -95,14 +95,22 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// Launcher actions first, then apps by path, so registration order is stable. Clipboard
-  /// history's hot key stays free for other apps until history is turned on.
+  /// The hot keys to register. A mode's hot key stays free for other apps while the mode is
+  /// turned off.
   private func assignedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
+    savedConfigurations().filter { target, _ in
+      guard case .action(let action) = target else { return true }
+
+      return isAvailable(action)
+    }
+  }
+
+  /// Every saved hot key, including those of modes that are turned off. Launcher actions come
+  /// first, then apps by path, so registration order is stable.
+  private func savedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
     let actions = HotKeyAction.allCases.compactMap {
       action -> (HotKeyTarget, HotKeyConfiguration)? in
-      guard action != .clipboard || settingsStore.isClipboardHistoryEnabled else { return nil }
-
-      return settingsStore.hotKeyConfiguration(for: action).map { (.action(action), $0) }
+      settingsStore.hotKeyConfiguration(for: action).map { (.action(action), $0) }
     }
     let applications = settingsStore.applicationCustomizations
       .sorted { $0.key < $1.key }
@@ -113,13 +121,24 @@ final class HotKeyStore: ObservableObject {
     return actions + applications
   }
 
-  /// What already uses the configuration's keys, other than `target`.
+  private func isAvailable(_ action: HotKeyAction) -> Bool {
+    switch action {
+    case .clipboard: settingsStore.isClipboardHistoryEnabled
+    case .emoji: settingsStore.isEmojiModeEnabled
+    case .files: settingsStore.isFilesModuleEnabled
+    case .shortcuts: settingsStore.isShortcutsModeEnabled
+    case .launcher: true
+    }
+  }
+
+  /// What already uses the configuration's keys, other than `target`. A mode that's turned off
+  /// keeps its keys, so turning it back on doesn't take them from something else.
   private func owner(
     of configuration: HotKeyConfiguration,
     excluding target: HotKeyTarget
   ) -> String? {
     guard
-      let (owner, _) = assignedConfigurations().first(where: { candidate, assigned in
+      let (owner, _) = savedConfigurations().first(where: { candidate, assigned in
         candidate != target && assigned.keyCode == configuration.keyCode
           && assigned.modifiers == configuration.modifiers
       })
@@ -127,7 +146,9 @@ final class HotKeyStore: ObservableObject {
 
     switch owner {
     case .action(let action):
-      return Self.ownerName(of: action)
+      let name = Self.ownerName(of: action)
+
+      return isAvailable(action) ? name : "\(name), which is turned off"
     case .application(let path):
       return settingsStore.applicationCustomizations[path]?.name ?? path
     }
