@@ -74,7 +74,7 @@ struct ApplicationLabel: View {
       VStack(alignment: .leading, spacing: 2) {
         Text(name).lineLimit(1)
         Text(status.map { "\($0) · \(path)" } ?? path)
-          .font(.caption2)
+          .font(.caption)
           .foregroundStyle(.secondary)
           .lineLimit(1)
           .truncationMode(.middle)

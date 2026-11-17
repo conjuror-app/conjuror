@@ -4,53 +4,41 @@ struct QuicklinksSettingsView: View {
   @ObservedObject var store: SettingsStore
 
   var body: some View {
-    SettingsPane {
-      SettingsRow(
-        title: "Web search fallback",
-        description: "Search the web from the last result row, or press ⌥ Return."
-      ) {
-        Picker(
-          "Web search fallback",
-          selection: Binding(
-            get: { store.webSearchQuicklink?.id },
-            set: { store.setWebSearchQuicklink(id: $0) }
-          )
+    SettingsPane(scrolls: false) {
+      SettingsGroup(title: "Web search") {
+        SettingsRow(
+          title: "Web search fallback",
+          description: "Search the web from the last result row, or press ⌥ Return."
         ) {
-          Text("None").tag(Quicklink.ID?.none)
-          ForEach(store.quicklinks.filter(\.acceptsQuery)) { quicklink in
-            Text(quicklink.name).tag(Optional(quicklink.id))
+          Picker(
+            "Web search fallback",
+            selection: Binding(
+              get: { store.webSearchQuicklink?.id },
+              set: { store.setWebSearchQuicklink(id: $0) }
+            )
+          ) {
+            Text("None").tag(Quicklink.ID?.none)
+            ForEach(store.quicklinks.filter(\.acceptsQuery)) { quicklink in
+              Text(quicklink.name).tag(Optional(quicklink.id))
+            }
           }
+          .labelsHidden()
+          // Quicklink names can be any length, so cap the picker to keep the row in the window.
+          .frame(maxWidth: 200)
+          .fixedSize(horizontal: false, vertical: true)
         }
-        .labelsHidden()
-        .frame(width: 160)
       }
 
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          Text("Quicklinks").fontWeight(.medium)
-          Spacer()
-          Button("Add…") { editedQuicklink = EditedQuicklink(quicklink: nil) }
+      SettingsListCard(
+        title: "Quicklinks",
+        description: "Type a keyword and search text, such as “gh swift testing”.",
+        emptyText: "No quicklinks",
+        isEmpty: store.quicklinks.isEmpty,
+        onAdd: { editedQuicklink = EditedQuicklink(quicklink: nil) }
+      ) {
+        ForEach(store.quicklinks) { quicklink in
+          row(for: quicklink)
         }
-
-        Text("Type a keyword and search text, such as “gh swift testing”.")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-
-        ScrollView {
-          LazyVStack(spacing: 8) {
-            if store.quicklinks.isEmpty {
-              Text("No quicklinks")
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 8)
-            }
-            ForEach(store.quicklinks) { quicklink in
-              row(for: quicklink)
-            }
-          }
-          .padding(8)
-        }
-        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 6))
       }
       .frame(maxHeight: .infinity)
 
@@ -79,7 +67,7 @@ struct QuicklinksSettingsView: View {
           }
         }
         Text(quicklink.urlTemplate)
-          .font(.caption2)
+          .font(.caption)
           .foregroundStyle(.secondary)
           .lineLimit(1)
           .truncationMode(.middle)
