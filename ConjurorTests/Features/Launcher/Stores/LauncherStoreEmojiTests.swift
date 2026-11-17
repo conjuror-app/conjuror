@@ -72,5 +72,6 @@ extension LauncherStoreTests {
     #expect(history.load().first == "😂")
     #expect(didRequestHide)
     #expect(store.mode == .applications)
+    #expect(store.selectedResultID == nil)
   }
 }

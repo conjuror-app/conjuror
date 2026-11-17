@@ -73,6 +73,7 @@ extension LauncherStoreTests {
     #expect(events == [.clipboardItemPasted])
     #expect(history.items.first?.text == "older")
     #expect(store.mode == .applications)
+    #expect(store.selectedResultID == nil)
   }
 
   @Test("Return only copies when Conjuror can't send keystrokes")

@@ -563,8 +563,7 @@ final class LauncherStore: ObservableObject {
     writeToClipboard(emoji.value)
     emojiHistory.record(emoji)
     recentEmoji = Self.emoji(for: emojiHistory.load())
-    query = ""
-    mode = .applications
+    transition(to: .applications)
     onEvent(.emojiCopied)
   }
 
@@ -1128,8 +1127,7 @@ final class LauncherStore: ObservableObject {
   private func restoreToClipboard(_ item: ClipboardItem) {
     writeToClipboard(item.text)
     clipboardHistory.record(item.text, source: item.source)
-    query = ""
-    mode = .applications
+    transition(to: .applications)
   }
 
   /// Rebuilds the search index when history changes, keeping the selection if it's still there.
