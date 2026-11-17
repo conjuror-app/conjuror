@@ -316,6 +316,7 @@
                     { "path": "ExcludedApplicationsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "EmojiSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "GeneralSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
+                    { "path": "PermissionsSettingsGroup.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "QuicklinkEditorView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "QuicklinksSettingsView.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "SettingsDestructiveButtonStyle.swift", "target-membership": [ "Conjuror/compile-sources" ] },

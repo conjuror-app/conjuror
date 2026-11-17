@@ -51,9 +51,13 @@ struct ClipboardSettingsView: View {
               ? "Return pastes the selected item into the app you were using."
               : "Allow Accessibility access so Return can paste. Until then, Return only copies."
           ) {
-            if !canPaste {
-              Button("Grant Access") {
-                KeystrokeClipboardPaster.requestAccess()
+            HStack(spacing: 10) {
+              PermissionStatusLabel(status: canPaste ? .allowed : .notAllowed)
+
+              if !canPaste {
+                Button("Grant Access") {
+                  KeystrokeClipboardPaster.requestAccess()
+                }
               }
             }
           }
