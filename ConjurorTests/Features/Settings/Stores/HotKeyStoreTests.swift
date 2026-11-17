@@ -109,6 +109,94 @@ struct HotKeyStoreTests {
     #expect(registered.contains(clipboardShortcut))
   }
 
+  @Test("Emoji, Files, and Shortcuts hot keys are registered only while their modes are on")
+  func testModeShortcutsFollowSettings() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setEmojiModeEnabled(false)
+    settingsStore.setFilesModuleEnabled(false)
+    settingsStore.setShortcutsModeEnabled(false)
+    var registered = [HotKeyConfiguration]()
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        registered.append(configuration)
+
+        return RegistrationToken()
+      }
+    )
+    let emojiShortcut = HotKeyAction.emoji.defaultConfiguration
+    let filesShortcut = HotKeyAction.files.defaultConfiguration
+    let shortcutsShortcut = HotKeyAction.shortcuts.defaultConfiguration
+
+    store.register()
+    #expect(!registered.contains(emojiShortcut))
+    #expect(!registered.contains(filesShortcut))
+    #expect(!registered.contains(shortcutsShortcut))
+
+    settingsStore.setEmojiModeEnabled(true)
+    settingsStore.setFilesModuleEnabled(true)
+    settingsStore.setShortcutsModeEnabled(true)
+    store.register()
+    #expect(registered.contains(emojiShortcut))
+    #expect(registered.contains(filesShortcut))
+    #expect(registered.contains(shortcutsShortcut))
+    #expect(settingsStore.hotKeyConfiguration(for: .emoji) == emojiShortcut)
+  }
+
+  @Test("Turning a mode off releases its hot key, and turning it on registers it again")
+  func testModeShortcutReleasesWhenTurnedOff() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    let emojiShortcut = HotKeyAction.emoji.defaultConfiguration
+    weak var emojiRegistration: RegistrationToken?
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        let token = RegistrationToken()
+        if configuration == emojiShortcut { emojiRegistration = token }
+
+        return token
+      }
+    )
+
+    store.register()
+    #expect(emojiRegistration != nil)
+
+    settingsStore.setEmojiModeEnabled(false)
+    store.register()
+    #expect(emojiRegistration == nil)
+
+    settingsStore.setEmojiModeEnabled(true)
+    store.register()
+    #expect(emojiRegistration != nil)
+  }
+
+  @Test("A mode keeps its keys while it's off, so turning it on takes nothing from an app")
+  func testModeShortcutReservedWhileOff() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setEmojiModeEnabled(false)
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { _, _ in RegistrationToken() }
+    )
+    let notes = application("Notes")
+    let emojiShortcut = HotKeyAction.emoji.defaultConfiguration
+    store.register()
+
+    #expect(
+      store.updateHotKey(emojiShortcut, for: notes)
+        == "That shortcut is already used by Emoji mode, which is turned off."
+    )
+    #expect(
+      store.updateConfiguration(emojiShortcut, for: .launcher)
+        == "That shortcut is already used by Emoji mode, which is turned off."
+    )
+    #expect(settingsStore.applicationCustomizations[notes.persistenceKey] == nil)
+    #expect(settingsStore.hotKeyConfiguration == .defaultValue)
+  }
+
   @Test("Changing a shortcut while recording restores every shortcut")
   func testRecordingReplacement() {
     let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())

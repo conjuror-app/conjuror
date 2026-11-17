@@ -163,6 +163,7 @@ final class LauncherStore: ObservableObject {
   private var clipboardIndex = ClipboardSearchIndex(items: [])
   private var clipboardSubscription: AnyCancellable?
   private var clipboardSettingsSubscription: AnyCancellable?
+  private var modeSettingsSubscription: AnyCancellable?
   @Published private var actionError: ActionError?
 
   private var preferredEmoji: [Emoji] {
@@ -299,6 +300,16 @@ final class LauncherStore: ObservableObject {
     clipboardSettingsSubscription = settingsStore.$isClipboardHistoryEnabled
       .sink { [weak self] isEnabled in
         guard let self, !isEnabled, mode == .clipboard else { return }
+
+        transition(to: .applications)
+      }
+
+    modeSettingsSubscription = settingsStore.$isEmojiModeEnabled
+      .combineLatest(settingsStore.$isShortcutsModeEnabled)
+      .sink { [weak self] isEmojiEnabled, isShortcutsEnabled in
+        guard let self,
+          (mode == .emoji && !isEmojiEnabled) || (mode == .shortcuts && !isShortcutsEnabled)
+        else { return }
 
         transition(to: .applications)
       }
@@ -807,9 +818,11 @@ final class LauncherStore: ObservableObject {
   private func isEnabled(_ mode: LauncherMode) -> Bool {
     switch mode {
     case .clipboard: settingsStore.isClipboardHistoryEnabled
+    case .emoji: settingsStore.isEmojiModeEnabled
     case .files: settingsStore.isFilesModuleEnabled
+    case .shortcuts: settingsStore.isShortcutsModeEnabled
     case .systemCommands: showsSystemCommands
-    case .applications, .emoji, .running, .shortcuts: true
+    case .applications, .running: true
     }
   }
 
