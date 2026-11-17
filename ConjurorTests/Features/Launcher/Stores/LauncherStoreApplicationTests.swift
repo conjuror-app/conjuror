@@ -144,6 +144,8 @@ extension LauncherStoreTests {
       await Task.yield()
     }
 
+    #expect(store.query.isEmpty)
+    #expect(store.actionErrorMessage == nil)
     #expect(launchedURL == beta.url)
     #expect(history.load()[beta.persistenceKey] != nil)
     #expect(history.load()[stable.persistenceKey] == nil)
@@ -266,32 +268,6 @@ extension LauncherStoreTests {
     #expect(
       store.catalogErrorMessage == "Couldn’t load installed applications. Catalog unavailable"
     )
-  }
-
-  @Test("Successful launches record history, clear the query, and call success")
-  func testSuccessfulLaunch() async {
-    let application = application("Alpha", id: "dev.example.alpha")
-    let userDefaults = makeTestUserDefaults()
-    let launchHistory = RecencyStore.applicationLaunches(userDefaults: userDefaults)
-    var didLaunch = false
-    let store = makeStore(
-      applications: [application],
-      launchHistory: launchHistory,
-      onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
-    )
-    store.loadApplications()
-    await waitForApplications(store)
-    store.query = "alpha"
-
-    store.openSelectedResult()
-
-    while !didLaunch {
-      await Task.yield()
-    }
-
-    #expect(store.query == "")
-    #expect(store.actionErrorMessage == nil)
-    #expect(launchHistory.load()[application.persistenceKey] != nil)
   }
 
   @Test("Failed launches preserve the query and skip history")

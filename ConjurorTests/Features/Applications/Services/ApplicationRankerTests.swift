@@ -5,11 +5,11 @@ import Testing
 
 @Suite("Application Ranker")
 struct ApplicationRankerTests {
-  @Test("Exact-prefix, token, acronym, and substring matches are ordered")
+  @Test("Exact, prefix, token, and substring matches are ordered")
   func testMatchOrder() {
     let applications = [
-      application("Code Runner", id: "dev.example.substring"),
-      application("Visual Studio Code", id: "dev.example.acronym"),
+      application("Decoder", id: "dev.example.viewer"),
+      application("Visual Studio Code", id: "dev.example.editor"),
       application("Studio Code", id: "dev.example.token"),
       application("CodeBox", id: "dev.example.prefix"),
       application("Code", id: "dev.example.exact"),
@@ -22,7 +22,7 @@ struct ApplicationRankerTests {
 
     #expect(
       result.map(\.displayName) == [
-        "Code", "Code Runner", "CodeBox", "Studio Code", "Visual Studio Code",
+        "Code", "CodeBox", "Studio Code", "Visual Studio Code", "Decoder",
       ]
     )
   }
@@ -42,24 +42,10 @@ struct ApplicationRankerTests {
     #expect(result.map(\.displayName) == ["My VS Code", "Very Special Code"])
   }
 
-  @Test("Fuzzy subsequences match application names")
-  func testFuzzyMatch() {
-    let applications = [
-      application("Xylophone", id: "dev.example.xylophone"),
-      application("Xcode", id: "com.apple.dt.Xcode"),
-    ]
-
-    let result = SearchIndex(applications).ranked(
-      query: "xcd",
-      recency: [:]
-    )
-
-    #expect(result.map(\.displayName) == ["Xcode"])
-  }
-
   @Test("Compact fuzzy matches rank first")
   func testCompactFuzzyMatchesRankFirst() {
     let applications = [
+      application("Xylophone", id: "dev.example.xylophone"),
       application("Xylocardial", id: "dev.example.spread"),
       application("Xcode", id: "com.apple.dt.Xcode"),
     ]

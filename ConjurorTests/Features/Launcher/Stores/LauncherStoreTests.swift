@@ -21,30 +21,8 @@ struct LauncherStoreTests {
     #expect(store.query == "conjuror")
   }
 
-  @Test("Slash switches to files and publishes search results")
-  func testSlashSwitchesToFilesAndSearches() async {
-    let result = FileSearchResult(
-      url: URL(fileURLWithPath: "/Users/example/Documents/Notes.txt"),
-      displayName: "Notes.txt",
-      isDirectory: false,
-      modificationDate: nil
-    )
-    let store = makeStore(fileSearcher: FileSearcherStub(results: [result]))
-
-    store.updateQuery("/notes")
-
-    while store.isSearchingFiles {
-      try? await Task.sleep(for: .milliseconds(10))
-    }
-
-    #expect(store.mode == .files)
-    #expect(store.query == "notes")
-    #expect(store.fileResults == [result])
-    #expect(store.selectedResultID == .file(result.id))
-  }
-
-  @Test("Command-Return reveals the selected file")
-  func testRevealSelectedFile() async {
+  @Test("Slash searches files and Command-Return reveals the selected result")
+  func testSearchAndRevealSelectedFile() async {
     let result = FileSearchResult(
       url: URL(fileURLWithPath: "/Users/example/Documents/Notes.txt"),
       displayName: "Notes.txt",
@@ -61,6 +39,11 @@ struct LauncherStoreTests {
     while store.isSearchingFiles {
       try? await Task.sleep(for: .milliseconds(10))
     }
+
+    #expect(store.mode == .files)
+    #expect(store.query == "notes")
+    #expect(store.fileResults == [result])
+    #expect(store.selectedResultID == .file(result.id))
 
     store.revealSelectedResult()
 

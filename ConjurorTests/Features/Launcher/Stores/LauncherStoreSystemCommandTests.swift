@@ -82,23 +82,28 @@ extension LauncherStoreTests {
   }
 
   @Test("Editing, moving, cancelling, or reopening disarms a command")
-  func testConfirmationIsCancelled() {
+  func testConfirmationIsCancelled() throws {
     let store = makeStore()
 
-    store.query = "eject"
-    store.openSelectedResult()
+    func armEject() throws {
+      store.query = "eject"
+      store.openSelectedResult()
+      try #require(store.armedCommand == .ejectAllDisks)
+    }
+
+    try armEject()
     store.query = "eject all"
     #expect(store.armedCommand == nil)
 
-    store.openSelectedResult()
+    try armEject()
     store.moveSelection(.down)
     #expect(store.armedCommand == nil)
 
-    store.openSelectedResult()
+    try armEject()
     store.cancelConfirmation()
     #expect(store.armedCommand == nil)
 
-    store.openSelectedResult()
+    try armEject()
     store.prepareForActivation()
     #expect(store.armedCommand == nil)
   }
