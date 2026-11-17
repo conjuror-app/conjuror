@@ -321,8 +321,13 @@ final class LauncherStore: ObservableObject {
     }
 
     currencyRates = rates
-    refreshCurrentResults()
-    selectFirstResult()
+    guard mode == .applications else { return }
+
+    let hadCalculatorResult = calculatorResult != nil
+    calculatorResult = calculator.evaluate(query, currencyRates: rates)
+    if hadCalculatorResult != (calculatorResult != nil) {
+      reselectApplicationResultIfNeeded()
+    }
   }
 
   func updateQuery(_ value: String) {

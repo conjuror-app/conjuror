@@ -184,6 +184,46 @@ struct LauncherStoreTests {
     #expect(!store.isCalculatorSelected)
   }
 
+  @Test("Currency updates preserve selection and refresh the current conversion")
+  func testCurrencyRateUpdates() async {
+    let first = shortcut("Alpha", id: "alpha")
+    let second = shortcut("Beta", id: "beta")
+    let store = makeStore(shortcuts: [first, second])
+    let rates = CurrencyRates(
+      base: "USD",
+      rates: ["EUR": 0.8],
+      rateDate: "2026-08-11",
+      fetchedAt: Date()
+    )
+
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+    store.moveSelection(.down)
+    store.setCurrencyRates(rates)
+    #expect(store.selectedResultID == .shortcut(second.id))
+
+    store.updateQuery(";100 USD to EUR")
+    #expect(store.calculatorResult?.copyText == "80.00 EUR")
+    #expect(store.selectedResultID == .calculator)
+
+    store.setCurrencyRates(nil)
+    #expect(store.calculatorResult == nil)
+    #expect(store.selectedResultID == .webSearch)
+
+    store.setCurrencyRates(rates)
+    #expect(store.selectedResultID == .calculator)
+    store.moveSelection(.down)
+    let updatedRates = CurrencyRates(
+      base: "USD",
+      rates: ["EUR": 0.9],
+      rateDate: "2026-08-12",
+      fetchedAt: Date()
+    )
+    store.setCurrencyRates(updatedRates)
+    #expect(store.calculatorResult?.copyText == "90.00 EUR")
+    #expect(store.selectedResultID == .webSearch)
+  }
+
   @Test("Load requests share one follow-up refresh", arguments: [false, true])
   func testQueuedReload(cancelFirst: Bool) async {
     let firstApplications = [application("Alpha", id: "dev.example.alpha")]
