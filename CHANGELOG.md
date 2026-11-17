@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 1.0 alpha (18)
+
+- Added searchable clipboard history. Enable it in Settings → Clipboard, then type `#` or press ⌥⇧V to open it.
+- Added month and year duration conversions to the calculator.
+- Redesigned Settings with a mode sidebar, grouped controls, and an About pane with permission status and support links.
+- Added switches to turn off Emoji and Shortcuts modes. Disabled modes are skipped in the launcher and their hotkeys are inactive.
+- Fixed cancelled shortcuts being unable to run again.
+- Kept currency rate refreshes from changing results outside the calculator.
+- Reset the launcher selection after copying an emoji or clipboard item.
+
 ## 1.0 alpha (17)
 
 - Added app aliases: type a short keyword such as `vs` to rank its app first.
