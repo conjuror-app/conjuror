@@ -87,6 +87,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store?.openWebSearch()
     }
 
+    panel.onOpenNumberedResult = { [weak store] number in
+      store?.openNumberedResult(number) == true
+    }
+
     panel.handlesRunningApplicationCommands = { [weak store] in
       store?.handlesRunningApplicationCommands == true
     }

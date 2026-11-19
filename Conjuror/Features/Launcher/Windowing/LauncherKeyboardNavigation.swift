@@ -3,6 +3,8 @@ import Carbon.HIToolbox
 import SwiftUI
 
 enum LauncherKeyboardNavigation {
+  static let resultNumbers = 2...9
+
   private static let conflictingModifiers: NSEvent.ModifierFlags = [
     .command,
     .control,
@@ -66,6 +68,18 @@ enum LauncherKeyboardNavigation {
     modifiers: NSEvent.ModifierFlags
   ) -> Bool {
     relevantModifiers(modifiers) == .control && charactersIgnoringModifiers?.lowercased() == "x"
+  }
+
+  static func resultNumber(
+    charactersIgnoringModifiers: String?,
+    modifiers: NSEvent.ModifierFlags
+  ) -> Int? {
+    guard relevantModifiers(modifiers) == .command,
+      let charactersIgnoringModifiers, charactersIgnoringModifiers.count == 1,
+      let number = Int(charactersIgnoringModifiers), resultNumbers.contains(number)
+    else { return nil }
+
+    return number
   }
 
   static func direction(

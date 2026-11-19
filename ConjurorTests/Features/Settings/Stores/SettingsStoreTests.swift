@@ -21,7 +21,7 @@ struct SettingsStoreTests {
     #expect(store.showsSystemSettingsItems)
     #expect(store.excludedApplications.isEmpty)
     #expect(store.launcherBorderStyle == .cyan)
-    #expect(store.launcherAppearance == .standard)
+    #expect(store.launcherAppearance == .minimal)
     #expect(store.launcherCustomBorderColor == .default)
   }
 
@@ -60,6 +60,26 @@ struct SettingsStoreTests {
       reloadedStore.launcherCustomBorderColor
         == LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3)
     )
+  }
+
+  @Test("Every launcher style survives reloading Settings", arguments: LauncherAppearance.allCases)
+  func testLauncherStylePersists(style: LauncherAppearance) {
+    let defaults = makeTestUserDefaults()
+    SettingsStore(userDefaults: defaults).setLauncherAppearance(style)
+
+    #expect(SettingsStore(userDefaults: defaults).launcherAppearance == style)
+  }
+
+  @Test("Unknown launcher styles and resetting Settings fall back to Minimal")
+  func testLauncherStyleFallback() {
+    let defaults = makeTestUserDefaults()
+    defaults.set("unknown", forKey: "settings.launcherAppearance")
+    let settings = SettingsStore(userDefaults: defaults)
+    #expect(settings.launcherAppearance == .minimal)
+
+    settings.setLauncherAppearance(.pillTypographic)
+    settings.resetToDefaults()
+    #expect(SettingsStore(userDefaults: defaults).launcherAppearance == .minimal)
   }
 
   @Test("App exclusions persist, deduplicate, and can be removed after the app disappears")

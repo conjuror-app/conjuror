@@ -10,8 +10,10 @@ struct SystemCommandResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .systemCommand(command.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: isArmed ? "Confirm" : "Run",
       accessibilityLabel: isArmed
         ? "\(command.title), \(command.confirmationTitle)" : command.title,
       accessibilityHint: isArmed
@@ -28,12 +30,9 @@ struct SystemCommandResultRow: View {
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
       VStack(alignment: .leading, spacing: 1) {
-        Text(command.title)
-          .font(.system(size: layout.resultFontSize, weight: .medium))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
+        LauncherResultTitle(name: command.title, layout: layout, secondaryText: command.keywords)
 
-        if layout.appearance == .standard {
+        if layout.appearance != .minimal {
           caption
             .font(.caption)
         }

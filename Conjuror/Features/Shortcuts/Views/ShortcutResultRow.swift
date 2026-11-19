@@ -9,8 +9,10 @@ struct ShortcutResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .shortcut(shortcut.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: "Run",
       accessibilityLabel: shortcut.name,
       accessibilityHint: "Runs the shortcut",
       help: "Run \(shortcut.name)",
@@ -19,10 +21,7 @@ struct ShortcutResultRow: View {
     ) {
       shortcutIcon
 
-      Text(shortcut.name)
-        .font(.system(size: layout.resultFontSize, weight: .medium))
-        .foregroundStyle(.primary)
-        .lineLimit(1)
+      LauncherResultTitle(name: shortcut.name, layout: layout, secondaryText: shortcut.subtitle)
 
       Spacer()
     }

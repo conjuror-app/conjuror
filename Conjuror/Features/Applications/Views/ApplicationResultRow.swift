@@ -11,8 +11,10 @@ struct ApplicationResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .application(application.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: "Open",
       accessibilityLabel: alias.map { "\(application.displayName), alias \($0)" }
         ?? application.displayName,
       accessibilityHint: application.isSystemSettingsItem
@@ -28,12 +30,14 @@ struct ApplicationResultRow: View {
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
       VStack(alignment: .leading, spacing: 1) {
-        Text(application.displayName)
-          .font(.system(size: layout.resultFontSize, weight: .medium))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
+        LauncherResultTitle(
+          name: application.displayName,
+          layout: layout,
+          secondaryText: application.bundleIdentifier ?? "",
+          alias: alias
+        )
 
-        if application.isSystemSettingsItem && layout.appearance == .standard {
+        if application.isSystemSettingsItem && layout.appearance != .minimal {
           Text("System Settings")
             .font(.caption)
             .foregroundStyle(.secondary)

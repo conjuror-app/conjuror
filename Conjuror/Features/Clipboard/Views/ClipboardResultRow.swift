@@ -10,8 +10,10 @@ struct ClipboardResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .clipboardItem(item.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: actionTitle,
       accessibilityLabel: item.preview,
       accessibilityHint: "\(actionTitle)s the copied text",
       help: actionTitle,
@@ -23,10 +25,7 @@ struct ClipboardResultRow: View {
         .foregroundStyle(.secondary)
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
-      Text(item.preview)
-        .font(.system(size: layout.resultFontSize, weight: .medium))
-        .foregroundStyle(.primary)
-        .lineLimit(1)
+      LauncherResultTitle(name: item.preview, layout: layout, highlightsName: false)
         .truncationMode(.tail)
 
       Spacer(minLength: 12)

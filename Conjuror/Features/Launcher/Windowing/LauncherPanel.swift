@@ -6,6 +6,7 @@ final class LauncherPanel: NSPanel {
   var onCycleMode: (() -> Void)?
   var onRevealSelection: (() -> Void)?
   var onOpenWebSearch: (() -> Void)?
+  var onOpenNumberedResult: ((Int) -> Bool)?
   var allowsHorizontalNavigation: (() -> Bool)?
   var handlesRunningApplicationCommands: (() -> Bool)?
   var onRunningApplicationCommand: ((RunningApplicationCommand) -> Void)?
@@ -112,6 +113,16 @@ final class LauncherPanel: NSPanel {
       default:
         break
       }
+    }
+
+    if !event.isARepeat,
+      let number = LauncherKeyboardNavigation.resultNumber(
+        charactersIgnoringModifiers: event.charactersIgnoringModifiers,
+        modifiers: modifiers
+      ), (firstResponder as? NSTextView)?.hasMarkedText() != true,
+      onOpenNumberedResult?(number) == true
+    {
+      return true
     }
 
     if let command = LauncherTextEditingCommand.command(

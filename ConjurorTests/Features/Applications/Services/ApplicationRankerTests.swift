@@ -195,6 +195,40 @@ struct ApplicationRankerTests {
     #expect(result.first == terminal)
   }
 
+  @Test(
+    "Highlights follow ranked matches and point into the original display name",
+    arguments: [
+      ("Coco Cap", "C", ["C"]),
+      ("Visual Studio Code", "stu co", ["Stu", "Co"]),
+      ("Visual Studio Code", "vsc", ["V", "S", "C"]),
+      ("Xcode-Beta", "deb", ["de", "B"]),
+      ("Activity Monitor", "atm", ["A", "t", "M"]),
+      ("Decoder", "code", ["code"]),
+      ("  Café–Straße", "cafe", ["Café"]),
+      ("Straße", "ss", ["ß"]),
+    ]
+  )
+  func testNameMatchRanges(example: (name: String, query: String, matches: [String])) {
+    let ranges = SearchableName.matchingRanges(in: example.name, query: SearchQuery(example.query))
+    #expect(ranges.map { String(example.name[$0]) } == example.matches)
+  }
+
+  @Test("Blank, alias, and secondary matches leave the name unhighlighted")
+  func testNonNameMatches() {
+    let name = "Visual Studio Code"
+    #expect(SearchableName.matchingRanges(in: name, query: SearchQuery(" ")).isEmpty)
+    #expect(
+      SearchableName.matchingRanges(in: name, query: SearchQuery("vsc"), alias: "vsc").isEmpty
+    )
+    #expect(
+      SearchableName.matchingRanges(
+        in: name,
+        query: SearchQuery("vud"),
+        secondaryText: "com.example.vud"
+      ).isEmpty
+    )
+  }
+
   private func application(
     _ name: String,
     id: String?,

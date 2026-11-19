@@ -9,46 +9,17 @@ struct LauncherView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      LauncherSearchField(
-        query: Binding(
-          get: { store.query },
-          set: { value in store.updateQuery(value) }
-        ),
-        mode: store.mode,
-        iconColor: LauncherAccentColor.color(
-          for: settingsStore.launcherBorderStyle,
-          customBorderColor: settingsStore.launcherCustomBorderColor
-        ),
-        onOpenSelected: store.openSelectedResult,
-        focusRequest: store.focusRequest
-      )
-      .padding(.horizontal, 12)
-      .padding(.top, layout.searchTopPadding)
-      .padding(.bottom, layout.searchBottomPadding)
+      searchField
 
       if isExpanded {
-        Divider()
-          .padding(.horizontal, 12)
-
-        if let hotKeyErrorMessage = hotKeyStore.registrationErrorMessage {
-          statusMessage(
-            hotKeyErrorMessage,
-            systemImage: "keyboard.badge.exclamationmark",
-            color: .orange
-          )
+        if layout.appearance.usesDetachedResults {
+          Color.clear.frame(height: layout.resultsSeparation)
+        } else {
+          Divider()
+            .padding(.horizontal, 12)
         }
 
-        LauncherResultsView(store: store, layout: layout)
-
-        if layout.showsFooter, resultCount > 0, catalogErrorMessage == nil {
-          actionFooter
-        }
-
-        if let pendingConfirmation = store.pendingConfirmation {
-          confirmationBar(pendingConfirmation)
-        } else if let actionErrorMessage = store.actionErrorMessage {
-          actionError(actionErrorMessage)
-        }
+        resultsCard
       }
     }
     .frame(
@@ -56,52 +27,94 @@ struct LauncherView: View {
       height: contentHeight,
       alignment: .top
     )
-    .modifier(
-      LauncherSurfaceModifier(
-        borderStyle: settingsStore.launcherBorderStyle,
-        customBorderColor: settingsStore.launcherCustomBorderColor
-      )
-    )
+    .background {
+      if !layout.appearance.usesDetachedResults {
+        Color.clear.modifier(surface())
+      }
+    }
+    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .environment(\.colorScheme, layout.appearance.usesDarkMaterial ? .dark : colorScheme)
     .padding(LauncherLayout.windowMargin)
-    .onChange(of: contentHeight) {
+    .onChange(of: contentHeight, initial: true) {
       onHeightChange(contentHeight)
     }
-    .onExitCommand {
-      if store.armedCommand != nil {
-        store.cancelConfirmation()
-      } else if store.pendingConfirmation != nil {
-        store.cancelPendingAction()
-      } else if !store.query.isEmpty {
-        store.updateQuery("")
-      } else {
-        onHide()
+    .onExitCommand(perform: escape)
+  }
+
+  @Environment(\.colorScheme) private var colorScheme
+
+  private var searchField: some View {
+    LauncherSearchField(
+      query: Binding(
+        get: { store.query },
+        set: { value in store.updateQuery(value) }
+      ),
+      mode: store.mode,
+      layout: layout,
+      resultCount: showsSearchResults ? resultCount : nil,
+      iconColor: LauncherAccentColor.color(
+        for: settingsStore.launcherBorderStyle,
+        customBorderColor: settingsStore.launcherCustomBorderColor
+      ),
+      onEscape: escape,
+      escapeTitle: escapeTitle,
+      onOpenSelected: store.openSelectedResult,
+      focusRequest: store.focusRequest
+    )
+    .padding(.horizontal, layout.searchHorizontalPadding)
+    .padding(.top, layout.searchTopPadding)
+    .padding(.bottom, layout.searchBottomPadding)
+    .background {
+      if layout.appearance.usesDetachedResults {
+        Color.clear.modifier(surface(isCapsule: true))
       }
     }
   }
 
-  private var isExpanded: Bool {
+  private var resultsCard: some View {
+    VStack(spacing: 0) {
+      if let hotKeyErrorMessage = hotKeyStore.registrationErrorMessage {
+        statusMessage(
+          hotKeyErrorMessage,
+          systemImage: "keyboard.badge.exclamationmark",
+          color: .orange
+        )
+      }
+
+      LauncherResultsView(store: store, layout: layout)
+
+      if layout.showsFooter, resultCount > 0, catalogErrorMessage == nil {
+        actionFooter
+      }
+
+      if let pendingConfirmation = store.pendingConfirmation {
+        confirmationBar(pendingConfirmation)
+      } else if let actionErrorMessage = store.actionErrorMessage {
+        actionError(actionErrorMessage)
+      }
+    }
+    .background {
+      if layout.appearance.usesDetachedResults {
+        Color.clear.modifier(surface())
+      }
+    }
+    .clipShape(RoundedRectangle(cornerRadius: layout.appearance.usesDetachedResults ? 16 : 0))
+  }
+
+  private var showsSearchResults: Bool {
     store.mode != .applications || !store.query.isEmpty
   }
 
-  private var resultCount: Int {
-    switch store.mode {
-    case .applications:
-      store.filteredResults.count + (store.calculatorResult == nil ? 0 : 1)
-        + store.quicklinkResultCount
-    case .clipboard:
-      store.filteredClipboardItems.count
-    case .emoji:
-      store.displayedEmoji.count
-    case .files:
-      store.fileResults.count
-    case .running:
-      store.filteredRunningApplications.count
-    case .shortcuts:
-      store.filteredShortcuts.count
-    case .systemCommands:
-      store.filteredSystemCommands.count
-    }
+  private var isExpanded: Bool {
+    guard showsSearchResults else { return false }
+    guard layout.appearance.usesDetachedResults else { return true }
+
+    return resultCount > 0 || catalogErrorMessage != nil || store.isLoadingResults
+      || hotKeyStore.registrationErrorMessage != nil || store.actionErrorMessage != nil
+      || store.pendingConfirmation != nil
   }
+
+  private var resultCount: Int { store.resultCount }
 
   private var catalogErrorMessage: String? {
     switch store.mode {
@@ -223,6 +236,27 @@ struct LauncherView: View {
     if store.armedCommand != nil || store.pendingConfirmation != nil { return "Cancel" }
 
     return store.query.isEmpty ? "Close" : "Clear"
+  }
+
+  private func escape() {
+    if store.armedCommand != nil {
+      store.cancelConfirmation()
+    } else if store.pendingConfirmation != nil {
+      store.cancelPendingAction()
+    } else if !store.query.isEmpty {
+      store.updateQuery("")
+    } else {
+      onHide()
+    }
+  }
+
+  private func surface(isCapsule: Bool = false) -> LauncherSurfaceModifier {
+    LauncherSurfaceModifier(
+      borderStyle: settingsStore.launcherBorderStyle,
+      customBorderColor: settingsStore.launcherCustomBorderColor,
+      usesDarkMaterial: layout.appearance.usesDarkMaterial,
+      isCapsule: isCapsule
+    )
   }
 
   private func footerHint(keys: String, title: String) -> some View {

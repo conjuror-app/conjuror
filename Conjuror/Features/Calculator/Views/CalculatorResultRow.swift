@@ -9,8 +9,10 @@ struct CalculatorResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .calculator,
       isSelected: isSelected,
       layout: layout,
+      actionTitle: "Copy",
       accessibilityLabel: accessibilityLabel,
       accessibilityHint: "Copies the result",
       help: "Copy " + result.copyText,

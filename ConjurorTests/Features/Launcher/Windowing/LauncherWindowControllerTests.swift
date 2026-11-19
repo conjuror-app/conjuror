@@ -167,6 +167,24 @@ struct LauncherWindowControllerTests {
     #expect(LauncherKeyboardNavigation.relevantModifiers([.command, .option]) != .command)
   }
 
+  @Test("Only Command with 2 through 9 maps to a row position")
+  func testNumberedResultKeys() {
+    func number(_ key: String, modifiers: NSEvent.ModifierFlags = .command) -> Int? {
+      LauncherKeyboardNavigation.resultNumber(
+        charactersIgnoringModifiers: key,
+        modifiers: modifiers
+      )
+    }
+
+    #expect(number("2") == 2)
+    #expect(number("9", modifiers: [.command, .capsLock]) == 9)
+    #expect(number("1") == nil)
+    #expect(number("0") == nil)
+    #expect(number("22") == nil)
+    #expect(number("3", modifiers: []) == nil)
+    #expect(number("3", modifiers: [.command, .shift]) == nil)
+  }
+
   @Test("Horizontal navigation requires opt-in")
   func testHorizontalNavigationRequiresOptIn() {
     #expect(

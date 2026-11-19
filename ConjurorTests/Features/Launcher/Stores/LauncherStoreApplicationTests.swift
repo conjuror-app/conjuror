@@ -151,6 +151,34 @@ extension LauncherStoreTests {
     #expect(history.load()[stable.persistenceKey] == nil)
   }
 
+  @Test("Numbered shortcuts open the displayed row, accounting for calculator results")
+  func testOpenNumberedResult() async throws {
+    let app = application("Calculator 2+2", id: "dev.example.calculator")
+    let settings = SettingsStore(userDefaults: makeTestUserDefaults())
+    var launchedApplications = [InstalledApplication]()
+    var didLaunch = false
+    let store = makeStore(
+      applications: [app],
+      settingsStore: settings,
+      launchApplication: { launchedApplications.append($0) },
+      onEvent: { if $0 == .launchSucceeded { didLaunch = true } }
+    )
+    store.loadApplications()
+    await waitForApplications(store)
+    store.query = "2+2"
+    #expect(store.numberedResults.prefix(2) == [.calculator, .application(app.id)])
+    #expect(!store.openNumberedResult(2))
+
+    settings.setLauncherAppearance(.pillTypographic)
+    #expect(!store.openNumberedResult(1))
+    #expect(!store.openNumberedResult(9))
+    try #require(store.openNumberedResult(2))
+
+    while !didLaunch { await Task.yield() }
+    #expect(launchedApplications == [app])
+    #expect(!store.openNumberedResult(2))
+  }
+
   @Test("Command-Return reveals the selected app, but not calculations or System Settings items")
   func testRevealSelectedApplication() async {
     let applications = [

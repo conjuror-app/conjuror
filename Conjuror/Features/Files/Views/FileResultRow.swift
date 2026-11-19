@@ -9,7 +9,7 @@ struct FileResultRow: View {
   let onOpen: () -> Void
 
   var body: some View {
-    HStack(spacing: 10) {
+    HStack(spacing: layout.appearance.usesTypography ? layout.resultIconSpacing : 10) {
       Image(nsImage: icon)
         .resizable()
         .scaledToFit()
@@ -27,11 +27,23 @@ struct FileResultRow: View {
         }
         Spacer(minLength: 4)
       }
+      LauncherResultHint(
+        id: .file(result.id),
+        isSelected: isSelected,
+        layout: layout,
+        actionTitle: "Open"
+      )
     }
     .padding(.horizontal, 8)
     .frame(height: layout.resultRowHeight)
-    .background(isSelected ? Color.accentColor.opacity(0.18) : .clear)
-    .clipShape(RoundedRectangle(cornerRadius: 7))
+    .modifier(
+      LauncherResultHighlight(
+        layout: layout,
+        isSelected: isSelected,
+        cornerRadius: 7,
+        accentOpacity: 0.18
+      )
+    )
     .contentShape(Rectangle())
     .onHover { hovering in
       if hovering { onHover() }
@@ -46,9 +58,14 @@ struct FileResultRow: View {
     .accessibilityAction { onOpen() }
   }
 
+  @ViewBuilder
   private var filename: some View {
-    Text(result.displayName)
-      .lineLimit(1)
+    if layout.appearance.usesTypography {
+      LauncherResultTitle(name: result.displayName, layout: layout)
+    } else {
+      Text(result.displayName)
+        .lineLimit(1)
+    }
   }
 
   private var parentPath: some View {

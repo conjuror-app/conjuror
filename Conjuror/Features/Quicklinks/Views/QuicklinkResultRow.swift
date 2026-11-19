@@ -5,6 +5,7 @@ import SwiftUI
 struct QuicklinkResultRow: View {
   let match: QuicklinkMatcher.Match
   let isWebSearch: Bool
+  let highlightsName: Bool
   let layout: LauncherLayout
   let isSelected: Bool
   let onHover: () -> Void
@@ -12,8 +13,10 @@ struct QuicklinkResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: isWebSearch ? .webSearch : .quicklink(quicklink.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: "Open",
       accessibilityLabel: title,
       accessibilityHint: "Opens the link",
       help: title,
@@ -24,12 +27,14 @@ struct QuicklinkResultRow: View {
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
       VStack(alignment: .leading, spacing: 1) {
-        Text(title)
-          .font(.system(size: layout.resultFontSize, weight: .medium))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
+        LauncherResultTitle(
+          name: title,
+          layout: layout,
+          secondaryText: quicklink.keyword ?? "",
+          highlightsName: highlightsName
+        )
 
-        if layout.appearance == .standard {
+        if layout.appearance != .minimal {
           Text(subtitle)
             .font(.caption)
             .foregroundStyle(.secondary)

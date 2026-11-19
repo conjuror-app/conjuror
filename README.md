@@ -188,9 +188,18 @@ off, in Settings → Files.
 
 ### Appearance
 
-Settings → General has a Minimal appearance with tighter spacing and smaller rows, an
-accent colour for the launcher border and mode icons, and a limit on how many results
-show before the list scrolls.
+Choose a launcher style in Settings → General → Appearance. Changes apply
+immediately.
+
+- **Minimal** (default) uses tighter spacing and smaller rows.
+- **Standard** adds roomier rows and a keyboard hints footer.
+- **Typographic** uses a large search field and bolds the matching letters in each app name.
+- **Floating pill** separates the search field from the results and marks the selection in amber.
+- **Pill + typographic** combines the floating search field with typographic results.
+
+In the typographic styles, use `⌘2` through `⌘9` to open the result at that position
+in a list. Settings → General also controls the launcher's accent colour and how
+many results show before the list scrolls.
 
 ## Feedback
 
