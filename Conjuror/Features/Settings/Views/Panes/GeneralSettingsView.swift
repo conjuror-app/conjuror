@@ -43,11 +43,11 @@ struct GeneralSettingsView: View {
 
       SettingsGroup(title: "Appearance") {
         SettingsRow(
-          title: "Launcher appearance",
-          description: "Choose the spacing and detail shown in the launcher."
+          title: "Launcher style",
+          description: "Choose the layout and appearance of the launcher."
         ) {
           Picker(
-            "Launcher appearance",
+            "Launcher style",
             selection: Binding(
               get: { store.launcherAppearance },
               set: { store.setLauncherAppearance($0) }

@@ -62,10 +62,38 @@ final class LauncherStore: ObservableObject {
     filteredResults.compactMap(\.application)
   }
 
+  var resultCount: Int {
+    switch mode {
+    case .applications:
+      filteredResults.count + (calculatorResult == nil ? 0 : 1) + quicklinkResultCount
+    case .clipboard: filteredClipboardItems.count
+    case .emoji: displayedEmoji.count
+    case .files: fileResults.count
+    case .running: filteredRunningApplications.count
+    case .shortcuts: filteredShortcuts.count
+    case .systemCommands: filteredSystemCommands.count
+    }
+  }
+
   /// Keyword, name-matched, and web search rows shown with app results.
   var quicklinkResultCount: Int {
     (keywordQuicklinkMatch == nil ? 0 : 1) + filteredQuicklinks.count
       + (webSearchMatch == nil ? 0 : 1)
+  }
+
+  var isLoadingResults: Bool {
+    switch mode {
+    case .applications: isLoading && applications.isEmpty
+    case .files: isSearchingFiles
+    case .shortcuts: isLoadingShortcuts && shortcuts.isEmpty
+    default: false
+    }
+  }
+
+  /// The shortcuts address the first nine positions in the same order as keyboard navigation.
+  var numberedResults: [LauncherResultID] {
+    guard mode != .emoji, mode != .applications || !query.isEmpty else { return [] }
+    return Array(resultIDs.prefix(LauncherKeyboardNavigation.resultNumbers.upperBound))
   }
 
   var handlesRunningApplicationCommands: Bool {
@@ -466,6 +494,22 @@ final class LauncherStore: ObservableObject {
         run(command)
       }
     }
+  }
+
+  @discardableResult
+  func openNumberedResult(_ number: Int) -> Bool {
+    guard settingsStore.launcherAppearance.usesTypography, pendingConfirmation == nil,
+      LauncherKeyboardNavigation.resultNumbers.contains(number)
+    else { return false }
+
+    let results = numberedResults
+    guard results.indices.contains(number - 1) else { return false }
+
+    lastPointerLocation = NSEvent.mouseLocation
+    select(results[number - 1])
+    selectionScrollRequest &+= 1
+    openSelectedResult()
+    return true
   }
 
   /// Reveals the selected app or file in Finder. In clipboard mode, copies without pasting.

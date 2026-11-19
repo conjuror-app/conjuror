@@ -4,8 +4,14 @@ struct LauncherResultsView: View {
   @ObservedObject var store: LauncherStore
   let layout: LauncherLayout
 
-  @ViewBuilder
   var body: some View {
+    results
+      .environment(\.launcherSearchQuery, SearchQuery(store.query))
+      .environment(\.launcherResultNumbers, resultNumbers)
+  }
+
+  @ViewBuilder
+  private var results: some View {
     switch store.mode {
     case .applications:
       applicationResults
@@ -22,6 +28,15 @@ struct LauncherResultsView: View {
     case .systemCommands:
       systemCommandResults
     }
+  }
+
+  private var resultNumbers: [LauncherResultID: Int] {
+    guard layout.appearance.usesTypography, store.pendingConfirmation == nil else { return [:] }
+
+    return Dictionary(
+      store.numberedResults.enumerated().dropFirst().map { ($0.element, $0.offset + 1) },
+      uniquingKeysWith: { first, _ in first }
+    )
   }
 
   @ViewBuilder
@@ -268,6 +283,8 @@ struct LauncherResultsView: View {
     QuicklinkResultRow(
       match: match,
       isWebSearch: id == .webSearch,
+      highlightsName: id != .webSearch
+        && id != store.keywordQuicklinkMatch.map { .quicklink($0.quicklink.id) },
       layout: layout,
       isSelected: store.selectedResultID == id,
       onHover: { store.selectOnHover(id) },

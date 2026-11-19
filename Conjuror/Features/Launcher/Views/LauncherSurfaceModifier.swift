@@ -3,8 +3,8 @@ import SwiftUI
 struct LauncherSurfaceModifier: ViewModifier {
   let borderStyle: LauncherBorderStyle
   let customBorderColor: LauncherBorderColor
-
-  private let cornerRadius: CGFloat = 16
+  let usesDarkMaterial: Bool
+  var isCapsule = false
 
   private var borderColor: Color {
     LauncherAccentColor.color(
@@ -13,15 +13,23 @@ struct LauncherSurfaceModifier: ViewModifier {
     )
   }
 
+  @ViewBuilder
   func body(content: Content) -> some View {
-    let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+    if isCapsule {
+      surface(content, in: Capsule())
+    } else {
+      surface(content, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+  }
+
+  private func surface(_ content: Content, in shape: some InsettableShape) -> some View {
     content
-      .glassEffect(.regular, in: shape)
+      .glassEffect(usesDarkMaterial ? .regular.tint(.black.opacity(0.45)) : .regular, in: shape)
       .clipShape(shape)
       .overlay {
         if borderStyle != .disabled {
           shape
-            .strokeBorder(borderColor.opacity(0.9), lineWidth: 1.25)
+            .strokeBorder(borderColor.opacity(usesDarkMaterial ? 0.25 : 0.9), lineWidth: 1.25)
             .allowsHitTesting(false)
         }
       }

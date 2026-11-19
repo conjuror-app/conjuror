@@ -165,7 +165,7 @@ final class SettingsStore: ObservableObject {
     )
     launcherAppearance =
       userDefaults.value(for: Key.launcherAppearance)
-      .flatMap(LauncherAppearance.init(rawValue:)) ?? .standard
+      .flatMap(LauncherAppearance.init(rawValue:)) ?? .defaultValue
     // Built-ins are used until the first edit, so removed built-ins stay removed afterwards.
     quicklinks =
       userDefaults.value(for: Key.quicklinks)
@@ -406,6 +406,7 @@ final class SettingsStore: ObservableObject {
     setExcludedApplications([:])
     setApplicationCustomizations([:])
     setPreferredEmojiSkinTone(.default)
+    setLauncherAppearance(.defaultValue)
     setLauncherBorderStyle(.cyan)
     setLauncherCustomBorderColor(.default)
 

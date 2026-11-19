@@ -9,8 +9,10 @@ struct RunningApplicationResultRow: View {
 
   var body: some View {
     SelectableResultRow(
+      id: .runningApplication(application.id),
       isSelected: isSelected,
       layout: layout,
+      actionTitle: "Switch",
       accessibilityLabel: application.isHidden
         ? "\(application.displayName), hidden" : application.displayName,
       accessibilityHint: "Switches to the application",
@@ -24,10 +26,11 @@ struct RunningApplicationResultRow: View {
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
         .opacity(application.isHidden ? 0.5 : 1)
 
-      Text(application.displayName)
-        .font(.system(size: layout.resultFontSize, weight: .medium))
-        .foregroundStyle(.primary)
-        .lineLimit(1)
+      LauncherResultTitle(
+        name: application.displayName,
+        layout: layout,
+        secondaryText: application.bundleIdentifier ?? ""
+      )
 
       Spacer()
 

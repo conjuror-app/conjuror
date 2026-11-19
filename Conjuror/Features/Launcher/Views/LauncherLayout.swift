@@ -6,7 +6,6 @@ struct LauncherLayout {
   static let emojiRowSpacing: CGFloat = 2
   static let emojiRecentHeaderHeight: CGFloat = 16
   static let windowMargin: CGFloat = 8
-  static let searchFieldHeight: CGFloat = 38
   static let resultSpacing: CGFloat = 1
   static let resultsVerticalPadding: CGFloat = 4
   static let footerContentHeight: CGFloat = 28
@@ -23,16 +22,41 @@ struct LauncherLayout {
 
   let appearance: LauncherAppearance
 
-  var searchTopPadding: CGFloat { appearance == .minimal ? 4 : 8 }
-  var searchBottomPadding: CGFloat { appearance == .minimal ? 2 : 6 }
-  var searchHeight: CGFloat {
-    Self.searchFieldHeight + searchTopPadding + searchBottomPadding
+  var searchTopPadding: CGFloat {
+    if appearance.usesDetachedResults { return 0 }
+    return appearance == .minimal ? 4 : 8
   }
-  var collapsedHeight: CGFloat { searchHeight + 2 }
-  var resultRowHeight: CGFloat { appearance == .minimal ? 32 : 40 }
-  var resultIconSize: CGFloat { appearance == .minimal ? 22 : 26 }
-  var resultFontSize: CGFloat { appearance == .minimal ? 13 : 14 }
-  var fileIconSize: CGFloat { appearance == .minimal ? 22 : 30 }
+  var searchBottomPadding: CGFloat {
+    if appearance.usesDetachedResults { return 0 }
+    return appearance == .minimal ? 2 : 6
+  }
+  var searchFieldHeight: CGFloat {
+    if appearance.usesDetachedResults { return 60 }
+    return appearance.usesTypography ? 50 : 38
+  }
+  var searchHorizontalPadding: CGFloat {
+    if appearance.usesDetachedResults { return 20 }
+    return appearance.usesTypography ? 16 : 12
+  }
+  var resultsSeparation: CGFloat { appearance.usesDetachedResults ? 14 : Self.dividerHeight }
+  var searchHeight: CGFloat {
+    searchFieldHeight + searchTopPadding + searchBottomPadding
+  }
+  var collapsedHeight: CGFloat { searchHeight + (appearance.usesDetachedResults ? 0 : 2) }
+  var resultRowHeight: CGFloat {
+    if appearance.usesTypography { return 46 }
+    return appearance == .minimal ? 32 : 40
+  }
+  var resultIconSize: CGFloat {
+    if appearance.usesTypography { return 28 }
+    return appearance == .minimal ? 22 : 26
+  }
+  var resultFontSize: CGFloat {
+    if appearance.usesTypography { return 19 }
+    return appearance == .minimal ? 13 : 14
+  }
+  var resultIconSpacing: CGFloat { appearance.usesTypography ? 14 : 8 }
+  var fileIconSize: CGFloat { appearance.usesTypography ? 28 : appearance == .minimal ? 22 : 30 }
   var shortcutSymbolSize: CGFloat { appearance == .minimal ? 15 : 17 }
   var calculatorSymbolSize: CGFloat { appearance == .minimal ? 18 : 22 }
   var emojiRowHeight: CGFloat { appearance == .minimal ? 36 : 42 }
@@ -90,7 +114,7 @@ struct LauncherLayout {
       ? Self.footerContentHeight + Self.dividerHeight : 0
     let launchErrorHeight: CGFloat = hasLaunchError ? Self.statusHeight : 0
     return searchHeight
-      + Self.dividerHeight
+      + resultsSeparation
       + statusHeight
       + resultsHeight
       + footerHeight

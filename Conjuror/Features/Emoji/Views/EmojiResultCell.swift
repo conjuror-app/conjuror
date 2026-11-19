@@ -13,9 +13,13 @@ struct EmojiResultCell: View {
         .font(.system(size: layout.emojiFontSize))
         .frame(maxWidth: .infinity)
         .frame(height: layout.emojiRowHeight)
-        .background(
-          isSelected ? Color.accentColor.opacity(0.14) : Color.clear,
-          in: RoundedRectangle(cornerRadius: 7)
+        .modifier(
+          LauncherResultHighlight(
+            layout: layout,
+            isSelected: isSelected,
+            cornerRadius: 7,
+            allowsAccentBar: false
+          )
         )
     }
     .buttonStyle(.plain)
@@ -25,5 +29,6 @@ struct EmojiResultCell: View {
     .help(emoji.name)
     .accessibilityLabel(emoji.name)
     .accessibilityHint("Copies the emoji")
+    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
   }
 }

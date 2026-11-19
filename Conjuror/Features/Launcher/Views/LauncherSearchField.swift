@@ -3,22 +3,28 @@ import SwiftUI
 struct LauncherSearchField: View {
   @Binding var query: String
   let mode: LauncherMode
+  let layout: LauncherLayout
+  let resultCount: Int?
   let iconColor: Color
+  let onEscape: () -> Void
+  let escapeTitle: String
   let onOpenSelected: () -> Void
   let focusRequest: Int
 
   var body: some View {
     HStack(spacing: 8) {
-      Image(systemName: mode.systemImage)
-        .font(.system(size: 14, weight: .medium))
-        .foregroundStyle(iconColor)
-        .frame(width: 18, height: 18)
-        .help(mode.help)
-        .accessibilityLabel(mode.help)
+      if layout.appearance != .typographic || mode != .applications {
+        Image(systemName: mode.systemImage)
+          .font(.system(size: layout.appearance.usesDetachedResults ? 17 : 14, weight: .medium))
+          .foregroundStyle(iconColor)
+          .frame(width: 18, height: 18)
+          .help(mode.help)
+          .accessibilityLabel(mode.help)
+      }
 
       TextField(mode.placeholder, text: $text, axis: .horizontal)
         .focused($isFocused)
-        .font(.system(size: 18, weight: .regular))
+        .font(searchFont)
         .lineLimit(1)
         .textFieldStyle(.plain)
         .onChange(of: text) {
@@ -29,7 +35,26 @@ struct LauncherSearchField: View {
         }
         .onSubmit(onOpenSelected)
 
-      if !text.isEmpty {
+      if let resultCount, layout.appearance.usesTypography {
+        Text(resultCount == 1 ? "1 result" : "\(resultCount) results")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .fixedSize()
+      }
+
+      if layout.appearance.usesDetachedResults {
+        Button(action: onEscape) {
+          Text("esc")
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 5))
+        }
+        .buttonStyle(.plain)
+        .help(escapeTitle)
+        .accessibilityLabel(escapeTitle)
+      } else if !text.isEmpty, !layout.appearance.usesTypography {
         Button {
           text = ""
         } label: {
@@ -43,7 +68,7 @@ struct LauncherSearchField: View {
       }
     }
     .padding(.horizontal, 2)
-    .frame(height: LauncherLayout.searchFieldHeight)
+    .frame(height: layout.searchFieldHeight)
     .task {
       text = query
       isFocused = true
@@ -60,4 +85,9 @@ struct LauncherSearchField: View {
 
   @State private var text = ""
   @FocusState private var isFocused: Bool
+
+  private var searchFont: Font {
+    if layout.appearance.usesTypography { return .system(size: 30, weight: .light) }
+    return .system(size: layout.appearance.usesDetachedResults ? 22 : 18)
+  }
 }
