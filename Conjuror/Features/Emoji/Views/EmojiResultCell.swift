@@ -5,10 +5,10 @@ struct EmojiResultCell: View {
   let layout: LauncherLayout
   let isSelected: Bool
   let onHover: () -> Void
-  let onCopy: () -> Void
+  let onChoose: () -> Void
 
   var body: some View {
-    Button(action: onCopy) {
+    Button(action: onChoose) {
       Text(emoji.value)
         .font(.system(size: layout.emojiFontSize))
         .frame(maxWidth: .infinity)
@@ -24,6 +24,6 @@ struct EmojiResultCell: View {
     }
     .help(emoji.name)
     .accessibilityLabel(emoji.name)
-    .accessibilityHint("Copies the emoji")
+    .accessibilityHint("Pastes or copies the emoji")
   }
 }

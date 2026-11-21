@@ -76,13 +76,18 @@ final class LauncherStore: ObservableObject {
     mode == .clipboard
   }
 
-  /// Return pastes into the previous app when macOS allows it, and only copies otherwise.
-  var pastesClipboardItems: Bool {
+  /// Return pastes clipboard items and emoji into the previous app when macOS allows it, and only
+  /// copies otherwise.
+  var pastesIntoPreviousApp: Bool {
     clipboardPaster.canPaste
   }
 
   var clipboardActionTitle: String {
-    pastesClipboardItems ? "Paste" : "Copy"
+    pastesIntoPreviousApp ? "Paste" : "Copy"
+  }
+
+  var emojiActionTitle: String {
+    pastesIntoPreviousApp ? "Paste emoji" : "Copy emoji"
   }
 
   var displayedEmoji: [Emoji] {
@@ -450,7 +455,7 @@ final class LauncherStore: ObservableObject {
     case .clipboard:
       if let item = selectedClipboardItem { paste(item) }
     case .emoji:
-      if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { copy(emoji) }
+      if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { paste(emoji) }
     case .files:
       if let file = selected(in: fileResults, as: { .file($0) }) { open(file) }
     case .running:
@@ -468,10 +473,17 @@ final class LauncherStore: ObservableObject {
     }
   }
 
-  /// Reveals the selected app or file in Finder. In clipboard mode, copies without pasting.
+  /// Reveals the selected app or file in Finder. In clipboard and emoji modes, copies without
+  /// pasting.
   func revealSelectedResult() {
     if mode == .clipboard {
       if let item = selectedClipboardItem { copy(item) }
+
+      return
+    }
+
+    if mode == .emoji {
+      if let emoji = selected(in: displayedEmoji, as: { .emoji($0) }) { copy(emoji) }
 
       return
     }
@@ -564,11 +576,22 @@ final class LauncherStore: ObservableObject {
     onEvent(.calculatorResultCopied)
   }
 
+  /// Pastes the emoji into the previous app, or only copies it when Conjuror isn't allowed to send
+  /// keystrokes.
+  func paste(_ emoji: Emoji) {
+    guard clipboardPaster.canPaste else {
+      copy(emoji)
+
+      return
+    }
+
+    choose(emoji)
+    onEvent(.emojiPasted)
+    clipboardPaster.paste()
+  }
+
   func copy(_ emoji: Emoji) {
-    writeToClipboard(emoji.value)
-    emojiHistory.record(emoji)
-    recentEmoji = Self.emoji(for: emojiHistory.load())
-    transition(to: .applications)
+    choose(emoji)
     onEvent(.emojiCopied)
   }
 
@@ -964,6 +987,14 @@ final class LauncherStore: ObservableObject {
     }
   }
 
+  /// Puts the emoji on the clipboard, records it as recent, and leaves emoji mode.
+  private func choose(_ emoji: Emoji) {
+    writeToClipboard(emoji.value)
+    emojiHistory.record(emoji)
+    recentEmoji = Self.emoji(for: emojiHistory.load())
+    transition(to: .applications)
+  }
+
   private func loadEmojiIfNeeded() {
     guard !hasLoadedEmoji else { return }
 
@@ -1179,6 +1210,7 @@ enum LauncherEvent: Equatable {
   case clipboardItemCopied
   case clipboardItemPasted
   case emojiCopied
+  case emojiPasted
   case fileOpened
   case itemRevealed
   case launchStarted
@@ -1193,7 +1225,7 @@ enum LauncherEvent: Equatable {
   var restoresPreviousFocus: Bool {
     switch self {
     case .calculatorResultCopied, .clipboardItemCopied, .clipboardItemPasted, .emojiCopied,
-      .shortcutRunStarted, .systemCommandStarted:
+      .emojiPasted, .shortcutRunStarted, .systemCommandStarted:
       true
     case .fileOpened, .itemRevealed, .launchStarted, .launchSucceeded, .quicklinkOpened,
       .runningApplicationActivated:

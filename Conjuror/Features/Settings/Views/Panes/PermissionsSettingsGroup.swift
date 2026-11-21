@@ -8,7 +8,7 @@ struct PermissionsSettingsGroup: View {
     SettingsGroup(title: "Permissions") {
       SettingsRow(
         title: "Accessibility",
-        description: "Lets Return paste a clipboard item into the app you were using."
+        description: "Lets Return paste a clipboard item or emoji into the app you were using."
       ) {
         HStack(spacing: 10) {
           PermissionStatusLabel(status: isAccessibilityAllowed ? .allowed : .notAllowed)
