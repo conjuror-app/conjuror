@@ -76,7 +76,7 @@ enum LauncherMode: Equatable, Sendable {
     switch self {
     case .applications: "Launch application"
     case .clipboard: "Paste"
-    case .emoji: "Copy emoji"
+    case .emoji: "Paste emoji"
     case .files: "Open item"
     case .running: "Switch to app"
     case .shortcuts: "Run shortcut"

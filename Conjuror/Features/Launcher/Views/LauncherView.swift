@@ -160,6 +160,10 @@ struct LauncherView: View {
       return store.clipboardActionTitle
     }
 
+    if store.mode == .emoji {
+      return store.emojiActionTitle
+    }
+
     return store.mode.actionTitle
   }
 
@@ -188,10 +192,10 @@ struct LauncherView: View {
 
           if store.mode == .clipboard {
             footerHint(keys: "⌃X", title: "Delete")
+          }
 
-            if store.pastesClipboardItems {
-              footerHint(keys: "⌘↵", title: "Copy")
-            }
+          if store.mode == .clipboard || store.mode == .emoji, store.pastesIntoPreviousApp {
+            footerHint(keys: "⌘↵", title: "Copy")
           }
         }
 

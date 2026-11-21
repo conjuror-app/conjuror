@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Made Return paste the selected emoji into the app you were using when Conjuror has Accessibility access. ⌘Return copies it instead.
+
 ## 1.0 alpha (18)
 
 - Added searchable clipboard history. Enable it in Settings → Clipboard, then type `#` or press ⌥⇧V to open it.

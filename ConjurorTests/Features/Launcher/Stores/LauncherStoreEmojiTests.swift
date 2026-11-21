@@ -53,25 +53,68 @@ extension LauncherStoreTests {
     #expect(store.selectedResultID == firstID)
   }
 
-  @Test("Launcher store: Return copies emoji and records it as recent")
-  func testCopyEmoji() {
+  @Test("Launcher store: Return pastes emoji and records it as recent")
+  func testPasteEmoji() {
     let clipboard = RecordingClipboard()
-    let userDefaults = makeTestUserDefaults()
-    let history = EmojiHistoryStore(userDefaults: userDefaults)
-    var didRequestHide = false
+    let history = EmojiHistoryStore(userDefaults: makeTestUserDefaults())
+    let paster = ClipboardPasterStub()
+    var events = [LauncherEvent]()
     let store = makeStore(
       writeToClipboard: clipboard.write,
       emojiHistory: history,
-      onEvent: { if $0 == .emojiCopied { didRequestHide = true } }
+      clipboardPaster: paster,
+      onEvent: { events.append($0) }
     )
     store.updateQuery(":face with tears of joy")
 
     store.openSelectedResult()
 
     #expect(clipboard.text == "😂")
+    #expect(paster.pasteCount == 1)
+    #expect(events == [.emojiPasted])
     #expect(history.load().first == "😂")
-    #expect(didRequestHide)
     #expect(store.mode == .applications)
     #expect(store.selectedResultID == nil)
+  }
+
+  @Test("Launcher store: Return only copies emoji when Conjuror can't send keystrokes")
+  func testCopyEmojiWithoutAccessibility() {
+    let clipboard = RecordingClipboard()
+    let history = EmojiHistoryStore(userDefaults: makeTestUserDefaults())
+    let paster = ClipboardPasterStub(canPaste: false)
+    var events = [LauncherEvent]()
+    let store = makeStore(
+      writeToClipboard: clipboard.write,
+      emojiHistory: history,
+      clipboardPaster: paster,
+      onEvent: { events.append($0) }
+    )
+    store.updateQuery(":face with tears of joy")
+
+    store.openSelectedResult()
+
+    #expect(clipboard.text == "😂")
+    #expect(paster.pasteCount == 0)
+    #expect(events == [.emojiCopied])
+    #expect(history.load().first == "😂")
+  }
+
+  @Test("Launcher store: Command-Return copies emoji without pasting")
+  func testCommandReturnCopiesEmoji() {
+    let clipboard = RecordingClipboard()
+    let paster = ClipboardPasterStub()
+    var events = [LauncherEvent]()
+    let store = makeStore(
+      writeToClipboard: clipboard.write,
+      clipboardPaster: paster,
+      onEvent: { events.append($0) }
+    )
+    store.updateQuery(":face with tears of joy")
+
+    store.revealSelectedResult()
+
+    #expect(clipboard.text == "😂")
+    #expect(paster.pasteCount == 0)
+    #expect(events == [.emojiCopied])
   }
 }
