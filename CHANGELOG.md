@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+## 1.0 alpha (19)
+
+- Added a Command Bar appearance in Settings → General, with keyboard hints and side-by-side previews for files and clipboard history.
 - Made Return paste the selected emoji into the app you were using when Conjuror has Accessibility access. ⌘Return copies it instead.
+- Shortcuts now refresh each time you open Shortcuts mode. Cached shortcuts stay available while it refreshes.
+- Fixed a password AutoFill popup that could appear when first opening the launcher.
 
 ## 1.0 alpha (18)
 
