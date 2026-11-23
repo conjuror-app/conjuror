@@ -35,7 +35,6 @@ final class SpotlightFileSearchService: FileSearching {
 
 @MainActor
 protocol FileSearching {
-  /// Searches for files matching a query that LauncherFileController has already trimmed.
   func search(query: String) async throws -> [FileSearchResult]
 }
 

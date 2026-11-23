@@ -1,7 +1,6 @@
 import Combine
 import Foundation
 
-/// Copied text, newest first, saved to a file only the user can read.
 @MainActor
 final class ClipboardHistoryStore: ObservableObject {
   static let maximumItemCount = 1_000
@@ -16,7 +15,6 @@ final class ClipboardHistoryStore: ObservableObject {
 
   private(set) var retention = ClipboardHistoryRetention.default
 
-  /// `nil` keeps the history in memory only.
   private let fileURL: URL?
   private let now: () -> Date
 
@@ -29,7 +27,6 @@ final class ClipboardHistoryStore: ObservableObject {
       .flatMap { try? JSONDecoder().decode([ClipboardItem].self, from: $0) } ?? []
   }
 
-  /// Adds copied text. Copying text that's already in the history moves it to the top.
   func record(_ text: String, source: ClipboardSource?) {
     let date = now()
     var item =
@@ -65,7 +62,6 @@ final class ClipboardHistoryStore: ObservableObject {
     replaceItems(with: items)
   }
 
-  /// Drops items past the retention period and the item limit, then saves the rest.
   private func replaceItems(with newItems: [ClipboardItem]) {
     let cutoff = retention.cutoff(before: now())
     let keptItems = Array(

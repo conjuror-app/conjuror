@@ -1,4 +1,3 @@
-/// An item ranked in application search: an app, a System Settings section, or a system command.
 enum ApplicationSearchResult: Identifiable {
   case application(InstalledApplication)
   case systemCommand(SystemCommand)

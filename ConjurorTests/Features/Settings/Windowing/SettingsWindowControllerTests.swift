@@ -31,7 +31,6 @@ struct SettingsWindowControllerTests {
         let content = try #require(window.contentViewController)
         closedContent = content
 
-        // Keep the key window available to the launcher keyboard tests.
         window.orderBack(nil)
         #expect(window.isVisible)
         window.performClose(nil)

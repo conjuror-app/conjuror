@@ -7,7 +7,6 @@ enum LauncherMode: Equatable, Sendable {
   case shortcuts
   case systemCommands
 
-  /// The mode a query prefix switches to, such as `>` for shortcuts.
   static func requested(byPrefix prefix: Character) -> Self? {
     switch prefix {
     case ";": .applications
@@ -21,7 +20,6 @@ enum LauncherMode: Equatable, Sendable {
     }
   }
 
-  /// The mode Tab cycles to, before checking whether that mode is enabled.
   var next: Self {
     switch self {
     case .applications: .shortcuts

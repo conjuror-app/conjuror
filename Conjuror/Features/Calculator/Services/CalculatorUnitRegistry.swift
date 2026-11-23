@@ -185,7 +185,6 @@ enum CalculatorUnitRegistry {
       aliases: ["wk", "wks", "week", "weeks"],
       scaleToBase: 604_800
     ),
-    // Fixed average durations, separate from calendar date arithmetic.
     CalculatorUnit(
       id: "month",
       dimension: .duration,

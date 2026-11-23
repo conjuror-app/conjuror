@@ -1,8 +1,6 @@
 import Foundation
 
-/// Decides which clipboard changes become history items.
 struct ClipboardCapturePolicy {
-  /// Password managers and apps that handle secrets, whose copies are never recorded.
   static let defaultExcludedBundleIdentifiers: Set<String> = [
     "com.1password.1password",
     "com.agilebits.onepassword7",
@@ -14,7 +12,6 @@ struct ClipboardCapturePolicy {
 
   static let maximumTextBytes = 1_000_000
 
-  /// Markers from nspasteboard.org that apps add to secret, temporary, or generated content.
   private static let ignoredTypes: Set<String> = [
     "org.nspasteboard.ConcealedType",
     "org.nspasteboard.TransientType",
@@ -23,7 +20,6 @@ struct ClipboardCapturePolicy {
   ]
 
   private static let textType = "public.utf8-plain-text"
-  /// Finder puts file names on the clipboard as text alongside the files themselves.
   private static let fileURLType = "public.file-url"
 
   let excludedBundleIdentifiers: Set<String>
@@ -32,7 +28,6 @@ struct ClipboardCapturePolicy {
     self.excludedBundleIdentifiers = excludedBundleIdentifiers
   }
 
-  /// Whether to read the clipboard's text at all, decided from its types and source alone.
   func allowsReading(types: [String], source: ClipboardSource?) -> Bool {
     if let bundleIdentifier = source?.bundleIdentifier,
       excludedBundleIdentifiers.contains(bundleIdentifier)
@@ -45,7 +40,6 @@ struct ClipboardCapturePolicy {
       && !types.contains(where: Self.ignoredTypes.contains)
   }
 
-  /// The text to record, or `nil` when it's blank or too large.
   func capturedText(_ text: String?) -> String? {
     guard let text,
       text.utf8.count <= Self.maximumTextBytes,

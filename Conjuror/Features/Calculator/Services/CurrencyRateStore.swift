@@ -34,7 +34,6 @@ final class CurrencyRateStore: ObservableObject {
       do {
         rates = try cache.load()
       } catch CocoaError.fileReadNoSuchFile {
-        // An empty cache is expected before the first successful refresh.
       } catch {
         Self.logger.error("Unable to load cached currency rates: \(error.localizedDescription)")
       }

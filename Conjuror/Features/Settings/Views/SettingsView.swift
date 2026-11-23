@@ -7,12 +7,9 @@ struct SettingsView: View {
   @ObservedObject var currencyRateStore: CurrencyRateStore
   @ObservedObject var launchAtLoginStore: LaunchAtLoginStore
 
-  /// The unified title bar's height, in which the window controls are centred.
   private static let titleBarHeight: CGFloat = 52
 
   var body: some View {
-    // The window's content runs under its title bar and toolbar, whose height is the top
-    // safe area.
     GeometryReader { proxy in
       HStack(spacing: 0) {
         VStack(alignment: .leading, spacing: 12) {
@@ -109,8 +106,6 @@ struct SettingsView: View {
 }
 
 enum SettingsSection: String, Identifiable {
-  /// Sidebar order, with a gap between groups. The modes follow the order Tab cycles them
-  /// in, then the panes for results that appear in apps search.
   static let groups: [[SettingsSection]] = [
     [.general],
     [.apps, .shortcuts, .emoji, .clipboard, .files, .calculator, .quicklinks],

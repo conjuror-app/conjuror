@@ -1,8 +1,6 @@
 import AppKit
 import Foundation
 
-/// A snapshot of a running GUI app. Actions look the process up again by its identifier, so the
-/// snapshot never holds a stale `NSRunningApplication`.
 struct RunningApplication: Identifiable, Equatable {
   let processIdentifier: pid_t
   let displayName: String
@@ -20,12 +18,10 @@ struct RunningApplication: Identifiable, Equatable {
     processIdentifier
   }
 
-  /// Matches `InstalledApplication.persistenceKey`, so exclusions apply to running apps.
   var persistenceKey: String? {
     bundleURL?.canonicalFileURL.path
   }
 
-  /// Finder relaunches itself and has no Quit command, so Quit All leaves it running.
   var isFinder: Bool {
     bundleIdentifier == "com.apple.finder"
   }

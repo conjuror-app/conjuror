@@ -2,7 +2,6 @@ import AppKit
 import ApplicationServices
 import SwiftUI
 
-/// Lists the macOS permissions Conjuror can use, with their state where macOS reports it.
 struct PermissionsSettingsGroup: View {
   var body: some View {
     SettingsGroup(title: "Permissions") {
@@ -91,7 +90,6 @@ struct PermissionsSettingsGroup: View {
   }
 }
 
-/// Shows whether macOS allows a permission, in the style of the Permissions group.
 struct PermissionStatusLabel: View {
   let status: PermissionStatus
 
@@ -136,7 +134,6 @@ enum PermissionStatus {
   }
 }
 
-/// A section of System Settings → Privacy & Security.
 private enum PrivacyPane: String {
   case accessibility = "Privacy_Accessibility"
   case automation = "Privacy_Automation"

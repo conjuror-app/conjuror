@@ -38,7 +38,6 @@ final class ApplicationDirectoryMonitor {
         { _, info, _, _, _, _ in
           guard let info else { return }
 
-          // The stream delivers callbacks on the main queue and stops before deallocation.
           MainActor.assumeIsolated {
             Unmanaged<ApplicationDirectoryMonitor>.fromOpaque(info).takeUnretainedValue().onChange()
           }

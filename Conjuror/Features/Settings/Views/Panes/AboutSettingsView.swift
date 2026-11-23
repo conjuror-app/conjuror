@@ -94,7 +94,6 @@ struct AboutSettingsView: View {
   }
 }
 
-/// The app and system details worth including in a bug report.
 enum DiagnosticsReport {
   static var appVersion: String {
     Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String

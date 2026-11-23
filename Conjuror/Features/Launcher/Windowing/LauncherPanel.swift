@@ -45,7 +45,6 @@ final class LauncherPanel: NSPanel {
       return
     }
 
-    // Always consumed, so Option-Return never inserts a line break in the search field.
     if event.type == .keyDown,
       LauncherKeyboardNavigation.opensWebSearch(
         keyCode: event.keyCode,

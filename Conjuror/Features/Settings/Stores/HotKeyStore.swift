@@ -36,8 +36,6 @@ final class HotKeyStore: ObservableObject {
     self.registrationFactory = registrationFactory
   }
 
-  /// Registers every assigned hot key. Each registers on its own, so one that's unavailable
-  /// doesn't stop the others, and the first failure is published.
   func register() {
     registrations.removeAll()
     var firstError: Error?
@@ -81,7 +79,6 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// Unregisters the app's hot key and removes its alias and hot key.
   func removeApplicationCustomization(at path: String) {
     registrations[.application(path: path)] = nil
     settingsStore.removeApplicationCustomization(at: path)
@@ -95,8 +92,6 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// The hot keys to register. A mode's hot key stays free for other apps while the mode is
-  /// turned off.
   private func assignedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
     savedConfigurations().filter { target, _ in
       guard case .action(let action) = target else { return true }
@@ -105,8 +100,6 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// Every saved hot key, including those of modes that are turned off. Launcher actions come
-  /// first, then apps by path, so registration order is stable.
   private func savedConfigurations() -> [(HotKeyTarget, HotKeyConfiguration)] {
     let actions = HotKeyAction.allCases.compactMap {
       action -> (HotKeyTarget, HotKeyConfiguration)? in
@@ -131,8 +124,6 @@ final class HotKeyStore: ObservableObject {
     }
   }
 
-  /// What already uses the configuration's keys, other than `target`. A mode that's turned off
-  /// keeps its keys, so turning it back on doesn't take them from something else.
   private func owner(
     of configuration: HotKeyConfiguration,
     excluding target: HotKeyTarget

@@ -1,9 +1,7 @@
 import CoreServices
 import Foundation
 
-/// Sends Apple events to system processes without compiling AppleScript.
 enum SystemAppleEvents {
-  /// The target app named in permission errors.
   struct Target: Sendable {
     static let finder = Target(bundleIdentifier: "com.apple.finder", name: "Finder")
     static let loginWindow = Target(bundleIdentifier: "com.apple.loginwindow", name: "loginwindow")
@@ -19,7 +17,7 @@ enum SystemAppleEvents {
   private static let permissionErrorCodes: Set<Int> = [
     Int(errAEEventNotPermitted),
     Int(errAEEventWouldRequireUserConsent),
-    -10004,  // errAEPrivilegeError
+    -10004,
   ]
 
   static func send(
@@ -49,7 +47,6 @@ enum SystemAppleEvents {
     }
   }
 
-  /// Runs AppleScript source for scripting-only operations with no equivalent raw event.
   static func run(script source: String, target: Target) throws {
     guard let script = NSAppleScript(source: source) else {
       throw SystemCommandError.failed(code: nil)

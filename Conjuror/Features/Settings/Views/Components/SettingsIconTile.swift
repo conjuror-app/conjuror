@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A settings section's symbol on its coloured rounded tile.
 struct SettingsIconTile: View {
   let section: SettingsSection
   var size: CGFloat = 22

@@ -50,7 +50,6 @@ enum HotKeyAction: CaseIterable, Hashable {
   }
 }
 
-/// What a registered hot key does: a launcher action or opening an app at a canonical path.
 enum HotKeyTarget: Hashable {
   case action(HotKeyAction)
   case application(path: String)

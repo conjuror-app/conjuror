@@ -121,8 +121,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
 
       let keys: [URLResourceKey] = [.isDirectoryKey, .isPackageKey]
 
-      // Finder hides some top-level app symlinks, including Safari.
-      // Scan them separately because the recursive scan skips hidden files.
       let topLevelApplications =
         (try? fileManager.contentsOfDirectory(
           at: directory,
@@ -187,7 +185,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
     let isPasswordsApp =
       bundle.bundleIdentifier == "com.apple.Passwords"
       && packageType == "XPC!"
-    // Some apps, including Icon Composer, omit CFBundlePackageType.
     let hasUntypedExecutable =
       packageType == nil
       && bundle.executableURL.map { FileManager.default.isExecutableFile(atPath: $0.path) } == true
@@ -210,7 +207,6 @@ struct ApplicationCatalog: ApplicationCatalogLoading {
       bundleIdentifier: bundle.bundleIdentifier,
       url: canonicalURL,
       sourcePriority: sourcePriority,
-      // LSUIElement apps such as Raycast can be launched. Exclude only background-only apps.
       isBackgroundOnly: info["LSBackgroundOnly"] as? Bool == true,
       isHelper: isHelper
     )

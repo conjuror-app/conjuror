@@ -64,7 +64,6 @@ extension InstalledApplication: Hashable {
 }
 
 extension URL {
-  /// The standardized file URL with symlinks resolved, used to identify one installation.
   var canonicalFileURL: URL {
     standardizedFileURL.resolvingSymlinksInPath()
   }

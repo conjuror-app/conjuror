@@ -35,15 +35,12 @@ case "$symbols" in
   *) echo "The symbols archive must be a .dSYM.zip file" >&2; exit 1 ;;
 esac
 
-# Prefix relative paths so filenames cannot be interpreted as CLI options.
 case "$app" in /*) ;; *) app=./$app ;; esac
 case "$symbols" in /*) ;; *) symbols=./$symbols ;; esac
 
 set --
 case "$tag" in *-*) set -- --prerelease ;; esac
 
-# Upload everything while the release is a draft. --verify-tag prevents GitHub
-# from silently creating a tag at the current default branch.
 gh release create "$tag" "$app" "$symbols" \
   --repo "$repository" --verify-tag --draft \
   --title "$tag" --notes-file "$notes" "$@"

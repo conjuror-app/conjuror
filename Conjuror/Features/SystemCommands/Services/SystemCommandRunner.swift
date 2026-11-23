@@ -5,7 +5,6 @@ import IOKit.pwr_mgt
 
 @MainActor
 struct SystemCommandRunner {
-  /// A mounted volume's resource values, separated so ejection can be tested without disks.
   struct Volume: Equatable, Sendable {
     let url: URL
     let isEjectable: Bool
@@ -13,7 +12,6 @@ struct SystemCommandRunner {
     let isRootFileSystem: Bool
   }
 
-  /// Finder's `fndr` event class, which the SDK headers do not define.
   private nonisolated static let finderSuite: AEEventClass = 0x666E_6472
 
   private nonisolated static let volumeKeys: [URLResourceKey] = [
@@ -22,8 +20,6 @@ struct SystemCommandRunner {
     .volumeIsRootFileSystemKey,
   ]
 
-  /// The volumes Eject All Disks unmounts: removable or ejectable volumes other than the startup
-  /// disk.
   nonisolated static func ejectableVolumes(from volumes: [Volume]) -> [URL] {
     volumes
       .filter { ($0.isEjectable || $0.isRemovable) && !$0.isRootFileSystem }
@@ -108,7 +104,6 @@ struct SystemCommandRunner {
       try await detached(Self.ejectAllDisks)
     case .emptyTrash:
       try await detached {
-        // Finder replies when it finishes, which can take a while for a large Trash.
         try SystemAppleEvents.send(
           eventClass: Self.finderSuite,
           eventID: AEEventID(kAEEmptyTrash),
@@ -129,7 +124,6 @@ struct SystemCommandRunner {
     try await Task.detached(priority: .userInitiated, operation: operation).value
   }
 
-  /// Asks loginwindow to show its own confirmation dialog, which can be cancelled.
   private func sendLoginWindowEvent(_ eventID: AEEventID) async throws {
     try await detached {
       try SystemAppleEvents.send(
@@ -182,7 +176,6 @@ struct SystemCommandRunner {
   private func showDesktop() throws {
     typealias SendNotification = @convention(c) (CFString, UnsafeMutableRawPointer?) -> Void
 
-    // AppKit loads HIServices, which exports the Dock notification function.
     guard let symbol = dlsym(dlopen(nil, RTLD_NOW), "CoreDockSendNotification") else {
       throw SystemCommandError.unavailable
     }

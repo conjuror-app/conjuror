@@ -1,6 +1,5 @@
 import AppKit
 
-/// Opens an app from its hot key, or hides it when it's already frontmost.
 @MainActor
 struct ApplicationActivator {
   let launcher = ApplicationLauncher()

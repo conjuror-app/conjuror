@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A red-tinted button for actions that delete or reset something.
 struct SettingsDestructiveButtonStyle: ButtonStyle {
   func makeBody(configuration: Configuration) -> some View {
     configuration.label

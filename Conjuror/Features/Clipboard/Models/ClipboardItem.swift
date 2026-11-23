@@ -9,7 +9,6 @@ struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
   let firstCopiedAt: Date
   var lastCopiedAt: Date
 
-  /// The text on a single line, shortened for a result row.
   var preview: String {
     String(
       text.prefix(Self.previewLength * 2)
@@ -20,7 +19,6 @@ struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
   }
 }
 
-/// The app that was in front when an item was copied.
 struct ClipboardSource: Codable, Equatable, Sendable {
   let name: String?
   let bundleIdentifier: String?

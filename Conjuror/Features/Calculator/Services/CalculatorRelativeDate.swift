@@ -34,7 +34,6 @@ struct CalculatorRelativeDateEvaluator {
     }
   }
 
-  /// A date the user typed, which keeps its time only when it came from `now`.
   private struct Operand {
     let date: Date
     let includesTime: Bool
@@ -68,7 +67,6 @@ struct CalculatorRelativeDateEvaluator {
     durationFromNow(expression) ?? offsetDate(expression) ?? difference(expression)
   }
 
-  /// `5 days from now` and `2 weeks ago`.
   private func durationFromNow(_ expression: String) -> CalculatorResult? {
     guard
       let match = expression.wholeMatch(
@@ -88,7 +86,6 @@ struct CalculatorRelativeDateEvaluator {
     )
   }
 
-  /// `now + 2 hours` and `1 aug 2025 - 3 days`.
   private func offsetDate(_ expression: String) -> CalculatorResult? {
     guard
       let match = expression.wholeMatch(
@@ -109,7 +106,6 @@ struct CalculatorRelativeDateEvaluator {
     )
   }
 
-  /// `now - 1 aug 2025`, in days unless a unit follows, as in `now - 1 aug 2025 in weeks`.
   private func difference(_ expression: String) -> CalculatorResult? {
     guard
       let match = expression.wholeMatch(
@@ -166,8 +162,6 @@ struct CalculatorRelativeDateEvaluator {
     formatter.timeZone = timeZone
     formatter.dateStyle = .medium
 
-    // Short times drop seconds, which would hide a change of seconds. A typed date without a time
-    // stays a date unless the offset moves it within the day.
     formatter.timeStyle =
       switch unit {
       case .second: .medium
@@ -198,7 +192,6 @@ struct CalculatorRelativeDateEvaluator {
       return calendar.date(byAdding: .day, value: text == "tomorrow" ? 1 : -1, to: today)
         .map { Operand(date: $0, includesTime: false) }
     default:
-      // Skip date parsing for plain numbers, as in `10 - 5`.
       guard text.contains(where: \.isLetter) || text.wholeMatch(of: /\d{4}-\d{2}-\d{2}/) != nil
       else {
         return nil
@@ -211,7 +204,6 @@ struct CalculatorRelativeDateEvaluator {
       formatter.calendar = gregorian
       formatter.timeZone = timeZone
       formatter.isLenient = false
-      // Dates without a year fall in the current one.
       formatter.defaultDate = today
 
       return Self.dateFormats.lazy.compactMap { format in
@@ -244,14 +236,12 @@ struct CalculatorRelativeDateEvaluator {
   private func difference(from start: Operand, to end: Operand, in unit: Unit) -> Double? {
     switch unit {
     case .month, .year:
-      // Whole calendar months and years, as in an age.
       return calendar.dateComponents([unit.calendarComponent], from: start.date, to: end.date)
         .value(for: unit.calendarComponent)
         .map(Double.init)
     case .second, .minute, .hour, .day, .week:
       guard let secondsPerUnit = unit.secondsPerUnit else { return nil }
 
-      // Dates without times count calendar days, so daylight saving time doesn't add a fraction.
       if !start.includesTime, !end.includesTime,
         let days = calendar.dateComponents([.day], from: start.date, to: end.date).day
       {

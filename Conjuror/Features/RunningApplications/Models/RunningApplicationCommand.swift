@@ -1,4 +1,3 @@
-/// An action on running apps, other than switching to the selected one with Return.
 enum RunningApplicationCommand: Equatable {
   case forceQuit
   case hide
@@ -8,8 +7,6 @@ enum RunningApplicationCommand: Equatable {
   case relaunch
 }
 
-/// A destructive action waiting for Return to confirm or Escape to cancel. It names its target
-/// processes so a later selection change cannot redirect it.
 enum RunningApplicationConfirmation: Equatable {
   case forceQuit(RunningApplication)
   case quitAll([RunningApplication])

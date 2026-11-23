@@ -1,7 +1,5 @@
 import SwiftUI
 
-/// The card heading a module's pane: its icon, name, current status, and the switch that
-/// turns it on, with optional notes underneath.
 struct SettingsHeroCard<Footer: View>: View {
   let section: SettingsSection
   let title: String
@@ -29,8 +27,6 @@ extension SettingsHeroCard where Footer == EmptyView {
   }
 }
 
-/// The card at the top of a pane: an icon, a title, a subtitle, and an optional control,
-/// with optional notes underneath.
 struct SettingsHeaderCard<Icon: View, Accessory: View, Footer: View>: View {
   let title: String
   let subtitle: String

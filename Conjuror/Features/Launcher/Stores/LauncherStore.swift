@@ -40,7 +40,6 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var fileSearchErrorMessage: String?
   @Published private(set) var filteredSystemCommands = [SystemCommand]()
   @Published private(set) var filteredClipboardItems = [ClipboardItem]()
-  /// The command waiting for a second Return before it runs.
   @Published private(set) var armedCommand: SystemCommand?
   @Published private(set) var filteredRunningApplications = [RunningApplication]()
   @Published private(set) var pendingConfirmation: RunningApplicationConfirmation?
@@ -48,7 +47,6 @@ final class LauncherStore: ObservableObject {
   @Published private(set) var selectionScrollRequest = 0
   @Published private(set) var focusRequest = 0
 
-  /// The failed action's message, shown only in the mode that started the action.
   var actionErrorMessage: String? {
     actionError?.mode == mode ? actionError?.message : nil
   }
@@ -57,12 +55,10 @@ final class LauncherStore: ObservableObject {
     selectedResultID == .calculator
   }
 
-  /// The apps and System Settings sections in the ranked application results.
   var filteredApplications: [InstalledApplication] {
     filteredResults.compactMap(\.application)
   }
 
-  /// Keyword, name-matched, and web search rows shown with app results.
   var quicklinkResultCount: Int {
     (keywordQuicklinkMatch == nil ? 0 : 1) + filteredQuicklinks.count
       + (webSearchMatch == nil ? 0 : 1)
@@ -76,8 +72,6 @@ final class LauncherStore: ObservableObject {
     mode == .clipboard
   }
 
-  /// Return pastes clipboard items and emoji into the previous app when macOS allows it, and only
-  /// copies otherwise.
   var pastesIntoPreviousApp: Bool {
     clipboardPaster.canPaste
   }
@@ -100,8 +94,6 @@ final class LauncherStore: ObservableObject {
     return recentEmoji + emoji.filter { !recentIDs.contains($0.id) }
   }
 
-  /// The selected app or file, which Finder can reveal. Calculations, emoji, shortcuts, and
-  /// System Settings items have no file to reveal.
   var selectedRevealableURL: URL? {
     switch mode {
     case .applications:
@@ -147,12 +139,10 @@ final class LauncherStore: ObservableObject {
   private let applicationLoader = CatalogLoader<InstalledApplication>()
   private let shortcutsLoader = CatalogLoader<AppleShortcut>()
   private var excludedApplicationPaths = Set<String>()
-  /// Aliases by canonical installation path.
   private var applicationAliases = [String: String]()
   private var applicationSettingsSubscription: AnyCancellable?
   private var showsSystemCommands = true
   private var systemCommandsSubscription: AnyCancellable?
-  /// The optional items in the application search index, rebuilt only when they change.
   private var catalogComposition: CatalogComposition?
   private var quicklinkSubscription: AnyCancellable?
   private var quicklinkMatcher = QuicklinkMatcher(quicklinks: [])
@@ -254,7 +244,6 @@ final class LauncherStore: ObservableObject {
     self.revealInFinder = revealInFinder
     applicationController = RankedCatalog(history: launchHistory)
     shortcutController = RankedCatalog(history: shortcutRunHistory)
-    // Commands share app launch history so their recency ranks consistently in both modes.
     systemCommandController = RankedCatalog(history: launchHistory)
     systemCommandController.replace(SystemCommand.allCases)
     fileController = LauncherFileController(searcher: fileSearcher)
@@ -266,7 +255,6 @@ final class LauncherStore: ObservableObject {
     self.clipboardPaster = clipboardPaster
     self.onEvent = onEvent
 
-    // Published values arrive before the store's properties change, so use the emitted ones.
     applicationSettingsSubscription = settingsStore.$excludedApplications
       .combineLatest(settingsStore.$applicationCustomizations)
       .sink { [weak self] exclusions, customizations in
@@ -280,7 +268,6 @@ final class LauncherStore: ObservableObject {
         reselectApplicationResultIfNeeded()
       }
 
-    // Published values arrive before the store's properties change, so use the emitted ones.
     quicklinkSubscription = settingsStore.$quicklinks
       .combineLatest(settingsStore.$webSearchQuicklinkID)
       .sink { [weak self] quicklinks, webSearchID in
@@ -405,7 +392,6 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  /// The alias shown beside an app's result, if it has one.
   func alias(for application: InstalledApplication) -> String? {
     applicationAliases[application.persistenceKey]
   }
@@ -473,8 +459,6 @@ final class LauncherStore: ObservableObject {
     }
   }
 
-  /// Reveals the selected app or file in Finder. In clipboard and emoji modes, copies without
-  /// pasting.
   func revealSelectedResult() {
     if mode == .clipboard {
       if let item = selectedClipboardItem { copy(item) }
@@ -519,8 +503,6 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  /// Opens a quicklink. A keyword quicklink that needs search text and has none completes the
-  /// query to its keyword instead, ready for typing.
   func open(_ match: QuicklinkMatcher.Match) {
     let quicklink = match.quicklink
     actionError = nil
@@ -559,7 +541,6 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  /// Opens the web search fallback row, whichever result is selected.
   func openWebSearch() {
     guard mode == .applications, let webSearchMatch else { return }
 
@@ -576,8 +557,6 @@ final class LauncherStore: ObservableObject {
     onEvent(.calculatorResultCopied)
   }
 
-  /// Pastes the emoji into the previous app, or only copies it when Conjuror isn't allowed to send
-  /// keystrokes.
   func paste(_ emoji: Emoji) {
     guard clipboardPaster.canPaste else {
       copy(emoji)
@@ -595,8 +574,6 @@ final class LauncherStore: ObservableObject {
     onEvent(.emojiCopied)
   }
 
-  /// Puts the item back on the clipboard and pastes it into the previous app, or only copies it
-  /// when Conjuror isn't allowed to send keystrokes.
   func paste(_ item: ClipboardItem) {
     guard clipboardPaster.canPaste else {
       copy(item)
@@ -680,7 +657,6 @@ final class LauncherStore: ObservableObject {
     )
   }
 
-  /// Runs a command, or arms it first when it needs a second Return to confirm.
   func run(_ command: SystemCommand) {
     selectedResultID = .systemCommand(command.id)
 
@@ -797,7 +773,6 @@ final class LauncherStore: ObservableObject {
     pendingConfirmation = nil
   }
 
-  /// Releases results that only matter while the launcher is visible.
   func didHide() {
     pendingConfirmation = nil
     stopRunningApplications()
@@ -814,7 +789,6 @@ final class LauncherStore: ObservableObject {
       actionError = nil
       transition(to: requestedMode)
     } else if let actionError {
-      // Reopen where the action failed so its error and query are still visible.
       transition(to: actionError.mode, query: nil)
     } else {
       transition(to: .applications)
@@ -932,8 +906,6 @@ final class LauncherStore: ObservableObject {
     return results[nextIndex]
   }
 
-  /// Keeps the selection when results change outside typing, unless it's gone or it's the web
-  /// search row, which is only selected by default when nothing else matches.
   private func reselectApplicationResultIfNeeded() {
     guard mode == .applications else { return }
 
@@ -987,7 +959,6 @@ final class LauncherStore: ObservableObject {
     }
   }
 
-  /// Puts the emoji on the clipboard, records it as recent, and leaves emoji mode.
   private func choose(_ emoji: Emoji) {
     writeToClipboard(emoji.value)
     emojiHistory.record(emoji)
@@ -1068,7 +1039,6 @@ final class LauncherStore: ObservableObject {
       excluding: keywordID
     )
     webSearchMatch = webSearchQuicklink.flatMap { quicklink in
-      // Searching with the engine's own keyword already shows that engine first.
       guard !searchText.isEmpty, quicklink.id != keywordID else { return nil }
 
       return QuicklinkMatcher.Match(quicklink: quicklink, argument: searchText)
@@ -1085,7 +1055,6 @@ final class LauncherStore: ObservableObject {
     }
   }
 
-  /// Builds the running app list when its mode opens and follows workspace changes until it closes.
   private func startRunningApplications() {
     guard runningApplicationObservation == nil else { return }
 
@@ -1134,7 +1103,6 @@ final class LauncherStore: ObservableObject {
     filteredRunningApplications = runningApplicationIndex?.ranked(query: query, recency: [:]) ?? []
   }
 
-  /// Runs an action on a running app, showing its error in Running apps mode.
   @discardableResult
   private func attempt(
     _ verb: String,
@@ -1167,7 +1135,6 @@ final class LauncherStore: ObservableObject {
     transition(to: .applications)
   }
 
-  /// Rebuilds the search index when history changes, keeping the selection if it's still there.
   private func replaceClipboardItems(with items: [ClipboardItem]) {
     clipboardIndex = ClipboardSearchIndex(items: items)
 
@@ -1220,8 +1187,6 @@ enum LauncherEvent: Equatable {
   case shortcutRunStarted
   case systemCommandStarted
 
-  /// Copies, shortcut runs, and system commands leave no other app to take focus, so the launcher
-  /// returns it to the previous app.
   var restoresPreviousFocus: Bool {
     switch self {
     case .calculatorResultCopied, .clipboardItemCopied, .clipboardItemPasted, .emojiCopied,

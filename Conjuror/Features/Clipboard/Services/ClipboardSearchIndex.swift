@@ -1,8 +1,6 @@
 import Foundation
 
-/// Finds history items containing every word of a query, keeping the newest first.
 struct ClipboardSearchIndex {
-  /// Long items are only searched near their start, so typing stays fast.
   private static let searchableLength = 10_000
 
   private let items: [ClipboardItem]

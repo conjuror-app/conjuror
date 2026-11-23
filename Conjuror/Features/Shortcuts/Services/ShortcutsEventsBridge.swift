@@ -75,7 +75,6 @@ enum ShortcutsEventsBridge {
         [
           kCGImageSourceCreateThumbnailFromImageAlways: true,
           kCGImageSourceCreateThumbnailWithTransform: true,
-          // The launcher displays icons at 26 points, including on Retina screens.
           kCGImageSourceThumbnailMaxPixelSize: 64,
         ] as CFDictionary
       )

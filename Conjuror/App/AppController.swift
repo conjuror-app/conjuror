@@ -250,7 +250,6 @@ final class AppController: NSObject, NSApplicationDelegate {
       .store(in: &cancellables)
   }
 
-  /// Follows customized apps that moved, then re-registers hot keys for their new paths.
   private func observeApplicationCatalog() {
     store.$applications
       .dropFirst()
@@ -264,7 +263,6 @@ final class AppController: NSObject, NSApplicationDelegate {
       .store(in: &cancellables)
   }
 
-  /// Watches the clipboard only while history is on. Turning it off deletes the history.
   private func observeClipboardHistorySettings() {
     settingsStore.$isClipboardHistoryEnabled
       .combineLatest(settingsStore.$clipboardHistoryRetention)

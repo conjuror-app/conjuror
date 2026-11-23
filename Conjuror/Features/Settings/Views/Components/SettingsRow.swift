@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A titled setting with its control, and optional notes underneath that belong to it.
 struct SettingsRow<Content: View, Footer: View>: View {
   let title: String
   let description: String

@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A sheet listing installed apps that match a search, with an action button on each.
 struct ApplicationPickerSheet: View {
   let title: String
   let actionTitle: String
@@ -60,7 +59,6 @@ struct ApplicationPickerSheet: View {
   }
 }
 
-/// An app's icon, name, and path, with an optional status before the path.
 struct ApplicationLabel: View {
   let name: String
   let path: String

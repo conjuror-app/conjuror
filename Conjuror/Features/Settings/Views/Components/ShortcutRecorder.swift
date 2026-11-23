@@ -3,7 +3,6 @@ import Carbon.HIToolbox
 import SwiftUI
 
 struct ShortcutRecorder: NSViewRepresentable {
-  /// `nil` shows a prompt to record one.
   let configuration: HotKeyConfiguration?
   let onChange: (HotKeyConfiguration) -> Bool
   let onRecordingChange: (Bool) -> Void

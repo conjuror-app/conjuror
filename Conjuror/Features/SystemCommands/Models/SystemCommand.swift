@@ -1,4 +1,3 @@
-/// A fixed system action, such as locking the screen or emptying the Trash.
 enum SystemCommand: String, CaseIterable, Identifiable, Sendable {
   case lockScreen = "lock-screen"
   case sleep
@@ -36,7 +35,6 @@ enum SystemCommand: String, CaseIterable, Identifiable, Sendable {
     }
   }
 
-  /// Other words that find the command, matched as secondary search text.
   var keywords: String {
     switch self {
     case .lockScreen: "lock"
@@ -69,8 +67,6 @@ enum SystemCommand: String, CaseIterable, Identifiable, Sendable {
     }
   }
 
-  /// Whether the launcher asks for a second Return. Restart, Shut Down, and Log Out show the
-  /// system's own confirmation dialog instead.
   var requiresConfirmation: Bool {
     switch self {
     case .ejectAllDisks, .emptyTrash: true
