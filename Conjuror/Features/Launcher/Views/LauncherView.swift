@@ -19,7 +19,7 @@ struct LauncherView: View {
         iconColor: accentColor,
         onOpenSelected: store.openSelectedResult,
         onCycleMode: store.cycleMode,
-        onReturnToRoot: { store.updateQuery(";") },
+        onReturnToRoot: store.returnToApplications,
         focusRequest: store.focusRequest
       )
       .padding(.horizontal, 12)
@@ -283,7 +283,7 @@ struct LauncherView: View {
     if store.selectedRevealableURL != nil {
       return ("Reveal", ["⌘", "↵"])
     }
-    return ("Switch Mode", ["Tab"])
+    return ("Switch mode", ["Tab"])
   }
 
   private func keycap(_ symbol: String) -> some View {

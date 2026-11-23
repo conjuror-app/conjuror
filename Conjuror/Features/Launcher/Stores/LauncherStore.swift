@@ -343,6 +343,10 @@ final class LauncherStore: ObservableObject {
     transition(to: nextMode)
   }
 
+  func returnToApplications() {
+    transition(to: .applications)
+  }
+
   func loadApplications() {
     catalogErrorMessage = nil
     let catalog = catalog

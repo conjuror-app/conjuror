@@ -23,21 +23,13 @@ struct SystemCommandResultRow: View {
       onHover: onHover
     ) {
       if layout.isCommandBar {
-        Image(systemName: command.systemImage)
-          .font(.system(size: 12, weight: .medium))
-          .foregroundStyle(isArmed ? .red : .primary.opacity(0.85))
-          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
-          .background(
-            isArmed ? Color.red.opacity(0.15) : Color.primary.opacity(0.08),
-            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
-          )
-          .overlay {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-              .strokeBorder(
-                isArmed ? Color.red.opacity(0.3) : Color.primary.opacity(0.08),
-                lineWidth: 0.5
-              )
-          }
+        CommandBarIconBadge(
+          systemImage: command.systemImage,
+          size: layout.resultIconSize,
+          foreground: isArmed ? .red : .primary.opacity(0.85),
+          background: isArmed ? Color.red.opacity(0.15) : Color.primary.opacity(0.08),
+          border: isArmed ? Color.red.opacity(0.3) : Color.primary.opacity(0.08)
+        )
 
         Text(command.title)
           .font(.system(size: layout.resultFontSize, weight: .medium))

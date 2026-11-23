@@ -19,15 +19,13 @@ struct ClipboardResultRow: View {
       onHover: onHover
     ) {
       if layout.isCommandBar {
-        Image(systemName: "doc.on.clipboard")
-          .font(.system(size: 11, weight: .medium))
-          .foregroundStyle(.secondary)
-          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
-          .background(Color.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-          .overlay {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-              .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
-          }
+        CommandBarIconBadge(
+          systemImage: "doc.on.clipboard",
+          size: layout.resultIconSize,
+          fontSize: 11,
+          foreground: .secondary,
+          background: Color.primary.opacity(0.07)
+        )
 
         Text(item.preview)
           .font(.system(size: layout.resultFontSize, weight: .medium))

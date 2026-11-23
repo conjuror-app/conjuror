@@ -19,15 +19,18 @@ struct LauncherSearchField: View {
               .font(.system(size: 11, weight: .semibold))
               .foregroundStyle(.secondary)
               .frame(width: 24, height: 24)
-              .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+              .background(
+                .primary.opacity(0.07),
+                in: RoundedRectangle(cornerRadius: 6, style: .continuous)
+              )
               .overlay {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                   .strokeBorder(.primary.opacity(0.08), lineWidth: 0.5)
               }
           }
           .buttonStyle(.plain)
-          .help("Back to All Modes")
-          .accessibilityLabel("Back to All Modes")
+          .help("Back to all modes")
+          .accessibilityLabel("Back to all modes")
         }
       } else {
         Image(systemName: mode.systemImage)
@@ -81,7 +84,10 @@ struct LauncherSearchField: View {
           }
           .padding(.horizontal, 9)
           .frame(height: 26)
-          .background(.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+          .background(
+            .primary.opacity(0.06),
+            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
+          )
           .overlay {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
               .strokeBorder(.primary.opacity(0.09), lineWidth: 0.5)
