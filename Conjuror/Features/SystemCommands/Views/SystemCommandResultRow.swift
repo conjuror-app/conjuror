@@ -22,28 +22,58 @@ struct SystemCommandResultRow: View {
       action: onRun,
       onHover: onHover
     ) {
-      Image(systemName: command.systemImage)
-        .font(.system(size: layout.shortcutSymbolSize, weight: .medium))
-        .foregroundStyle(isArmed ? .red : .secondary)
-        .frame(width: layout.resultIconSize, height: layout.resultIconSize)
+      if layout.isCommandBar {
+        Image(systemName: command.systemImage)
+          .font(.system(size: 12, weight: .medium))
+          .foregroundStyle(isArmed ? .red : .primary.opacity(0.85))
+          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
+          .background(
+            isArmed ? Color.red.opacity(0.15) : Color.primary.opacity(0.08),
+            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
+          )
+          .overlay {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+              .strokeBorder(
+                isArmed ? Color.red.opacity(0.3) : Color.primary.opacity(0.08),
+                lineWidth: 0.5
+              )
+          }
 
-      VStack(alignment: .leading, spacing: 1) {
         Text(command.title)
           .font(.system(size: layout.resultFontSize, weight: .medium))
           .foregroundStyle(.primary)
           .lineLimit(1)
 
-        if layout.appearance == .standard {
-          caption
-            .font(.caption)
+        Spacer()
+
+        Text(isArmed ? "\(command.confirmationTitle) Press Return again" : "System")
+          .font(.system(size: 12))
+          .foregroundStyle(isArmed ? AnyShapeStyle(.red) : AnyShapeStyle(.tertiary))
+          .lineLimit(1)
+      } else {
+        Image(systemName: command.systemImage)
+          .font(.system(size: layout.shortcutSymbolSize, weight: .medium))
+          .foregroundStyle(isArmed ? .red : .secondary)
+          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
+
+        VStack(alignment: .leading, spacing: 1) {
+          Text(command.title)
+            .font(.system(size: layout.resultFontSize, weight: .medium))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+
+          if layout.appearance == .standard {
+            caption
+              .font(.caption)
+          }
         }
-      }
 
-      Spacer()
+        Spacer()
 
-      if layout.appearance == .minimal {
-        caption
-          .font(.caption2)
+        if layout.appearance == .minimal {
+          caption
+            .font(.caption2)
+        }
       }
     }
   }

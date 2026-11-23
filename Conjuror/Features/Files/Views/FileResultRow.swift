@@ -15,11 +15,15 @@ struct FileResultRow: View {
         .scaledToFit()
         .frame(width: layout.fileIconSize, height: layout.fileIconSize)
 
-      if layout.appearance == .minimal {
+      if layout.isCommandBar {
+        filename
+          .font(.system(size: layout.resultFontSize, weight: .medium))
+        Spacer(minLength: 4)
+      } else if layout.appearance == .minimal {
         filename
         Spacer(minLength: 4)
         parentPath
-          .frame(maxWidth: LauncherLayout.width / 2, alignment: .trailing)
+          .frame(maxWidth: layout.width / 2, alignment: .trailing)
       } else {
         VStack(alignment: .leading, spacing: 1) {
           filename
@@ -28,10 +32,23 @@ struct FileResultRow: View {
         Spacer(minLength: 4)
       }
     }
-    .padding(.horizontal, 8)
+    .padding(.horizontal, layout.isCommandBar ? 10 : 8)
     .frame(height: layout.resultRowHeight)
-    .background(isSelected ? Color.accentColor.opacity(0.18) : .clear)
-    .clipShape(RoundedRectangle(cornerRadius: 7))
+    .background {
+      let shape = RoundedRectangle(cornerRadius: layout.isCommandBar ? 8 : 7, style: .continuous)
+      if layout.isCommandBar {
+        shape
+          .fill(isSelected ? Color.primary.opacity(0.10) : .clear)
+          .overlay {
+            if isSelected {
+              shape.strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+            }
+          }
+      } else {
+        shape
+          .fill(isSelected ? Color.accentColor.opacity(0.18) : .clear)
+      }
+    }
     .contentShape(Rectangle())
     .onHover { hovering in
       if hovering { onHover() }

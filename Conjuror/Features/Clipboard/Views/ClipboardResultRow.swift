@@ -18,24 +18,44 @@ struct ClipboardResultRow: View {
       action: onSelect,
       onHover: onHover
     ) {
-      Image(systemName: "doc.on.clipboard")
-        .font(.system(size: layout.shortcutSymbolSize, weight: .medium))
-        .foregroundStyle(.secondary)
-        .frame(width: layout.resultIconSize, height: layout.resultIconSize)
+      if layout.isCommandBar {
+        Image(systemName: "doc.on.clipboard")
+          .font(.system(size: 11, weight: .medium))
+          .foregroundStyle(.secondary)
+          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
+          .background(Color.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+          .overlay {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+              .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+          }
 
-      Text(item.preview)
-        .font(.system(size: layout.resultFontSize, weight: .medium))
-        .foregroundStyle(.primary)
-        .lineLimit(1)
-        .truncationMode(.tail)
+        Text(item.preview)
+          .font(.system(size: layout.resultFontSize, weight: .medium))
+          .foregroundStyle(.primary)
+          .lineLimit(1)
+          .truncationMode(.tail)
 
-      Spacer(minLength: 12)
+        Spacer(minLength: 4)
+      } else {
+        Image(systemName: "doc.on.clipboard")
+          .font(.system(size: layout.shortcutSymbolSize, weight: .medium))
+          .foregroundStyle(.secondary)
+          .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
-      Text(detail)
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .lineLimit(1)
-        .layoutPriority(1)
+        Text(item.preview)
+          .font(.system(size: layout.resultFontSize, weight: .medium))
+          .foregroundStyle(.primary)
+          .lineLimit(1)
+          .truncationMode(.tail)
+
+        Spacer(minLength: 12)
+
+        Text(detail)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+          .layoutPriority(1)
+      }
     }
   }
 
