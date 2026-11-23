@@ -150,7 +150,7 @@ final class LauncherStore: ObservableObject {
   private var quicklinkUses: [String: Date]
   private var emojiIndex: EmojiRanker.Index?
   private var hasLoadedEmoji = false
-  private var hasLoadedShortcuts = false
+  private var hasShownCachedShortcuts = false
   private var runningShortcutIDs = Set<AppleShortcut.ID>()
   private var lastPointerLocation: NSPoint?
   private var runningApplicationIndex: SearchIndex<RunningApplication>?
@@ -367,9 +367,14 @@ final class LauncherStore: ObservableObject {
   }
 
   func loadShortcuts() {
-    guard !hasLoadedShortcuts else { return }
+    if !hasShownCachedShortcuts {
+      hasShownCachedShortcuts = true
+      if let cachedShortcuts = shortcutCatalog.cachedShortcuts() {
+        replaceShortcuts(with: cachedShortcuts)
+        if mode == .shortcuts { selectFirstResult() }
+      }
+    }
 
-    hasLoadedShortcuts = true
     shortcutCatalogErrorMessage = nil
     let shortcutCatalog = shortcutCatalog
     shortcutsLoader.load(
@@ -380,14 +385,18 @@ final class LauncherStore: ObservableObject {
 
         switch result {
         case .success(let shortcuts):
+          guard shortcuts != self.shortcuts else { return }
+
           replaceShortcuts(with: shortcuts)
         case .failure(let error):
-          hasLoadedShortcuts = false
-          replaceShortcuts(with: [])
+          guard shortcuts.isEmpty else { return }
+
           shortcutCatalogErrorMessage = "Couldn’t load shortcuts. \(error.localizedDescription)"
         }
 
-        if mode == .shortcuts { selectFirstResult() }
+        if mode == .shortcuts, !resultIDs.contains(where: { $0 == self.selectedResultID }) {
+          selectFirstResult()
+        }
       }
     )
   }

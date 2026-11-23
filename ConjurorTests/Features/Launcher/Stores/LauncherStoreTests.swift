@@ -428,8 +428,34 @@ struct FailingCatalogStub: ApplicationCatalogLoading {
 struct ShortcutCatalogStub: ShortcutCatalogLoading {
   let shortcuts: [AppleShortcut]
 
+  func cachedShortcuts() -> [AppleShortcut]? {
+    nil
+  }
+
   func load() async throws -> [AppleShortcut] {
     shortcuts
+  }
+}
+
+@MainActor
+final class MutableShortcutCatalog: ShortcutCatalogLoading {
+  var cached: [AppleShortcut]?
+  var current: [AppleShortcut]
+  var error: Error?
+
+  init(cached: [AppleShortcut]? = nil, current: [AppleShortcut]) {
+    self.cached = cached
+    self.current = current
+  }
+
+  func cachedShortcuts() -> [AppleShortcut]? {
+    cached
+  }
+
+  func load() async throws -> [AppleShortcut] {
+    if let error { throw error }
+
+    return current
   }
 }
 

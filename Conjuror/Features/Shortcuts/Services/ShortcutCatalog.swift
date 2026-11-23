@@ -15,15 +15,6 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
       .appendingPathComponent("Shortcuts-v2.json", isDirectory: false)
   }()
 
-  private static func loadCache() -> [AppleShortcut]? {
-    guard let cacheURL,
-      let data = try? Data(contentsOf: cacheURL),
-      let shortcuts = try? JSONDecoder().decode([AppleShortcut].self, from: data)
-    else { return nil }
-
-    return shortcuts
-  }
-
   private static func saveCache(_ shortcuts: [AppleShortcut]) throws {
     guard let cacheURL else { return }
 
@@ -35,17 +26,16 @@ struct ShortcutCatalog: ShortcutCatalogLoading {
     try data.write(to: cacheURL, options: .atomic)
   }
 
+  func cachedShortcuts() -> [AppleShortcut]? {
+    guard let cacheURL = Self.cacheURL,
+      let data = try? Data(contentsOf: cacheURL),
+      let shortcuts = try? JSONDecoder().decode([AppleShortcut].self, from: data)
+    else { return nil }
+
+    return shortcuts
+  }
+
   func load() async throws -> [AppleShortcut] {
-    if let cachedShortcuts = Self.loadCache() {
-      Task.detached(priority: .utility) {
-        guard let shortcuts = try? ShortcutCatalogProcess.loadShortcuts() else { return }
-
-        try? Self.saveCache(shortcuts)
-      }
-
-      return cachedShortcuts
-    }
-
     let loadTask = Task.detached(priority: .userInitiated) {
       let shortcuts = try ShortcutCatalogProcess.loadShortcuts()
       try Task.checkCancellation()
@@ -128,6 +118,9 @@ enum ShortcutCatalogProcess {
 }
 
 protocol ShortcutCatalogLoading {
+  @MainActor
+  func cachedShortcuts() -> [AppleShortcut]?
+
   @MainActor
   func load() async throws -> [AppleShortcut]
 }
