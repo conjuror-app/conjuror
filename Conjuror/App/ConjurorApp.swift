@@ -10,6 +10,8 @@ enum ConjurorApp {
       Darwin.exit(status)
     }
 
+    UserDefaults.standard.register(defaults: ["NSAutoFillHeuristicsEnabled": false])
+
     let application = NSApplication.shared
     let appController = AppController()
     application.delegate = appController
