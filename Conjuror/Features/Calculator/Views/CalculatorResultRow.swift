@@ -8,6 +8,72 @@ struct CalculatorResultRow: View {
   let onCopy: () -> Void
 
   var body: some View {
+    if layout.isCommandBar {
+      commandBarCard
+    } else {
+      standardRow
+    }
+  }
+
+  private var commandBarCard: some View {
+    Button(action: onCopy) {
+      HStack(spacing: 12) {
+        VStack(spacing: 6) {
+          Text(result.sourceDisplay ?? result.expression)
+            .font(.system(size: 19, weight: .medium, design: .rounded))
+            .foregroundStyle(.primary.opacity(0.82))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+
+          if let sourceBadge = result.sourceBadge {
+            badge(sourceBadge)
+          }
+        }
+        .frame(maxWidth: .infinity)
+
+        Image(systemName: "arrow.right")
+          .font(.system(size: 13, weight: .medium))
+          .foregroundStyle(.tertiary)
+
+        VStack(spacing: 6) {
+          Text(result.display)
+            .font(.system(size: 21, weight: .semibold, design: .rounded))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+
+          if let targetBadge = result.targetBadge {
+            badge(targetBadge)
+          }
+        }
+        .frame(maxWidth: .infinity)
+      }
+      .padding(.horizontal, 16)
+      .frame(height: LauncherLayout.calculatorCardHeight)
+      .contentShape(Rectangle())
+      .background {
+        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+        shape
+          .fill(Color.primary.opacity(isSelected ? 0.10 : 0.05))
+          .overlay {
+            shape.strokeBorder(
+              Color.primary.opacity(isSelected ? 0.16 : 0.08),
+              lineWidth: 0.75
+            )
+          }
+      }
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(accessibilityLabel)
+    .accessibilityHint("Copies the result")
+    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    .onHover { isHovering in
+      if isHovering { onHover() }
+    }
+    .help("Copy " + result.copyText)
+  }
+
+  private var standardRow: some View {
     SelectableResultRow(
       isSelected: isSelected,
       layout: layout,

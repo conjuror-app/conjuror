@@ -14,8 +14,10 @@ struct EmojiResultCell: View {
         .frame(maxWidth: .infinity)
         .frame(height: layout.emojiRowHeight)
         .background(
-          isSelected ? Color.accentColor.opacity(0.14) : Color.clear,
-          in: RoundedRectangle(cornerRadius: 7)
+          isSelected
+            ? (layout.isCommandBar ? Color.primary.opacity(0.12) : Color.accentColor.opacity(0.14))
+            : Color.clear,
+          in: RoundedRectangle(cornerRadius: 7, style: .continuous)
         )
     }
     .buttonStyle(.plain)

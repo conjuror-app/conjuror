@@ -12,15 +12,26 @@ struct SelectableResultRow<Content: View>: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: 8) {
+      HStack(spacing: layout.isCommandBar ? 10 : 8) {
         content()
       }
-      .padding(.horizontal, 7)
+      .padding(.horizontal, layout.isCommandBar ? 10 : 7)
       .frame(height: layout.resultRowHeight)
       .contentShape(Rectangle())
       .background {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
+        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+        if layout.isCommandBar {
+          shape
+            .fill(isSelected ? Color.primary.opacity(0.10) : .clear)
+            .overlay {
+              if isSelected {
+                shape.strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+              }
+            }
+        } else {
+          shape
+            .fill(isSelected ? Color.accentColor.opacity(0.14) : .clear)
+        }
       }
     }
     .buttonStyle(.plain)

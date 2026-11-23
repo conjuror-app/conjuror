@@ -31,7 +31,12 @@ struct RunningApplicationResultRow: View {
 
       Spacer()
 
-      if application.isHidden {
+      if layout.isCommandBar {
+        Text(application.isHidden ? "Hidden" : "Running")
+          .font(.system(size: 12))
+          .foregroundStyle(.tertiary)
+          .lineLimit(1)
+      } else if application.isHidden {
         Text("Hidden")
           .font(layout.appearance == .standard ? .caption : .caption2)
           .foregroundStyle(.secondary)

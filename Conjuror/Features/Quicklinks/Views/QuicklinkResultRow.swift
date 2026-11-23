@@ -22,34 +22,81 @@ struct QuicklinkResultRow: View {
       icon
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
 
-      VStack(alignment: .leading, spacing: 1) {
-        Text(title)
-          .font(.system(size: layout.resultFontSize, weight: .medium))
-          .foregroundStyle(.primary)
-          .lineLimit(1)
+      if layout.isCommandBar {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+          Text(title)
+            .font(.system(size: layout.resultFontSize, weight: .medium))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
 
-        if layout.appearance == .standard {
+          if !isWebSearch, quicklink.acceptsQuery, !match.argument.isEmpty {
+            Text("for “\(match.argument)”")
+              .font(.system(size: 12))
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
+
+        Spacer()
+
+        if !isWebSearch, let keyword = quicklink.keyword {
+          Text(keyword)
+            .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+            .overlay {
+              RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .strokeBorder(.primary.opacity(0.08), lineWidth: 0.5)
+            }
+        }
+
+        if isWebSearch {
+          Text("⌥↩")
+            .font(.system(size: 10.5, weight: .medium, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+            .accessibilityLabel("Option-Return")
+        }
+
+        Text(isWebSearch ? "Web Search" : "Quicklink")
+          .font(.system(size: 12))
+          .foregroundStyle(.tertiary)
+          .lineLimit(1)
+      } else {
+        VStack(alignment: .leading, spacing: 1) {
+          Text(title)
+            .font(.system(size: layout.resultFontSize, weight: .medium))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+
+          if layout.appearance == .standard {
+            Text(subtitle)
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
+
+        Spacer()
+
+        if layout.appearance == .minimal {
           Text(subtitle)
-            .font(.caption)
+            .font(.caption2)
             .foregroundStyle(.secondary)
             .lineLimit(1)
         }
-      }
 
-      Spacer()
-
-      if layout.appearance == .minimal {
-        Text(subtitle)
-          .font(.caption2)
-          .foregroundStyle(.secondary)
-          .lineLimit(1)
-      }
-
-      if isWebSearch {
-        Text("⌥↩")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-          .accessibilityLabel("Option-Return")
+        if isWebSearch {
+          Text("⌥↩")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .accessibilityLabel("Option-Return")
+        }
       }
     }
   }
