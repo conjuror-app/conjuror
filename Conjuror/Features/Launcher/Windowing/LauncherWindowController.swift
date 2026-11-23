@@ -5,9 +5,10 @@ import SwiftUI
 final class LauncherWindowController: NSWindowController, NSWindowDelegate {
   private static func resize(
     _ window: NSWindow,
+    appearance: LauncherAppearance,
     height: CGFloat
   ) {
-    let targetSize = LauncherLayout.windowSize(contentHeight: height)
+    let targetSize = LauncherLayout(appearance: appearance).windowSize(contentHeight: height)
     let targetFrame = LauncherWindowGeometry.resizedFrame(
       currentFrame: window.frame,
       targetSize: targetSize,
@@ -52,9 +53,8 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     self.settingsStore = settingsStore
     self.onHide = onHide
 
-    let initialSize = LauncherLayout.windowSize(
-      contentHeight: LauncherLayout(appearance: settingsStore.launcherAppearance).collapsedHeight
-    )
+    let initialLayout = LauncherLayout(appearance: settingsStore.launcherAppearance)
+    let initialSize = initialLayout.windowSize(contentHeight: initialLayout.collapsedHeight)
     let panel = LauncherPanel(
       contentRect: NSRect(origin: .zero, size: initialSize),
       styleMask: [.borderless, .nonactivatingPanel],
@@ -146,9 +146,11 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     }
 
     store.prepareForActivation(mode: mode)
+    let currentLayout = LauncherLayout(appearance: settingsStore.launcherAppearance)
     Self.resize(
       window,
-      height: LauncherLayout(appearance: settingsStore.launcherAppearance).collapsedHeight
+      appearance: currentLayout.appearance,
+      height: currentLayout.collapsedHeight
     )
     placeOnPreferredScreen(window)
     NSApp.unhide(nil)
@@ -191,7 +193,7 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       }
 
       self.resizeWorkItem = nil
-      Self.resize(window, height: height)
+      Self.resize(window, appearance: self.settingsStore.launcherAppearance, height: height)
     }
 
     resizeWorkItem = workItem

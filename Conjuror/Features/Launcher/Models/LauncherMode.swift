@@ -81,4 +81,28 @@ enum LauncherMode: Equatable, Sendable {
     case .systemCommands: "Run command"
     }
   }
+
+  var displayName: String {
+    switch self {
+    case .applications: "All Modes"
+    case .clipboard: "Clipboard"
+    case .emoji: "Emoji"
+    case .files: "Files"
+    case .running: "Running Apps"
+    case .shortcuts: "Shortcuts"
+    case .systemCommands: "System"
+    }
+  }
+
+  var footerTitle: String {
+    switch self {
+    case .applications: "Conjuror"
+    case .clipboard: "Clipboard History"
+    case .emoji: "Emoji Picker"
+    case .files: "File Search"
+    case .running: "Running Apps"
+    case .shortcuts: "Apple Shortcuts"
+    case .systemCommands: "System Commands"
+    }
+  }
 }

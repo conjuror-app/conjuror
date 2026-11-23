@@ -2,6 +2,7 @@ import CoreGraphics
 
 struct LauncherLayout {
   static let width: CGFloat = 540
+  static let commandBarWidth: CGFloat = 660
   static let emojiColumnCount = 9
   static let emojiRowSpacing: CGFloat = 2
   static let emojiRecentHeaderHeight: CGFloat = 16
@@ -10,11 +11,20 @@ struct LauncherLayout {
   static let resultSpacing: CGFloat = 1
   static let resultsVerticalPadding: CGFloat = 4
   static let footerContentHeight: CGFloat = 28
+  static let commandBarFooterContentHeight: CGFloat = 38
   static let statusHeight: CGFloat = 26
+  static let calculatorCardHeight: CGFloat = 86
+  static let sectionHeaderHeight: CGFloat = 24
+  static let splitDetailHeight: CGFloat = 276
+  static let splitListWidth: CGFloat = 256
 
   private static let dividerHeight: CGFloat = 1
 
   static func windowSize(contentHeight: CGFloat) -> CGSize {
+    windowSize(width: width, contentHeight: contentHeight)
+  }
+
+  static func windowSize(width: CGFloat, contentHeight: CGFloat) -> CGSize {
     CGSize(
       width: width + windowMargin * 2,
       height: contentHeight + windowMargin * 2
@@ -23,21 +33,92 @@ struct LauncherLayout {
 
   let appearance: LauncherAppearance
 
-  var searchTopPadding: CGFloat { appearance == .minimal ? 4 : 8 }
-  var searchBottomPadding: CGFloat { appearance == .minimal ? 2 : 6 }
+  var isCommandBar: Bool { appearance == .commandBar }
+  var width: CGFloat { isCommandBar ? Self.commandBarWidth : Self.width }
+  var cornerRadius: CGFloat { isCommandBar ? 12 : 16 }
+  var searchFieldHeight: CGFloat { isCommandBar ? 44 : Self.searchFieldHeight }
+  var searchTopPadding: CGFloat {
+    switch appearance {
+    case .minimal: 4
+    case .standard: 8
+    case .commandBar: 4
+    }
+  }
+  var searchBottomPadding: CGFloat {
+    switch appearance {
+    case .minimal: 2
+    case .standard: 6
+    case .commandBar: 4
+    }
+  }
   var searchHeight: CGFloat {
-    Self.searchFieldHeight + searchTopPadding + searchBottomPadding
+    searchFieldHeight + searchTopPadding + searchBottomPadding
   }
   var collapsedHeight: CGFloat { searchHeight + 2 }
-  var resultRowHeight: CGFloat { appearance == .minimal ? 32 : 40 }
-  var resultIconSize: CGFloat { appearance == .minimal ? 22 : 26 }
-  var resultFontSize: CGFloat { appearance == .minimal ? 13 : 14 }
-  var fileIconSize: CGFloat { appearance == .minimal ? 22 : 30 }
-  var shortcutSymbolSize: CGFloat { appearance == .minimal ? 15 : 17 }
-  var calculatorSymbolSize: CGFloat { appearance == .minimal ? 18 : 22 }
-  var emojiRowHeight: CGFloat { appearance == .minimal ? 36 : 42 }
-  var emojiFontSize: CGFloat { appearance == .minimal ? 23 : 27 }
-  var showsFooter: Bool { appearance == .standard }
+  var resultRowHeight: CGFloat {
+    switch appearance {
+    case .minimal: 32
+    case .standard: 40
+    case .commandBar: 38
+    }
+  }
+  var resultIconSize: CGFloat {
+    switch appearance {
+    case .minimal: 22
+    case .standard: 26
+    case .commandBar: 22
+    }
+  }
+  var resultFontSize: CGFloat {
+    switch appearance {
+    case .minimal: 13
+    case .standard: 14
+    case .commandBar: 13.5
+    }
+  }
+  var fileIconSize: CGFloat {
+    switch appearance {
+    case .minimal: 22
+    case .standard: 30
+    case .commandBar: 22
+    }
+  }
+  var shortcutSymbolSize: CGFloat {
+    switch appearance {
+    case .minimal: 15
+    case .standard: 17
+    case .commandBar: 14
+    }
+  }
+  var calculatorSymbolSize: CGFloat {
+    switch appearance {
+    case .minimal: 18
+    case .standard: 22
+    case .commandBar: 18
+    }
+  }
+  var emojiRowHeight: CGFloat {
+    switch appearance {
+    case .minimal: 36
+    case .standard: 42
+    case .commandBar: 40
+    }
+  }
+  var emojiFontSize: CGFloat {
+    switch appearance {
+    case .minimal: 23
+    case .standard: 27
+    case .commandBar: 26
+    }
+  }
+  var footerContentHeight: CGFloat {
+    isCommandBar ? Self.commandBarFooterContentHeight : Self.footerContentHeight
+  }
+  var showsFooter: Bool { appearance != .minimal }
+
+  func windowSize(contentHeight: CGFloat) -> CGSize {
+    Self.windowSize(width: width, contentHeight: contentHeight)
+  }
 
   func emojiExpandedHeight(
     itemCount: Int,
@@ -65,6 +146,8 @@ struct LauncherLayout {
     resultRowHeight: CGFloat? = nil,
     resultSpacing: CGFloat = Self.resultSpacing,
     resultsHeaderHeight: CGFloat = 0,
+    extraResultsHeight: CGFloat = 0,
+    usesSplitDetail: Bool = false,
     hasCatalogError: Bool,
     hasHotKeyError: Bool,
     hasLaunchError: Bool,
@@ -75,11 +158,14 @@ struct LauncherLayout {
       resultsHeight = 104
     } else if resultCount == 0 {
       resultsHeight = 72
+    } else if usesSplitDetail {
+      resultsHeight = Self.splitDetailHeight
     } else {
       let visibleResultCount = min(resultCount, maximumVisibleResults)
       resultsHeight =
         Self.resultsVerticalPadding * 2
         + resultsHeaderHeight
+        + extraResultsHeight
         + CGFloat(visibleResultCount) * (resultRowHeight ?? self.resultRowHeight)
         + CGFloat(max(visibleResultCount - 1, 0)) * resultSpacing
     }
@@ -87,7 +173,7 @@ struct LauncherLayout {
     let statusHeight: CGFloat = hasHotKeyError ? Self.statusHeight : 0
     let footerHeight: CGFloat =
       showsFooter && resultCount > 0 && !hasCatalogError
-      ? Self.footerContentHeight + Self.dividerHeight : 0
+      ? footerContentHeight + Self.dividerHeight : 0
     let launchErrorHeight: CGFloat = hasLaunchError ? Self.statusHeight : 0
     return searchHeight
       + Self.dividerHeight
