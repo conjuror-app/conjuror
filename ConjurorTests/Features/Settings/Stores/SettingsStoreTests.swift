@@ -56,6 +56,9 @@ struct SettingsStoreTests {
     #expect(!reloadedStore.showsSystemSettingsItems)
     #expect(reloadedStore.launcherBorderStyle == .custom)
     #expect(reloadedStore.launcherAppearance == .minimal)
+
+    reloadedStore.setLauncherAppearance(.commandBar)
+    #expect(SettingsStore(userDefaults: userDefaults).launcherAppearance == .commandBar)
     #expect(
       reloadedStore.launcherCustomBorderColor
         == LauncherBorderColor(red: 0.1, green: 0.2, blue: 0.3)

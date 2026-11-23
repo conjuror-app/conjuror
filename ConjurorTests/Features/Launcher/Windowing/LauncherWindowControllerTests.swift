@@ -16,6 +16,33 @@ struct LauncherWindowControllerTests {
     #expect(height(minimal, resultCount: 5) < height(standard, resultCount: 5))
   }
 
+  @Test("Command Bar appearance uses wider canvas and split detail height")
+  func testCommandBarLayoutMetrics() {
+    let standard = LauncherLayout(appearance: .standard)
+    let commandBar = LauncherLayout(appearance: .commandBar)
+
+    #expect(commandBar.width > standard.width)
+    #expect(commandBar.cornerRadius < standard.cornerRadius)
+    #expect(commandBar.windowSize(contentHeight: 180).width > standard.windowSize(contentHeight: 180).width)
+
+    let splitHeight = commandBar.expandedHeight(
+      resultCount: 2,
+      usesSplitDetail: true,
+      hasCatalogError: false,
+      hasHotKeyError: false,
+      hasLaunchError: false,
+      maximumVisibleResults: 7
+    )
+    let listHeight = commandBar.expandedHeight(
+      resultCount: 2,
+      hasCatalogError: false,
+      hasHotKeyError: false,
+      hasLaunchError: false,
+      maximumVisibleResults: 7
+    )
+    #expect(splitHeight > listHeight)
+  }
+
   @Test(
     "Each result grows the panel until the visible limit",
     arguments: LauncherAppearance.allCases

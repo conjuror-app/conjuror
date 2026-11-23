@@ -1,6 +1,7 @@
 enum LauncherAppearance: String, CaseIterable, Identifiable {
   case standard
   case minimal
+  case commandBar
 
   var id: Self { self }
 
@@ -8,6 +9,7 @@ enum LauncherAppearance: String, CaseIterable, Identifiable {
     switch self {
     case .standard: "Standard"
     case .minimal: "Minimal"
+    case .commandBar: "Command Bar"
     }
   }
 }
