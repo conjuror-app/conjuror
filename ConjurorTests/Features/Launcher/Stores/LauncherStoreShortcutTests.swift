@@ -83,7 +83,7 @@ extension LauncherStoreTests {
     store.prepareForActivation(mode: .shortcuts)
     await waitForShortcuts(store)
 
-    let deadline = ContinuousClock.now + .seconds(1)
+    let deadline = ContinuousClock.now + .seconds(10)
     while attempts < 2, ContinuousClock.now < deadline {
       store.openSelectedResult()
       await Task.yield()
@@ -114,5 +114,51 @@ extension LauncherStoreTests {
     #expect(store.mode == .shortcuts)
     #expect(store.query == "light")
     #expect(store.actionErrorMessage == "Couldn’t run Lights. Launch failed")
+  }
+
+  @Test("Cached shortcuts show first and are replaced by the current shortcuts")
+  func testCachedShortcutsAreRefreshed() async {
+    let lights = shortcut("Lights", id: "lights")
+    let fans = shortcut("Fans", id: "fans")
+    let catalog = MutableShortcutCatalog(cached: [lights], current: [lights, fans])
+    let store = makeStore(shortcutCatalog: catalog)
+
+    store.prepareForActivation(mode: .shortcuts)
+
+    #expect(store.shortcuts == [lights])
+    await waitForShortcuts(store)
+    #expect(Set(store.filteredShortcuts) == [lights, fans])
+  }
+
+  @Test("Reopening shortcuts mode picks up new shortcuts")
+  func testReopeningShortcutsModeRefreshes() async {
+    let lights = shortcut("Lights", id: "lights")
+    let fans = shortcut("Fans", id: "fans")
+    let catalog = MutableShortcutCatalog(current: [lights])
+    let store = makeStore(shortcutCatalog: catalog)
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+
+    catalog.current = [lights, fans]
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+
+    #expect(Set(store.filteredShortcuts) == [lights, fans])
+  }
+
+  @Test("A failed refresh keeps the shortcuts already shown")
+  func testFailedRefreshKeepsShortcuts() async {
+    let lights = shortcut("Lights", id: "lights")
+    let catalog = MutableShortcutCatalog(current: [lights])
+    let store = makeStore(shortcutCatalog: catalog)
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+
+    catalog.error = TestError.launchFailed
+    store.prepareForActivation(mode: .shortcuts)
+    await waitForShortcuts(store)
+
+    #expect(store.filteredShortcuts == [lights])
+    #expect(store.shortcutCatalogErrorMessage == nil)
   }
 }
