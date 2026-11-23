@@ -272,7 +272,10 @@ struct LauncherResultsView: View {
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
         if layout.isCommandBar {
-          sectionHeader("Running Applications", detail: "\(store.filteredRunningApplications.count)")
+          sectionHeader(
+            "Running Applications",
+            detail: "\(store.filteredRunningApplications.count)"
+          )
         }
         ForEach(store.filteredRunningApplications) { application in
           RunningApplicationResultRow(
@@ -394,7 +397,8 @@ struct LauncherResultsView: View {
 
   private var selectedClipboardItem: ClipboardItem? {
     if case .clipboardItem(let id) = store.selectedResultID {
-      return store.filteredClipboardItems.first { $0.id == id } ?? store.filteredClipboardItems.first
+      return store.filteredClipboardItems.first { $0.id == id }
+        ?? store.filteredClipboardItems.first
     }
     return store.filteredClipboardItems.first
   }
@@ -437,7 +441,10 @@ struct LauncherResultsView: View {
         }
         .padding(11)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(
+          .primary.opacity(0.04),
+          in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+        )
         .overlay {
           RoundedRectangle(cornerRadius: 8, style: .continuous)
             .strokeBorder(.primary.opacity(0.07), lineWidth: 0.5)

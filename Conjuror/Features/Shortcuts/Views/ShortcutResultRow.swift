@@ -44,15 +44,13 @@ struct ShortcutResultRow: View {
         .interpolation(.high)
         .frame(width: layout.resultIconSize, height: layout.resultIconSize)
     } else if layout.isCommandBar {
-      Image(systemName: "square.stack.3d.up.fill")
-        .font(.system(size: 12, weight: .medium))
-        .foregroundStyle(.purple)
-        .frame(width: layout.resultIconSize, height: layout.resultIconSize)
-        .background(Color.purple.opacity(0.15), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-        .overlay {
-          RoundedRectangle(cornerRadius: 6, style: .continuous)
-            .strokeBorder(Color.purple.opacity(0.25), lineWidth: 0.5)
-        }
+      CommandBarIconBadge(
+        systemImage: "square.stack.3d.up.fill",
+        size: layout.resultIconSize,
+        foreground: .purple,
+        background: Color.purple.opacity(0.15),
+        border: Color.purple.opacity(0.25)
+      )
     } else {
       Image(systemName: "square.stack.3d.up.fill")
         .font(.system(size: layout.shortcutSymbolSize, weight: .medium))

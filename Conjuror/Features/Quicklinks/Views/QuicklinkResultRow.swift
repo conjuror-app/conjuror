@@ -40,26 +40,11 @@ struct QuicklinkResultRow: View {
         Spacer()
 
         if !isWebSearch, let keyword = quicklink.keyword {
-          Text(keyword)
-            .font(.system(size: 10.5, weight: .medium, design: .monospaced))
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
-            .overlay {
-              RoundedRectangle(cornerRadius: 5, style: .continuous)
-                .strokeBorder(.primary.opacity(0.08), lineWidth: 0.5)
-            }
+          CommandBarBadge(text: keyword)
         }
 
         if isWebSearch {
-          Text("⌥↩")
-            .font(.system(size: 10.5, weight: .medium, design: .rounded))
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(.primary.opacity(0.07), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+          CommandBarBadge(text: "⌥↩", design: .rounded)
             .accessibilityLabel("Option-Return")
         }
 

@@ -23,7 +23,10 @@ struct LauncherWindowControllerTests {
 
     #expect(commandBar.width > standard.width)
     #expect(commandBar.cornerRadius < standard.cornerRadius)
-    #expect(commandBar.windowSize(contentHeight: 180).width > standard.windowSize(contentHeight: 180).width)
+    #expect(
+      commandBar.windowSize(contentHeight: 180).width
+        > standard.windowSize(contentHeight: 180).width
+    )
 
     let splitHeight = commandBar.expandedHeight(
       resultCount: 2,
