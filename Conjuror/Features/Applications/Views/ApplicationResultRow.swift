@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ApplicationResultRow: View {
   let application: InstalledApplication
-  /// Shown at the trailing edge, so the alias is learned by seeing it.
   let alias: String?
   let layout: LauncherLayout
   let isSelected: Bool

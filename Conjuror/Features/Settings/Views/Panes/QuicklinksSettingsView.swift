@@ -23,7 +23,6 @@ struct QuicklinksSettingsView: View {
             }
           }
           .labelsHidden()
-          // Quicklink names can be any length, so cap the picker to keep the row in the window.
           .frame(maxWidth: 200)
           .fixedSize(horizontal: false, vertical: true)
         }
@@ -84,7 +83,6 @@ struct QuicklinksSettingsView: View {
   }
 }
 
-/// The quicklink a sheet edits, or `nil` to add one.
 private struct EditedQuicklink: Identifiable {
   let id = UUID()
   let quicklink: Quicklink?

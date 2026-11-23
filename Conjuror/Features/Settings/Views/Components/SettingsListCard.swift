@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A scrolling card of rows with an Add button, under an optional heading.
 struct SettingsListCard<Content: View>: View {
   var title: String?
   let description: String

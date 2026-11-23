@@ -1,6 +1,5 @@
 import Foundation
 
-/// A searchable catalog ranked by recorded uses.
 final class RankedCatalog<Item: SearchIndexable> {
   private let history: RecencyStore
   private var index: SearchIndex<Item>
@@ -24,7 +23,6 @@ final class RankedCatalog<Item: SearchIndexable> {
     recentUses = history.record(key: key)
   }
 
-  /// Reloads uses recorded through another catalog that shares this history.
   func reloadHistory() {
     recentUses = history.load()
   }

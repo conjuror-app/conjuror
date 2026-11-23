@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Caption text under a setting: an explanation, a warning, or an error.
 struct SettingsNote: View {
   enum Style {
     case info

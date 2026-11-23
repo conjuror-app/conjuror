@@ -1,6 +1,5 @@
 import AppKit
 
-/// The parts of a pasteboard the monitor reads, so tests can supply their own.
 @MainActor
 protocol ClipboardPasteboard: AnyObject {
   var changeCount: Int { get }
@@ -9,8 +8,6 @@ protocol ClipboardPasteboard: AnyObject {
   func text() -> String?
 }
 
-/// Watches the general pasteboard for copies. macOS doesn't announce clipboard changes, so it
-/// compares the change count on a timer and only reads the contents when the count moves.
 @MainActor
 final class ClipboardMonitor {
   private static let pollInterval: TimeInterval = 0.5
@@ -46,7 +43,6 @@ final class ClipboardMonitor {
     lastChangeCount = pasteboard.changeCount
   }
 
-  /// Starts watching. Whatever is on the clipboard already isn't recorded.
   func start() {
     guard timer == nil else { return }
 
@@ -64,7 +60,6 @@ final class ClipboardMonitor {
     timer = nil
   }
 
-  /// Records the clipboard's text if it changed since the last check.
   func checkForChanges() {
     let changeCount = pasteboard.changeCount
 

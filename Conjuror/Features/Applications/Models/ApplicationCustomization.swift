@@ -1,8 +1,6 @@
 import Foundation
 
-/// An alias and hot key for one app installation, stored by its persistence key.
 struct ApplicationCustomization: Codable, Equatable {
-  /// Returns why `alias` can't be used by the app at `path`, or `nil` if it can.
   static func validationError(
     forAlias alias: String,
     path: String,
@@ -25,9 +23,7 @@ struct ApplicationCustomization: Codable, Equatable {
     return nil
   }
 
-  /// Shown in Settings when the app is no longer installed.
   var name: String
-  /// Finds the app again after it moves.
   var bundleIdentifier: String?
   var alias: String?
   var hotKey: HotKeyConfiguration?

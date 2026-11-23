@@ -52,8 +52,6 @@ struct CalculatorCurrencyEvaluator {
     let (left, right) = CalculatorInput.splitConversion(expression)
 
     if let right {
-      // "500*21 in GBP in USD" or "500*21 in GBP to USD" name the source currency
-      // with a connector instead of attaching it to the amount.
       let (target, chainedTarget) = CalculatorInput.splitConversion(right)
       let (amountText, chainedSource) = CalculatorInput.splitConversion(left)
 
@@ -146,7 +144,6 @@ struct CalculatorCurrencyEvaluator {
     return nil
   }
 
-  /// Evaluates a plain number or an arithmetic expression such as `500*21`.
   private func arithmeticValue(_ text: String) -> Double? {
     let trimmed = text.trimmingCharacters(in: .whitespaces)
 

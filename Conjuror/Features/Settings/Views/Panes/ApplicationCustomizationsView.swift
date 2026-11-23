@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Lists app aliases and hot keys, and adds apps to customize.
 struct ApplicationCustomizationsView: View {
   @ObservedObject var store: SettingsStore
   @ObservedObject var launcherStore: LauncherStore
@@ -54,7 +53,6 @@ struct ApplicationCustomizationsView: View {
   }
 
   @State private var showsPicker = false
-  /// Apps added or edited in this session, kept listed while they have no alias or hotkey.
   @State private var addedPaths = [String]()
   @State private var focusedPath: String?
 
@@ -85,14 +83,12 @@ struct ApplicationCustomizationsView: View {
 private struct ApplicationCustomizationRow: View {
   let path: String
   let name: String
-  /// `nil` when the app is no longer installed, which leaves only removal.
   let application: InstalledApplication?
   let customization: ApplicationCustomization?
   let isExcluded: Bool
   let focusesAlias: Bool
   @ObservedObject var store: SettingsStore
   @ObservedObject var hotKeyStore: HotKeyStore
-  /// Keeps the row listed if an edit leaves it without an alias or hotkey.
   let onEdit: () -> Void
   let onRemove: () -> Void
 
@@ -109,8 +105,6 @@ private struct ApplicationCustomizationRow: View {
             .focused($isAliasFocused)
             .onChange(of: aliasText) { saveAlias(for: application) }
             .onChange(of: customization?.alias) { _, alias in
-              // Follow changes made elsewhere, such as Reset to Defaults, unless the field
-              // holds an invalid alias that wasn't saved.
               if errorMessage == nil, trimmedAlias != alias ?? "" { aliasText = alias ?? "" }
             }
             .accessibilityLabel("Alias for \(name)")
@@ -194,7 +188,6 @@ private struct ApplicationCustomizationRow: View {
     _aliasText = State(initialValue: customization?.alias ?? "")
   }
 
-  /// Saves the alias as it's typed. An invalid one stays in the field with its error, unsaved.
   private func saveAlias(for application: InstalledApplication) {
     guard trimmedAlias != customization?.alias ?? "" else {
       errorMessage = nil

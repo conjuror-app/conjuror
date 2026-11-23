@@ -10,7 +10,6 @@ enum LauncherKeyboardNavigation {
     .shift,
   ]
 
-  /// The modifiers that change a key's meaning, ignoring Caps Lock, Fn, and similar flags.
   static func relevantModifiers(_ modifiers: NSEvent.ModifierFlags) -> NSEvent.ModifierFlags {
     modifiers.intersection(conflictingModifiers)
   }
@@ -24,8 +23,6 @@ enum LauncherKeyboardNavigation {
       && relevantModifiers(modifiers) == .command
   }
 
-  /// Whether a key event is Return or Enter repeating while held, which must not run or confirm
-  /// another result.
   static func isRepeatedSubmit(keyCode: UInt16, isARepeat: Bool) -> Bool {
     isARepeat && [kVK_Return, kVK_ANSI_KeypadEnter].contains(Int(keyCode))
   }
@@ -35,8 +32,6 @@ enum LauncherKeyboardNavigation {
       && relevantModifiers(modifiers) == .option
   }
 
-  /// Running app commands use Command so they never reach the search field. Command-Q still
-  /// quits Conjuror and Command-Return still reveals the selection.
   static func runningApplicationCommand(
     keyCode: UInt16,
     charactersIgnoringModifiers: String?,

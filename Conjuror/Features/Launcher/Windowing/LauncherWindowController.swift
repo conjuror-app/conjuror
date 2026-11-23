@@ -63,12 +63,10 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     )
     panel.backgroundColor = .clear
     panel.isOpaque = false
-    // Glass draws the rounded shadow. The panel shadow would add a rectangular edge.
     panel.hasShadow = false
     panel.isFloatingPanel = true
     panel.isMovableByWindowBackground = false
     panel.level = .floating
-    // Hiding immediately releases the content, so no window animation may outlive it.
     panel.animationBehavior = .none
     panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
     panel.onMoveSelection = { [weak store] direction in
@@ -114,7 +112,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
       store: store,
       settingsStore: settingsStore,
       hotKeyStore: hotKeyStore,
-      // Escape dismisses without choosing another app, so focus returns to the previous one.
       onHide: { onHide(true) },
       onHeightChange: { [weak self] height in
         self?.scheduleResize(height: height)
@@ -173,11 +170,9 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     window?.orderOut(nil)
     window?.contentViewController = nil
 
-    // Activating a hidden app unhides it, so leave an app the user just hid or quit alone.
     if restoringFocus, let previousApplication, !previousApplication.isTerminated,
       !previousApplication.isHidden
     {
-      // The panel took key focus, so hand it back to the app the user was typing in.
       previousApplication.activate(from: .current)
     }
 
@@ -200,7 +195,6 @@ final class LauncherWindowController: NSWindowController, NSWindowDelegate {
     }
 
     resizeWorkItem = workItem
-    // SwiftUI may report the height during layout. Resize after that update finishes.
     DispatchQueue.main.async(execute: workItem)
   }
 

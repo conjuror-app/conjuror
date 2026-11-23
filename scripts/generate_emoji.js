@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/** Generate the checked-in emoji catalog from Unicode's emoji-test data. */
-
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { deflateRawSync } from "node:zlib";

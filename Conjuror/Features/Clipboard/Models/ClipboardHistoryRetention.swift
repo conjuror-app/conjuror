@@ -21,7 +21,6 @@ enum ClipboardHistoryRetention: String, CaseIterable, Identifiable, Sendable {
     }
   }
 
-  /// The oldest last-copied date kept at `date`, or `nil` when items never expire.
   func cutoff(before date: Date, calendar: Calendar = .current) -> Date? {
     switch self {
     case .day: calendar.date(byAdding: .day, value: -1, to: date)

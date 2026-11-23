@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// A card of settings rows separated by dividers, under an optional heading.
 struct SettingsGroup<Content: View>: View {
   var title: String?
   @ViewBuilder let content: Content
@@ -23,7 +22,6 @@ struct SettingsGroup<Content: View>: View {
   }
 }
 
-/// Pads each child as a card row and draws a divider between neighbours.
 struct SettingsDividedRows<Content: View>: View {
   @ViewBuilder let content: Content
 

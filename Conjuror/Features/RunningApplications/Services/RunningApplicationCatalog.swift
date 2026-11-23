@@ -2,9 +2,6 @@ import AppKit
 import Foundation
 
 enum RunningApplicationCatalog {
-  /// The running apps to list: regular GUI apps other than Conjuror and excluded installations.
-  /// Names come from the installed catalog when it has the app, so separate installations keep the
-  /// distinct names that application search shows.
   static func applications(
     from candidates: [RunningApplicationCandidate],
     ownProcessIdentifier: pid_t,

@@ -1,9 +1,7 @@
 import Foundation
 
-/// A saved URL that opens from the launcher, optionally filled in with search text.
 struct Quicklink: Codable, Hashable, Identifiable {
   enum Target: Codable, Hashable {
-    /// The app macOS uses for the URL's scheme, such as the default browser for `https`.
     case defaultApplication
     case application(path: String)
   }
@@ -38,12 +36,10 @@ struct Quicklink: Codable, Hashable, Identifiable {
     ),
   ]
 
-  /// RFC 3986 unreserved characters, so encoded text is safe in a path or a query.
   private static let unreservedCharacters = CharacterSet(
     charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
   )
 
-  /// Returns why the quicklink can't be saved alongside the existing ones, or `nil` if it can.
   static func validationError(for quicklink: Quicklink, among existing: [Quicklink]) -> String? {
     if quicklink.name.isEmpty { return "Enter a name." }
 
@@ -96,8 +92,6 @@ struct Quicklink: Codable, Hashable, Identifiable {
     self.target = target
   }
 
-  /// The URL with every placeholder replaced by the percent-encoded argument. Templates without a
-  /// placeholder ignore the argument. Returns `nil` when the result has no scheme.
   func url(argument: String) -> URL? {
     let encodedArgument =
       argument

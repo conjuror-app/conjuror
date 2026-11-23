@@ -1,7 +1,6 @@
 import AppKit
 import SwiftUI
 
-/// A quicklink result, or the web search fallback row when `isWebSearch` is set.
 struct QuicklinkResultRow: View {
   let match: QuicklinkMatcher.Match
   let isWebSearch: Bool
@@ -69,7 +68,6 @@ struct QuicklinkResultRow: View {
     return quicklink.keyword.map { "Quicklink · \($0)" } ?? "Quicklink"
   }
 
-  /// The target app's icon, read locally. Nothing is fetched from the link's site.
   @ViewBuilder
   private var icon: some View {
     if let applicationURL {

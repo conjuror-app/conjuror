@@ -76,8 +76,6 @@ struct WorkspaceRunningApplicationController: RunningApplicationControlling {
     return runningApplication
   }
 
-  /// Quits the app and waits for its termination notification. The app may cancel quitting, such
-  /// as from a save prompt, so the wait gives up after a timeout.
   private func terminateAndWait(_ application: NSRunningApplication) async throws {
     let processIdentifier = application.processIdentifier
     let notificationCenter = NSWorkspace.shared.notificationCenter
@@ -113,7 +111,6 @@ struct WorkspaceRunningApplicationController: RunningApplicationControlling {
 @MainActor
 protocol RunningApplicationControlling {
   func candidates() -> [RunningApplicationCandidate]
-  /// Calls `onChange` when apps launch, quit, hide, or unhide, until the returned token is released.
   func observeChanges(_ onChange: @escaping @MainActor @Sendable () -> Void) -> AnyObject
   func activate(_ application: RunningApplication) throws
   func hide(_ application: RunningApplication) throws
@@ -123,7 +120,6 @@ protocol RunningApplicationControlling {
   func relaunch(_ application: RunningApplication) async throws
 }
 
-/// Resumes a continuation once, whichever of termination, refusal, or timeout happens first.
 private final class ContinuationResumer: @unchecked Sendable {
   private let lock = NSLock()
   private var continuation: CheckedContinuation<Void, Error>?

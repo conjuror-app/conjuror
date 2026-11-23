@@ -7,7 +7,6 @@ final class SettingsStore: ObservableObject {
     let code: UserDefaultsKey<Int>
     let displayName: UserDefaultsKey<String>
     let modifiers: UserDefaultsKey<Int>
-    /// Set once the default has been stored, so a cleared optional hot key stays cleared.
     let initialized: UserDefaultsKey<Bool>?
   }
 
@@ -34,7 +33,6 @@ final class SettingsStore: ObservableObject {
     static let launcherBorderBlue = UserDefaultsKey<Double>("settings.launcherBorderBlue")
     static let launcherAppearance = UserDefaultsKey<String>("settings.launcherAppearance")
     static let quicklinks = UserDefaultsKey<Data>("settings.quicklinks")
-    /// An empty string turns the web search fallback off.
     static let webSearchQuicklinkID = UserDefaultsKey<String>("settings.webSearchQuicklinkID")
     static let applicationCustomizations = UserDefaultsKey<Data>(
       "settings.applicationCustomizations"
@@ -94,7 +92,6 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var isShortcutsModeEnabled: Bool
   @Published private(set) var isClipboardHistoryEnabled: Bool
   @Published private(set) var clipboardHistoryRetention: ClipboardHistoryRetention
-  /// Canonical installation paths mapped to names, including apps no longer installed.
   @Published private(set) var excludedApplications: [String: String]
   @Published private(set) var showsSystemSettingsItems: Bool
   @Published private(set) var showsSystemCommands: Bool
@@ -103,14 +100,12 @@ final class SettingsStore: ObservableObject {
   @Published private(set) var launcherAppearance: LauncherAppearance
   @Published private(set) var quicklinks: [Quicklink]
   @Published private(set) var webSearchQuicklinkID: Quicklink.ID?
-  /// Aliases and hot keys by canonical installation path, including apps no longer installed.
   @Published private(set) var applicationCustomizations: [String: ApplicationCustomization]
 
   var hotKeyConfiguration: HotKeyConfiguration {
     hotKeyConfigurations[.launcher] ?? .defaultValue
   }
 
-  /// The quicklink the web search fallback row uses, if it still exists and accepts search text.
   var webSearchQuicklink: Quicklink? {
     quicklinks.first { $0.id == webSearchQuicklinkID && $0.acceptsQuery }
   }
@@ -166,7 +161,6 @@ final class SettingsStore: ObservableObject {
     launcherAppearance =
       userDefaults.value(for: Key.launcherAppearance)
       .flatMap(LauncherAppearance.init(rawValue:)) ?? .standard
-    // Built-ins are used until the first edit, so removed built-ins stay removed afterwards.
     quicklinks =
       userDefaults.value(for: Key.quicklinks)
       .flatMap { try? JSONDecoder().decode([Quicklink].self, from: $0) } ?? Quicklink.builtIns
@@ -195,7 +189,6 @@ final class SettingsStore: ObservableObject {
     _ configuration: HotKeyConfiguration?,
     for action: HotKeyAction = .launcher
   ) {
-    // The launcher hot key cannot be cleared.
     guard configuration != nil || action != .launcher else { return }
 
     hotKeyConfigurations[action] = configuration
@@ -252,8 +245,6 @@ final class SettingsStore: ObservableObject {
     setExcludedApplications(exclusions)
   }
 
-  /// Saves the app's alias, returning why it can't be used instead when it's invalid. An empty
-  /// alias removes it.
   func setAlias(_ alias: String, for application: InstalledApplication) -> String? {
     let alias = alias.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -272,7 +263,6 @@ final class SettingsStore: ObservableObject {
     return nil
   }
 
-  /// Stores the app's hot key. `HotKeyStore` registers it first.
   func setApplicationHotKey(
     _ configuration: HotKeyConfiguration?,
     for application: InstalledApplication
@@ -286,9 +276,6 @@ final class SettingsStore: ObservableObject {
     setApplicationCustomizations(customizations)
   }
 
-  /// Moves each customization of a deleted app to the one installed app with the same bundle
-  /// identifier, and returns whether any moved. Paths on other volumes stay, since an unmounted
-  /// volume's apps aren't deleted.
   @discardableResult
   func relocateApplicationCustomizations(
     installed applications: [InstalledApplication],
@@ -349,7 +336,6 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(color.blue, for: Key.launcherBorderBlue)
   }
 
-  /// Adds or replaces the quicklink, returning why it can't be saved instead when it's invalid.
   func saveQuicklink(_ quicklink: Quicklink) -> String? {
     if let error = Quicklink.validationError(for: quicklink, among: quicklinks) { return error }
 
@@ -373,8 +359,6 @@ final class SettingsStore: ObservableObject {
     userDefaults.set(id?.uuidString ?? "", for: Key.webSearchQuicklinkID)
   }
 
-  /// Adds back removed built-ins without changing edited ones. A restored built-in whose keyword
-  /// another quicklink now uses comes back without a keyword.
   func restoreBuiltInQuicklinks() {
     var quicklinks = quicklinks
 

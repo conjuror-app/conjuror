@@ -43,7 +43,6 @@ struct RecencyStore {
     return limited(values).mapValues(Date.init(timeIntervalSince1970:))
   }
 
-  /// Records a use and returns the updated history.
   @discardableResult
   func record(key: String, at date: Date = Date()) -> [String: Date] {
     var values = load()

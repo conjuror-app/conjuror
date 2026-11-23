@@ -6,7 +6,6 @@ struct SearchIndex<Item> {
     let name: String
     let secondaryText: String
     let recencyKey: String
-    /// Recency key used until `recencyKey` has its own recorded use.
     let fallbackRecencyKey: String?
     let stableKey: String
 
@@ -44,7 +43,6 @@ struct SearchIndex<Item> {
     return lhs.candidate.stableKey < rhs.candidate.stableKey
   }
 
-  /// An exact alias ranks above every name match, and a partial alias counts as a name prefix.
   private static func aliasRank(for normalizedAlias: String, query: SearchQuery) -> SearchMatchRank?
   {
     guard !query.normalized.isEmpty else { return nil }
@@ -59,7 +57,6 @@ struct SearchIndex<Item> {
   private let items: [Item]
   private let candidates: [SearchableCandidate]
 
-  /// `aliases` maps a candidate's `recencyKey` to an alias typed in place of its name.
   init(candidates: [Candidate], aliases: [String: String] = [:]) {
     items = candidates.map(\.item)
     self.candidates = candidates.enumerated().map { index, candidate in
@@ -75,7 +72,6 @@ struct SearchIndex<Item> {
     }
   }
 
-  /// Matches ranked best first. `maximumCategory` drops weaker matches, such as fuzzy ones.
   func ranked(query: String, recency: [String: Date], maximumCategory: Int? = nil) -> [Item] {
     let query = SearchQuery(query)
 
@@ -126,12 +122,10 @@ private extension SearchIndex {
   }
 }
 
-/// An item that describes how it is matched and ranked in a `SearchIndex`.
 protocol SearchIndexable {
   var searchCandidate: SearchIndex<Self>.Candidate { get }
 }
 
-/// Precomputed forms of a name, matched against a query.
 struct SearchableName {
   let normalized: String
   let tokens: [String]
@@ -248,7 +242,6 @@ struct SearchQuery {
 
 struct SearchMatchRank: Equatable, Comparable {
   static let unmatched = SearchMatchRank(category: .max)
-  /// An exact alias match, ranked above an exact name match.
   static let alias = SearchMatchRank(category: -1)
 
   static func < (lhs: SearchMatchRank, rhs: SearchMatchRank) -> Bool {

@@ -3,8 +3,7 @@ import Foundation
 import Synchronization
 
 final class GlobalHotKey {
-  private static let signature: OSType = 0x434F_4E4A  // CONJ
-  /// Gives each hot key its own ID, so handlers never respond to another hot key's presses.
+  private static let signature: OSType = 0x434F_4E4A
   private static let lastIdentifier = Atomic<UInt32>(0)
 
   private var eventHandler: EventHandlerRef?

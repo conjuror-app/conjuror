@@ -97,8 +97,6 @@ enum CalculatorInput {
     return lowercased ? normalized.lowercased() : normalized
   }
 
-  /// Splits a conversion at its first " to " or " in ", ignoring case.
-  /// The target is nil when the expression has no connector.
   static func splitConversion(_ expression: String) -> (source: String, target: String?) {
     let normalized = normalizeConversion(expression)
 

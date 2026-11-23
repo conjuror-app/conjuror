@@ -1,7 +1,5 @@
 import SwiftUI
 
-/// Lays out a settings pane's groups. A pane that holds a list stretching with the window
-/// turns scrolling off so the list scrolls instead.
 struct SettingsPane<Content: View>: View {
   var scrolls = true
   @ViewBuilder let content: Content

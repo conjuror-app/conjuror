@@ -82,7 +82,6 @@ struct QuicklinkEditorView: View {
     Quicklink.validationError(for: draft, among: store.quicklinks)
   }
 
-  /// Hides the error for an untouched new quicklink, which is invalid only because it's empty.
   private var displayedError: String? {
     guard quicklink != nil || !name.isEmpty || !urlTemplate.isEmpty else { return saveError }
 

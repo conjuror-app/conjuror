@@ -59,7 +59,6 @@ struct LauncherWindowControllerTests {
     let hostingController = try #require(
       window.contentViewController as? NSHostingController<LauncherView>
     )
-    // Allow test heights without SwiftUI constraining the window.
     hostingController.sizingOptions = []
     let initialFrame = window.frame
 
@@ -80,14 +79,12 @@ struct LauncherWindowControllerTests {
     let hostingController = try #require(
       window.contentViewController as? NSHostingController<LauncherView>
     )
-    // Avoid taking focus from the launcher keyboard tests.
     window.orderBack(nil)
     #expect(window.isVisible)
     let initialFrame = window.frame
 
     hostingController.rootView.onHeightChange(180)
     controller.hide()
-    // A callback from the old view must also be harmless after teardown.
     hostingController.rootView.onHeightChange(240)
 
     #expect(window.animationBehavior == .none)

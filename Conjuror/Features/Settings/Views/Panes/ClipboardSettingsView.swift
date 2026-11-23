@@ -114,7 +114,6 @@ struct ClipboardSettingsView: View {
   @State private var isPasteboardDenied = false
   @State private var isConfirmingClear = false
 
-  /// macOS doesn't announce permission changes, so check again whenever Settings comes back.
   private func refreshAccess() {
     canPaste = launcherStore.pastesIntoPreviousApp
     isPasteboardDenied = NSPasteboard.general.accessBehavior == .alwaysDeny
