@@ -45,10 +45,16 @@ struct LauncherResultsView: View {
   private var applicationList: some View {
     resultsScrollView(selectedID: store.selectedResultID) {
       if let match = store.keywordQuicklinkMatch {
+        if layout.isCommandBar {
+          sectionHeader("Quicklink")
+        }
         quicklinkRow(match, id: .quicklink(match.quicklink.id))
       }
 
       if let calculatorResult = store.calculatorResult {
+        if layout.isCommandBar {
+          sectionHeader("Calculator")
+        }
         CalculatorResultRow(
           result: calculatorResult,
           layout: layout,
@@ -57,6 +63,10 @@ struct LauncherResultsView: View {
           onCopy: store.copyCalculatorResult
         )
         .id(LauncherResultID.calculator)
+      }
+
+      if layout.isCommandBar, !store.filteredResults.isEmpty {
+        sectionHeader("Applications")
       }
 
       ForEach(store.filteredResults) { result in
@@ -74,6 +84,10 @@ struct LauncherResultsView: View {
         case .systemCommand(let command):
           systemCommandRow(command)
         }
+      }
+
+      if layout.isCommandBar, !store.filteredQuicklinks.isEmpty || store.webSearchMatch != nil {
+        sectionHeader("Quicklinks")
       }
 
       ForEach(store.filteredQuicklinks) { quicklink in
@@ -95,6 +109,9 @@ struct LauncherResultsView: View {
       emptyState(systemImage: "magnifyingglass", message: "No matches")
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
+        if layout.isCommandBar {
+          sectionHeader("System Commands", detail: "\(store.filteredSystemCommands.count)")
+        }
         ForEach(store.filteredSystemCommands) { command in
           systemCommandRow(command)
         }
@@ -109,6 +126,29 @@ struct LauncherResultsView: View {
         systemImage: store.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass",
         message: store.query.isEmpty ? "Copy some text to see it here" : "No matches"
       )
+    } else if layout.isCommandBar {
+      HStack(spacing: 0) {
+        resultsScrollView(selectedID: store.selectedResultID) {
+          sectionHeader("Recent Copies", detail: "\(store.filteredClipboardItems.count)")
+          ForEach(store.filteredClipboardItems) { item in
+            ClipboardResultRow(
+              item: item,
+              layout: layout,
+              isSelected: store.selectedResultID == .clipboardItem(item.id),
+              actionTitle: store.clipboardActionTitle,
+              onHover: { store.selectOnHover(.clipboardItem(item.id)) },
+              onSelect: { store.paste(item) }
+            )
+            .id(LauncherResultID.clipboardItem(item.id))
+          }
+        }
+        .frame(width: LauncherLayout.splitListWidth)
+
+        Divider()
+
+        clipboardDetailPane(selectedClipboardItem)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      }
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
         ForEach(store.filteredClipboardItems) { item in
@@ -173,6 +213,28 @@ struct LauncherResultsView: View {
         systemImage: store.query.isEmpty ? "doc.text.magnifyingglass" : "magnifyingglass",
         message: fileEmptyStateMessage
       )
+    } else if layout.isCommandBar {
+      HStack(spacing: 0) {
+        resultsScrollView(selectedID: store.selectedResultID) {
+          sectionHeader("Files", detail: "\(store.fileResults.count)")
+          ForEach(store.fileResults) { file in
+            FileResultRow(
+              result: file,
+              layout: layout,
+              isSelected: store.selectedResultID == .file(file.id),
+              onHover: { store.selectOnHover(.file(file.id)) },
+              onOpen: { store.open(file) }
+            )
+            .id(LauncherResultID.file(file.id))
+          }
+        }
+        .frame(width: LauncherLayout.splitListWidth)
+
+        Divider()
+
+        fileDetailPane(selectedFileResult)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      }
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
         ForEach(store.fileResults) { file in
@@ -209,6 +271,9 @@ struct LauncherResultsView: View {
       )
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
+        if layout.isCommandBar {
+          sectionHeader("Running Applications", detail: "\(store.filteredRunningApplications.count)")
+        }
         ForEach(store.filteredRunningApplications) { application in
           RunningApplicationResultRow(
             application: application,
@@ -236,6 +301,9 @@ struct LauncherResultsView: View {
       )
     } else {
       resultsScrollView(selectedID: store.selectedResultID) {
+        if layout.isCommandBar {
+          sectionHeader("Apple Shortcuts", detail: "\(store.filteredShortcuts.count)")
+        }
         ForEach(store.filteredShortcuts) { shortcut in
           ShortcutResultRow(
             shortcut: shortcut,
@@ -321,6 +389,128 @@ struct LauncherResultsView: View {
     minimalState {
       Image(systemName: systemImage)
       Text(message)
+    }
+  }
+
+  private var selectedClipboardItem: ClipboardItem? {
+    if case .clipboardItem(let id) = store.selectedResultID {
+      return store.filteredClipboardItems.first { $0.id == id } ?? store.filteredClipboardItems.first
+    }
+    return store.filteredClipboardItems.first
+  }
+
+  private var selectedFileResult: FileSearchResult? {
+    if case .file(let id) = store.selectedResultID {
+      return store.fileResults.first { $0.id == id } ?? store.fileResults.first
+    }
+    return store.fileResults.first
+  }
+
+  private func sectionHeader(_ title: String, detail: String? = nil) -> some View {
+    HStack {
+      Text(title)
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundStyle(.secondary.opacity(0.8))
+
+      Spacer()
+
+      if let detail {
+        Text(detail)
+          .font(.system(size: 11, weight: .medium))
+          .foregroundStyle(.tertiary)
+      }
+    }
+    .padding(.horizontal, 10)
+    .frame(height: LauncherLayout.sectionHeaderHeight)
+  }
+
+  @ViewBuilder
+  private func clipboardDetailPane(_ item: ClipboardItem?) -> some View {
+    if let item {
+      VStack(alignment: .leading, spacing: 12) {
+        ScrollView {
+          Text(item.text)
+            .font(.system(size: 12, design: .monospaced))
+            .foregroundStyle(.primary.opacity(0.9))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .textSelection(.enabled)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+          RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .strokeBorder(.primary.opacity(0.07), lineWidth: 0.5)
+        }
+
+        VStack(spacing: 6) {
+          if let sourceName = item.source?.name {
+            detailMetadataRow("Source", value: sourceName)
+          }
+          detailMetadataRow("Characters", value: "\(item.text.count)")
+          detailMetadataRow(
+            "Copied",
+            value: item.lastCopiedAt.formatted(.relative(presentation: .named, unitsStyle: .wide))
+          )
+        }
+        .padding(.top, 2)
+      }
+      .padding(14)
+      .background(.black.opacity(0.08))
+    }
+  }
+
+  @ViewBuilder
+  private func fileDetailPane(_ file: FileSearchResult?) -> some View {
+    if let file {
+      let icon = NSWorkspace.shared.icon(forFile: file.url.path)
+      VStack(alignment: .leading, spacing: 14) {
+        VStack(spacing: 8) {
+          Image(nsImage: icon)
+            .resizable()
+            .interpolation(.high)
+            .scaledToFit()
+            .frame(width: 56, height: 56)
+
+          Text(file.displayName)
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.primary)
+            .lineLimit(2)
+            .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        Divider()
+
+        VStack(spacing: 6) {
+          detailMetadataRow("Kind", value: file.isDirectory ? "Folder" : "File")
+          detailMetadataRow("Location", value: file.parentPath)
+          if let modificationDate = file.modificationDate {
+            detailMetadataRow(
+              "Modified",
+              value: modificationDate.formatted(date: .abbreviated, time: .shortened)
+            )
+          }
+        }
+      }
+      .padding(14)
+      .background(.black.opacity(0.08))
+    }
+  }
+
+  private func detailMetadataRow(_ label: String, value: String) -> some View {
+    HStack(spacing: 12) {
+      Text(label)
+        .font(.system(size: 11.5))
+        .foregroundStyle(.secondary)
+
+      Spacer(minLength: 8)
+
+      Text(value)
+        .font(.system(size: 11.5, weight: .medium))
+        .foregroundStyle(.primary.opacity(0.85))
+        .lineLimit(1)
+        .truncationMode(.middle)
     }
   }
 

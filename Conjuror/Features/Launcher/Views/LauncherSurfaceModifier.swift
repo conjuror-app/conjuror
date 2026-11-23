@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct LauncherSurfaceModifier: ViewModifier {
+  let appearance: LauncherAppearance
   let borderStyle: LauncherBorderStyle
   let customBorderColor: LauncherBorderColor
 
-  private let cornerRadius: CGFloat = 16
+  private var cornerRadius: CGFloat {
+    LauncherLayout(appearance: appearance).cornerRadius
+  }
 
   private var borderColor: Color {
     LauncherAccentColor.color(
@@ -19,7 +22,16 @@ struct LauncherSurfaceModifier: ViewModifier {
       .glassEffect(.regular, in: shape)
       .clipShape(shape)
       .overlay {
-        if borderStyle != .disabled {
+        if appearance == .commandBar {
+          shape
+            .strokeBorder(
+              borderStyle == .disabled
+                ? Color.primary.opacity(0.14)
+                : borderColor.opacity(0.75),
+              lineWidth: 1
+            )
+            .allowsHitTesting(false)
+        } else if borderStyle != .disabled {
           shape
             .strokeBorder(borderColor.opacity(0.9), lineWidth: 1.25)
             .allowsHitTesting(false)
