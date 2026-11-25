@@ -15,8 +15,11 @@ DIRECT_EXPORT_OPTIONS := export.plist
 EXPORTED_APP := $(EXPORT_PATH)/Conjuror.app
 ARCHIVED_DSYM := $(ARCHIVE_PATH)/dSYMs/Conjuror.app.dSYM
 NOTARIZATION_ARCHIVE := $(NOTARIZATION_PATH)/Conjuror.zip
-DEBUG_APP := $(abspath $(DERIVED_DATA_PATH)/Build/Products/Debug/Conjuror.app)
-DEBUG_EXECUTABLE := $(DEBUG_APP)/Contents/MacOS/Conjuror
+DEBUG_APP := $(CURDIR)/$(DERIVED_DATA_PATH)/Build/Products/Debug/Conjuror (Dev).app
+OPEN_PAREN := (
+CLOSE_PAREN := )
+# pgrep/pkill take a regex, so escape the parentheses in "(Dev)".
+DEBUG_EXECUTABLE_PATTERN := $(subst $(OPEN_PAREN),\$(OPEN_PAREN),$(subst $(CLOSE_PAREN),\$(CLOSE_PAREN),$(DEBUG_APP)))/Contents/MacOS/Conjuror
 
 .PHONY: all build run test archive notarize export zip generate-emoji format lint clean
 
@@ -27,8 +30,8 @@ build:
 
 run:
 	$(XCODEBUILD) $(XCODEBUILD_ARGS) -configuration Debug build
-	@/usr/bin/pkill -f -x "$(DEBUG_EXECUTABLE)" 2>/dev/null || true
-	@while /usr/bin/pgrep -f -x "$(DEBUG_EXECUTABLE)" >/dev/null; do sleep 0.1; done
+	@/usr/bin/pkill -f -x "$(DEBUG_EXECUTABLE_PATTERN)" 2>/dev/null || true
+	@while /usr/bin/pgrep -f -x "$(DEBUG_EXECUTABLE_PATTERN)" >/dev/null; do sleep 0.1; done
 	/usr/bin/open -n "$(DEBUG_APP)"
 
 test:

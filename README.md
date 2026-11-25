@@ -32,11 +32,12 @@ You need macOS 26 or later and Xcode.
 git clone https://github.com/conjuror-app/conjuror.git
 cd conjuror
 make build
-open .derivedData/Build/Products/Debug/Conjuror.app
+open '.derivedData/Build/Products/Debug/Conjuror (Dev).app'
 ```
 
-To install your build, copy `Conjuror.app` from `.derivedData/Build/Products/Debug`
-into `/Applications`. Run `make test` to run the tests.
+Debug builds are named Conjuror (Dev) and use the `dev.tombell.conjuror.dev` bundle
+identifier, so they get their own entries in System Settings. To install your build,
+copy `Conjuror (Dev).app` from `.derivedData/Build/Products/Debug` into `/Applications`. Run `make test` to run the tests.
 
 ## Usage
 
