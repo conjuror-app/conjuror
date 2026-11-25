@@ -54,6 +54,7 @@ final class AppController: NSObject, NSApplicationDelegate {
     observeCurrencyRates()
     observeApplicationCatalog()
     observeClipboardHistorySettings()
+    observeApplicationActivation()
     currencyRateStore.start()
     store.loadApplications()
   }
@@ -96,6 +97,7 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   func showLauncher() {
+    hotKeyStore.retryFailedRegistrations()
     launcherController().show()
   }
 
@@ -116,6 +118,11 @@ final class AppController: NSObject, NSApplicationDelegate {
   }
 
   private func handleHotKey(_ action: HotKeyAction) {
+    // The launcher shortcut retries through showLauncher().
+    if action != .launcher {
+      hotKeyStore.retryFailedRegistrations()
+    }
+
     switch action {
     case .launcher:
       toggleLauncher()
@@ -246,6 +253,14 @@ final class AppController: NSObject, NSApplicationDelegate {
       .combineLatest(currencyRateStore.$rates)
       .sink { [weak self] isEnabled, rates in
         self?.store.setCurrencyRates(isEnabled ? rates : nil)
+      }
+      .store(in: &cancellables)
+  }
+
+  private func observeApplicationActivation() {
+    NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+      .sink { [weak self] _ in
+        self?.hotKeyStore.retryFailedRegistrations()
       }
       .store(in: &cancellables)
   }

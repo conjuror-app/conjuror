@@ -30,9 +30,14 @@ struct HotKeyStoreTests {
 
     shouldFail = false
     #expect(store.updateConfiguration(.defaultValue) == nil)
-    #expect(store.registrationErrorMessage == nil)
     #expect(configurations.first == .defaultValue)
     #expect(configurations.last == .defaultValue)
+
+    // Fixing the launcher shortcut doesn't hide the other shortcuts that are still unregistered.
+    #expect(store.registrationErrorMessage == "Shortcut unavailable")
+
+    store.retryFailedRegistrations()
+    #expect(store.registrationErrorMessage == nil)
   }
 
   @Test("Rejected replacements do not persist configuration")
@@ -84,6 +89,109 @@ struct HotKeyStoreTests {
 
     #expect(registrationCount == HotKeyAction.allCases.count * 2)
     #expect(store.registrationErrorMessage == nil)
+  }
+
+  @Test("Retrying registers only missing shortcuts, and not while recording")
+  func testRetryFailedRegistrations() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setHotKeyConfiguration(.functionKey, for: .emoji)
+    var isFunctionKeyAvailable = false
+    var registered = [HotKeyConfiguration]()
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        if configuration.isFunctionKey, !isFunctionKeyAvailable {
+          throw RegistrationError.unavailable
+        }
+
+        registered.append(configuration)
+
+        return RegistrationToken()
+      }
+    )
+
+    store.register()
+    #expect(store.registrationErrorMessage == "Shortcut unavailable")
+
+    isFunctionKeyAvailable = true
+    store.setShortcutRecording(true)
+    registered.removeAll()
+    store.retryFailedRegistrations()
+    #expect(registered.isEmpty)
+
+    store.setShortcutRecording(false)
+    isFunctionKeyAvailable = false
+    store.register()
+    isFunctionKeyAvailable = true
+    registered.removeAll()
+    store.retryFailedRegistrations()
+    #expect(registered == [.functionKey])
+    #expect(store.registrationErrorMessage == nil)
+
+    registered.removeAll()
+    store.retryFailedRegistrations()
+    #expect(registered.isEmpty)
+  }
+
+  @Test("A rejected replacement restores the previous shortcut and its error state")
+  func testRejectedReplacementRestoresErrorState() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    settingsStore.setHotKeyConfiguration(.functionKey, for: .emoji)
+    let replacement = HotKeyConfiguration(keyCode: 1, modifiers: 2, displayName: "⌘ S")
+    var isFunctionKeyAvailable = false
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        if configuration == replacement
+          || (configuration.isFunctionKey && !isFunctionKeyAvailable)
+        {
+          throw RegistrationError.unavailable
+        }
+
+        return RegistrationToken()
+      }
+    )
+
+    store.register()
+    #expect(store.registrationErrorMessage == "Shortcut unavailable")
+
+    isFunctionKeyAvailable = true
+    #expect(store.updateConfiguration(replacement, for: .emoji) == "Shortcut unavailable")
+    #expect(settingsStore.hotKeyConfiguration(for: .emoji) == .functionKey)
+    #expect(store.registrationErrorMessage == nil)
+  }
+
+  @Test("A failed restore after a rejected replacement publishes the restore error")
+  func testFailedRestorePublishesError() {
+    let settingsStore = SettingsStore(userDefaults: makeTestUserDefaults())
+    let existing = HotKeyAction.emoji.defaultConfiguration
+    let replacement = HotKeyConfiguration(keyCode: 1, modifiers: 2, displayName: "⌘ S")
+    var isExistingAvailable = true
+    let store = HotKeyStore(
+      settingsStore: settingsStore,
+      onHotKeyPressed: { _ in },
+      registrationFactory: { configuration, _ in
+        if configuration == replacement {
+          throw RegistrationError.unavailable
+        }
+
+        if configuration == existing, !isExistingAvailable {
+          throw RegistrationError.restoreFailed
+        }
+
+        return RegistrationToken()
+      }
+    )
+
+    store.register()
+    #expect(store.registrationErrorMessage == nil)
+
+    isExistingAvailable = false
+    #expect(store.updateConfiguration(replacement, for: .emoji) == "Shortcut unavailable")
+    #expect(settingsStore.hotKeyConfiguration(for: .emoji) == existing)
+    #expect(store.registrationErrorMessage == "Restore failed")
   }
 
   @Test("Clipboard history's shortcut is registered only while history is on")
@@ -327,8 +435,12 @@ private final class RegistrationToken {}
 
 private enum RegistrationError: LocalizedError {
   case unavailable
+  case restoreFailed
 
   var errorDescription: String? {
-    "Shortcut unavailable"
+    switch self {
+    case .unavailable: "Shortcut unavailable"
+    case .restoreFailed: "Restore failed"
+    }
   }
 }

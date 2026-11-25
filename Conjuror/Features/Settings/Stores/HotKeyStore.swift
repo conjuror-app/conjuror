@@ -24,6 +24,8 @@ final class HotKeyStore: ObservableObject {
   private let onHotKeyPressed: (HotKeyTarget) -> Void
   private let registrationFactory: RegistrationFactory
   private var registrations = [HotKeyTarget: AnyObject]()
+  private var registrationFailures = [HotKeyTarget: String]()
+  private var isRecording = false
 
   init(
     settingsStore: SettingsStore,
@@ -41,17 +43,8 @@ final class HotKeyStore: ObservableObject {
 
   func register() {
     registrations.removeAll()
-    var firstError: Error?
-
-    for (target, configuration) in assignedConfigurations() {
-      do {
-        registrations[target] = try makeRegistration(configuration: configuration, target: target)
-      } catch {
-        firstError = firstError ?? error
-      }
-    }
-
-    registrationErrorMessage = firstError?.localizedDescription
+    registrationFailures.removeAll()
+    registerMissing()
   }
 
   func updateConfiguration(
@@ -84,14 +77,52 @@ final class HotKeyStore: ObservableObject {
 
   func removeApplicationCustomization(at path: String) {
     registrations[.application(path: path)] = nil
+    registrationFailures[.application(path: path)] = nil
     settingsStore.removeApplicationCustomization(at: path)
+    publishRegistrationError()
+  }
+
+  /// Registers any assigned shortcuts that aren't registered, for example once Accessibility
+  /// access needed by the fn shortcut has been granted. Working shortcuts are left alone.
+  func retryFailedRegistrations() {
+    guard !isRecording else { return }
+
+    registerMissing()
   }
 
   func setShortcutRecording(_ isRecording: Bool) {
+    self.isRecording = isRecording
+
     if isRecording {
       registrations.removeAll()
     } else {
       register()
+    }
+  }
+
+  private func registerMissing() {
+    for (target, configuration) in assignedConfigurations() where registrations[target] == nil {
+      do {
+        registrations[target] = try makeRegistration(configuration: configuration, target: target)
+        registrationFailures[target] = nil
+      } catch {
+        registrationFailures[target] = error.localizedDescription
+      }
+    }
+
+    publishRegistrationError()
+  }
+
+  /// Publishes the first failure among the shortcuts currently assigned, so fixing one
+  /// shortcut doesn't hide another that is still unregistered.
+  private func publishRegistrationError() {
+    let message =
+      assignedConfigurations().lazy
+      .compactMap { target, _ in self.registrationFailures[target] }
+      .first
+
+    if registrationErrorMessage != message {
+      registrationErrorMessage = message
     }
   }
 
@@ -156,7 +187,8 @@ final class HotKeyStore: ObservableObject {
   ) -> String? {
     if configuration == existingConfiguration, registrations[target] != nil || configuration == nil
     {
-      registrationErrorMessage = nil
+      registrationFailures[target] = nil
+      publishRegistrationError()
 
       return nil
     }
@@ -172,16 +204,24 @@ final class HotKeyStore: ObservableObject {
         registrations[target] = try makeRegistration(configuration: configuration, target: target)
       }
 
-      registrationErrorMessage = nil
+      registrationFailures[target] = nil
       save()
+      publishRegistrationError()
 
       return nil
     } catch {
       if let existingConfiguration {
-        registrations[target] = try? makeRegistration(
-          configuration: existingConfiguration,
-          target: target
-        )
+        do {
+          registrations[target] = try makeRegistration(
+            configuration: existingConfiguration,
+            target: target
+          )
+          registrationFailures[target] = nil
+        } catch let restoreError {
+          registrationFailures[target] = restoreError.localizedDescription
+        }
+
+        publishRegistrationError()
       }
 
       return error.localizedDescription
