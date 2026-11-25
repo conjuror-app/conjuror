@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0 alpha (20)
+
+- Mode shortcuts can now be a tap of fn (🌐) on its own. This needs Accessibility access, and Settings warns when macOS's own "Press 🌐 key to" action is still enabled.
+- Shortcuts that couldn't be registered, such as fn before Accessibility access is granted, are retried when Conjuror becomes active instead of staying inactive until relaunch.
+
 ## 1.0 alpha (19)
 
 - Added a Command Bar appearance in Settings → General, with keyboard hints and side-by-side previews for files and clipboard history.
