@@ -2,10 +2,11 @@ import Foundation
 
 @MainActor
 final class HotKeyStore: ObservableObject {
-  typealias RegistrationFactory = (
-    HotKeyConfiguration,
-    @escaping () -> Void
-  ) throws -> AnyObject
+  typealias RegistrationFactory =
+    @MainActor (
+      HotKeyConfiguration,
+      @escaping () -> Void
+    ) throws -> AnyObject
 
   private static func ownerName(of action: HotKeyAction) -> String {
     switch action {
@@ -28,7 +29,9 @@ final class HotKeyStore: ObservableObject {
     settingsStore: SettingsStore,
     onHotKeyPressed: @escaping (HotKeyTarget) -> Void,
     registrationFactory: @escaping RegistrationFactory = { configuration, handler in
-      try GlobalHotKey(configuration: configuration, handler: handler)
+      configuration.isFunctionKey
+        ? try FunctionKeyMonitor(handler: handler)
+        : try GlobalHotKey(configuration: configuration, handler: handler)
     }
   ) {
     self.settingsStore = settingsStore

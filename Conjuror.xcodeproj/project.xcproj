@@ -294,6 +294,7 @@
                   "kind": "group",
                   "path": "Services",
                   "children": [
+                    { "path": "FunctionKeyMonitor.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                     { "path": "GlobalHotKey.swift", "target-membership": [ "Conjuror/compile-sources" ] },
                   ],
                 }, {
@@ -579,6 +580,12 @@
               "path": "Settings",
               "children": [
                 {
+                  "kind": "group",
+                  "path": "Services",
+                  "children": [
+                    { "path": "FunctionKeyTapDetectorTests.swift", "target-membership": [ "ConjurorTests/compile-sources" ] },
+                  ],
+                }, {
                   "kind": "group",
                   "path": "Stores",
                   "children": [

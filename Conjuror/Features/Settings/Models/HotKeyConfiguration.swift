@@ -7,9 +7,21 @@ struct HotKeyConfiguration: Codable, Equatable {
     displayName: "⌥ Space"
   )
 
+  /// Tapping fn (Globe) on its own. Carbon hotkeys can't register a lone modifier, so this is
+  /// handled by `FunctionKeyMonitor` instead of `GlobalHotKey`.
+  static let functionKey = HotKeyConfiguration(
+    keyCode: UInt32(kVK_Function),
+    modifiers: 0,
+    displayName: "🌐 fn"
+  )
+
   let keyCode: UInt32
   let modifiers: UInt32
   let displayName: String
+
+  var isFunctionKey: Bool {
+    keyCode == UInt32(kVK_Function) && modifiers == 0
+  }
 }
 
 enum HotKeyAction: CaseIterable, Hashable {

@@ -4,12 +4,14 @@ import SwiftUI
 
 struct ShortcutRecorder: NSViewRepresentable {
   let configuration: HotKeyConfiguration?
+  var allowsFunctionKey = false
   let onChange: (HotKeyConfiguration) -> Bool
   let onRecordingChange: (Bool) -> Void
 
   func makeNSView(context: Context) -> NSButton {
     ShortcutRecorderButton(
       configuration: configuration,
+      allowsFunctionKey: allowsFunctionKey,
       onChange: onChange,
       onRecordingChange: onRecordingChange
     )
@@ -122,7 +124,9 @@ private final class ShortcutRecorderButton: NSButton {
 
   override var acceptsFirstResponder: Bool { true }
 
+  private let allowsFunctionKey: Bool
   private var isRecording = false
+  private var functionKeyTap = FunctionKeyTapDetector()
 
   private var idleTitle: String {
     configuration?.displayName ?? "Record Shortcut"
@@ -130,10 +134,12 @@ private final class ShortcutRecorderButton: NSButton {
 
   init(
     configuration: HotKeyConfiguration?,
+    allowsFunctionKey: Bool,
     onChange: @escaping (HotKeyConfiguration) -> Bool,
     onRecordingChange: @escaping (Bool) -> Void
   ) {
     self.configuration = configuration
+    self.allowsFunctionKey = allowsFunctionKey
     self.onChange = onChange
     self.onRecordingChange = onRecordingChange
     super.init(frame: .zero)
@@ -143,7 +149,10 @@ private final class ShortcutRecorderButton: NSButton {
     setButtonType(.momentaryPushIn)
     target = self
     action = #selector(beginRecording)
-    toolTip = "Click, then press a keyboard shortcut"
+    toolTip =
+      allowsFunctionKey
+      ? "Click, then press a keyboard shortcut or tap fn"
+      : "Click, then press a keyboard shortcut"
   }
 
   @available(*, unavailable)
@@ -166,6 +175,8 @@ private final class ShortcutRecorderButton: NSButton {
       return
     }
 
+    functionKeyTap.handleKeyDown()
+
     if Int(event.keyCode) == kVK_Escape {
       endRecording()
       return
@@ -176,6 +187,21 @@ private final class ShortcutRecorderButton: NSButton {
       return
     }
 
+    record(newConfiguration)
+  }
+
+  override func flagsChanged(with event: NSEvent) {
+    guard isRecording, allowsFunctionKey else {
+      super.flagsChanged(with: event)
+      return
+    }
+
+    if functionKeyTap.handleModifierChange(event.modifierFlags, at: event.timestamp) {
+      record(.functionKey)
+    }
+  }
+
+  private func record(_ newConfiguration: HotKeyConfiguration) {
     if onChange(newConfiguration) {
       configuration = newConfiguration
     }
@@ -195,6 +221,7 @@ private final class ShortcutRecorderButton: NSButton {
       return
     }
     isRecording = true
+    functionKeyTap = FunctionKeyTapDetector()
     title = "Press shortcut…"
     guard window?.makeFirstResponder(self) == true else {
       isRecording = false
